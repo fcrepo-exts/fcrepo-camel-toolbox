@@ -6,6 +6,7 @@ import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -25,9 +26,8 @@ public class FedoraClient {
         this.httpclient.close();
     }
 
-    public String get(String url, final String type) throws ClientProtocolException, IOException {
-        HttpGet httpget = new HttpGet(url);
-        httpget.setHeader("Accept", type);
+    public String head(final String url) throws ClientProtocolException, IOException {
+        HttpHead httphead = new HttpHead(url);
 
         // Create a custom response handler
         ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
@@ -47,13 +47,33 @@ public class FedoraClient {
                         }
                     }
                     if (externalMetadata.isEmpty()) {
-                        return entity != null ? EntityUtils.toString(entity) : null;
+                        return url;
                     } else {
-                        FedoraClient client = new FedoraClient();
-                        String res = client.get(externalMetadata, type);
-                        client.stop();
-                        return res;
+                        return externalMetadata;
                     }
+                } else {
+                    throw new ClientProtocolException("Unexpected response status: " + status);
+                }
+            }
+        };
+        return httpclient.execute(httphead, responseHandler);
+
+    }
+
+    public String get(final String url, final String type) throws ClientProtocolException, IOException {
+        String metadata = this.head(url);
+        
+        HttpGet httpget = new HttpGet(metadata);
+        httpget.setHeader("Accept", type);
+
+        // Create a custom response handler
+        ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+            public String handleResponse(
+                    final HttpResponse response) throws ClientProtocolException, IOException {
+                int status = response.getStatusLine().getStatusCode();
+                if (status >= 200 && status < 300) {
+                    HttpEntity entity = response.getEntity();
+                    return entity != null ? EntityUtils.toString(entity) : null;
                 } else {
                     throw new ClientProtocolException("Unexpected response status: " + status);
                 }
@@ -61,4 +81,5 @@ public class FedoraClient {
         };
         return httpclient.execute(httpget, responseHandler);
     }
+
 }
