@@ -1,6 +1,7 @@
 package org.fcrepo.camel;
 
 import java.net.URI;
+import java.net.URLEncoder;
 
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
@@ -57,7 +58,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.type = type.replaceAll(" ","+");
     }
 
     public String getType() {
