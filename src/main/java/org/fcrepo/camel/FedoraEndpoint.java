@@ -26,18 +26,18 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public static final String HEADER_PROPERTIES = HEADER_PREFIX + "properties";
 
-    private String type = "application/rdf+xml";
+    private volatile String type = "application/rdf+xml";
 
-    private String fullPath = "";
+    private volatile String fullPath = "";
 
     private static final Logger logger = LoggerFactory.getLogger(FedoraEndpoint.class);
 
-    public FedoraEndpoint(String uri, String remaining, FedoraComponent component) {
+    public FedoraEndpoint(final String uri, final String remaining, final FedoraComponent component) {
         super(uri, component);
         this.setFullPath(remaining);
     }
 
-    public FedoraEndpoint(String endpointUri) {
+    public FedoraEndpoint(final String endpointUri) {
         super(endpointUri);
     }
 
@@ -45,7 +45,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return new FedoraProducer(this, fullPath, type);
     }
 
-    public Consumer createConsumer(Processor processor) throws Exception {
+    public Consumer createConsumer(final Processor processor) throws Exception {
         throw new RuntimeCamelException("Cannot produce to a FedoraEndpoint: " + getEndpointUri());
     }
 
@@ -53,7 +53,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return true;
     }
 
-    public void setFullPath(String fullPath) {
+    public void setFullPath(final String fullPath) {
         this.fullPath = fullPath;
     }
 
@@ -61,7 +61,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return fullPath;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type.replaceAll(" ","+");
     }
 

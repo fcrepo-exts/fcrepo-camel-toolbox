@@ -19,12 +19,12 @@ public class FedoraComponent extends DefaultComponent {
     public FedoraComponent() {
     }
 
-    public FedoraComponent(CamelContext context) {
+    public FedoraComponent(final CamelContext context) {
         super(context);
     }
 
-    protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        Endpoint endpoint = new FedoraEndpoint(uri, remaining, this);
+    protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters) throws Exception {
+        final Endpoint endpoint = new FedoraEndpoint(uri, remaining, this);
         setProperties(endpoint, parameters);
         logger.info("Created Fedora Endpoint [{}]", endpoint);
         return endpoint;

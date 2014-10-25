@@ -14,19 +14,21 @@ public class FedoraProducer extends DefaultProducer {
     
     private static final Logger logger  = LoggerFactory.getLogger(FedoraProducer.class);
 
-    private FedoraEndpoint endpoint;
-    private String type;
-    private String path;
+    private volatile FedoraEndpoint endpoint;
+    private volatile String type;
+    private volatile String path;
 
-    public FedoraProducer(FedoraEndpoint endpoint, String path, String type) {
+    public FedoraProducer(final FedoraEndpoint endpoint, final String path, final String type) {
         super(endpoint);
         this.endpoint = endpoint;
         this.type = type;
         this.path = path;
     }
 
-    public void process(Exchange exchange) throws Exception {
-        Message in = exchange.getIn();
+    public void process(final Exchange exchange) throws Exception {
+        final Message in = exchange.getIn();
+        final FedoraClient client = new FedoraClient();
+
         String url = "http://" + this.path;
 
         if(in.getHeader(endpoint.HEADER_BASE_URL) != null &&
@@ -35,7 +37,6 @@ public class FedoraProducer extends DefaultProducer {
                 + in.getHeader(endpoint.HEADER_IDENTIFIER, String.class);
         }
 
-        FedoraClient client = new FedoraClient();
         if (in.getBody() == null || in.getBody(String.class).isEmpty()) { 
             exchange.getIn().setBody(client.get(url, this.type));
         } else {
