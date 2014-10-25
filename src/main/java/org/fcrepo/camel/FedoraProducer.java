@@ -3,6 +3,7 @@ package org.fcrepo.camel;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +11,9 @@ import org.slf4j.LoggerFactory;
  * The Fedora producer.
  */
 public class FedoraProducer extends DefaultProducer {
-    private static final Logger LOG = LoggerFactory.getLogger(FedoraProducer.class);
+    
+    private static final Logger logger  = LoggerFactory.getLogger(FedoraProducer.class);
+
     private FedoraEndpoint endpoint;
     private String type;
     private String path;
@@ -25,6 +28,7 @@ public class FedoraProducer extends DefaultProducer {
     public void process(Exchange exchange) throws Exception {
         Message in = exchange.getIn();
         String url = "http://" + this.path;
+
         if(in.getHeader(endpoint.HEADER_BASE_URL) != null &&
                 in.getHeader(endpoint.HEADER_IDENTIFIER) != null) {
             url = in.getHeader(endpoint.HEADER_BASE_URL, String.class)
@@ -32,7 +36,11 @@ public class FedoraProducer extends DefaultProducer {
         }
 
         FedoraClient client = new FedoraClient();
-        exchange.getIn().setBody(client.get(url, this.type));
+        if (in.getBody() == null || in.getBody(String.class).isEmpty()) { 
+            exchange.getIn().setBody(client.get(url, this.type));
+        } else {
+            exchange.getIn().setBody(client.post(url, in.getBody(String.class), this.type));
+        }
         client.stop();
     }
 }

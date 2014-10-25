@@ -1,5 +1,8 @@
 package org.fcrepo.camel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.Header;
@@ -15,6 +18,8 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 
 public class FedoraClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(FedoraClient.class);
 
     private CloseableHttpClient httpclient;
 
@@ -58,6 +63,16 @@ public class FedoraClient {
         };
         return httpclient.execute(httphead, responseHandler);
 
+    }
+
+    public String post(final String url, final String body, final String type) throws
+            ClientProtocolException, IOException {
+        //String metadata = this.head(url);
+
+        //HttpPost httppost = new HttpPost(metadata);
+        // name=query
+        // value=body
+        return "Response";
     }
 
     public String get(final String url, final String type) throws ClientProtocolException, IOException {

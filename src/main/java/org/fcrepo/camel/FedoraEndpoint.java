@@ -1,11 +1,12 @@
 package org.fcrepo.camel;
 
-import java.net.URI;
-import java.net.URLEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.impl.DefaultEndpoint;
 
 /**
@@ -26,7 +27,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
     public static final String HEADER_PROPERTIES = HEADER_PREFIX + "properties";
 
     private String type = "application/rdf+xml";
+
     private String fullPath = "";
+
+    private static final Logger logger = LoggerFactory.getLogger(FedoraEndpoint.class);
 
     public FedoraEndpoint(String uri, String remaining, FedoraComponent component) {
         super(uri, component);
@@ -42,7 +46,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
-        return new FedoraConsumer(this, processor, fullPath, type);
+        throw new RuntimeCamelException("Cannot produce to a FedoraEndpoint: " + getEndpointUri());
     }
 
     public boolean isSingleton() {

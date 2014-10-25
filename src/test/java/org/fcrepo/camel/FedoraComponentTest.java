@@ -21,7 +21,7 @@ public class FedoraComponentTest extends CamelTestSupport {
             public void configure() {
                 
                 //from("timer://foo?repeatCount=1")
-                from("fcrepo://localhost:8080/fcrepo4/rest/?type=application/rdf+xml")
+                from("timer://foo?repeatCount=1")
                   .setHeader("org.fcrepo.jms.baseURL").constant("http://localhost:8080/fcrepo4/rest")
                   .setHeader("org.fcrepo.jms.identifier").constant("/97/17/23/fe/971723fe-8ef4-43dc-8312-992be789f28d/ds4")
                   .to("fcrepo:bar?type=application/rdf+xml")
