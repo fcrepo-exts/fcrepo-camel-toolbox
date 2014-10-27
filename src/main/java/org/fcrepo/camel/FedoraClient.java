@@ -6,13 +6,18 @@ import org.slf4j.LoggerFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
@@ -23,8 +28,23 @@ public class FedoraClient {
 
     private CloseableHttpClient httpclient;
 
-    public FedoraClient() {
-        this.httpclient = HttpClients.createDefault();
+    public FedoraClient(final String username, final String password, final String host)  {
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        AuthScope scope = null;
+        if ((username == null || username.isEmpty()) ||
+                (password == null || password.isEmpty())) {
+            this.httpclient = HttpClients.createDefault();
+        } else {
+            if (host != null) {
+                scope = new AuthScope(new HttpHost(host));
+            } 
+            credsProvider.setCredentials(
+                    scope,
+                    new UsernamePasswordCredentials(username, password));
+            this.httpclient = HttpClients.custom()
+                    .setDefaultCredentialsProvider(credsProvider)
+                    .build();
+        }
     }
 
     public void stop() throws ClientProtocolException, IOException {

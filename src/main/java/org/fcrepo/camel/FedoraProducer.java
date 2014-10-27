@@ -18,27 +18,28 @@ public class FedoraProducer extends DefaultProducer {
     private volatile String type;
     private volatile String path;
 
-    public FedoraProducer(final FedoraEndpoint endpoint, final String path, final String type) {
+    public FedoraProducer(final FedoraEndpoint endpoint) {
         super(endpoint);
         this.endpoint = endpoint;
-        this.type = type;
-        this.path = path;
     }
 
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
-        final FedoraClient client = new FedoraClient();
+        final FedoraClient client = new FedoraClient(
+                endpoint.getAuthUsername(),
+                endpoint.getAuthPassword(),
+                endpoint.getAuthHost());
 
-        String url = "http://" + this.path;
+        String url = "http://" + endpoint.getBaseUrl();
 
-        if(in.getHeader(endpoint.HEADER_BASE_URL) != null &&
-                in.getHeader(endpoint.HEADER_IDENTIFIER) != null) {
-            url = in.getHeader(endpoint.HEADER_BASE_URL, String.class)
-                + in.getHeader(endpoint.HEADER_IDENTIFIER, String.class);
+        if (in.getHeader(endpoint.FCREPO_IDENTIFIER) != null) {
+            url += in.getHeader(endpoint.FCREPO_IDENTIFIER, String.class);
+        } else if (in.getHeader(endpoint.FCREPO_JMS_IDENTIFIER) != null) {
+            url += in.getHeader(endpoint.FCREPO_JMS_IDENTIFIER, String.class);
         }
 
         if (in.getBody() == null || in.getBody(String.class).isEmpty()) { 
-            exchange.getIn().setBody(client.get(url, this.type));
+            exchange.getIn().setBody(client.get(url, endpoint.getType()));
         } else {
             exchange.getIn().setBody(client.post(url, in.getBody(String.class), this.type));
         }

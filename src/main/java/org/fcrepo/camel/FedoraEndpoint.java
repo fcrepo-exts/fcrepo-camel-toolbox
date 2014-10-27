@@ -14,27 +14,28 @@ import org.apache.camel.impl.DefaultEndpoint;
  */
 public class FedoraEndpoint extends DefaultEndpoint {
 
-    public static final String HEADER_PREFIX = "org.fcrepo.jms.";
+    public static final String JMS_HEADER_PREFIX = "org.fcrepo.jms.";
 
-    public static final String HEADER_BASE_URL = HEADER_PREFIX + "baseURL";
+    public static final String FCREPO_JMS_IDENTIFIER =
+        JMS_HEADER_PREFIX + "identifier";
 
-    public static final String HEADER_IDENTIFIER = HEADER_PREFIX + "identifier";
-
-    public static final String HEADER_EVENT_TYPE = HEADER_PREFIX + "eventType";
-
-    public static final String HEADER_TIMESTAMP = HEADER_PREFIX + "timestamp";
-
-    public static final String HEADER_PROPERTIES = HEADER_PREFIX + "properties";
+    public static final String FCREPO_IDENTIFIER = "FCREPO_IDENTIFIER";
 
     private volatile String type = "application/rdf+xml";
 
-    private volatile String fullPath = "";
+    private volatile String baseUrl = "";
+
+    private volatile String authUsername = null;
+
+    private volatile String authPassword = null;
+
+    private volatile String authHost = null;
 
     private static final Logger logger = LoggerFactory.getLogger(FedoraEndpoint.class);
 
     public FedoraEndpoint(final String uri, final String remaining, final FedoraComponent component) {
         super(uri, component);
-        this.setFullPath(remaining);
+        this.setBaseUrl(remaining);
     }
 
     public FedoraEndpoint(final String endpointUri) {
@@ -42,7 +43,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     }
 
     public Producer createProducer() throws Exception {
-        return new FedoraProducer(this, fullPath, type);
+        return new FedoraProducer(this);
     }
 
     public Consumer createConsumer(final Processor processor) throws Exception {
@@ -53,19 +54,43 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return true;
     }
 
-    public void setFullPath(final String fullPath) {
-        this.fullPath = fullPath;
+    public void setBaseUrl(final String url) {
+        this.baseUrl = url;
     }
 
-    public String getFullPath() {
-        return fullPath;
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
     public void setType(final String type) {
-        this.type = type.replaceAll(" ","+");
+        this.type = type.replaceAll(" ", "+");
     }
 
     public String getType() {
         return type;
+    }
+
+    public void setAuthUsername(final String username) {
+        this.authUsername = username;
+    }
+
+    public String getAuthUsername() {
+        return authUsername;
+    }
+
+    public void setAuthPassword(final String password) {
+        this.authPassword = password;
+    }
+
+    public String getAuthPassword() {
+        return authPassword;
+    }
+
+    public String getAuthHost() {
+        return authHost;
+    }
+
+    public void setAuthHost(final String host) {
+        this.authHost = host;
     }
 }
