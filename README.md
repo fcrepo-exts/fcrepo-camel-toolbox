@@ -23,5 +23,11 @@ Endpoint options.
 | type         | null           | The requested contentType for content negotiation |
 | metadata     | true           | Whether GET requests should only retrieve object metadata |
 
+Message Headers
+---------------
 
+| Name     | Type   | Description |
+| -------- | ------ | ----------- |
+| Exchange.HTTP_METHOD | String | The HTTP method to use |
+| FCREPO_IDENTIFIER    | String | The resource path |
 
