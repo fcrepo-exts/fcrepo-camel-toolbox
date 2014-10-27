@@ -32,6 +32,9 @@ public class FedoraComponentTest extends CamelTestSupport {
         MockEndpoint mockPut = getMockEndpoint("mock:put");
         mockPut.expectedMessageCount(1);
 
+        MockEndpoint mockPatch = getMockEndpoint("mock:patch");
+        mockPatch.expectedMessageCount(1);
+            
         MockEndpoint mockPost = getMockEndpoint("mock:post");
         mockPost.expectedMessageCount(1);
             
@@ -67,7 +70,6 @@ public class FedoraComponentTest extends CamelTestSupport {
                             in.setBody("PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .");
                         }})
                     .to("fcrepo:localhost:8080/fcrepo4/rest/")
-                    .log("New object: ${body}")
                     .to("mock:post")
                     .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
                     .setHeader("FCREPO_IDENTIFIER").simple("${body.replaceAll(\"http://localhost:8080/fcrepo4/rest\", \"\")}")
@@ -77,17 +79,27 @@ public class FedoraComponentTest extends CamelTestSupport {
                 from("direct:put1")
                     .setHeader("Exchange.HTTP_METHOD").constant("PUT")
                     .setHeader("Exchange.CONTENT_TYPE").constant("text/turtle")
-                    .setHeader("FCREPO_IDENTIFIER").constant("/testing/object")
+                    .setHeader("FCREPO_IDENTIFIER").constant("/testing/object2")
                     .process(new Processor() {
                         public void process(Exchange exchange) {
                             Message in = exchange.getIn();
-                            in.setBody("PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .");
+                            in.setBody("PREFIX dc: <http://purl.org/dc/elements/1.1/> \n\n<> dc:title \"some title\" .");
                         }})
                     .to("fcrepo:localhost:8080/fcrepo4/rest")
                     .to("mock:put")
+                    .setHeader("Exchange.HTTP_METHOD").constant("PATCH")
+                    .process(new Processor() {
+                        public void process(Exchange exchange) {
+                            Message in = exchange.getIn();
+                            in.setBody("PREFIX dc: <http://purl.org/dc/elements/1.1/> \n\nINSERT { <> dc:title \"some-resource-title\" . } \nWHERE { }");
+                        }})
+                    .to("fcrepo:localhost:8080/fcrepo4/rest")
+                    .to("mock:patch")
+                    .setHeader("FCREPO_IDENTIFIER").simple("/testing/object2")
                     .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
                     .to("fcrepo:localhost:8080/fcrepo4/rest")
-                    .setHeader("FCREPO_IDENTIFIER").constant("/testing/object/fcr:tombstone")
+                    .setHeader("FCREPO_IDENTIFIER").simple("/testing/object2/fcr:tombstone")
+                    .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
                     .to("fcrepo:localhost:8080/fcrepo4/rest")
                     .to("mock:delete");
 
