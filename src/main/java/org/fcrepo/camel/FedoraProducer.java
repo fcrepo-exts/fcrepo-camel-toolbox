@@ -4,6 +4,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.camel.util.ExchangeHelper;
+import org.apache.camel.component.http4.HttpMethods;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class FedoraProducer extends DefaultProducer {
         String url = "http://" + endpoint.getBaseUrl();
 
         String contentType;
-        String contentTypeString = ExchangeHelper.getContentType(exchange);
+        final String contentTypeString = ExchangeHelper.getContentType(exchange);
         if (endpoint.getType() != null) {
             contentType = endpoint.getType();
         } else if (contentTypeString != null) {
@@ -49,12 +50,37 @@ public class FedoraProducer extends DefaultProducer {
             url += in.getHeader(endpoint.FCREPO_JMS_IDENTIFIER, String.class);
         }
 
-        if (in.getBody() == null || in.getBody(String.class).isEmpty()) { 
-            exchange.getIn().setBody(client.get(url, contentType));
-        } else {
-            exchange.getIn().setBody(client.post(url, in.getBody(String.class), contentType));
+        HttpMethods method = exchange.getIn().getHeader(Exchange.HTTP_METHOD, HttpMethods.class);
+        if (method == null) {
+            method = HttpMethods.GET;
         }
-        exchange.getIn().setHeader("Content-Type", contentType);
+
+        switch (method) {
+            case PATCH:
+                exchange.getIn().setBody(client.patch(url, in.getBody(String.class)));
+                break;
+            case PUT:
+                exchange.getIn().setBody(client.put(url, in.getBody(String.class), contentType));
+                break;
+            case POST:
+                exchange.getIn().setBody(client.post(url, in.getBody(String.class), contentType));
+                break;
+            case DELETE:
+                exchange.getIn().setBody(client.delete(url));
+                break;
+            case HEAD:
+                client.head(url);
+                exchange.getIn().setBody(null);
+                break;
+            case GET:
+            default:
+                if(endpoint.getMetadata()) {
+                    exchange.getIn().setHeader("Content-Type", contentType);
+                    exchange.getIn().setBody(client.get(url, contentType));
+                } else {
+                    exchange.getIn().setBody(client.get(url, null));
+                }
+        }
         client.stop();
     }
 }

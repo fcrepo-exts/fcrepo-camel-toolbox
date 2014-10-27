@@ -33,6 +33,8 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     private volatile String authHost = null;
 
+    private volatile Boolean metadata = true;
+
     private static final Logger logger = LoggerFactory.getLogger(FedoraEndpoint.class);
 
     public FedoraEndpoint(final String uri, final String remaining, final FedoraComponent component) {
@@ -94,5 +96,13 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public void setAuthHost(final String host) {
         this.authHost = host;
+    }
+
+    public Boolean getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(final String metadata) {
+        this.metadata = Boolean.valueOf(metadata);
     }
 }
