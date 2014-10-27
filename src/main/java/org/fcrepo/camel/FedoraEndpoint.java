@@ -21,7 +21,9 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public static final String FCREPO_IDENTIFIER = "FCREPO_IDENTIFIER";
 
-    private volatile String type = "application/rdf+xml";
+    public static final String DEFAULT_CONTENT_TYPE = "application/rdf+xml";
+
+    private volatile String type = null;
 
     private volatile String baseUrl = "";
 
