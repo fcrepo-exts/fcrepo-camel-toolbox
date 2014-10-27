@@ -55,6 +55,8 @@ public class FedoraProducer extends DefaultProducer {
             method = HttpMethods.GET;
         }
 
+        logger.info("HTTP Request [{}] with method [{}]", url, method);
+
         switch (method) {
             case PATCH:
                 exchange.getIn().setBody(client.patch(url, in.getBody(String.class)));

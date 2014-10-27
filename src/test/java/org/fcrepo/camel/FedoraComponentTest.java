@@ -1,5 +1,8 @@
 package org.fcrepo.camel;
 
+import org.apache.camel.Processor;
+import org.apache.camel.Message;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -26,6 +29,15 @@ public class FedoraComponentTest extends CamelTestSupport {
         mockResource.expectedHeaderReceived("Content-Type", "application/rdf+xml");
         mockResource.expectedMessageCount(1);
 
+        MockEndpoint mockPut = getMockEndpoint("mock:put");
+        mockPut.expectedMessageCount(1);
+
+        MockEndpoint mockPost = getMockEndpoint("mock:post");
+        mockPost.expectedMessageCount(1);
+            
+        MockEndpoint mockDelete = getMockEndpoint("mock:delete");
+        mockDelete.expectedMessageCount(2);
+
         assertMockEndpointsSatisfied();
     }
 
@@ -33,11 +45,52 @@ public class FedoraComponentTest extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
+
                 Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                
                 from("timer://foo?repeatCount=1")
-                  .multicast().to("direct:json", "direct:xml")
+                  .multicast().to("direct:json", "direct:xml", "direct:post", "direct:put")
                   .end();
                   
+                from("direct:post")
+                    .multicast().to("direct:post1");
+
+                from("direct:put")
+                    .multicast().to("direct:put1");
+
+                from("direct:post1")
+                    .setHeader("Exchange.HTTP_METHOD").constant("POST")
+                    .setHeader("Exchange.CONTENT_TYPE").constant("text/turtle")
+                    .process(new Processor() {
+                        public void process(Exchange exchange) {
+                            Message in = exchange.getIn();
+                            in.setBody("PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .");
+                        }})
+                    .to("fcrepo:localhost:8080/fcrepo4/rest/")
+                    .log("New object: ${body}")
+                    .to("mock:post")
+                    .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
+                    .setHeader("FCREPO_IDENTIFIER").simple("${body.replaceAll(\"http://localhost:8080/fcrepo4/rest\", \"\")}")
+                    .to("fcrepo:localhost:8080/fcrepo4/rest")
+                    .to("mock:delete");
+
+                from("direct:put1")
+                    .setHeader("Exchange.HTTP_METHOD").constant("PUT")
+                    .setHeader("Exchange.CONTENT_TYPE").constant("text/turtle")
+                    .setHeader("FCREPO_IDENTIFIER").constant("/testing/object")
+                    .process(new Processor() {
+                        public void process(Exchange exchange) {
+                            Message in = exchange.getIn();
+                            in.setBody("PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .");
+                        }})
+                    .to("fcrepo:localhost:8080/fcrepo4/rest")
+                    .to("mock:put")
+                    .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
+                    .to("fcrepo:localhost:8080/fcrepo4/rest")
+                    .setHeader("FCREPO_IDENTIFIER").constant("/testing/object/fcr:tombstone")
+                    .to("fcrepo:localhost:8080/fcrepo4/rest")
+                    .to("mock:delete");
+
                 from("direct:json")
                     .multicast().to("direct:json1", "direct:json2", "direct:json3");
 
