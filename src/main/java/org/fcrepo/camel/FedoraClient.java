@@ -1,7 +1,12 @@
 package org.fcrepo.camel;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.camel.component.http4.HttpOperationFailedException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -55,146 +60,215 @@ public class FedoraClient {
         this.httpclient.close();
     }
 
-    public String head(final String url)
-            throws ClientProtocolException, IOException {
+    protected static Map<String, String> extractResponseHeaders(Header[] responseHeaders) {
+        if (responseHeaders == null || responseHeaders.length == 0) {
+            return null;
+        }
 
-        // Create a custom response handler
-        ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-            public String handleResponse(
-                    final HttpResponse response) throws ClientProtocolException, IOException {
-                int status = response.getStatusLine().getStatusCode();
-                if (status >= 200 && status < 300) {
-                    HttpEntity entity = response.getEntity();
-                    Header[] headers = response.getAllHeaders();
-                    String externalMetadata = "";
-                    for(Header header: headers) {
-                        if (header.getName().equals("Link")) {
-                            String[] vals = header.getValue().split(";\\s*");
-                            if (vals.length == 2 && vals[1].contains("describedby")) {
-                                externalMetadata = vals[0].replaceAll("[<>]", "");
-                            }
-                        }
+        Map<String, String> answer = new HashMap<String, String>();
+        for (Header header : responseHeaders) {
+            answer.put(header.getName(), header.getValue());
+        }
+
+        return answer;
+    }
+    
+
+    public FedoraResponse head(final String url)
+            throws ClientProtocolException, IOException, HttpOperationFailedException {
+
+        HttpResponse response = httpclient.execute(new HttpHead(url));
+        int status = response.getStatusLine().getStatusCode();
+        Header locationHeader = response.getFirstHeader("location");
+        HttpEntity entity = response.getEntity();
+        
+        if (status >= 200 && status < 300) {
+            Header[] headers = response.getAllHeaders();
+            String externalMetadata = "";
+            for(Header header: headers) {
+                if (header.getName().equals("Link")) {
+                    String[] vals = header.getValue().split(";\\s*");
+                    if (vals.length == 2 && vals[1].contains("describedby")) {
+                        externalMetadata = vals[0].replaceAll("[<>]", "");
                     }
-                    if (externalMetadata.isEmpty()) {
-                        return url;
-                    } else {
-                        return externalMetadata;
-                    }
-                } else {
-                    throw new ClientProtocolException("Unexpected response status: " + status);
                 }
             }
-        };
-        return httpclient.execute(new HttpHead(url), responseHandler);
+            if (externalMetadata.isEmpty()) {
+                return new FedoraResponse(url, status, null, null);
+            } else {
+                return new FedoraResponse(url, status,
+                        externalMetadata, null);
+            }
+        } else if (locationHeader != null && (status >= 300 && status < 400)) {
+            
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    locationHeader.getValue(),
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        } else {
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    null,
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        }
+
     }
 
-    public String put(final String url, final String body, final String contentType)
-            throws ClientProtocolException, IOException {
-        ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-            public String handleResponse(
-                    final HttpResponse response) throws ClientProtocolException, IOException {
-                int status = response.getStatusLine().getStatusCode();
-                if (status >= 200 && status < 300) {
-                    HttpEntity entity = response.getEntity();
-                    return entity != null ? EntityUtils.toString(entity) : null;
-                } else {
-                    throw new ClientProtocolException("Unexpected response status: " + status);
-                }
-            }
-        };
+    public FedoraResponse put(final String url, final String body, final String contentType)
+            throws ClientProtocolException, IOException, HttpOperationFailedException {
+
         HttpPut request = new HttpPut(url);
         request.addHeader("Content-Type", contentType);
         request.setEntity(new StringEntity(body));
-        return httpclient.execute(request, responseHandler);
+        HttpResponse response = httpclient.execute(request);
+        int status = response.getStatusLine().getStatusCode();
+        Header locationHeader = response.getFirstHeader("location");
+        HttpEntity entity = response.getEntity();
+        
+        if (status >= 200 && status < 300) {
+            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+        } else if (locationHeader != null && (status >= 300 && status < 400)) {
+            
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    locationHeader.getValue(),
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        } else {
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    null,
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        }
     }
 
-    public String patch(final String url, final String body) 
-            throws ClientProtocolException, IOException {
-        HttpPatch request = new HttpPatch(this.head(url));
+    public FedoraResponse patch(final String url, final String body) 
+            throws ClientProtocolException, IOException, HttpOperationFailedException {
+        FedoraResponse headResponse = this.head(url);
+        
+        HttpPatch request;
+        if (headResponse.getLocation() != null) {
+            request = new HttpPatch(headResponse.getLocation());
+        } else {
+            request = new HttpPatch(url);
+        }
         request.addHeader("Content-Type", "application/sparql-update");
         request.setEntity(new StringEntity(body));
-        ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-            public String handleResponse(
-                    final HttpResponse response) throws ClientProtocolException, IOException {
-                int status = response.getStatusLine().getStatusCode();
-                if (status >= 200 && status < 300) {
-                    HttpEntity entity = response.getEntity();
-                    return entity != null ? EntityUtils.toString(entity) : null;
-                } else {
-                    throw new ClientProtocolException("Unexpected response status: " + status);
-                }
-            }
-        };
-        return httpclient.execute(request, responseHandler);
+        HttpResponse response = httpclient.execute(request);
+        int status = response.getStatusLine().getStatusCode();
+        Header locationHeader = response.getFirstHeader("location");
+        HttpEntity entity = response.getEntity();
+        if (status >= 200 && status < 300) {
+            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+        } else if (locationHeader != null && (status >= 300 && status < 400)) {
+            
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    locationHeader.getValue(),
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        } else {
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    null,
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        }
     }
         
 
-    public String post(final String url, final String body, final String contentType)
-            throws ClientProtocolException, IOException {
+    public FedoraResponse post(final String url, final String body, final String contentType)
+            throws ClientProtocolException, IOException, HttpOperationFailedException {
        
-        ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-            public String handleResponse(
-                    final HttpResponse response) throws ClientProtocolException, IOException {
-                int status = response.getStatusLine().getStatusCode();
-                if (status >= 200 && status < 300) {
-                    HttpEntity entity = response.getEntity();
-                    return entity != null ? EntityUtils.toString(entity) : null;
-                } else {
-                    throw new ClientProtocolException("Unexpected response status: " + status);
-                }
-            }
-        };
-
         HttpPost request = new HttpPost(url);
         request.addHeader("Content-Type", contentType);
         request.setEntity(new StringEntity(body));
 
-        return httpclient.execute(request, responseHandler);
+        HttpResponse response = httpclient.execute(request);
+        int status = response.getStatusLine().getStatusCode();
+        Header locationHeader = response.getFirstHeader("location");
+        HttpEntity entity = response.getEntity();
+        if (status >= 200 && status < 300) {
+            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+        } else if (locationHeader != null && (status >= 300 && status < 400)) {
+            
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    locationHeader.getValue(),
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        } else {
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    null,
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        }
     }
 
-    public String delete(final String url)
-            throws ClientProtocolException, IOException {
-        // Create a custom response handler
-        ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-            public String handleResponse(
-                    final HttpResponse response) throws ClientProtocolException, IOException {
-                int status = response.getStatusLine().getStatusCode();
-                if (status >= 200 && status < 300) {
-                    HttpEntity entity = response.getEntity();
-                    return entity != null ? EntityUtils.toString(entity) : null;
-                } else {
-                    throw new ClientProtocolException("Unexpected response status: " + status);
-                }
-            }
-        };
+    public FedoraResponse delete(final String url)
+            throws ClientProtocolException, IOException, HttpOperationFailedException {
+
         HttpDelete request = new HttpDelete(url);
-        return httpclient.execute(request, responseHandler);
+        HttpResponse response = httpclient.execute(request);
+        int status = response.getStatusLine().getStatusCode();
+        Header locationHeader = response.getFirstHeader("location");
+        HttpEntity entity = response.getEntity();
+        if (status >= 200 && status < 300) {
+            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+        } else if (locationHeader != null && (status >= 300 && status < 400)) {
+            
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    locationHeader.getValue(),
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        } else {
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    null,
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        }
     }
 
-    public String get(final String url, final String contentType) throws ClientProtocolException, IOException {
+    public FedoraResponse get(final String url, final String contentType)
+            throws ClientProtocolException, IOException, HttpOperationFailedException {
 
         HttpGet request;
         
-        // Create a custom response handler
-        ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-            public String handleResponse(
-                    final HttpResponse response) throws ClientProtocolException, IOException {
-                int status = response.getStatusLine().getStatusCode();
-                if (status >= 200 && status < 300) {
-                    HttpEntity entity = response.getEntity();
-                    return entity != null ? EntityUtils.toString(entity) : null;
-                } else {
-                    throw new ClientProtocolException("Unexpected response status: " + status);
-                }
-            }
-        };
-
         if (contentType != null) {
-            request = new HttpGet(this.head(url));
+            FedoraResponse headResponse = this.head(url);
+            if (headResponse.getLocation() != null) {
+                request = new HttpGet(headResponse.getLocation());
+            } else {
+                request = new HttpGet(url);
+            }
             request.setHeader("Accept", contentType);
         } else {
             request = new HttpGet(url);
         }
-        return httpclient.execute(request, responseHandler);
+        HttpResponse response = httpclient.execute(request);
+        int status = response.getStatusLine().getStatusCode();
+        Header locationHeader = response.getFirstHeader("location");
+        HttpEntity entity = response.getEntity();
+        if (status >= 200 && status < 300) {
+            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+        } else if (locationHeader != null && (status >= 300 && status < 400)) {
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    locationHeader.getValue(),
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        } else {
+            throw new HttpOperationFailedException(url, status,
+                    response.getStatusLine().getReasonPhrase(),
+                    null,
+                    extractResponseHeaders(response.getAllHeaders()),
+                    "");
+        }
     }
 }

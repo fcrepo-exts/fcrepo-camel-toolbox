@@ -79,7 +79,7 @@ public class FedoraComponentTest extends CamelTestSupport {
                 from("direct:put1")
                     .setHeader("Exchange.HTTP_METHOD").constant("PUT")
                     .setHeader("Exchange.CONTENT_TYPE").constant("text/turtle")
-                    .setHeader("FCREPO_IDENTIFIER").constant("/testing/object2")
+                    .setHeader("FCREPO_IDENTIFIER").constant("/testing/object3")
                     .process(new Processor() {
                         public void process(Exchange exchange) {
                             Message in = exchange.getIn();
@@ -95,10 +95,10 @@ public class FedoraComponentTest extends CamelTestSupport {
                         }})
                     .to("fcrepo:localhost:8080/fcrepo4/rest")
                     .to("mock:patch")
-                    .setHeader("FCREPO_IDENTIFIER").simple("/testing/object2")
+                    .setHeader("FCREPO_IDENTIFIER").simple("/testing/object3")
                     .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
                     .to("fcrepo:localhost:8080/fcrepo4/rest")
-                    .setHeader("FCREPO_IDENTIFIER").simple("/testing/object2/fcr:tombstone")
+                    .setHeader("FCREPO_IDENTIFIER").simple("/testing/object3/fcr:tombstone")
                     .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
                     .to("fcrepo:localhost:8080/fcrepo4/rest")
                     .to("mock:delete");

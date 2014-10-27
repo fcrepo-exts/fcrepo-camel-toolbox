@@ -57,32 +57,40 @@ public class FedoraProducer extends DefaultProducer {
 
         logger.info("HTTP Request [{}] with method [{}]", url, method);
 
+        FedoraResponse response;
+        
         switch (method) {
             case PATCH:
-                exchange.getIn().setBody(client.patch(url, in.getBody(String.class)));
+                response = client.patch(url, in.getBody(String.class));
+                exchange.getIn().setBody(response.getBody());
                 break;
             case PUT:
-                exchange.getIn().setBody(client.put(url, in.getBody(String.class), contentType));
+                response = client.put(url, in.getBody(String.class), contentType);
+                exchange.getIn().setBody(response.getBody());
                 break;
             case POST:
-                exchange.getIn().setBody(client.post(url, in.getBody(String.class), contentType));
+                response = client.post(url, in.getBody(String.class), contentType);
+                exchange.getIn().setBody(response.getBody());
                 break;
             case DELETE:
-                exchange.getIn().setBody(client.delete(url));
+                response = client.delete(url);
+                exchange.getIn().setBody(response.getBody());
                 break;
             case HEAD:
-                client.head(url);
+                response = client.head(url);
                 exchange.getIn().setBody(null);
                 break;
             case GET:
             default:
                 if(endpoint.getMetadata()) {
                     exchange.getIn().setHeader("Content-Type", contentType);
-                    exchange.getIn().setBody(client.get(url, contentType));
+                    response = client.get(url, contentType);
                 } else {
-                    exchange.getIn().setBody(client.get(url, null));
+                    response = client.get(url, null);
                 }
+                exchange.getIn().setBody(response.getBody());
         }
+        exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, response.getStatusCode());
         client.stop();
     }
 }
