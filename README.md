@@ -1,7 +1,7 @@
 Fcrepo Component
 ================
 
-The **fcrepo:** component provides access to external Fedora4 resources.
+The **fcrepo:** component provides access to external [Fedora4](http://fcrepo.org) resources.
 
 URI format
 ----------
