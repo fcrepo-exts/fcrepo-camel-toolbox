@@ -17,27 +17,29 @@ Endpoint options.
 
 | Name         |  Default Value | Description |
 | ------------ | -------------- | ----------- |
-| type         | null           | The requested contentType for content negotiation |
-| metadata     | true           | Whether GET requests should only retrieve object metadata |
-| throwExceptionOnFailure | true | Option to disable throwing the HttpOperationFailedException in case of failed responses from the remote server. This allows you to get all responses regardless of the HTTP status code. |
+| `type`         | `null`           | The requested contentType for content negotiation |
+| `metadata`     | `true`           | Whether GET requests should only retrieve object metadata |
+| `throwExceptionOnFailure` | `true` | Option to disable throwing the HttpOperationFailedException in case of failed responses from the remote server. This allows you to get all responses regardless of the HTTP status code. |
 
 Setting Basic Authentication
 ----------------------------
 
 | Name         | Default Value | Description |
 | ------------ | ------------- | ----------- |
-| authUsername | null          | Username for authentication |
-| authPassword | null          | Password for authentication |
-| authHost     | null          | The host name for authentication |
+| `authUsername` | `null`          | Username for authentication |
+| `authPassword` | `null`          | Password for authentication |
+| `authHost`     | `null`          | The host name for authentication |
 
 Message Headers
 ---------------
 
 | Name     | Type   | Description |
 | -------- | ------ | ----------- |
-| Exchange.HTTP_METHOD | String | The HTTP method to use |
-| Exchange.CONTENT_TYPE | String | The ContentType of the resource. For GET requests, this sets the Accept: header; for POST/PUT requests, it sets the Content-Type: header. This value can be overridden directly on the endpoint. |
-| FCREPO_IDENTIFIER    | String | The resource path |
+| `Exchange.HTTP_METHOD` | `String` | The HTTP method to use |
+| `Exchange.CONTENT_TYPE` | `String` | The ContentType of the resource. For GET requests, this sets the Accept: header; for POST/PUT requests, it sets the Content-Type: header. This value can be overridden directly on the endpoint. |
+| `FCREPO_IDENTIFIER`    | `String` | The resource path |
+
+The `fcrepo` component will also accept message headers produced directly by fedora, particularly the `org.fcrepo.jms.identifier` header. It will use that header only when `FEDORA_IDENTIFIER` is not defined.
 
 Message Body
 ------------
@@ -98,5 +100,5 @@ You can get the HTTP response code from the `fcrepo` component by getting the va
 Questions
 ---------
 
-Feel free to send me an email (acoburn@amherst.edu) with any questions.
+Feel free to send me an email (acoburn@apache.org) with any questions.
 
