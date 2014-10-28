@@ -97,6 +97,20 @@ Getting the response code
 
 You can get the HTTP response code from the `fcrepo` component by getting the value from the Out message header with `Exchange.HTTP_RESPONSE_CODE`.
 
+Building the component
+----------------------
+
+The `fcrepo-camel` compnent can be built with Maven:
+
+    mvn clean install
+
+The tests assume that fedora4 is already running at `http://localhost:8080/fcrepo4/rest`.
+This value can be overridden like so:
+
+    mvn clean install -Dorg.fcrepo.test.url=localhost:8080/rest 
+
+There is no need to include `http://` in the url.
+
 Questions
 ---------
 

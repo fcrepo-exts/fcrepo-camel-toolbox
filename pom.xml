@@ -14,6 +14,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <org.fcrepo.test.url>localhost:8080/fcrepo4/rest</org.fcrepo.test.url>
   </properties>
 
   <dependencies>
@@ -101,6 +102,25 @@
             <Export-Service>org.apache.camel.spi.ComponentResolver;component=fcrepo</Export-Service>
           </instructions>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0-alpha-2</version>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>write-project-properties</goal>
+            </goals>
+            <configuration>
+              <outputFile>
+                ${project.build.testOutputDirectory}/org.fcrepo.properties
+              </outputFile>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>
