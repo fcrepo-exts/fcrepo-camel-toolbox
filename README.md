@@ -1,4 +1,4 @@
-FCREPO Component
+Fcrepo Component
 ================
 
 The *fcrepo:* component provides access to external Fedora4 resources.
@@ -98,5 +98,6 @@ Questions
 ---------
 
 Feel free to send me an email (acoburn@amherst.edu) with any questions.
+
 
 
