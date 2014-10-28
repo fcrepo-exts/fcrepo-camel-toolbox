@@ -94,4 +94,9 @@ Getting the response code
 
 You can get the HTTP response code from the `fcrepo` component by getting the value from the Out message header with `Exchange.HTTP_RESPONSE_CODE`.
 
+Questions
+---------
+
+Feel free to send me an email (acoburn@amherst.edu) with any questions.
+
 
