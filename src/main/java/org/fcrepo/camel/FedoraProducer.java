@@ -55,13 +55,19 @@ public class FedoraProducer extends DefaultProducer {
             method = HttpMethods.GET;
         }
 
-        logger.info("HTTP Request [{}] with method [{}]", url, method);
+        logger.info("Fcrepo Request [{}] with method [{}]", url, method);
 
+        FedoraResponse headResponse;
         FedoraResponse response;
         
         switch (method) {
             case PATCH:
-                response = client.patch(url, in.getBody(String.class));
+                headResponse = client.head(url);
+                if (headResponse.getLocation() != null) {
+                    response = client.patch(headResponse.getLocation(), in.getBody(String.class));
+                } else {
+                    response = client.patch(url, in.getBody(String.class));
+                }
                 exchange.getIn().setBody(response.getBody());
                 break;
             case PUT:
@@ -84,7 +90,12 @@ public class FedoraProducer extends DefaultProducer {
             default:
                 if(endpoint.getMetadata()) {
                     exchange.getIn().setHeader("Content-Type", contentType);
-                    response = client.get(url, contentType);
+                    headResponse = client.head(url);
+                    if (headResponse.getLocation() != null) {
+                        response = client.get(headResponse.getLocation(), contentType);
+                    } else {
+                        response = client.get(url, contentType);
+                    }
                 } else {
                     response = client.get(url, null);
                 }
