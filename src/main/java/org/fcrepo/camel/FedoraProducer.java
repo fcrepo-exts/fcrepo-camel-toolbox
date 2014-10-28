@@ -17,8 +17,6 @@ public class FedoraProducer extends DefaultProducer {
     private static final Logger logger  = LoggerFactory.getLogger(FedoraProducer.class);
 
     private volatile FedoraEndpoint endpoint;
-    private volatile String type;
-    private volatile String path;
 
     public FedoraProducer(final FedoraEndpoint endpoint) {
         super(endpoint);
@@ -38,8 +36,8 @@ public class FedoraProducer extends DefaultProducer {
         String contentType;
         final String contentTypeString = ExchangeHelper.getContentType(exchange);
         
-        if (endpoint.getType() != null) {
-            contentType = endpoint.getType();
+        if (endpoint.getContentType() != null) {
+            contentType = endpoint.getContentType();
         } else if (contentTypeString != null) {
             contentType = contentTypeString;
         } else {

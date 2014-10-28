@@ -23,7 +23,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public static final String DEFAULT_CONTENT_TYPE = "application/rdf+xml";
 
-    private volatile String type = null;
+    private volatile String contentType = null;
 
     private volatile String baseUrl = "";
 
@@ -68,12 +68,12 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return baseUrl;
     }
 
-    public void setType(final String type) {
-        this.type = type.replaceAll(" ", "+");
+    public void setContentType(final String type) {
+        this.contentType = type.replaceAll(" ", "+");
     }
 
-    public String getType() {
-        return type;
+    public String getContentType() {
+        return contentType;
     }
 
     public void setAuthUsername(final String username) {

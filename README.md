@@ -19,7 +19,7 @@ Endpoint options.
 
 | Name         |  Default Value | Description |
 | ------------ | -------------- | ----------- |
-| `type`       | `null`         | The requested contentType for content negotiation |
+| `contentType`       | `null`         | The requested contentType for content negotiation |
 | `useRdfDescription` | `true`  | Whether GET requests should retrieve RDF descriptions of non-RDF content  |
 | `throwExceptionOnFailure` | `true` | Option to disable throwing the HttpOperationFailedException in case of failed responses from the remote server. This allows you to get all responses regardless of the HTTP status code. |
 

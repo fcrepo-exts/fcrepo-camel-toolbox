@@ -159,7 +159,7 @@ public class FedoraComponentTest extends CamelTestSupport {
                 from("direct:xml2")
                   .setHeader("Exchange.HTTP_METHOD").constant("GET")
                   .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}")
-                  .to("fcrepo:" + fcrepo_url + "?type=application/rdf+xml")
+                  .to("fcrepo:" + fcrepo_url + "?contentType=application/rdf+xml")
                   .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#resource']", ns)
                   .to("mock:resource");
                 
@@ -174,7 +174,7 @@ public class FedoraComponentTest extends CamelTestSupport {
                 from("direct:json1")
                   .setHeader("Exchange.HTTP_METHOD").constant("GET")
                   .removeHeaders("FCREPO_IDENTIFIER")
-                  .to("fcrepo:" + fcrepo_url + "?type=application/ld+json")
+                  .to("fcrepo:" + fcrepo_url + "?contentType=application/ld+json")
                   .to("mock:jsonld");
 
                 from("direct:json2")
@@ -188,7 +188,7 @@ public class FedoraComponentTest extends CamelTestSupport {
                   .setHeader("Exchange.HTTP_METHOD").constant("GET")
                   .removeHeaders("FCREPO_IDENTIFIER")
                   .setHeader("Exchange.CONTENT_TYPE").constant("application/rdf+xml")
-                  .to("fcrepo:" + fcrepo_url + "?type=application/ld+json")
+                  .to("fcrepo:" + fcrepo_url + "?contentType=application/ld+json")
                   .to("mock:jsonld");
             }
         };
