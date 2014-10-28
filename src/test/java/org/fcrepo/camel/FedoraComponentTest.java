@@ -25,9 +25,9 @@ public class FedoraComponentTest extends CamelTestSupport {
         mockXml.expectedMessageCount(1);
         mockXml.expectedHeaderReceived("Content-Type", "application/rdf+xml");
         
-        MockEndpoint mockDatastream = getMockEndpoint("mock:datastream");
-        mockDatastream.expectedHeaderReceived("Content-Type", "application/rdf+xml");
-        mockDatastream.expectedMessageCount(1);
+        MockEndpoint mockNonRdf = getMockEndpoint("mock:non-rdf");
+        mockNonRdf.expectedHeaderReceived("Content-Type", "application/rdf+xml");
+        mockNonRdf.expectedMessageCount(1);
 
         MockEndpoint mockResource = getMockEndpoint("mock:resource");
         mockResource.expectedHeaderReceived("Content-Type", "application/rdf+xml");
@@ -66,7 +66,7 @@ public class FedoraComponentTest extends CamelTestSupport {
                     .log("Using fcrepo endpoint at http://" + fcrepo_url);
 
                 from("timer://bar?repeatCount=1")
-                  .multicast().to("direct:json", "direct:xml", "direct:post", "direct:put")
+                  .multicast().to("direct:resource", "direct:post", "direct:put")
                   .end();
                   
                 from("direct:post")
@@ -117,39 +117,76 @@ public class FedoraComponentTest extends CamelTestSupport {
                     .to("fcrepo:" + fcrepo_url)
                     .to("mock:delete");
 
-                from("direct:json")
-                    .multicast().to("direct:json1", "direct:json2", "direct:json3");
-
-                from("direct:xml")
-                    .multicast().to("direct:xml1", "direct:xml2", "direct:xml3");
+                from("direct:resource")
+                    .setHeader("Exchange.HTTP_METHOD").constant("POST")
+                    .setHeader("Exchange.CONTENT_TYPE").constant("text/turtle")
+                    .process(new Processor() {
+                        public void process(Exchange exchange) {
+                            Message in = exchange.getIn();
+                            in.setBody("PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .");
+                        }})
+                    .to("fcrepo:" + fcrepo_url)
+                    .setHeader("org.fcrepo.jms.identifier").simple("${body.replaceAll(\"http://" + fcrepo_url + "\", \"\")}")
+                    .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}/file")
+                    .setHeader("Exchange.HTTP_METHOD").constant("PUT")
+                    .setHeader("Exchange.CONTENT_TYPE").constant("text/plain")
+                    .process(new Processor() {
+                        public void process(Exchange exchange) {
+                            Message in = exchange.getIn();
+                            in.setBody("This is a sample document");
+                        }})
+                    .to("fcrepo:" + fcrepo_url)
+                    .multicast().to("direct:xml1", "direct:xml2", "direct:xml3", "direct:json1", "direct:json2", "direct:json3")
+                    .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}/file")
+                    .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
+                    .to("fcrepo:" + fcrepo_url)
+                    .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}/file/fcr:tombstone")
+                    .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
+                    .to("fcrepo:" + fcrepo_url)
+                    .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}")
+                    .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
+                    .to("fcrepo:" + fcrepo_url)
+                    .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}/fcr:tombstone")
+                    .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
+                    .to("fcrepo:" + fcrepo_url);
 
                 from("direct:xml1")
+                  .setHeader("Exchange.HTTP_METHOD").constant("GET")
+                  .setHeader("Exchange.CONTENT_TYPE").constant("application/rdf+xml")
                   .to("fcrepo:" + fcrepo_url)
                   .to("mock:xml");
                     
                 from("direct:xml2")
-                  .setHeader("org.fcrepo.jms.identifier").constant("/97/17/23/fe/971723fe-8ef4-43dc-8312-992be789f28d/ds4")
-                  .to("fcrepo:" + fcrepo_url)
+                  .setHeader("Exchange.HTTP_METHOD").constant("GET")
+                  .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}")
+                  .to("fcrepo:" + fcrepo_url + "?type=application/rdf+xml")
                   .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#resource']", ns)
                   .to("mock:resource");
                 
                 from("direct:xml3")
-                  .setHeader("org.fcrepo.jms.identifier").constant("/97/17/23/fe/971723fe-8ef4-43dc-8312-992be789f28d/ds4")
+                  .setHeader("Exchange.HTTP_METHOD").constant("GET")
+                  .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}/file")
+                  .setHeader("Exchange.CONTENT_TYPE").constant("application/rdf+xml")
                   .to("fcrepo:" + fcrepo_url)
                   .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#datastream']", ns)
-                  .to("mock:datastream");
+                  .to("mock:non-rdf");
 
                 from("direct:json1")
-                  .setHeader("org.fcrepo.jms.identifier").constant("/97/17/23/fe/971723fe-8ef4-43dc-8312-992be789f28d/ds4")
+                  .setHeader("Exchange.HTTP_METHOD").constant("GET")
+                  .removeHeaders("FCREPO_IDENTIFIER")
                   .to("fcrepo:" + fcrepo_url + "?type=application/ld+json")
                   .to("mock:jsonld");
 
                 from("direct:json2")
+                  .setHeader("Exchange.HTTP_METHOD").constant("GET")
+                  .removeHeaders("FCREPO_IDENTIFIER")
                   .setHeader("Exchange.CONTENT_TYPE").constant("application/ld+json")
                   .to("fcrepo:" + fcrepo_url)
                   .to("mock:jsonld");
 
                 from("direct:json3")
+                  .setHeader("Exchange.HTTP_METHOD").constant("GET")
+                  .removeHeaders("FCREPO_IDENTIFIER")
                   .setHeader("Exchange.CONTENT_TYPE").constant("application/rdf+xml")
                   .to("fcrepo:" + fcrepo_url + "?type=application/ld+json")
                   .to("mock:jsonld");
