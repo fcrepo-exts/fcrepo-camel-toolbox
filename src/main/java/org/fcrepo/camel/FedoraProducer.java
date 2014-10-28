@@ -90,7 +90,7 @@ public class FedoraProducer extends DefaultProducer {
                 break;
             case GET:
             default:
-                if(endpoint.getMetadata()) {
+                if(endpoint.getUseRdfDescription()) {
                     exchange.getIn().setHeader("Content-Type", contentType);
                     headResponse = client.head(url);
                     if (headResponse.getLocation() != null) {

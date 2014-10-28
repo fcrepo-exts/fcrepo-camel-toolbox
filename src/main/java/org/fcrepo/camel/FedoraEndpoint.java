@@ -33,7 +33,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     private volatile String authHost = null;
 
-    private volatile Boolean metadata = true;
+    private volatile Boolean useRdfDescription = true;
 
     private volatile Boolean throwExceptionOnFailure = true;
 
@@ -100,12 +100,12 @@ public class FedoraEndpoint extends DefaultEndpoint {
         this.authHost = host;
     }
 
-    public Boolean getMetadata() {
-        return metadata;
+    public Boolean getUseRdfDescription() {
+        return useRdfDescription;
     }
 
-    public void setMetadata(final String metadata) {
-        this.metadata = Boolean.valueOf(metadata);
+    public void setUseRdfDescription(final String useRdf) {
+        this.useRdfDescription = Boolean.valueOf(useRdf);
     }
 
     public void setThrowExceptionOnFailure(final String throwOnFailure) {

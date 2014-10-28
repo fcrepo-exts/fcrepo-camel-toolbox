@@ -86,8 +86,12 @@ public class FedoraClient {
             throws ClientProtocolException, IOException, HttpOperationFailedException {
 
         HttpPut request = new HttpPut(url);
-        request.addHeader("Content-Type", contentType);
-        request.setEntity(new StringEntity(body));
+        if (contentType != null) {
+            request.addHeader("Content-Type", contentType);
+        }
+        if (body != null) {
+            request.setEntity(new StringEntity(body));
+        }
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
@@ -105,7 +109,9 @@ public class FedoraClient {
         
         HttpPatch request = new HttpPatch(url);
         request.addHeader("Content-Type", "application/sparql-update");
-        request.setEntity(new StringEntity(body));
+        if (body != null) {
+            request.setEntity(new StringEntity(body));
+        }
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
@@ -123,7 +129,9 @@ public class FedoraClient {
        
         HttpPost request = new HttpPost(url);
         request.addHeader("Content-Type", contentType);
-        request.setEntity(new StringEntity(body));
+        if (body != null) {
+            request.setEntity(new StringEntity(body));
+        }
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
@@ -159,6 +167,7 @@ public class FedoraClient {
         if (contentType != null) {
             request.setHeader("Accept", contentType);
         }
+
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
 
