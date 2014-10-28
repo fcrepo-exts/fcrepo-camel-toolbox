@@ -30,12 +30,14 @@ public class FedoraProducer extends DefaultProducer {
         final FedoraClient client = new FedoraClient(
                 endpoint.getAuthUsername(),
                 endpoint.getAuthPassword(),
-                endpoint.getAuthHost());
+                endpoint.getAuthHost(),
+                endpoint.getThrowExceptionOnFailure());
 
         String url = "http://" + endpoint.getBaseUrl();
 
         String contentType;
         final String contentTypeString = ExchangeHelper.getContentType(exchange);
+        
         if (endpoint.getType() != null) {
             contentType = endpoint.getType();
         } else if (contentTypeString != null) {

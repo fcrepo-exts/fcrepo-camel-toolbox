@@ -35,6 +35,8 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     private volatile Boolean metadata = true;
 
+    private volatile Boolean throwExceptionOnFailure = true;
+
     private static final Logger logger = LoggerFactory.getLogger(FedoraEndpoint.class);
 
     public FedoraEndpoint(final String uri, final String remaining, final FedoraComponent component) {
@@ -104,5 +106,13 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public void setMetadata(final String metadata) {
         this.metadata = Boolean.valueOf(metadata);
+    }
+
+    public void setThrowExceptionOnFailure(final String throwOnFailure) {
+        this.throwExceptionOnFailure = Boolean.valueOf(throwOnFailure);
+    }
+
+    public Boolean getThrowExceptionOnFailure() {
+        return throwExceptionOnFailure;
     }
 }

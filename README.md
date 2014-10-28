@@ -1,14 +1,14 @@
 Fcrepo Component
 ================
 
-The *fcrepo:* component provides access to external Fedora4 resources.
+The **fcrepo:** component provides access to external Fedora4 resources.
 
 URI format
 ----------
 
     fcrepo:hostname[:port][/resourceUrl][?options]
 
-By default this uses port 80.
+By default this endpoint connects to fedora repositories on port 80.
 
 FcrepoEndpoint Options
 -----------------------
@@ -19,6 +19,7 @@ Endpoint options.
 | ------------ | -------------- | ----------- |
 | type         | null           | The requested contentType for content negotiation |
 | metadata     | true           | Whether GET requests should only retrieve object metadata |
+| throwExceptionOnFailure | true | Option to disable throwing the HttpOperationFailedException in case of failed responses from the remote server. This allows you to get all responses regardless of the HTTP status code. |
 
 Setting Basic Authentication
 ----------------------------
@@ -98,6 +99,4 @@ Questions
 ---------
 
 Feel free to send me an email (acoburn@amherst.edu) with any questions.
-
-
 

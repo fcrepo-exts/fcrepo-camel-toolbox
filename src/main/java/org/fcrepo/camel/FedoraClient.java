@@ -36,7 +36,13 @@ public class FedoraClient {
 
     private CloseableHttpClient httpclient;
 
-    public FedoraClient(final String username, final String password, final String host) {
+    private volatile Boolean throwExceptionOnFailure = true;
+
+    public FedoraClient(final String username, final String password, final String host,
+            final Boolean throwExceptionOnFailure) {
+        
+        this.throwExceptionOnFailure = throwExceptionOnFailure;
+        
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         AuthScope scope = null;
         if ((username == null || username.isEmpty()) ||
@@ -67,7 +73,7 @@ public class FedoraClient {
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
         
-        if (status >= 200 && status < 300) {
+        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
             String describedBy = extractDescribedByLink(response);
             return new FedoraResponse(url, status, describedBy, null);
@@ -86,7 +92,7 @@ public class FedoraClient {
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
         
-        if (status >= 200 && status < 300) {
+        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
             return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
         } else {
@@ -104,7 +110,7 @@ public class FedoraClient {
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
 
-        if (status >= 200 && status < 300) {
+        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
             return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
         } else {
@@ -121,7 +127,8 @@ public class FedoraClient {
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
-        if (status >= 200 && status < 300) {
+
+        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
             return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
         } else {
@@ -135,7 +142,8 @@ public class FedoraClient {
         HttpDelete request = new HttpDelete(url);
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
-        if (status >= 200 && status < 300) {
+        
+        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
             return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
         } else {
@@ -153,7 +161,8 @@ public class FedoraClient {
         }
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
-        if (status >= 200 && status < 300) {
+
+        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
             String describedBy = extractDescribedByLink(response);
             return new FedoraResponse(url, status, describedBy, entity != null ? EntityUtils.toString(entity) : null);
