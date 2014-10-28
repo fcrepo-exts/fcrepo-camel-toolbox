@@ -1,7 +1,7 @@
 Fcrepo Component
 ================
 
-The **fcrepo:** component provides access to an external [Fedora4](http://fcrepo.org) API.
+The **fcrepo:** component provides access to an external [Fedora4](http://fcrepo.org) Object [API](https://wiki.duraspace.org/display/FF/RESTful+HTTP+API+-+Objects).
 
 
 URI format
