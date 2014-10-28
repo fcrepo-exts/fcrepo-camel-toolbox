@@ -58,7 +58,7 @@ public class FedoraComponentTest extends CamelTestSupport {
                 props.load(in);
                 in.close();
 
-                String fcrepo_url = props.getProperty("org.fcrepo.test.url");
+                String fcrepo_url = props.getProperty("org.fcrepo.test.url").replaceAll("http://", "");
 
                 Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
