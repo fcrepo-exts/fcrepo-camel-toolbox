@@ -117,7 +117,7 @@ The `fcrepo-camel` compnent can be built with Maven:
 The tests assume that fedora4 is already running at `http://localhost:8080/fcrepo4/rest`.
 This value can be overridden like so:
 
-    mvn clean install -Dorg.fcrepo.test.url=http://localhost:8983/rest 
+    mvn clean install -Dfcrepo.url=http://localhost:8983/rest 
 
 Questions
 ---------
