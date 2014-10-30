@@ -49,8 +49,9 @@ The `fcrepo` component will also accept message headers produced directly by fed
 Message Body
 ------------
 
-Camel will store the HTTP response from the Fedora4 server on the OUT body. All headers from the
-IN message will be copied to the OUT message, so headers are preserved during routing. Additionally,
+Camel will store the HTTP response from the Fedora4 server on the 
+OUT body. All headers from the IN message will be copied to the OUT
+message, so headers are preserved during routing. Additionally,
 Camel will add the HTTP response headers to the OUT message headers.
 
 
@@ -78,8 +79,9 @@ This exception contains the following information:
 How to set the HTTP Method
 --------------------------
 
-The endpoint will always use the `GET` method unless explicitly set in the `Exchange.HTTP_METHOD` header.
-Other methods, such as `PUT`, `PATCH`, `POST`, and `DELETE` are available and will be passed through 
+The endpoint will always use the `GET` method unless explicitly set
+in the `Exchange.HTTP_METHOD` header. Other methods, such as `PUT`,
+`PATCH`, `POST`, and `DELETE` are available and will be passed through 
 to the Fedora server. Here is an example:
 
     from("direct:start")
@@ -104,7 +106,8 @@ And the equivalent Spring sample:
 Getting the response code
 -------------------------
 
-You can get the HTTP response code from the `fcrepo` component by getting the value from the Out message header with `Exchange.HTTP_RESPONSE_CODE`.
+You can get the HTTP response code from the `fcrepo` component by getting
+the value from the Out message header with `Exchange.HTTP_RESPONSE_CODE`.
 
 
 Building the component
@@ -122,10 +125,11 @@ This value can be overridden like so:
 Fcrepo messaging
 ----------------
 
-Fedora4 uses an internal ActiveMQ message broker to send messages about any
-updates to the repository content. By default, all events are published to a
-`topic` called `fedora` on the local broker. Each message contains an empty
-body and five different header values:
+Fedora4 uses an internal [ActiveMQ](https://activemq.apache.org) message
+broker to send messages about any updates to the repository content. By
+default, all events are published to a `topic` called `fedora` on the
+local broker. Each message contains an empty body and five different
+header values:
 
   * `org.fcrepo.jms.identifier`
   * `org.fcrepo.jms.eventType`
@@ -156,11 +160,11 @@ this case, a queue may be better suited.
 
 ####Supporting Queues
 
-ActiveMQ supports “virtual destinations”, allowing your broker to 
-automatically forward messages from one location to another. If 
-fedora4 is deployed in Tomcat, the ActiveMQ configuration will be located 
-in `WEB-INF/classes/config/activemq.xml`. That file can be edited to 
-include the following block:
+ActiveMQ supports “[virtual destinations](http://activemq.apache.org/virtual-destinations.html)”,
+allowing your broker to automatically forward messages from one
+location to another. If fedora4 is deployed in Tomcat, the ActiveMQ
+configuration will be located in `WEB-INF/classes/config/activemq.xml`.
+That file can be edited to include the following block:
 
     <destinationInterceptors>
       <virtualDestinationInterceptor>
@@ -202,7 +206,8 @@ distribute the message broker across multiple machines. This can be especially
 useful if you want to further decouple the message producers and consumers.
 It can also be useful for high-availability and failover support.
 
-ActiveMQ supports a variety of distributed broker topologies. To push messages
+ActiveMQ supports a variety of distributed broker
+[topologies](http://activemq.apache.org/topologies.html). To push messages
 from both the message queue and topic to a remote broker, this configuration
 can be used:
 
@@ -218,7 +223,8 @@ can be used:
 ###Protocol Support
 
 ActiveMQ brokers support a wide variety of protocols. The default Fedora4
-configuration includes OpenWire and Stomp. If Fedora's internal broker is
+configuration includes [OpenWire](http://activemq.apache.org/openwire.html)
+and [Stomp](http://stomp.github.io/). If Fedora's internal broker is
 bridged to an external broker, please remember to enable the proper
 protocols on the remote broker. This can be done like so:
 
