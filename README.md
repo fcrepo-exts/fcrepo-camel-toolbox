@@ -117,7 +117,117 @@ The `fcrepo-camel` compnent can be built with Maven:
 The tests assume that fedora4 is already running at `http://localhost:8080/fcrepo4/rest`.
 This value can be overridden like so:
 
-    mvn clean install -Dorg.fcrepo.test.url=http://localhost:8983/rest 
+    mvn clean install -Dfcrepo.url=http://localhost:8983/rest 
+
+Fcrepo messaging
+----------------
+
+Fedora4 uses an internal ActiveMQ message broker to send messages about any
+updates to the repository content. By default, all events are published to a
+`topic` called `fedora` on the local broker. Each message contains an empty
+body and five different header values:
+
+  * `org.fcrepo.jms.identifier`
+  * `org.fcrepo.jms.eventType`
+  * `org.fcrepo.jms.properties`
+  * `org.fcrepo.jms.timestamp`
+  * `org.fcrepo.jms.baseURL`
+
+Both `eventType` and `properties` are comma-delimited lists of events or properties.
+The `eventType` values follow the JCR 2.0 specification and include:
+
+  * `http://fedora.info/definitions/v4/repository#NODE_ADDED`
+  * `http://fedora.info/definitions/v4/repository#NODE_REMOVED`
+  * `http://fedora.info/definitions/v4/repository#PROPERTY_ADDED`
+  * `http://fedora.info/definitions/v4/repository#PROPERTY_CHANGED`
+  * `http://fedora.info/definitions/v4/repository#PROPERTY_REMOVED`
+
+The `properties` field will list the RDF properties that changed with that
+event. `NODE_REMOVED` events contain no properties.
+
+###Distributed Messaging Deployments
+
+The default configuration is fine for locally-deployed listeners, but it can
+be problematic in a distributed context. For instance, if the listener is 
+restarted while a message is sent to the topic, that message will be missed. 
+Furthermore, if there is a networking hiccup between fedora's local broker 
+and the remote listener, that too can result in lost messages. Instead, in 
+this case, a queue may be better suited.
+
+####Supporting Queues
+
+ActiveMQ supports “virtual destinations”, allowing your broker to 
+automatically forward messages from one location to another. If 
+fedora4 is deployed in Tomcat, the ActiveMQ configuration will be located 
+in `WEB-INF/classes/config/activemq.xml`. That file can be edited to 
+include the following block:
+
+    <destinationInterceptors>
+      <virtualDestinationInterceptor>
+        <virtualDestinations>
+          <compositeTopic name="fedora">
+            <forwardTo>
+              <queue physicalName="fedora"/>
+            </forwardTo>
+          </compositeTopic>
+        </virtualDestinations>
+      </virtualDestinationInterceptor>
+    </destinationInterceptors>
+
+Now a consumer can pull messages from a queue without risk of losing messages.
+
+This configuration, however, will not allow any other applications to read from
+the original topic. If it is necessary to have `/topic/fedora` available to
+consumers, this configuration will be useful:
+
+    <destinationInterceptors>
+      <virtualDestinationInterceptor>
+        <virtualDestinations>
+          <compositeTopic name="fedora" forwardOnly="false">
+            <forwardTo>
+              <queue physicalName="fedora"/>
+            </forwardTo>
+          </compositeTopic>
+        </virtualDestinations>
+      </virtualDestinationInterceptor>
+    </destinationInterceptors>
+
+Now, both `/topic/fedora` and `/queue/fedora` will be available to consumers.
+
+####Distributed Brokers
+
+The above example will allow you to distribute the message consumers across
+multiple machines without missing messages, but it can also be useful to
+distribute the message broker across multiple machines. This can be especially
+useful if you want to further decouple the message producers and consumers.
+It can also be useful for high-availability and failover support.
+
+ActiveMQ supports a variety of distributed broker topologies. To push messages
+from both the message queue and topic to a remote broker, this configuration
+can be used:
+
+    <networkConnectors>
+      <networkConnector name="fedora_bridge" dynamicOnly="true" uri="static:(tcp://remote-host:61616)">
+        <dynamicallyIncludedDestinations>
+          <topic physicalName="fedora"/>
+          <queue physicalName="fedora"/>
+        </dynamicallyIncludedDestinations>
+      </networkConnector>
+    </networkConnectors>
+
+###Protocol Support
+
+ActiveMQ brokers support a wide variety of protocols. The default Fedora4
+configuration includes OpenWire and Stomp. If Fedora's internal broker is
+bridged to an external broker, please remember to enable the proper
+protocols on the remote broker. This can be done like so:
+
+    <transportConnectors>
+      <transportConnector name="openwire" uri="tcp://0.0.0.0:61616"/>
+      <transportConnector name="stomp" uri="stomp://0.0.0.0:61613"/>
+    </transportConnectors>
+
+Each transportConnector supports additional (options)[http://activemq.apache.org/configuring-transports.html].
 
 Questions
 ---------

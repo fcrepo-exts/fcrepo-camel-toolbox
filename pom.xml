@@ -14,7 +14,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <org.fcrepo.test.url>localhost:8080/fcrepo4/rest</org.fcrepo.test.url>
+    <fcrepo.url>localhost:8080/fcrepo4/rest</fcrepo.url>
   </properties>
 
   <dependencies>
@@ -37,6 +37,11 @@
         <version>4.3.5</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo4-client</artifactId>
+      <version>4.0.0-beta-04-SNAPSHOT</version>
+    </dependency>
 
     <!-- logging -->
     <dependency>
