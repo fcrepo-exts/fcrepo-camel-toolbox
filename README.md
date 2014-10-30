@@ -227,7 +227,7 @@ protocols on the remote broker. This can be done like so:
       <transportConnector name="stomp" uri="stomp://0.0.0.0:61613"/>
     </transportConnectors>
 
-Each transportConnector supports additional (options)[http://activemq.apache.org/configuring-transports.html].
+Each transportConnector supports additional [options](http://activemq.apache.org/configuring-transports.html).
 
 Questions
 ---------
