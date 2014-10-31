@@ -2,6 +2,7 @@ package org.fcrepo.camel;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,11 @@ public class FedoraClient {
         
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
-            String describedBy = extractDescribedByLink(response);
+            String describedBy = null;
+            ArrayList<String> links = getLinkHeaders(response, "describedby");
+            if (links.size() == 1) {
+                describedBy = links.get(0);
+            }
             return new FedoraResponse(url, status, describedBy, null);
         } else {
             throw buildHttpOperationFailedException(url, response);
@@ -175,7 +180,11 @@ public class FedoraClient {
 
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
-            String describedBy = extractDescribedByLink(response);
+            String describedBy = null;
+            ArrayList<String> links = getLinkHeaders(response, "describedby");
+            if (links.size() == 1) {
+                describedBy = links.get(0);
+            }
             return new FedoraResponse(url, status, describedBy, entity != null ? EntityUtils.toString(entity) : null);
         } else {
             throw buildHttpOperationFailedException(url, response);
@@ -214,26 +223,24 @@ public class FedoraClient {
         return answer;
     }
 
-    protected static String extractDescribedByLink(final HttpResponse response) {
-        Header[] headers = response.getAllHeaders();
-        String describedBy = null;
-        for(Header header: headers) {
+    protected static ArrayList<String> getLinkHeaders(final HttpResponse response, final String relationship) {
+        ArrayList<String> uris = new ArrayList<String>();
+        for(Header header: response.getAllHeaders()) {
             if (header.getName().equals("Link")) {
                 // Link: <http://localhost:8080/fcrepo/rest/path/to/resource>; rel="describedby"
                 // Split on ; character
                 String[] toks = StringUtils.split(header.getValue(), ';');
-
                 if (toks.length == 2) {
                     // Split the rel="..." portion on '='
                     String[] rel = StringUtils.split(toks[1], '=');
-                    // Strip off optional quotes and spaces, see if it equals the string 'describedby'
-                    if (StringUtils.strip(rel[1], "\" ").equals("describedby")) {
+                    // Strip off optional quotes and spaces, test if it equals the `relationship` string
+                    if (StringUtils.strip(rel[1], "\" ").equals(relationship)) {
                         // Strip angle brackets and spaces from the URL
-                        describedBy = StringUtils.stripEnd(StringUtils.stripStart(toks[0], "< "), "> ");
+                        uris.add(StringUtils.stripEnd(StringUtils.stripStart(toks[0], "< "), "> "));
                     }
                 }
             }
         }
-        return describedBy;
+        return uris;
     }
  }
