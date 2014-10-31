@@ -12,7 +12,7 @@ URI format
 By default this endpoint connects to fedora repositories on port 80.
 
 
-FcrepoEndpoint Options
+FcrepoEndpoint options
 -----------------------
 
 Endpoint options.
@@ -24,7 +24,7 @@ Endpoint options.
 | `throwExceptionOnFailure` | `true` | Option to disable throwing the HttpOperationFailedException in case of failed responses from the remote server. This allows you to get all responses regardless of the HTTP status code. |
 
 
-Setting Basic Authentication
+Setting basic authentication
 ----------------------------
 
 | Name         | Default Value | Description |
@@ -34,19 +34,18 @@ Setting Basic Authentication
 | `authHost`     | `null`          | The host name for authentication |
 
 
-Message Headers
+Message headers
 ---------------
 
 | Name     | Type   | Description |
 | -------- | ------ | ----------- |
 | `Exchange.HTTP_METHOD` | `String` | The HTTP method to use |
 | `Exchange.CONTENT_TYPE` | `String` | The ContentType of the resource. For GET requests, this sets the Accept: header; for POST/PUT requests, it sets the Content-Type: header. This value can be overridden directly on the endpoint. |
-| `FCREPO_IDENTIFIER`    | `String` | The resource path |
+| `FCREPO_IDENTIFIER`    | `String` | The resource path, appended to the endpoint uri. |
 
 The `fcrepo` component will also accept message headers produced directly by fedora, particularly the `org.fcrepo.jms.identifier` header. It will use that header only when `FEDORA_IDENTIFIER` is not defined.
 
-
-Message Body
+Message body
 ------------
 
 Camel will store the HTTP response from the Fedora4 server on the 
@@ -64,6 +63,28 @@ Camel will handle the HTTP response code in the following ways:
 * Response code in the range 300..399 is a redirection and will throw a `HttpOperationFailedException` with the relevant information.
 * Response code is 400+ is regarded as an external server error and will throw an `HttpOperationFailedException` with the relevant information.
 
+Resource path
+-------------
+
+The path for `fcrepo` resources can be set in several different ways. If the `FCREPO_IDENTIFIER` header is set, that value will be appended to the endpoint URI.
+If the `FCREPO_IDENTIFIER` is not set, the path will be populated by the `org.fcrepo.jms.identifier` header and appended to the endpoint URI. If neither header
+is set, only the endpoint URI will be used.
+
+For example, each of these routes will request the resource at `http://localhost:8080/rest/a/b/c/abcdef`:
+
+    from("direct:start")
+      .setHeader("FCREPO_IDENTIFIER", "/a/b/c/abcdef")
+      .to("fcrepo:localhost:8080/rest");
+
+    // org.fcrepo.jms.identifier and FCREPO_IDENTIFIER headers are undefined
+    from("direct:start")
+      .to("fcrepo:localhost:8080/rest/a/b/c/abcdef");
+
+    // org.fcrepo.jms.identifier is set as '/a/b/c/abcdef'
+    // and FCREPO_IDENTIFIER is not defined
+    from("direct:start")
+      .to("fcrepo:localhost:8080/rest")
+
 
 HttpOperationFailedException
 ----------------------------
@@ -76,7 +97,7 @@ This exception contains the following information:
 * Response body as a `java.lang.String`, if server provided a body as response
 
 
-How to set the HTTP Method
+How to set the HTTP method
 --------------------------
 
 The endpoint will always use the `GET` method unless explicitly set
@@ -149,7 +170,7 @@ The `eventType` values follow the JCR 2.0 specification and include:
 The `properties` field will list the RDF properties that changed with that
 event. `NODE_REMOVED` events contain no properties.
 
-###Distributed Messaging Deployments
+###Distributed messaging deployments
 
 The default configuration is fine for locally-deployed listeners, but it can
 be problematic in a distributed context. For instance, if the listener is 
@@ -158,7 +179,7 @@ Furthermore, if there is a networking hiccup between fedora's local broker
 and the remote listener, that too can result in lost messages. Instead, in 
 this case, a queue may be better suited.
 
-####Supporting Queues
+####Supporting queues
 
 ActiveMQ supports “[virtual destinations](http://activemq.apache.org/virtual-destinations.html)”,
 allowing your broker to automatically forward messages from one
@@ -198,7 +219,7 @@ consumers, this configuration will be useful:
 
 Now, both `/topic/fedora` and `/queue/fedora` will be available to consumers.
 
-####Distributed Brokers
+####Distributed brokers
 
 The above example will allow you to distribute the message consumers across
 multiple machines without missing messages, but it can also be useful to
@@ -220,7 +241,7 @@ can be used:
       </networkConnector>
     </networkConnectors>
 
-###Protocol Support
+###Protocol support
 
 ActiveMQ brokers support a wide variety of protocols. The default Fedora4
 configuration includes [OpenWire](http://activemq.apache.org/openwire.html)
