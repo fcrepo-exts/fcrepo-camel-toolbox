@@ -1,7 +1,10 @@
 Fcrepo Component
 ================
 
-The **fcrepo:** component provides access to an external [Fedora4](http://fcrepo.org) Object [API](https://wiki.duraspace.org/display/FF/RESTful+HTTP+API+-+Objects) for use with [Apache Camel](https://camel.apache.org).
+The **fcrepo:** component provides access to an external
+[Fedora4](http://fcrepo.org) Object
+[API](https://wiki.duraspace.org/display/FF/RESTful+HTTP+API+-+Objects)
+for use with [Apache Camel](https://camel.apache.org).
 
 
 URI format
@@ -14,8 +17,6 @@ By default this endpoint connects to fedora repositories on port 80.
 
 FcrepoEndpoint options
 -----------------------
-
-Endpoint options.
 
 | Name         |  Default Value | Description |
 | ------------ | -------------- | ----------- |
@@ -66,11 +67,18 @@ Camel will handle the HTTP response code in the following ways:
 Resource path
 -------------
 
-The path for `fcrepo` resources can be set in several different ways. If the `FCREPO_IDENTIFIER` header is set, that value will be appended to the endpoint URI.
-If the `FCREPO_IDENTIFIER` is not set, the path will be populated by the `org.fcrepo.jms.identifier` header and appended to the endpoint URI. If neither header
-is set, only the endpoint URI will be used.
+The path for `fcrepo` resources can be set in several different ways. If the
+`FCREPO_IDENTIFIER` header is set, that value will be appended to the endpoint
+URI. If the `FCREPO_IDENTIFIER` is not set, the path will be populated by the
+`org.fcrepo.jms.identifier` header and appended to the endpoint URI. If neither
+header is set, only the endpoint URI will be used.
 
-For example, each of these routes will request the resource at `http://localhost:8080/rest/a/b/c/abcdef`:
+It is generally a good idea to set the endpoint URI to fedora's REST API
+endpoint and then use the appropriate header to set the path of the intended
+resource.
+
+For example, each of these routes will request the resource at
+`http://localhost:8080/rest/a/b/c/abcdef`:
 
     from("direct:start")
       .setHeader("FCREPO_IDENTIFIER", "/a/b/c/abcdef")
@@ -107,7 +115,7 @@ to the Fedora server. Here is an example:
 
     from("direct:start")
         .setHeader(Exchange.HTTP_HEADER, constant("POST"))
-        .to("fcrepo://localhost:8080/fcrepo4/rest")
+        .to("fcrepo:localhost:8080/fcrepo4/rest")
         .to("mock:results");
 
 And the equivalent Spring sample:
@@ -118,7 +126,7 @@ And the equivalent Spring sample:
         <setHeader headerName="Exchange.HTTP_HEADER">
             <constant>POST</constant>
         </setHeader>
-        <to uri="fcrepo://localhost:8080/fcrepo4/rest"/>
+        <to uri="fcrepo:localhost:8080/fcrepo4/rest"/>
         <to uri="mock:results"/>
       </route>
     </camelContext>
@@ -138,8 +146,8 @@ The `fcrepo-camel` compnent can be built with Maven:
 
     mvn clean install
 
-The tests assume that fedora4 is already running at `http://localhost:8080/fcrepo4/rest`.
-This value can be overridden like so:
+The tests assume that fedora4 is already running at
+`http://localhost:8080/fcrepo4/rest`. This value can be overridden like so:
 
     mvn clean install -Dfcrepo.url=http://localhost:8983/rest 
 
