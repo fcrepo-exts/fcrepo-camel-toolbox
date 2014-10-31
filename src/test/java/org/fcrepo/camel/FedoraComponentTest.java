@@ -3,15 +3,16 @@ package org.fcrepo.camel;
 import org.apache.camel.Processor;
 import org.apache.camel.Message;
 import org.apache.camel.Exchange;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.model.dataformat.JsonLibrary;
 import org.junit.Test;
 import java.util.Properties;
 import java.io.InputStream;
 import java.io.IOException;
-
 
 public class FedoraComponentTest extends CamelTestSupport {
 
@@ -45,6 +46,9 @@ public class FedoraComponentTest extends CamelTestSupport {
         MockEndpoint mockDelete = getMockEndpoint("mock:delete");
         mockDelete.expectedMessageCount(2);
 
+        MockEndpoint mockSolr = getMockEndpoint("mock:solr");
+        mockSolr.expectedMessageCount(1);
+
         assertMockEndpointsSatisfied();
     }
 
@@ -68,6 +72,27 @@ public class FedoraComponentTest extends CamelTestSupport {
                 from("timer://bar?repeatCount=1")
                   .multicast().to("direct:resource", "direct:post", "direct:put")
                   .end();
+
+                from("timer://baz?repeatCount=1")
+                    .setHeader("Exchange.HTTP_METHOD").constant("POST")
+                    .setHeader("Exchange.CONTENT_TYPE").constant("text/turtle")
+                    .process(new Processor() {
+                        public void process(Exchange exchange) {
+                            Message in = exchange.getIn();
+                            in.setBody("PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .");
+                        }})
+                    .to("fcrepo:" + fcrepo_url)
+                    .setHeader("org.fcrepo.jms.identifier").simple("${body.replaceAll(\"http://" + fcrepo_url + "\", \"\")}")
+                    .setHeader("Exchange.HTTP_METHOD").constant("GET")
+                    .setHeader("Exchange.CONTENT_TYPE").constant("application/json")
+                    .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}/fcr:transform/default")
+                    .to("fcrepo:" + fcrepo_url)
+                    .setHeader("Exchange.CONTENT_TYPE").constant("application/json")
+                    .setHeader("Exchange.HTTP_METHOD").constant("POST")
+                    .to("mock:solr")
+                    .setHeader("FCREPO_IDENTIFIER").simple("${header.org.fcrepo.jms.identifier}")
+                    .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
+                    .to("fcrepo:" + fcrepo_url);
                   
                 from("direct:post")
                     .multicast().to("direct:post1");
@@ -93,7 +118,7 @@ public class FedoraComponentTest extends CamelTestSupport {
                 from("direct:put1")
                     .setHeader("Exchange.HTTP_METHOD").constant("PUT")
                     .setHeader("Exchange.CONTENT_TYPE").constant("text/turtle")
-                    .setHeader("FCREPO_IDENTIFIER").constant("/testing/object3")
+                    .setHeader("FCREPO_IDENTIFIER").constant("/test/object3")
                     .process(new Processor() {
                         public void process(Exchange exchange) {
                             Message in = exchange.getIn();
@@ -109,10 +134,10 @@ public class FedoraComponentTest extends CamelTestSupport {
                         }})
                     .to("fcrepo:" + fcrepo_url)
                     .to("mock:patch")
-                    .setHeader("FCREPO_IDENTIFIER").simple("/testing/object3")
+                    .setHeader("FCREPO_IDENTIFIER").simple("/test/object3")
                     .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
                     .to("fcrepo:" + fcrepo_url)
-                    .setHeader("FCREPO_IDENTIFIER").simple("/testing/object3/fcr:tombstone")
+                    .setHeader("FCREPO_IDENTIFIER").simple("/test/object3/fcr:tombstone")
                     .setHeader("Exchange.HTTP_METHOD").constant("DELETE")
                     .to("fcrepo:" + fcrepo_url)
                     .to("mock:delete");

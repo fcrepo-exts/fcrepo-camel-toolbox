@@ -1,5 +1,7 @@
 package org.fcrepo.camel;
 
+import java.net.URI;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
@@ -32,22 +34,20 @@ public class FedoraProducer extends DefaultProducer {
                 endpoint.getThrowExceptionOnFailure());
 
         String url = "http://" + endpoint.getBaseUrl();
+        if (in.getHeader(endpoint.FCREPO_IDENTIFIER) != null) {
+            url += in.getHeader(endpoint.FCREPO_IDENTIFIER, String.class);
+        } else if (in.getHeader(endpoint.FCREPO_JMS_IDENTIFIER) != null) {
+            url += in.getHeader(endpoint.FCREPO_JMS_IDENTIFIER, String.class);
+        }
 
-        String contentType;
         final String contentTypeString = ExchangeHelper.getContentType(exchange);
-        
+        String contentType;
         if (endpoint.getContentType() != null) {
             contentType = endpoint.getContentType();
         } else if (contentTypeString != null) {
             contentType = contentTypeString;
         } else {
             contentType = endpoint.DEFAULT_CONTENT_TYPE;
-        }
-
-        if (in.getHeader(endpoint.FCREPO_IDENTIFIER) != null) {
-            url += in.getHeader(endpoint.FCREPO_IDENTIFIER, String.class);
-        } else if (in.getHeader(endpoint.FCREPO_JMS_IDENTIFIER) != null) {
-            url += in.getHeader(endpoint.FCREPO_JMS_IDENTIFIER, String.class);
         }
 
         HttpMethods method = exchange.getIn().getHeader(Exchange.HTTP_METHOD, HttpMethods.class);
@@ -62,42 +62,42 @@ public class FedoraProducer extends DefaultProducer {
         
         switch (method) {
             case PATCH:
-                headResponse = client.head(url);
+                headResponse = client.head(new URI(url));
                 if (headResponse.getLocation() != null) {
                     response = client.patch(headResponse.getLocation(), in.getBody(String.class));
                 } else {
-                    response = client.patch(url, in.getBody(String.class));
+                    response = client.patch(new URI(url), in.getBody(String.class));
                 }
                 exchange.getIn().setBody(response.getBody());
                 break;
             case PUT:
-                response = client.put(url, in.getBody(String.class), contentType);
+                response = client.put(new URI(url), in.getBody(String.class), contentType);
                 exchange.getIn().setBody(response.getBody());
                 break;
             case POST:
-                response = client.post(url, in.getBody(String.class), contentType);
+                response = client.post(new URI(url), in.getBody(String.class), contentType);
                 exchange.getIn().setBody(response.getBody());
                 break;
             case DELETE:
-                response = client.delete(url);
+                response = client.delete(new URI(url));
                 exchange.getIn().setBody(response.getBody());
                 break;
             case HEAD:
-                response = client.head(url);
+                response = client.head(new URI(url));
                 exchange.getIn().setBody(null);
                 break;
             case GET:
             default:
                 if(endpoint.getUseRdfDescription()) {
                     exchange.getIn().setHeader("Content-Type", contentType);
-                    headResponse = client.head(url);
+                    headResponse = client.head(new URI(url));
                     if (headResponse.getLocation() != null) {
                         response = client.get(headResponse.getLocation(), contentType);
                     } else {
-                        response = client.get(url, contentType);
+                        response = client.get(new URI(url), contentType);
                     }
                 } else {
-                    response = client.get(url, null);
+                    response = client.get(new URI(url), null);
                 }
                 exchange.getIn().setBody(response.getBody());
         }

@@ -1,28 +1,30 @@
 package org.fcrepo.camel;
 
+import java.net.URI;
+
 public class FedoraResponse {
 
-    private volatile String url;
+    private volatile URI url;
 
     private volatile int statusCode;
 
-    private volatile String location;
+    private volatile URI location;
     
     private volatile String body;
 
-    public FedoraResponse(final String url, final int statusCode,
-            final String location, final String body) {
+    public FedoraResponse(final URI url, final int statusCode,
+            final URI location, final String body) {
         this.setUrl(url);
         this.setStatusCode(statusCode);
         this.setLocation(location);
         this.setBody(body);
     }
 
-    public String getUrl() {
+    public URI getUrl() {
         return url;
     }
 
-    public void setUrl(final String url) {
+    public void setUrl(final URI url) {
         this.url = url;
     }
 
@@ -42,11 +44,11 @@ public class FedoraResponse {
         this.body = body;
     }
 
-    public String getLocation() {
+    public URI getLocation() {
         return location;
     }
 
-    public void setLocation(final String location) {
+    public void setLocation(final URI location) {
         this.location = location;
     }
 }

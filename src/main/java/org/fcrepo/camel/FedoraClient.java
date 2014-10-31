@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.camel.component.http4.HttpOperationFailedException;
 
+import javax.ws.rs.core.Link;
+
+import java.net.URI;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.Header;
@@ -28,8 +32,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
-
-import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 
@@ -69,7 +71,7 @@ public class FedoraClient {
     }
    
 
-    public FedoraResponse head(final String url)
+    public FedoraResponse head(final URI url)
             throws ClientProtocolException, IOException, HttpOperationFailedException {
 
         HttpHead request = new HttpHead(url);
@@ -78,8 +80,8 @@ public class FedoraClient {
         
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
-            String describedBy = null;
-            ArrayList<String> links = getLinkHeaders(response, "describedby");
+            URI describedBy = null;
+            ArrayList<URI> links = getLinkHeaders(response, "describedby");
             if (links.size() == 1) {
                 describedBy = links.get(0);
             }
@@ -89,7 +91,7 @@ public class FedoraClient {
         }
     }
 
-    public FedoraResponse put(final String url, final String body, final String contentType)
+    public FedoraResponse put(final URI url, final String body, final String contentType)
             throws ClientProtocolException, IOException, HttpOperationFailedException {
 
         HttpPut request = new HttpPut(url);
@@ -111,7 +113,7 @@ public class FedoraClient {
         }
     }
 
-    public FedoraResponse patch(final String url, final String body) 
+    public FedoraResponse patch(final URI url, final String body) 
             throws ClientProtocolException, IOException, HttpOperationFailedException {
         
         HttpPatch request = new HttpPatch(url);
@@ -131,7 +133,7 @@ public class FedoraClient {
         }
     }        
 
-    public FedoraResponse post(final String url, final String body, final String contentType)
+    public FedoraResponse post(final URI url, final String body, final String contentType)
             throws ClientProtocolException, IOException, HttpOperationFailedException {
        
         HttpPost request = new HttpPost(url);
@@ -151,7 +153,7 @@ public class FedoraClient {
         }
     }
 
-    public FedoraResponse delete(final String url)
+    public FedoraResponse delete(final URI url)
             throws ClientProtocolException, IOException, HttpOperationFailedException {
 
         HttpDelete request = new HttpDelete(url);
@@ -166,7 +168,7 @@ public class FedoraClient {
         }
     }
 
-    public FedoraResponse get(final String url, final String contentType)
+    public FedoraResponse get(final URI url, final String contentType)
             throws ClientProtocolException, IOException, HttpOperationFailedException {
 
         HttpGet request = new HttpGet(url);
@@ -180,8 +182,8 @@ public class FedoraClient {
 
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
-            String describedBy = null;
-            ArrayList<String> links = getLinkHeaders(response, "describedby");
+            URI describedBy = null;
+            ArrayList<URI> links = getLinkHeaders(response, "describedby");
             if (links.size() == 1) {
                 describedBy = links.get(0);
             }
@@ -191,7 +193,7 @@ public class FedoraClient {
         }
     }
 
-    protected static HttpOperationFailedException buildHttpOperationFailedException(final String url, final HttpResponse response)
+    protected static HttpOperationFailedException buildHttpOperationFailedException(final URI url, final HttpResponse response)
             throws IOException  {
         int status = response.getStatusLine().getStatusCode();
         Header locationHeader = response.getFirstHeader("location");
@@ -202,7 +204,7 @@ public class FedoraClient {
             locationValue = locationHeader.getValue();
         }
 
-        return new HttpOperationFailedException(url, status,
+        return new HttpOperationFailedException(url.toString(), status,
                 response.getStatusLine().getReasonPhrase(),
                 locationValue,
                 extractResponseHeaders(response.getAllHeaders()),
@@ -223,21 +225,14 @@ public class FedoraClient {
         return answer;
     }
 
-    protected static ArrayList<String> getLinkHeaders(final HttpResponse response, final String relationship) {
-        ArrayList<String> uris = new ArrayList<String>();
-        for(Header header: response.getAllHeaders()) {
-            if (header.getName().equals("Link")) {
-                // Link: <http://localhost:8080/fcrepo/rest/path/to/resource>; rel="describedby"
-                // Split on ; character
-                String[] toks = StringUtils.split(header.getValue(), ';');
-                if (toks.length == 2) {
-                    // Split the rel="..." portion on '='
-                    String[] rel = StringUtils.split(toks[1], '=');
-                    // Strip off optional quotes and spaces, test if it equals the `relationship` string
-                    if (StringUtils.strip(rel[1], "\" ").equals(relationship)) {
-                        // Strip angle brackets and spaces from the URL
-                        uris.add(StringUtils.stripEnd(StringUtils.stripStart(toks[0], "< "), "> "));
-                    }
+    protected static ArrayList<URI> getLinkHeaders(final HttpResponse response, final String relationship) {
+        ArrayList<URI> uris = new ArrayList<URI>();
+        final Header[] links = response.getHeaders("Link");
+        if (links != null) {
+            for (Header header: links) {
+                final Link link = Link.valueOf(header.getValue());
+                if (link.getRel().equals(relationship)) {
+                    uris.add(link.getUri());
                 }
             }
         }
