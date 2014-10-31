@@ -28,6 +28,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 
 public class FedoraClient {
@@ -217,9 +219,18 @@ public class FedoraClient {
         String describedBy = null;
         for(Header header: headers) {
             if (header.getName().equals("Link")) {
-                String[] vals = header.getValue().split(";\\s*");
-                if (vals.length == 2 && vals[1].contains("describedby")) {
-                    describedBy = vals[0].replaceAll("[<>]", "");
+                // Link: <http://localhost:8080/fcrepo/rest/path/to/resource>; rel="describedby"
+                // Split on ; character
+                String[] toks = StringUtils.split(header.getValue(), ';');
+
+                if (toks.length == 2) {
+                    // Split the rel="..." portion on '='
+                    String[] rel = StringUtils.split(toks[1], '=');
+                    // Strip off optional quotes and spaces, see if it equals the string 'describedby'
+                    if (StringUtils.strip(rel[1], "\" ").equals("describedby")) {
+                        // Strip angle brackets and spaces from the URL
+                        describedBy = StringUtils.stripEnd(StringUtils.stripStart(toks[0], "< "), "> ");
+                    }
                 }
             }
         }
