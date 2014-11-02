@@ -28,6 +28,9 @@ public class FedoraPathTest extends CamelTestSupport {
     @Produce(uri = "direct:start")
     protected ProducerTemplate template2;
 
+    @Produce(uri = "direct:start3")
+    protected ProducerTemplate template3;
+
     @Produce(uri = "direct:setup")
     protected ProducerTemplate setup;
 
@@ -38,6 +41,7 @@ public class FedoraPathTest extends CamelTestSupport {
     public void testPath() throws Exception {
         final String path = "/test/a/b/c/d";
         final String body = "PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .";
+
         Map<String, Object> setupHeaders = new HashMap<String, Object>();
         setupHeaders.put(Exchange.HTTP_METHOD, "PUT");
         setupHeaders.put("FCREPO_IDENTIFIER", path);
@@ -46,13 +50,14 @@ public class FedoraPathTest extends CamelTestSupport {
  
         template1.sendBodyAndHeader(null, "org.fcrepo.jms.identifier", path);
         template2.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", path);
+        template3.sendBody(null);
 
         Map<String, Object> teardownHeaders = new HashMap<String, Object>();
         teardownHeaders.put(Exchange.HTTP_METHOD, "DELETE");
         teardownHeaders.put("FCREPO_IDENTIFIER", path);
         teardown.sendBodyAndHeaders(null, teardownHeaders);
 
-        resultEndpoint.expectedMessageCount(2);
+        resultEndpoint.expectedMessageCount(3);
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -81,6 +86,11 @@ public class FedoraPathTest extends CamelTestSupport {
                     .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#resource']", ns)
                     .to("mock:result");
 
+                from("direct:start3")
+                    .to("fcrepo:" + fcrepo_url + "/test/a/b/c/d")
+                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#resource']", ns)
+                    .to("mock:result");
+
                 from("direct:teardown")
                     .to("fcrepo:" + fcrepo_url)
                     .to("fcrepo:" + fcrepo_url + "?tombstone=true");
@@ -88,5 +98,3 @@ public class FedoraPathTest extends CamelTestSupport {
         };
     }
 }
-
-
