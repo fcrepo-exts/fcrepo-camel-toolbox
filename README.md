@@ -21,7 +21,8 @@ FcrepoEndpoint options
 | Name         |  Default Value | Description |
 | ------------ | -------------- | ----------- |
 | `contentType`       | `null`         | The requested contentType for content negotiation |
-| `useRdfDescription` | `true`  | Whether GET requests should retrieve RDF descriptions of non-RDF content  |
+| `metadata` | `true`  | Whether GET requests should retrieve RDF descriptions of non-RDF content  |
+| `transform` | `null` | If set, this defines the transform used for the given object. This should be used in the context of GET or POST. For GET requests, the value should be the name of the transform (e.g. `default`). For POST requests, the value can simply be `true`. |
 | `throwExceptionOnFailure` | `true` | Option to disable throwing the HttpOperationFailedException in case of failed responses from the remote server. This allows you to get all responses regardless of the HTTP status code. |
 
 

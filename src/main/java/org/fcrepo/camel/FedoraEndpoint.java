@@ -27,13 +27,15 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     private volatile String baseUrl = "";
 
+    private volatile String transform = null;
+
     private volatile String authUsername = null;
 
     private volatile String authPassword = null;
 
     private volatile String authHost = null;
 
-    private volatile Boolean useRdfDescription = true;
+    private volatile Boolean metadata = true;
 
     private volatile Boolean throwExceptionOnFailure = true;
 
@@ -100,12 +102,12 @@ public class FedoraEndpoint extends DefaultEndpoint {
         this.authHost = host;
     }
 
-    public Boolean getUseRdfDescription() {
-        return useRdfDescription;
+    public Boolean getMetadata() {
+        return metadata;
     }
 
-    public void setUseRdfDescription(final String useRdf) {
-        this.useRdfDescription = Boolean.valueOf(useRdf);
+    public void setMetadata(final String metadata) {
+        this.metadata = Boolean.valueOf(metadata);
     }
 
     public void setThrowExceptionOnFailure(final String throwOnFailure) {
@@ -114,5 +116,13 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public Boolean getThrowExceptionOnFailure() {
         return throwExceptionOnFailure;
+    }
+    
+    public void setTransform(final String transform) {
+        this.transform = transform;
+    }
+
+    public String getTransform() {
+        return transform;
     }
 }
