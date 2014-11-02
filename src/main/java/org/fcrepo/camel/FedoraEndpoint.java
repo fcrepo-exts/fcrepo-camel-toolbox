@@ -35,6 +35,8 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     private volatile String authHost = null;
 
+    private volatile Boolean tombstone = false;
+
     private volatile Boolean metadata = true;
 
     private volatile Boolean throwExceptionOnFailure = true;
@@ -124,5 +126,13 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public String getTransform() {
         return transform;
+    }
+    
+    public void setTombstone(final String tombstone) {
+        this.tombstone = Boolean.valueOf(tombstone);
+    }
+
+    public Boolean getTombstone() {
+        return tombstone;
     }
 }

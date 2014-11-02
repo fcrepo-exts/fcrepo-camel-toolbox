@@ -123,6 +123,8 @@ public class FedoraProducer extends DefaultProducer {
             } else if (method == null || method == HttpMethods.GET) {
                 url += "/fcr:transform/" + endpoint.getTransform();
             }
+        } else if (endpoint.getTombstone()) {
+            url += "/fcr:tombstone";
         }
         return url;
     }
