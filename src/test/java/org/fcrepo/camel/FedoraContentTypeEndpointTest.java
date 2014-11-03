@@ -1,6 +1,7 @@
 package org.fcrepo.camel;
 
 import org.apache.camel.Produce;
+import org.apache.camel.Exchange;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
