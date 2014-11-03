@@ -5,7 +5,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
@@ -57,8 +56,6 @@ public class FedoraTransformTest extends CamelTestSupport {
         return new RouteBuilder() {
             public void configure() throws IOException {
                 final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
-
-                Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
                 from("direct:setup")
                     .to(fcrepo_uri);
