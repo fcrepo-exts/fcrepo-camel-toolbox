@@ -7,8 +7,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
-import java.util.Properties;
-import java.io.InputStream;
+
 import java.io.IOException;
 
 public class FedoraContentTypeEndpointTest extends CamelTestSupport {
@@ -21,20 +20,20 @@ public class FedoraContentTypeEndpointTest extends CamelTestSupport {
 
     @Test
     public void testContentTypeTurtle() throws Exception {
-        template.sendBody(null);
-
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/turtle");
         resultEndpoint.expectedMessageCount(1);
+
+        template.sendBody(null);
 
         resultEndpoint.assertIsSatisfied();
     }
 
     @Test
     public void testContentTypeN3() throws Exception {
-        template.sendBodyAndHeader(null, "Content-Type", "application/n-triples");
-
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/turtle");
         resultEndpoint.expectedMessageCount(1);
+
+        template.sendBodyAndHeader(null, "Content-Type", "application/n-triples");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -43,16 +42,10 @@ public class FedoraContentTypeEndpointTest extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws IOException {
-                Properties props = new Properties();
-
-                InputStream in = getClass().getResourceAsStream("/org.fcrepo.properties");
-                props.load(in);
-                in.close();
-
-                String fcrepo_url = props.getProperty("fcrepo.url").replaceAll("http://", "");
+                final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
 
                 from("direct:start")
-                    .to("fcrepo:" + fcrepo_url + "?contentType=text/turtle")
+                    .to(fcrepo_uri + "?contentType=text/turtle")
                     .to("mock:result");
             }
         };

@@ -12,11 +12,14 @@ public class FedoraResponse {
     
     private volatile String body;
 
+    private volatile String contentType;
+
     public FedoraResponse(final URI url, final int statusCode,
-            final URI location, final String body) {
+            final String contentType, final URI location, final String body) {
         this.setUrl(url);
         this.setStatusCode(statusCode);
         this.setLocation(location);
+        this.setContentType(contentType);
         this.setBody(body);
     }
 
@@ -50,5 +53,13 @@ public class FedoraResponse {
 
     public void setLocation(final URI location) {
         this.location = location;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(final String contentType) {
+        this.contentType = contentType;
     }
 }

@@ -22,35 +22,33 @@ public class FedoraPutTest extends CamelTestSupport {
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:setup")
-    protected ProducerTemplate setup;
-
     @Produce(uri = "direct:start")
     protected ProducerTemplate template;
 
-    @Produce(uri = "direct:teardown")
-    protected ProducerTemplate teardown;
-
     @Test
-    public void testPath() throws Exception {
+    public void testPut() throws Exception {
         final String path = "/test/a/b/c/d";
-        final String body = "PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .";
 
+        // Assertions
+        resultEndpoint.expectedMessageCount(1);
+
+        // Setup
         Map<String, Object> setupHeaders = new HashMap<String, Object>();
         setupHeaders.put(Exchange.HTTP_METHOD, "PUT");
         setupHeaders.put("FCREPO_IDENTIFIER", path);
         setupHeaders.put(Exchange.CONTENT_TYPE, "text/turtle");
-        setup.sendBodyAndHeaders(body, setupHeaders);
+        template.sendBodyAndHeaders("direct:setup", FedoraTestUtils.getTurtleDocument(), setupHeaders);
  
+        // Test
         template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", path);
 
+        // Teardown
         Map<String, Object> teardownHeaders = new HashMap<String, Object>();
         teardownHeaders.put(Exchange.HTTP_METHOD, "DELETE");
         teardownHeaders.put("FCREPO_IDENTIFIER", path);
-        teardown.sendBodyAndHeaders(null, teardownHeaders);
+        template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
-        resultEndpoint.expectedMessageCount(1);
-
+        // Confirm that assertions passed
         resultEndpoint.assertIsSatisfied();
     }
 
@@ -58,27 +56,21 @@ public class FedoraPutTest extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() throws IOException {
-                Properties props = new Properties();
-
-                InputStream in = getClass().getResourceAsStream("/org.fcrepo.properties");
-                props.load(in);
-                in.close();
-
-                String fcrepo_url = props.getProperty("fcrepo.url").replaceAll("http://", "");
+                final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
 
                 Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
                 from("direct:setup")
-                    .to("fcrepo:" + fcrepo_url);
+                    .to(fcrepo_uri);
                 
                 from("direct:start")
-                    .to("fcrepo:" + fcrepo_url)
+                    .to(fcrepo_uri)
                     .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#resource']", ns)
                     .to("mock:result");
 
                 from("direct:teardown")
-                    .to("fcrepo:" + fcrepo_url)
-                    .to("fcrepo:" + fcrepo_url + "?tombstone=true");
+                    .to(fcrepo_uri)
+                    .to(fcrepo_uri + "?tombstone=true");
             }
         };
     }

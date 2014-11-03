@@ -77,6 +77,7 @@ public class FedoraClient {
         HttpHead request = new HttpHead(url);
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
+        final String contentType = getContentTypeHeader(response);
         
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
@@ -85,7 +86,7 @@ public class FedoraClient {
             if (links.size() == 1) {
                 describedBy = links.get(0);
             }
-            return new FedoraResponse(url, status, describedBy, null);
+            return new FedoraResponse(url, status, contentType, describedBy, null);
         } else {
             throw buildHttpOperationFailedException(url, response);
         }
@@ -104,10 +105,11 @@ public class FedoraClient {
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
+        final String contentTypeHeader = getContentTypeHeader(response);
         
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
-            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+            return new FedoraResponse(url, status, contentTypeHeader, null, entity != null ? EntityUtils.toString(entity) : null);
         } else {
             throw buildHttpOperationFailedException(url, response);
         }
@@ -124,10 +126,11 @@ public class FedoraClient {
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
+        final String contentType = getContentTypeHeader(response);
 
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
-            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+            return new FedoraResponse(url, status, contentType, null, entity != null ? EntityUtils.toString(entity) : null);
         } else {
             throw buildHttpOperationFailedException(url, response);
         }
@@ -144,10 +147,11 @@ public class FedoraClient {
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
+        final String contentTypeHeader = getContentTypeHeader(response);
 
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
-            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+            return new FedoraResponse(url, status, contentTypeHeader, null, entity != null ? EntityUtils.toString(entity) : null);
         } else {
             throw buildHttpOperationFailedException(url, response);
         }
@@ -159,10 +163,11 @@ public class FedoraClient {
         HttpDelete request = new HttpDelete(url);
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
+        final String contentType = getContentTypeHeader(response);
         
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
-            return new FedoraResponse(url, status, null, entity != null ? EntityUtils.toString(entity) : null);
+            return new FedoraResponse(url, status, contentType, null, entity != null ? EntityUtils.toString(entity) : null);
         } else {
             throw buildHttpOperationFailedException(url, response);
         }
@@ -179,6 +184,7 @@ public class FedoraClient {
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
+        final String contentTypeHeader = getContentTypeHeader(response);
 
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
@@ -187,7 +193,7 @@ public class FedoraClient {
             if (links.size() == 1) {
                 describedBy = links.get(0);
             }
-            return new FedoraResponse(url, status, describedBy, entity != null ? EntityUtils.toString(entity) : null);
+            return new FedoraResponse(url, status, contentTypeHeader, describedBy, entity != null ? EntityUtils.toString(entity) : null);
         } else {
             throw buildHttpOperationFailedException(url, response);
         }
@@ -223,6 +229,15 @@ public class FedoraClient {
         }
 
         return answer;
+    }
+
+    protected static String getContentTypeHeader(final HttpResponse response) {
+        final Header[] contentTypes = response.getHeaders("Content-Type");
+        if (contentTypes != null && contentTypes.length > 0) {
+            return contentTypes[0].getValue();
+        } else {
+            return null;
+        }
     }
 
     protected static ArrayList<URI> getLinkHeaders(final HttpResponse response, final String relationship) {

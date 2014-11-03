@@ -71,7 +71,6 @@ public class FedoraProducer extends DefaultProducer {
             case GET:
             default:
                 if(endpoint.getMetadata()) {
-                    exchange.getIn().setHeader("Content-Type", contentType);
                     headResponse = client.head(new URI(url));
                     if (headResponse.getLocation() != null) {
                         response = client.get(headResponse.getLocation(), contentType);
@@ -82,12 +81,13 @@ public class FedoraProducer extends DefaultProducer {
                     response = client.get(new URI(url), null);
                 }
                 exchange.getIn().setBody(response.getBody());
+                exchange.getIn().setHeader("Content-Type", response.getContentType());
         }
         exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, response.getStatusCode());
         client.stop();
     }
 
-    HttpMethods getMethod(final Exchange exchange) {
+    protected HttpMethods getMethod(final Exchange exchange) {
         HttpMethods method = exchange.getIn().getHeader(Exchange.HTTP_METHOD, HttpMethods.class);
         if (method == null) {
             method = HttpMethods.GET;
@@ -95,7 +95,7 @@ public class FedoraProducer extends DefaultProducer {
         return method;
     }
 
-    String getContentType(final Exchange exchange) {
+    protected String getContentType(final Exchange exchange) {
         final String contentTypeString = ExchangeHelper.getContentType(exchange);
         String contentType;
         if (endpoint.getContentType() != null) {
@@ -108,7 +108,7 @@ public class FedoraProducer extends DefaultProducer {
         return contentType;
     }
 
-    String getUrl(final Exchange exchange) {
+    protected String getUrl(final Exchange exchange) {
         final Message in = exchange.getIn();
         final HttpMethods method = exchange.getIn().getHeader(Exchange.HTTP_METHOD, HttpMethods.class);
         String url = "http://" + endpoint.getBaseUrl();
@@ -123,7 +123,7 @@ public class FedoraProducer extends DefaultProducer {
             } else if (method == null || method == HttpMethods.GET) {
                 url += "/fcr:transform/" + endpoint.getTransform();
             }
-        } else if (endpoint.getTombstone()) {
+        } else if (method == HttpMethods.DELETE && endpoint.getTombstone()) {
             url += "/fcr:tombstone";
         }
         return url;
