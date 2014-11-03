@@ -17,22 +17,16 @@ import java.util.HashMap;
 import java.io.InputStream;
 import java.io.IOException;
 
-public class FedoraPathTest extends CamelTestSupport {
+public class FedoraPutTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
-    protected ProducerTemplate template1;
-
-    @Produce(uri = "direct:start")
-    protected ProducerTemplate template2;
-
-    @Produce(uri = "direct:start3")
-    protected ProducerTemplate template3;
-
     @Produce(uri = "direct:setup")
     protected ProducerTemplate setup;
+
+    @Produce(uri = "direct:start")
+    protected ProducerTemplate template;
 
     @Produce(uri = "direct:teardown")
     protected ProducerTemplate teardown;
@@ -48,16 +42,14 @@ public class FedoraPathTest extends CamelTestSupport {
         setupHeaders.put(Exchange.CONTENT_TYPE, "text/turtle");
         setup.sendBodyAndHeaders(body, setupHeaders);
  
-        template1.sendBodyAndHeader(null, "org.fcrepo.jms.identifier", path);
-        template2.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", path);
-        template3.sendBody(null);
+        template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", path);
 
         Map<String, Object> teardownHeaders = new HashMap<String, Object>();
         teardownHeaders.put(Exchange.HTTP_METHOD, "DELETE");
         teardownHeaders.put("FCREPO_IDENTIFIER", path);
         teardown.sendBodyAndHeaders(null, teardownHeaders);
 
-        resultEndpoint.expectedMessageCount(3);
+        resultEndpoint.expectedMessageCount(1);
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -81,11 +73,6 @@ public class FedoraPathTest extends CamelTestSupport {
                 
                 from("direct:start")
                     .to("fcrepo:" + fcrepo_url)
-                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#resource']", ns)
-                    .to("mock:result");
-
-                from("direct:start3")
-                    .to("fcrepo:" + fcrepo_url + "/test/a/b/c/d")
                     .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#resource']", ns)
                     .to("mock:result");
 
