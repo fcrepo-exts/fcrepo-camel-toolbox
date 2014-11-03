@@ -33,7 +33,7 @@ public class FedoraContentTypeEndpointTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/turtle");
         resultEndpoint.expectedMessageCount(1);
 
-        template.sendBodyAndHeader(null, "Content-Type", "application/n-triples");
+        template.sendBodyAndHeader(null, "Accept", "application/n-triples");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -45,7 +45,7 @@ public class FedoraContentTypeEndpointTest extends CamelTestSupport {
                 final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
 
                 from("direct:start")
-                    .to(fcrepo_uri + "?contentType=text/turtle")
+                    .to(fcrepo_uri + "?accept=text/turtle")
                     .to("mock:result");
             }
         };

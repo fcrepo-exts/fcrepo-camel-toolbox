@@ -23,7 +23,7 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived("Content-Type", "application/ld+json");
         resultEndpoint.expectedMessageCount(1);
 
-        template.sendBodyAndHeader(null, "Content-Type", "application/ld+json");
+        template.sendBodyAndHeader(null, "Accept", "application/ld+json");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -33,7 +33,7 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived("Content-Type", "application/rdf+xml");
         resultEndpoint.expectedMessageCount(1);
 
-        template.sendBodyAndHeader(null, "Content-Type", "application/rdf+xml");
+        template.sendBodyAndHeader(null, "Accept", "application/rdf+xml");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -43,7 +43,7 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived("Content-Type", "application/n-triples");
         resultEndpoint.expectedMessageCount(1);
 
-        template.sendBodyAndHeader(null, "Content-Type", "application/n-triples");
+        template.sendBodyAndHeader(null, "Accept", "application/n-triples");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -53,7 +53,7 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/turtle");
         resultEndpoint.expectedMessageCount(1);
 
-        template.sendBodyAndHeader(null, "Content-Type", "text/turtle");
+        template.sendBodyAndHeader(null, "Accept", "text/turtle");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -63,7 +63,7 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/rdf+n3");
         resultEndpoint.expectedMessageCount(1);
 
-        template.sendBodyAndHeader(null, "Content-Type", "text/rdf+n3");
+        template.sendBodyAndHeader(null, "Accept", "text/rdf+n3");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -93,5 +93,3 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
         };
     }
 }
-
-

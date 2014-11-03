@@ -173,18 +173,18 @@ public class FedoraClient {
         }
     }
 
-    public FedoraResponse get(final URI url, final String contentType)
+    public FedoraResponse get(final URI url, final String accept)
             throws ClientProtocolException, IOException, HttpOperationFailedException {
 
         HttpGet request = new HttpGet(url);
         
-        if (contentType != null) {
-            request.setHeader("Accept", contentType);
+        if (accept != null) {
+            request.setHeader("Accept", accept);
         }
 
         HttpResponse response = httpclient.execute(request);
         int status = response.getStatusLine().getStatusCode();
-        final String contentTypeHeader = getContentTypeHeader(response);
+        final String contentType = getContentTypeHeader(response);
 
         if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
             HttpEntity entity = response.getEntity();
@@ -193,7 +193,7 @@ public class FedoraClient {
             if (links.size() == 1) {
                 describedBy = links.get(0);
             }
-            return new FedoraResponse(url, status, contentTypeHeader, describedBy, entity != null ? EntityUtils.toString(entity) : null);
+            return new FedoraResponse(url, status, contentType, describedBy, entity != null ? EntityUtils.toString(entity) : null);
         } else {
             throw buildHttpOperationFailedException(url, response);
         }

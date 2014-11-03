@@ -25,6 +25,8 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     private volatile String contentType = null;
 
+    private volatile String accept = null;
+
     private volatile String baseUrl = "";
 
     private volatile String transform = null;
@@ -70,6 +72,14 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public String getBaseUrl() {
         return baseUrl;
+    }
+
+    public void setAccept(final String type) {
+        this.accept = type.replaceAll(" ", "+");
+    }
+
+    public String getAccept() {
+        return accept;
     }
 
     public void setContentType(final String type) {

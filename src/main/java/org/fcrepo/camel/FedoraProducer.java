@@ -35,6 +35,7 @@ public class FedoraProducer extends DefaultProducer {
 
         final HttpMethods method = this.getMethod(exchange);
         final String contentType = this.getContentType(exchange);
+        final String accept = this.getAccept(exchange);
         final String url = this.getUrl(exchange);
             
         logger.info("Fcrepo Request [{}] with method [{}]", url, method);
@@ -73,9 +74,9 @@ public class FedoraProducer extends DefaultProducer {
                 if(endpoint.getMetadata()) {
                     headResponse = client.head(new URI(url));
                     if (headResponse.getLocation() != null) {
-                        response = client.get(headResponse.getLocation(), contentType);
+                        response = client.get(headResponse.getLocation(), accept);
                     } else {
-                        response = client.get(new URI(url), contentType);
+                        response = client.get(new URI(url), accept);
                     }
                 } else {
                     response = client.get(new URI(url), null);
@@ -97,15 +98,26 @@ public class FedoraProducer extends DefaultProducer {
 
     protected String getContentType(final Exchange exchange) {
         final String contentTypeString = ExchangeHelper.getContentType(exchange);
-        String contentType;
+        String contentType = null;
         if (endpoint.getContentType() != null) {
             contentType = endpoint.getContentType();
         } else if (contentTypeString != null) {
             contentType = contentTypeString;
-        } else {
-            contentType = endpoint.DEFAULT_CONTENT_TYPE;
         }
         return contentType;
+    }
+
+    protected String getAccept(final Exchange exchange) {
+        String accept;
+        final Message in = exchange.getIn();
+        if (endpoint.getAccept() != null) {
+            accept = endpoint.getAccept();
+        } else if (in.getHeader("Accept", String.class) != null) {
+            accept = in.getHeader("Accept", String.class);
+        } else {
+            accept = endpoint.DEFAULT_CONTENT_TYPE;
+        }
+        return accept;
     }
 
     protected String getUrl(final Exchange exchange) {

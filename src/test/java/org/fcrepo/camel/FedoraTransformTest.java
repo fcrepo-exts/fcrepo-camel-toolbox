@@ -64,7 +64,7 @@ public class FedoraTransformTest extends CamelTestSupport {
                     .to(fcrepo_uri);
 
                 from("direct:start")
-                    .to(fcrepo_uri + "?contentType=application/json&transform=default")
+                    .to(fcrepo_uri + "?accept=application/json&transform=default")
                     .to("mock:result");
 
                 from("direct:teardown")
