@@ -31,9 +31,10 @@ public class FedoraContentTypeEndpointTest extends CamelTestSupport {
     @Test
     public void testContentTypeN3() throws Exception {
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/turtle");
-        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(2);
 
         template.sendBodyAndHeader(null, "Accept", "application/n-triples");
+        template.sendBodyAndHeader(null, Exchange.ACCEPT_CONTENT_TYPE, "application/n-triples");
 
         resultEndpoint.assertIsSatisfied();
     }
