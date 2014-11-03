@@ -1,6 +1,7 @@
 package org.fcrepo.camel;
 
 import org.apache.camel.Produce;
+import org.apache.camel.Exchange;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
@@ -21,9 +22,10 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
     @Test
     public void testContentTypeJson() throws Exception {
         resultEndpoint.expectedHeaderReceived("Content-Type", "application/ld+json");
-        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(2);
 
         template.sendBodyAndHeader(null, "Accept", "application/ld+json");
+        template.sendBodyAndHeader(null, Exchange.ACCEPT_CONTENT_TYPE, "application/ld+json");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -31,9 +33,10 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
     @Test
     public void testContentTypeRdfXml() throws Exception {
         resultEndpoint.expectedHeaderReceived("Content-Type", "application/rdf+xml");
-        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(2);
 
         template.sendBodyAndHeader(null, "Accept", "application/rdf+xml");
+        template.sendBodyAndHeader(null, Exchange.ACCEPT_CONTENT_TYPE, "application/rdf+xml");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -41,9 +44,10 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
     @Test
     public void testContentTypeNTriples() throws Exception {
         resultEndpoint.expectedHeaderReceived("Content-Type", "application/n-triples");
-        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(2);
 
         template.sendBodyAndHeader(null, "Accept", "application/n-triples");
+        template.sendBodyAndHeader(null, Exchange.ACCEPT_CONTENT_TYPE, "application/n-triples");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -51,9 +55,10 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
     @Test
     public void testContentTypeTurtle() throws Exception {
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/turtle");
-        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(2);
 
         template.sendBodyAndHeader(null, "Accept", "text/turtle");
+        template.sendBodyAndHeader(null, Exchange.ACCEPT_CONTENT_TYPE, "text/turtle");
 
         resultEndpoint.assertIsSatisfied();
     }
@@ -61,9 +66,10 @@ public class FedoraContentTypeHeaderTest extends CamelTestSupport {
     @Test
     public void testContentTypeN3() throws Exception {
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/rdf+n3");
-        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(2);
 
         template.sendBodyAndHeader(null, "Accept", "text/rdf+n3");
+        template.sendBodyAndHeader(null, Exchange.ACCEPT_CONTENT_TYPE, "text/rdf+n3");
 
         resultEndpoint.assertIsSatisfied();
     }

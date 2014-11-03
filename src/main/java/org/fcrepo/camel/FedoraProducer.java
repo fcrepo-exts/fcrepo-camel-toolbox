@@ -112,6 +112,8 @@ public class FedoraProducer extends DefaultProducer {
         final Message in = exchange.getIn();
         if (endpoint.getAccept() != null) {
             accept = endpoint.getAccept();
+        } else if (in.getHeader(Exchange.ACCEPT_CONTENT_TYPE, String.class) != null) {
+            accept = in.getHeader(Exchange.ACCEPT_CONTENT_TYPE, String.class);
         } else if (in.getHeader("Accept", String.class) != null) {
             accept = in.getHeader("Accept", String.class);
         } else {
