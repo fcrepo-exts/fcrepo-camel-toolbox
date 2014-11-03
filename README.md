@@ -27,6 +27,37 @@ FcrepoEndpoint options
 | `throwExceptionOnFailure` | `true` | Option to disable throwing the HttpOperationFailedException in case of failed responses from the remote server. This allows you to get all responses regardless of the HTTP status code. |
 
 
+Examples
+--------
+
+A simple example for sending messages to an external Solr service:
+
+    XPathBuilder xpath = new XPathBuilder("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#indexable']");
+    xpath.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+
+    from("activemq:topic:fedora")
+      .to("fcrepo:localhost:8080/rest")
+      .filter(xpath)
+      .to("fcrepo:localhost:8080/rest?accept=application/json&transform=mytransform")
+      .setHeader(Exchange.CONTENT_TYPE).constant("application/json")
+      .to("http4:solr-host:8080/solr/core/update")
+
+Or, using the Spring DSL:
+
+    <route id="solr-indexer">
+      <from uri="activemq:topic:fedora"/>
+      <to uri="fcrepo:localhost:8080/rest"/>
+      <filter>
+        <xpath>/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#indexable']</xpath>
+        <to uri="fcrepo:localhost:8080/rest?accept=application/json&amp;transform=mytransform"/>
+        <setHeader headerName="Exchange.CONTENT_TYPE">
+          <constant>application/json</constant>
+        </setHeader>
+        <to uri="http4:solr-host:8080/solr/core/update"/>
+      </filter>
+    </route>
+
+
 Setting basic authentication
 ----------------------------
 
