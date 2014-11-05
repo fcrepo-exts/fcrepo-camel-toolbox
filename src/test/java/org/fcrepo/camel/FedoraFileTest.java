@@ -72,10 +72,13 @@ public class FedoraFileTest extends CamelTestSupport {
         template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", identifier + "/file");
         template.sendBodyAndHeader("direct:file", null, "FCREPO_IDENTIFIER", identifier + "/file");
 
-        template.sendBodyAndHeader("direct:teardown",
-                null, "FCREPO_IDENTIFIER", identifier + "/file");
-        template.sendBodyAndHeader("direct:teardown",
-                null, "FCREPO_IDENTIFIER", identifier);
+
+        Map<String, Object> teardownHeaders = new HashMap<String, Object>();
+        teardownHeaders.put(Exchange.HTTP_METHOD, "DELETE");
+        teardownHeaders.put("FCREPO_IDENTIFIER", identifier + "/file");
+        template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
+        teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
+        template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
         // Confirm that assertions passed
         resultEndpoint.assertIsSatisfied();
@@ -105,6 +108,7 @@ public class FedoraFileTest extends CamelTestSupport {
 
                 from("direct:teardown")
                     .to(fcrepo_uri)
+                    .log("TEST TEARDOWN: ${header.FCREPO_IDENTIFIER}")
                     .to(fcrepo_uri + "?tombstone=true");
             }
         };
