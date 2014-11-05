@@ -1,3 +1,16 @@
+/**
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/license/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software     
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.fcrepo.camel;
 
 import org.slf4j.Logger;
@@ -11,8 +24,12 @@ import org.apache.camel.impl.DefaultEndpoint;
 
 /**
  * Represents a Fedora endpoint.
+ * @author Aaron Coburn
+ * @since October 20, 2014
  */
 public class FedoraEndpoint extends DefaultEndpoint {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FedoraEndpoint.class);
 
     public static final String JMS_HEADER_PREFIX = "org.fcrepo.jms.";
 
@@ -43,29 +60,50 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     private volatile Boolean throwExceptionOnFailure = true;
 
-    private static final Logger logger = LoggerFactory.getLogger(FedoraEndpoint.class);
-
+    /**
+     * Create a FedoraEndpoint with a uri, path and component
+     * @param uri the endpoint uri (without path values)
+     * @param remaining any path values on the endpoint uri
+     * @param component an existing component value
+     */
     public FedoraEndpoint(final String uri, final String remaining, final FedoraComponent component) {
         super(uri, component);
         this.setBaseUrl(remaining);
     }
 
-    public FedoraEndpoint(final String endpointUri) {
-        super(endpointUri);
+    /**
+     * Create a FedoraEndpoint with only a uri string
+     * @param uri the complete endpoint uri
+     */
+    public FedoraEndpoint(final String uri) {
+        super(uri);
     }
 
+    /**
+     * Create a producer endpoint.
+     */
     public Producer createProducer() throws Exception {
         return new FedoraProducer(this);
     }
 
+    /**
+     * This component does not implement a consumer endpoint.
+     */
     public Consumer createConsumer(final Processor processor) throws Exception {
         throw new RuntimeCamelException("Cannot produce to a FedoraEndpoint: " + getEndpointUri());
     }
 
+    /**
+     * Define the component as a singleton
+     */
     public boolean isSingleton() {
         return true;
     }
 
+    /**
+     * baseUrl accessor methods
+     * @param url the baseUrl string
+     */
     public void setBaseUrl(final String url) {
         this.baseUrl = url;
     }
@@ -74,6 +112,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return baseUrl;
     }
 
+    /**
+     * accept accessor methods
+     * @param type the content-type for Accept headers
+     */
     public void setAccept(final String type) {
         this.accept = type.replaceAll(" ", "+");
     }
@@ -82,6 +124,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return accept;
     }
 
+    /**
+     * contentType accessor methods
+     * @param type the content-type for Content-Type headers
+     */
     public void setContentType(final String type) {
         this.contentType = type.replaceAll(" ", "+");
     }
@@ -90,6 +136,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return contentType;
     }
 
+    /**
+     * authUsername accessor methods
+     * @param username used for authentication
+     */
     public void setAuthUsername(final String username) {
         this.authUsername = username;
     }
@@ -98,6 +148,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return authUsername;
     }
 
+    /**
+     * authPassword accessor methods
+     * @param password used for authentication
+     */
     public void setAuthPassword(final String password) {
         this.authPassword = password;
     }
@@ -106,6 +160,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return authPassword;
     }
 
+    /**
+     * authHost accessor methods
+     * @param host used for authentication
+     */
     public String getAuthHost() {
         return authHost;
     }
@@ -114,6 +172,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
         this.authHost = host;
     }
 
+    /**
+     * metadata accessor methods
+     * @param metadata whether to retrieve rdf metadata for non-rdf nodes
+     */
     public Boolean getMetadata() {
         return metadata;
     }
@@ -122,6 +184,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
         this.metadata = Boolean.valueOf(metadata);
     }
 
+    /**
+     * throwExceptionOnFailure accessor methods
+     * @param throwOnFailure whether non-2xx HTTP response codes throw exceptions
+     */
     public void setThrowExceptionOnFailure(final String throwOnFailure) {
         this.throwExceptionOnFailure = Boolean.valueOf(throwOnFailure);
     }
@@ -130,6 +196,10 @@ public class FedoraEndpoint extends DefaultEndpoint {
         return throwExceptionOnFailure;
     }
     
+    /**
+     * transform accessor methods
+     * @param transform define an LD-Path transform program for converting RDF to JSON
+     */
     public void setTransform(final String transform) {
         this.transform = transform;
     }
@@ -137,7 +207,11 @@ public class FedoraEndpoint extends DefaultEndpoint {
     public String getTransform() {
         return transform;
     }
-    
+
+    /**
+     * tombstone accessor methods
+     * @param tombstone whether to access the /fcr:tombstone endpoint for a resource 
+     */
     public void setTombstone(final String tombstone) {
         this.tombstone = Boolean.valueOf(tombstone);
     }

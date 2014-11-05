@@ -1,3 +1,16 @@
+/**
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/license/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software     
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.fcrepo.camel;
 
 import java.net.URI;
@@ -13,18 +26,29 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Fedora producer.
+ * @author Aaron Coburn
+ * @since October 20, 2014
  */
 public class FedoraProducer extends DefaultProducer {
     
-    private static final Logger logger  = LoggerFactory.getLogger(FedoraProducer.class);
+    private static final Logger LOGGER  = LoggerFactory.getLogger(FedoraProducer.class);
 
     private volatile FedoraEndpoint endpoint;
 
+    /**
+     * Create a FedoraProducer object
+     * @param endpoint the FedoraEndpoint corresponding to the exchange.
+     */
     public FedoraProducer(final FedoraEndpoint endpoint) {
         super(endpoint);
         this.endpoint = endpoint;
     }
 
+    /**
+     * Define how message exchanges are processed.
+     * @param exchange the InOut message exchange
+     * @throws Exception
+     */
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
         final FedoraClient client = new FedoraClient(
@@ -38,7 +62,7 @@ public class FedoraProducer extends DefaultProducer {
         final String accept = this.getAccept(exchange);
         final String url = this.getUrl(exchange);
             
-        logger.info("Fcrepo Request [{}] with method [{}]", url, method);
+        LOGGER.info("Fcrepo Request [{}] with method [{}]", url, method);
 
         FedoraResponse headResponse;
         FedoraResponse response;
@@ -88,6 +112,14 @@ public class FedoraProducer extends DefaultProducer {
         client.stop();
     }
 
+    /**
+     * Given an exchange, determine which HTTP method to use.
+     * Basically, use GET unless the value of the Exchange.HTTP_METHOD header is defined.
+     * Unlike the http4: component, the request does not use POST if there is a
+     * message body defined. This is so in order to avoid inadvertant changes to the
+     * repository.
+     * @param exchange the incoming message exchange
+     */
     protected HttpMethods getMethod(final Exchange exchange) {
         HttpMethods method = exchange.getIn().getHeader(Exchange.HTTP_METHOD, HttpMethods.class);
         if (method == null) {
@@ -96,6 +128,13 @@ public class FedoraProducer extends DefaultProducer {
         return method;
     }
 
+    /**
+     * Given an exchange, extract the contentType value for use with a Content-Type header.
+     * The order of preference is so:
+     *   1) a contentType value set on the endpoint
+     *   2) a contentType value set on the Exchange.CONTENT_TYPE header
+     * @param exchange the incoming message exchange
+     */
     protected String getContentType(final Exchange exchange) {
         final String contentTypeString = ExchangeHelper.getContentType(exchange);
         String contentType = null;
@@ -107,6 +146,15 @@ public class FedoraProducer extends DefaultProducer {
         return contentType;
     }
 
+    /**
+     * Given an exchange, extract the accept value for use with an Accept header.
+     * The order of preference is:
+     *   1) an accept value set on the endpoint
+     *   2) a value set on the Exchange.ACCEPT_CONTENT_TYPE header
+     *   3) a value set on an "Accept" header
+     *   4) the endpoint DEFAULT_CONTENT_TYPE (i.e. application/rdf+xml)
+     * @param exchange the incoming message exchange
+     */
     protected String getAccept(final Exchange exchange) {
         String accept;
         final Message in = exchange.getIn();
@@ -122,6 +170,15 @@ public class FedoraProducer extends DefaultProducer {
         return accept;
     }
 
+    /**
+     * Given an exchange, extract the fully qualified URL for a fedora resource.
+     * By default, this will use the entire path set on the endpoint. If either
+     * of the following headers are defined, they will be appended to that path
+     * in this order of preference:
+     *   1) FCREPO_IDENTIFIER
+     *   2) org.fcrepo.jms.identifier
+     * @param exchange the incoming message exchange
+     */
     protected String getUrl(final Exchange exchange) {
         final Message in = exchange.getIn();
         final HttpMethods method = exchange.getIn().getHeader(Exchange.HTTP_METHOD, HttpMethods.class);
