@@ -13,8 +13,11 @@
  */
 package org.fcrepo.camel;
 
+import org.fcrepo.camel.processor.SparqlUpdateProcessor;
+
 import org.apache.camel.Produce;
 import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
@@ -29,7 +32,7 @@ import java.util.HashMap;
 
 import java.io.IOException;
 
-public class FedoraPostTest extends CamelTestSupport {
+public class FedoraSparqlTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -38,10 +41,9 @@ public class FedoraPostTest extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testPost() throws Exception {
+    public void testSparql() throws Exception {
         // Assertions
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedBodiesReceived("some title");
 
         // Setup
         Map<String, Object> headers = new HashMap<String, Object>();
@@ -54,7 +56,10 @@ public class FedoraPostTest extends CamelTestSupport {
         final String identifier = fullPath.replaceAll(FedoraTestUtils.getFcrepoBaseUri(), "");
         
         // Test
-        template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", identifier);
+        Map<String, Object> testHeaders = new HashMap<String, Object>();
+        testHeaders.put("FCREPO_IDENTIFIER", identifier);
+        testHeaders.put("org.fcrepo.jms.baseURL", "http://localhost:8080/fcrepo4/rest");
+        template.sendBodyAndHeaders(null, testHeaders);
 
         // Teardown
         Map<String, Object> teardownHeaders = new HashMap<String, Object>();
@@ -72,6 +77,8 @@ public class FedoraPostTest extends CamelTestSupport {
             public void configure() throws IOException {
                 final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
 
+                final Processor sparqlUpdate = new SparqlUpdateProcessor();
+
                 Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
                 
                 XPathBuilder titleXpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
@@ -82,9 +89,11 @@ public class FedoraPostTest extends CamelTestSupport {
                     .to(fcrepo_uri);
 
                 from("direct:start")
-                    .to(fcrepo_uri)
-                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#resource']", ns)
-                    .split(titleXpath)
+                    .to(fcrepo_uri + "?accept=application/n-triples")
+                    .process(sparqlUpdate)
+                    .log("${body}")
+                    .setHeader(Exchange.CONTENT_TYPE).constant("application/sparql-update")
+//                    .to("http4:localhost:3030/test/update")
                     .to("mock:result");
 
                 from("direct:teardown")
