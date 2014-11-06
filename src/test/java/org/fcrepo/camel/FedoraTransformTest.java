@@ -1,5 +1,9 @@
 package org.fcrepo.camel;
 
+import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.FedoraTestUtils.getFcrepoBaseUri;
+import static org.fcrepo.camel.FedoraTestUtils.getTurtleDocument;
+
 import org.apache.camel.Produce;
 import org.apache.camel.Exchange;
 import org.apache.camel.EndpointInject;
@@ -11,7 +15,6 @@ import org.junit.Test;
 
 import java.util.Map;
 import java.util.HashMap;
-
 import java.io.IOException;
 
 public class FedoraTransformTest extends CamelTestSupport {
@@ -23,25 +26,25 @@ public class FedoraTransformTest extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testTransform() throws Exception {
+    public void testTransform() throws IOException, InterruptedException {
 
         // Setup
-        Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         headers.put(Exchange.HTTP_METHOD, "POST");
         headers.put(Exchange.CONTENT_TYPE, "text/turtle");
 
         final String fullPath = template.requestBodyAndHeaders(
-                "direct:setup", FedoraTestUtils.getTurtleDocument(), headers, String.class);
+                "direct:setup", getTurtleDocument(), headers, String.class);
 
-        final String identifier = fullPath.replaceAll(FedoraTestUtils.getFcrepoBaseUri(), "");
-        
+        final String identifier = fullPath.replaceAll(getFcrepoBaseUri(), "");
+
         // Test
         template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER",
                 identifier);
 
         // Teardown
-        Map<String, Object> teardownHeaders = new HashMap<String, Object>();
-        teardownHeaders.put(Exchange.HTTP_METHOD, "DELETE");
+        final Map<String, Object> teardownHeaders = new HashMap<>();
+        teardownHeaders.put(HTTP_METHOD, "DELETE");
         teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
@@ -52,8 +55,9 @@ public class FedoraTransformTest extends CamelTestSupport {
     }
 
     @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
+    protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
+            @Override
             public void configure() throws IOException {
                 final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
 
