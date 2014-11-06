@@ -17,11 +17,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
+import org.slf4j.Logger;
 
 /**
  * Represents the component that manages {@link FedoraEndpoint}.

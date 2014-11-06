@@ -13,40 +13,34 @@
  */
 package org.fcrepo.camel;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.camel.component.http4.HttpOperationFailedException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.Link;
 
-import java.net.URI;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
+import org.apache.camel.component.http4.HttpOperationFailedException;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
 
 /**
  * Represents a client to interact with Fedora's HTTP API.
@@ -57,8 +51,6 @@ import java.io.IOException;
  * @since October 20, 2014
  */
 public class FedoraClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FedoraClient.class);
 
     private CloseableHttpClient httpclient;
 

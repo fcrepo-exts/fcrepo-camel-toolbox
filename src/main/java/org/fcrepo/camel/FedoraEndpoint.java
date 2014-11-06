@@ -13,14 +13,11 @@
  */
 package org.fcrepo.camel;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.impl.DefaultEndpoint;
-import org.slf4j.Logger;
 
 /**
  * Represents a Fedora endpoint.
@@ -28,8 +25,6 @@ import org.slf4j.Logger;
  * @since October 20, 2014
  */
 public class FedoraEndpoint extends DefaultEndpoint {
-
-    private static final Logger LOGGER = getLogger(FedoraEndpoint.class);
 
     public static final String JMS_HEADER_PREFIX = "org.fcrepo.jms.";
 
