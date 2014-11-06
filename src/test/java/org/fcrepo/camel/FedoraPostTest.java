@@ -5,7 +5,7 @@
  *
  *     http://www.apache.org/license/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software     
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -13,9 +13,18 @@
  */
 package org.fcrepo.camel;
 
-import org.apache.camel.Produce;
-import org.apache.camel.Exchange;
+import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.FedoraTestUtils.getFcrepoBaseUri;
+import static org.fcrepo.camel.FedoraTestUtils.getFcrepoEndpointUri;
+import static org.fcrepo.camel.FedoraTestUtils.getTurtleDocument;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.camel.EndpointInject;
+import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
@@ -23,11 +32,6 @@ import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
-
-import java.util.Map;
-import java.util.HashMap;
-
-import java.io.IOException;
 
 public class FedoraPostTest extends CamelTestSupport {
 
@@ -38,27 +42,27 @@ public class FedoraPostTest extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testPost() throws Exception {
+    public void testPost() throws IOException, InterruptedException {
         // Assertions
         resultEndpoint.expectedMessageCount(1);
         resultEndpoint.expectedBodiesReceived("some title");
 
         // Setup
-        Map<String, Object> headers = new HashMap<String, Object>();
-        headers.put(Exchange.HTTP_METHOD, "POST");
-        headers.put(Exchange.CONTENT_TYPE, "text/turtle");
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put(HTTP_METHOD, "POST");
+        headers.put(CONTENT_TYPE, "text/turtle");
 
         final String fullPath = template.requestBodyAndHeaders(
-                "direct:setup", FedoraTestUtils.getTurtleDocument(), headers, String.class);
+                "direct:setup", getTurtleDocument(), headers, String.class);
 
-        final String identifier = fullPath.replaceAll(FedoraTestUtils.getFcrepoBaseUri(), "");
-        
+        final String identifier = fullPath.replaceAll(getFcrepoBaseUri(), "");
+
         // Test
         template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", identifier);
 
         // Teardown
-        Map<String, Object> teardownHeaders = new HashMap<String, Object>();
-        teardownHeaders.put(Exchange.HTTP_METHOD, "DELETE");
+        final Map<String, Object> teardownHeaders = new HashMap<>();
+        teardownHeaders.put(HTTP_METHOD, "DELETE");
         teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
@@ -67,14 +71,15 @@ public class FedoraPostTest extends CamelTestSupport {
     }
 
     @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
+    protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
+            @Override
             public void configure() throws IOException {
-                final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
+                final String fcrepo_uri = getFcrepoEndpointUri();
 
-                Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-                
-                XPathBuilder titleXpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
+                final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+
+                final XPathBuilder titleXpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
                 titleXpath.namespaces(ns);
                 titleXpath.namespace("dc", "http://purl.org/dc/elements/1.1/");
 

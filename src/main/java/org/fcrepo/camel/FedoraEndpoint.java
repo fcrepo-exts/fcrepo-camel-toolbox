@@ -5,16 +5,13 @@
  *
  *     http://www.apache.org/license/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software     
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package org.fcrepo.camel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
@@ -29,12 +26,9 @@ import org.apache.camel.impl.DefaultEndpoint;
  */
 public class FedoraEndpoint extends DefaultEndpoint {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FedoraEndpoint.class);
-
     public static final String JMS_HEADER_PREFIX = "org.fcrepo.jms.";
 
-    public static final String FCREPO_JMS_IDENTIFIER =
-        JMS_HEADER_PREFIX + "identifier";
+    public static final String FCREPO_JMS_IDENTIFIER = JMS_HEADER_PREFIX + "identifier";
 
     public static final String FCREPO_IDENTIFIER = "FCREPO_IDENTIFIER";
 
@@ -72,23 +66,17 @@ public class FedoraEndpoint extends DefaultEndpoint {
     }
 
     /**
-     * Create a FedoraEndpoint with only a uri string
-     * @param uri the complete endpoint uri
-     */
-    public FedoraEndpoint(final String uri) {
-        super(uri);
-    }
-
-    /**
      * Create a producer endpoint.
      */
-    public Producer createProducer() throws Exception {
+    @Override
+    public Producer createProducer() {
         return new FedoraProducer(this);
     }
 
     /**
      * This component does not implement a consumer endpoint.
      */
+    @Override
     public Consumer createConsumer(final Processor processor) throws Exception {
         throw new RuntimeCamelException("Cannot produce to a FedoraEndpoint: " + getEndpointUri());
     }
@@ -96,6 +84,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * Define the component as a singleton
      */
+    @Override
     public boolean isSingleton() {
         return true;
     }
@@ -195,7 +184,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     public Boolean getThrowExceptionOnFailure() {
         return throwExceptionOnFailure;
     }
-    
+
     /**
      * transform accessor methods
      * @param transform define an LD-Path transform program for converting RDF to JSON
@@ -210,7 +199,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     /**
      * tombstone accessor methods
-     * @param tombstone whether to access the /fcr:tombstone endpoint for a resource 
+     * @param tombstone whether to access the /fcr:tombstone endpoint for a resource
      */
     public void setTombstone(final String tombstone) {
         this.tombstone = Boolean.valueOf(tombstone);
