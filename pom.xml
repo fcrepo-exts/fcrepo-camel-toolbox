@@ -11,11 +11,53 @@
   <name>Camel Fedora Component</name>
   <url>http://fcrepo.org</url>
 
+  <organization>
+    <name>DuraSpace, Inc.</name>
+    <url>http://www.duraspace.org/</url>
+  </organization>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <fcrepo.url>localhost:8080/fcrepo4/rest</fcrepo.url>
+    <fcrepo.version>4.0.0-beta-04-SNAPSHOT</fcrepo.version>
+    <project.copyrightYear>2014</project.copyrightYear>
   </properties>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <comments>Copyright (c) 2014 DuraSpace</comments>
+    </license>
+  </licenses>
+
+  <repositories>
+    <repository>
+      <id>snapshots-repo</id>
+      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 
   <dependencies>
     <dependency>
@@ -85,6 +127,52 @@
   </dependencies>
 
   <build>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>2.6</version>
+          <configuration>
+            <header>fcrepo-license/LICENSE_HEADER.txt</header>
+            <includes>
+              <include>**/src/main/java/**</include>
+              <include>**/src/test/java/**</include>
+            </includes>
+            <excludes>
+              <exclude>target/**</exclude>
+              <exclude>**/src/test/resources/**</exclude>
+              <exclude>**/src/main/resources/**</exclude>
+              <exclude>**/*.properties</exclude>
+            </excludes>
+            <properties>
+              <name>${project.artifactId}</name>
+              <year>${project.copyrightYear}</year>
+              <holder>${project.organization.name}</holder>
+            </properties>
+            <encoding>UTF-8</encoding>
+            <strictCheck>true</strictCheck>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.fcrepo</groupId>
+              <artifactId>fcrepo-build-tools</artifactId>
+              <version>${fcrepo.version}</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+
     <defaultGoal>install</defaultGoal>
 
     <plugins>
@@ -104,6 +192,11 @@
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
       </plugin>
 
       <!-- to generate the MANIFEST-FILE of the bundle -->
