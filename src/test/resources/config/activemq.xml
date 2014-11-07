@@ -94,7 +94,7 @@
     -->
     <transportConnectors>
       <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
-      <transportConnector name="openwire" uri="vm://localhost"   />
+      <transportConnector name="openwire" uri="vm://0.0.0.0:58338"   />
     </transportConnectors>
 
     <!-- destroy the spring context on shutdown to stop jetty -->

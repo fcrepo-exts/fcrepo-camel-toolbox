@@ -7,12 +7,11 @@
 
   <context:property-placeholder/>
 
-  <bean id="containerWrapper" class="org.fcrepo.camel.integration.FedoraContainerWrapper" init-method="start" destroy-method="stop" >
+  <bean id="containerWrapper" class="org.fcrepo.camel.integration.FusekiContainerWrapper" init-method="start" destroy-method="stop" >
     <property name="port" value="${test.port:8080}"/>
     <property name="configLocation" value="classpath:web.xml" />
   </bean>
 
-  <import resource="classpath:/spring-test/indexer-core.xml"/>
-  <import resource="classpath:/spring-test/indexer-events.xml"/>
+  <import resource="classpath:/spring-test/master.xml"/>
 
 </beans>

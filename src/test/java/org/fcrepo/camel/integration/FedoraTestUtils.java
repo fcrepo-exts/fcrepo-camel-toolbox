@@ -22,24 +22,11 @@ import java.io.IOException;
 public class FedoraTestUtils {
 
     public static String getFcrepoBaseUri() throws IOException {
-        final Properties props = new Properties();
-
-        try (final InputStream in = FedoraTestUtils.class.getResourceAsStream("/org.fcrepo.properties")) {
-            props.load(in);
-        }
-
-        return "http://" + props.getProperty("fcrepo.url").replaceAll("http://", "");
-
+        return "http://localhost:8080/rest";
     }
 
-    public static String getFcrepoEndpointUri() throws IOException {
-        final Properties props = new Properties();
-
-        try (final InputStream in = FedoraTestUtils.class.getResourceAsStream("/org.fcrepo.properties")) {
-            props.load(in);
-        }
-
-        return "fcrepo:localhost:8080/rest";// + props.getProperty("fcrepo.url").replaceAll("http://", "");
+    public static String getFcrepoEndpointUri() {
+        return "fcrepo:localhost:8080/rest";
     }
 
     public static String getTurtleDocument() {
