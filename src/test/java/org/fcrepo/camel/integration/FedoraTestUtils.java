@@ -15,13 +15,17 @@
  */
 package org.fcrepo.camel.integration;
 
-import java.io.InputStream;
-import java.util.Properties;
-import java.io.IOException;
+/**
+ * Utility functions for integration testing
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
+public final class FedoraTestUtils {
 
-public class FedoraTestUtils {
+    private FedoraTestUtils() {
+    }
 
-    public static String getFcrepoBaseUri() throws IOException {
+    public static String getFcrepoBaseUri() {
         return "http://localhost:8080/rest";
     }
 
@@ -30,7 +34,8 @@ public class FedoraTestUtils {
     }
 
     public static String getTurtleDocument() {
-        return "PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n<> dc:title \"some title\" .";
+        return "PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n" +
+                "<> dc:title \"some title\" .";
     }
 
     public static String getTextDocument() {
@@ -38,6 +43,7 @@ public class FedoraTestUtils {
     }
 
     public static String getPatchDocument() {
-        return "PREFIX dc: <http://purl.org/dc/elements/1.1/> \n\nINSERT { <> dc:title \"another title\" . } \nWHERE { }";
+        return "PREFIX dc: <http://purl.org/dc/elements/1.1/> \n\n" +
+                "INSERT { <> dc:title \"another title\" . } \nWHERE { }";
     }
 }

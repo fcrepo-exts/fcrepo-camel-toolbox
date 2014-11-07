@@ -30,6 +30,12 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 
+/**
+ * Test the retrieved content-type from a fcrepo endpoint
+ * when the Accept type is put in a message header.
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraContentTypeHeaderIT extends CamelTestSupport {
 

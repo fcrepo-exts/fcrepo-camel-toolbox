@@ -31,6 +31,12 @@ import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+/**
+ * Test the retrieved content-type from a fcrepo endpoint
+ * when the Accept type is put directly on the endpoint.
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraContentTypeEndpointIT extends CamelTestSupport {

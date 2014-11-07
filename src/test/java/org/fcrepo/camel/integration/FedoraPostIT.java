@@ -36,6 +36,11 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 
+/**
+ * Test adding a new resource with POST
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraPostIT extends CamelTestSupport {
 
@@ -92,7 +97,9 @@ public class FedoraPostIT extends CamelTestSupport {
 
                 from("direct:start")
                     .to(fcrepo_uri)
-                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
+                    .filter().xpath(
+                        "/rdf:RDF/rdf:Description/rdf:type" +
+                        "[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
                     .split(titleXpath)
                     .to("mock:result");
 

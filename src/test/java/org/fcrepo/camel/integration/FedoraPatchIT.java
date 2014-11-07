@@ -36,6 +36,11 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 
+/**
+ * Test updating a fedora object with sparql-update
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraPatchIT extends CamelTestSupport {
 
@@ -56,7 +61,7 @@ public class FedoraPatchIT extends CamelTestSupport {
         titleEndpoint.expectedBodiesReceivedInAnyOrder("some title", "another title");
 
         // Setup
-        Map<String, Object> headers = new HashMap<>();
+        final Map<String, Object> headers = new HashMap<>();
         headers.put(HTTP_METHOD, "POST");
         headers.put(CONTENT_TYPE, "text/turtle");
 
@@ -66,7 +71,7 @@ public class FedoraPatchIT extends CamelTestSupport {
         final String identifier = fullPath.replaceAll(getFcrepoBaseUri(), "");
 
         // Test
-        Map<String, Object> patchHeaders = new HashMap<>();
+        final Map<String, Object> patchHeaders = new HashMap<>();
         patchHeaders.put(HTTP_METHOD, "PATCH");
         patchHeaders.put(CONTENT_TYPE, "text/turtle");
         patchHeaders.put("FCREPO_IDENTIFIER", identifier);
@@ -77,7 +82,7 @@ public class FedoraPatchIT extends CamelTestSupport {
                 "FCREPO_IDENTIFIER", identifier);
 
         // Teardown
-        Map<String, Object> teardownHeaders = new HashMap<>();
+        final Map<String, Object> teardownHeaders = new HashMap<>();
         teardownHeaders.put(HTTP_METHOD, "DELETE");
         teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
@@ -95,7 +100,7 @@ public class FedoraPatchIT extends CamelTestSupport {
 
                 final String fcrepo_uri = getFcrepoEndpointUri();
 
-                XPathBuilder xpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
+                final XPathBuilder xpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
                 xpath.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
                 xpath.namespace("dc", "http://purl.org/dc/elements/1.1/");
 
@@ -114,7 +119,6 @@ public class FedoraPatchIT extends CamelTestSupport {
                 from("direct:teardown")
                     .to(fcrepo_uri)
                     .to(fcrepo_uri + "?tombstone=true");
-
             }
         };
     }

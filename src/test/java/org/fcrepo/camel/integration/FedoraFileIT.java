@@ -36,6 +36,11 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 
+/**
+ * Test adding a non-RDF resource
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraFileIT extends CamelTestSupport {
 
@@ -58,7 +63,7 @@ public class FedoraFileIT extends CamelTestSupport {
         resultEndpoint.expectedMessageCount(1);
         resultEndpoint.expectedHeaderReceived("Content-Type", "application/rdf+xml");
 
-        Map<String, Object> headers = new HashMap<>();
+        final Map<String, Object> headers = new HashMap<>();
         headers.put(HTTP_METHOD, "POST");
         headers.put(CONTENT_TYPE, "text/turtle");
 
@@ -70,7 +75,7 @@ public class FedoraFileIT extends CamelTestSupport {
         // Strip off the baseUri to get the resource path
         final String identifier = fullPath.replaceAll(getFcrepoBaseUri(), "");
 
-        Map<String, Object> fileHeaders = new HashMap<>();
+        final Map<String, Object> fileHeaders = new HashMap<>();
         fileHeaders.put(HTTP_METHOD, "PUT");
         fileHeaders.put(CONTENT_TYPE, "text/plain");
         fileHeaders.put("FCREPO_IDENTIFIER", identifier + "/file");
@@ -80,7 +85,7 @@ public class FedoraFileIT extends CamelTestSupport {
         template.sendBodyAndHeader("direct:file", null, "FCREPO_IDENTIFIER", identifier + "/file");
 
 
-        Map<String, Object> teardownHeaders = new HashMap<>();
+        final Map<String, Object> teardownHeaders = new HashMap<>();
         teardownHeaders.put(HTTP_METHOD, "DELETE");
         teardownHeaders.put("FCREPO_IDENTIFIER", identifier + "/file");
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
@@ -100,14 +105,16 @@ public class FedoraFileIT extends CamelTestSupport {
 
                 final String fcrepo_uri = getFcrepoEndpointUri();
 
-                Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
                 from("direct:setup")
                     .to(fcrepo_uri);
 
                 from("direct:start")
                     .to(fcrepo_uri)
-                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#NonRdfSourceDescription']", ns)
+                    .filter().xpath(
+                        "/rdf:RDF/rdf:Description/rdf:type" +
+                        "[@rdf:resource='http://fedora.info/definitions/v4/rest-api#NonRdfSourceDescription']", ns)
                     .to("mock:result");
 
                 from("direct:file")

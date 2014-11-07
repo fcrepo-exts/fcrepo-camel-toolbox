@@ -34,6 +34,11 @@ import java.io.IOException;
 
 import org.springframework.test.context.ContextConfiguration;
 
+/**
+ * Test the fcr:transform endpoint
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraTransformIT extends CamelTestSupport {
 

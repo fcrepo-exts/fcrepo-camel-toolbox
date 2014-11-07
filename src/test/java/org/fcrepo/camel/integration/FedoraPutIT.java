@@ -34,6 +34,11 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 
+/**
+ * Test adding an RDF resource with PUT
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraPutIT extends CamelTestSupport {
 
@@ -84,7 +89,9 @@ public class FedoraPutIT extends CamelTestSupport {
 
                 from("direct:start")
                     .to(fcrepo_uri)
-                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
+                    .filter().xpath(
+                        "/rdf:RDF/rdf:Description/rdf:type" +
+                        "[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
                     .to("mock:result");
 
                 from("direct:teardown")

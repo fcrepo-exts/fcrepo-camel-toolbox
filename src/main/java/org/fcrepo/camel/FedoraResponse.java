@@ -37,6 +37,9 @@ public class FedoraResponse {
 
     private volatile String contentType;
 
+    /**
+     * Create a FedoraResponse object from the http response
+     */
     public FedoraResponse(final URI url, final int statusCode,
             final String contentType, final URI location, final String body) {
         this.setUrl(url);
@@ -46,42 +49,77 @@ public class FedoraResponse {
         this.setBody(body);
     }
 
+    /**
+     * url getter
+     */
     public URI getUrl() {
         return url;
     }
 
+    /**
+     * url setter
+     * @param url the URL
+     */
     public void setUrl(final URI url) {
         this.url = url;
     }
 
+    /**
+     * statusCode getter
+     */
     public int getStatusCode() {
         return statusCode;
     }
 
+    /**
+     * statusCode setter
+     * @param statusCode the http status code
+     */
     public void setStatusCode(final int statusCode) {
         this.statusCode = statusCode;
     }
 
+    /**
+     * body getter
+     */
     public String getBody() {
         return body;
     }
 
+    /**
+     * body setter
+     * @param body the contents of the response body
+     */
     public void setBody(final String body) {
         this.body = body;
     }
 
+    /**
+     * location getter
+     */
     public URI getLocation() {
         return location;
     }
 
+    /**
+     * location setter
+     * @param location the value of any Link: rel=describedby header
+     */
     public void setLocation(final URI location) {
         this.location = location;
     }
 
+    /**
+     * contentType getter
+     */
     public String getContentType() {
         return contentType;
     }
 
+    /**
+     * contentType setter
+     * @param contentType the Content-Type of the response
+     */
     public void setContentType(final String contentType) {
         this.contentType = contentType;
     }
