@@ -19,8 +19,19 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <fcrepo.url>localhost:8080/fcrepo4/rest</fcrepo.url>
     <fcrepo.version>4.0.0-beta-04-SNAPSHOT</fcrepo.version>
+    <camel.version>2.14.0</camel.version>
+    <httpclient.version>4.3.5</httpclient.version>
+    <jena.version>2.12.1</jena.version>
+    <jersey.version>2.13</jersey.version>
+    <logback.version>1.1.2</logback.version>
+    <slf4j.version>1.7.7</slf4j.version>
+    <spring.version>4.0.7.RELEASE</spring.version>
+    <!-- plugins -->
+    <test.port>8080</test.port>
+    <jetty.port.stop>8005</jetty.port.stop>
+    <test.context.path>/</test.context.path>
+    <checkstyle.plugin.version>2.12.1</checkstyle.plugin.version>
     <project.copyrightYear>2014</project.copyrightYear>
   </properties>
 
@@ -59,30 +70,124 @@
     </pluginRepository>
   </pluginRepositories>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.fcrepo</groupId>
+        <artifactId>fcrepo4-bom</artifactId>
+        <version>${fcrepo.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
-      <version>2.14.0</version>
+      <version>${camel.version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
-      <version>2.14.0</version>
+      <version>${camel.version}</version>
     </dependency>
 
     <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.3.5</version>
+        <version>${httpclient.version}</version>
+    </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+        <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+        <scope>test</scope>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.ext</groupId>
+        <artifactId>jersey-spring3</artifactId>
+        <scope>test</scope>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-common</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+
+<dependency>
+  <groupId>javax.jcr</groupId>
+  <artifactId>jcr</artifactId>
+  <version>2.0</version>
+  <!--<scope>test</scope>-->
+</dependency>
+
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-kernel-impl</artifactId>
+      <version>${fcrepo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-jms</artifactId>
+      <version>${fcrepo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-http-api</artifactId>
+      <version>${fcrepo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-configs</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-transform</artifactId>
+      <version>${fcrepo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-auth-common</artifactId>
+      <version>${fcrepo.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-http-commons</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
     </dependency>
 
     <dependency>
       <groupId>org.apache.jena</groupId>
+      <artifactId>jena-fuseki</artifactId>
+      <version>0.2.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+
+      <groupId>org.apache.jena</groupId>
       <artifactId>apache-jena-libs</artifactId>
       <type>pom</type>
-      <version>2.12.1</version>
+      <version>${jena.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -91,38 +196,45 @@
       <version>2.0.1</version>
     </dependency>
 
-    <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-common</artifactId>
-        <version>2.13</version>
-        <scope>test</scope>
-    </dependency>
-
     <!-- logging -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.7</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.7</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-      <scope>test</scope>
-    </dependency>
-
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>    
+    
     <!-- testing -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test</artifactId>
-      <version>2.14.0</version>
+      <version>${camel.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-spring</artifactId>
+      <version>${camel.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-test</artifactId>
+          <version>${spring.version}</version>
+    </dependency>
+     <!--<dependency>-->
+          <!--<groupId>org.springframework</groupId>-->
+          <!--<artifactId>spring-tx</artifactId>-->
+          <!--<version>${spring.version}</version>-->
+    <!--</dependency>-->
+     <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-aop</artifactId>
+          <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context</artifactId>
+          <version>${spring.version}</version>
     </dependency>
   </dependencies>
 
@@ -176,6 +288,115 @@
     <defaultGoal>install</defaultGoal>
 
     <plugins>
+        <!--Bring in F4 webapp for integration testing-->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.8</version>
+          <executions>
+            <execution>
+              <id>copy</id>
+              <phase>package</phase>
+              <goals>
+                <goal>copy</goal>
+              </goals>
+              <configuration>
+                <artifactItems>
+                  <artifactItem>
+                    <groupId>org.fcrepo</groupId>
+                    <artifactId>fcrepo-webapp</artifactId>
+                    <version>${fcrepo.version}</version>
+                    <type>war</type>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <destFileName>f4.war</destFileName>
+                  </artifactItem>
+                </artifactItems>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <configuration>
+            <portNames>
+              <portName>test.port</portName>
+              <!-- reserves the stop port for jetty-maven-plugin -->
+              <portName>test.mgt.port</portName>
+            </portNames>
+          </configuration>
+          <executions>
+            <execution>
+              <id>reserve-port</id>
+              <phase>pre-integration-test</phase>
+              <goals>
+                <goal>reserve-network-port</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <attachClasses>true</attachClasses>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <test.port>${test.port}</test.port>
+            <jms.port>${jms.port}</jms.port>
+            <test.context.path>${test.context.path}</test.context.path>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>        
+      </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>${checkstyle.plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.fcrepo</groupId>
+              <artifactId>fcrepo-build-tools</artifactId>
+              <version>${fcrepo.version}</version>
+            </dependency>
+          </dependencies>
+          <configuration>
+            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+            <consoleOutput>true</consoleOutput>
+            <logViolationsToConsole>true</logViolationsToConsole>
+            <failsOnError>true</failsOnError>
+            <failOnViolation>true</failOnViolation>
+            <violationSeverity>warning</violationSeverity>
+            <configLocation>fcrepo-checkstyle/checkstyle.xml</configLocation>
+            <suppressionsLocation>fcrepo-checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+          </configuration>
+          <executions>
+            <execution>
+              <id>checkstyle</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>        
       
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -219,20 +440,32 @@
         <version>1.0-alpha-2</version>
         <executions>
           <execution>
-            <phase>generate-resources</phase>
+            <phase>pre-integration-test</phase>
             <goals>
-              <goal>write-project-properties</goal>
+              <goal>set-system-properties</goal>
             </goals>
             <configuration>
-              <outputFile>
-                ${project.build.testOutputDirectory}/org.fcrepo.properties
-              </outputFile>
+              <properties>
+                <property>
+                  <name>jms.port</name>
+                  <value>${jms.port}</value>
+                </property>
+
+                <property>
+                  <name>stomp.port</name>
+                  <value>${stomp.port}</value>
+                </property>
+
+                <property>
+                  <name>integration-test</name>
+                  <value>true</value>
+                </property>
+              </properties>
             </configuration>
           </execution>
         </executions>
-      </plugin>
 
+      </plugin>
     </plugins>
   </build>
-
 </project>

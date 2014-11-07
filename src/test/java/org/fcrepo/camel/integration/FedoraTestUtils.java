@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -39,7 +39,7 @@ public class FedoraTestUtils {
             props.load(in);
         }
 
-        return "fcrepo:" + props.getProperty("fcrepo.url").replaceAll("http://", "");
+        return "fcrepo:localhost:8080/rest";// + props.getProperty("fcrepo.url").replaceAll("http://", "");
     }
 
     public static String getTurtleDocument() {

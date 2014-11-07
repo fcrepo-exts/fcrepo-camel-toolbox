@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoBaseUri;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoEndpointUri;
-import static org.fcrepo.camel.FedoraTestUtils.getTextDocument;
-import static org.fcrepo.camel.FedoraTestUtils.getTurtleDocument;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getTextDocument;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
-public class FedoraFileTest extends CamelTestSupport {
+public class FedoraFileIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;

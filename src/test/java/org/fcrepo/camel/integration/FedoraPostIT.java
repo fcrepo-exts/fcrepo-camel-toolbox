@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoEndpointUri;
-import static org.fcrepo.camel.FedoraTestUtils.getTurtleDocument;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,11 +30,12 @@ import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
+import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
-public class FedoraPutTest extends CamelTestSupport {
+public class FedoraPostIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -42,29 +44,31 @@ public class FedoraPutTest extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testPut() throws InterruptedException {
-        final String path = "/test/a/b/c/d";
-
+    public void testPost() throws IOException, InterruptedException {
         // Assertions
         resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedBodiesReceived("some title");
 
         // Setup
-        final Map<String, Object> setupHeaders = new HashMap<>();
-        setupHeaders.put(HTTP_METHOD, "PUT");
-        setupHeaders.put("FCREPO_IDENTIFIER", path);
-        setupHeaders.put(CONTENT_TYPE, "text/turtle");
-        template.sendBodyAndHeaders("direct:setup", getTurtleDocument(), setupHeaders);
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put(HTTP_METHOD, "POST");
+        headers.put(CONTENT_TYPE, "text/turtle");
+
+        final String fullPath = template.requestBodyAndHeaders(
+                "direct:setup", getTurtleDocument(), headers, String.class);
+
+        final String identifier = fullPath.replaceAll(getFcrepoBaseUri(), "");
 
         // Test
-        template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", path);
+        template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", identifier);
 
         // Teardown
         final Map<String, Object> teardownHeaders = new HashMap<>();
         teardownHeaders.put(HTTP_METHOD, "DELETE");
-        teardownHeaders.put("FCREPO_IDENTIFIER", path);
+        teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
-        // Confirm that assertions passed
+        // Confirm that the assertions passed
         resultEndpoint.assertIsSatisfied();
     }
 
@@ -77,12 +81,17 @@ public class FedoraPutTest extends CamelTestSupport {
 
                 final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
+                final XPathBuilder titleXpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
+                titleXpath.namespaces(ns);
+                titleXpath.namespace("dc", "http://purl.org/dc/elements/1.1/");
+
                 from("direct:setup")
                     .to(fcrepo_uri);
 
                 from("direct:start")
                     .to(fcrepo_uri)
                     .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
+                    .split(titleXpath)
                     .to("mock:result");
 
                 from("direct:teardown")

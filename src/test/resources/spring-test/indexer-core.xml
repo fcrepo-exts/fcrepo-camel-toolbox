@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+
+  <!-- sparql-update indexer -->
+  <bean id="sparqlUpdate" class="org.fcrepo.indexer.sparql.SparqlIndexer">
+
+    <!-- fuseki -->
+    <property name="queryBase"
+      value="http://localhost:${test.fuseki.port:3030}/test/query"/>
+    <property name="updateBase"
+      value="http://localhost:${test.fuseki.port:3030}/test/update"/>
+    <property name="formUpdates">
+      <value type="java.lang.Boolean">false</value>
+    </property>
+
+  </bean>
+
+  <!-- test indexer -->
+  <bean id="testIndexer" class="org.fcrepo.indexer.TestIndexer"/>
+
+  <!-- file serializer -->
+  <bean id="fileSerializer" class="org.fcrepo.indexer.FileSerializer">
+    <property name="path" value="./target/test-classes/fileSerializer/"/>
+  </bean>
+
+  <!-- Solr Indexer START-->
+  <bean id="solrIndexer" class="org.fcrepo.indexer.solr.SolrIndexer"/>
+
+  <bean class="java.io.File" id="solrConfig">
+    <constructor-arg type="String">
+      <value>target/test-classes/solr/solr.xml</value>
+    </constructor-arg>
+  </bean>
+
+  <!--Embedded Server  -->
+  <bean id="multiCore" class="org.apache.solr.core.CoreContainer"
+    factory-method="createAndLoad" c:solrHome="target/test-classes/solr"
+    c:configFile-ref="solrConfig"/>
+
+  <bean id="solrServer"
+    class="org.apache.solr.client.solrj.embedded.EmbeddedSolrServer"
+    c:coreContainer-ref="multiCore" c:coreName="testCore"/>
+  <!-- Solr Indexer END-->
+
+  <!-- Message Driven POJO (MDP) that manages individual indexers -->
+  <bean id="indexerGroup" class="org.fcrepo.indexer.IndexerGroup">
+    <constructor-arg name="indexers">
+      <set value-type="org.fcrepo.indexer.Indexer">
+        <ref bean="testIndexer"/>
+        <ref bean="fileSerializer"/>
+        <ref bean="sparqlUpdate"/>
+        <ref bean="solrIndexer"/>
+      </set>
+    </constructor-arg>
+    <constructor-arg name="fedoraUsername" value=""/>
+    <constructor-arg name="fedoraPassword" value=""/>
+  </bean>
+
+</beans>

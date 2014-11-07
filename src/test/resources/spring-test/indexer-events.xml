@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:lang="http://www.springframework.org/schema/lang"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd
+       ">
+
+  <context:property-placeholder/>
+
+  <!-- Context that houses JAX-RS Resources that compose the API
+      as well as som utility gear. -->
+
+  <context:annotation-config/>
+
+  <bean id="connectionFactory"
+    class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="brokerURL" value="vm://localhost"/>
+  </bean>
+
+  <bean id="pooledConnectionFactory"
+    class="org.apache.activemq.pool.PooledConnectionFactory"
+    depends-on="connectionFactory">
+    <property name="connectionFactory" ref="connectionFactory"/>
+    <property name="maxConnections" value="1"/>
+    <property name="idleTimeout" value="0"/>
+  </bean>
+
+  <!-- ActiveMQ queue to listen for events -->
+  <bean id="destination" class="org.apache.activemq.command.ActiveMQTopic"
+    depends-on="pooledConnectionFactory">
+    <constructor-arg value="fedora"/>
+  </bean>
+
+  <!-- and this is the message listener container -->
+  <bean id="jmsContainer"
+    class="org.springframework.jms.listener.DefaultMessageListenerContainer"
+    depends-on="destination, pooledConnectionFactory">
+    <property name="connectionFactory" ref="pooledConnectionFactory"/>
+    <property name="destination" ref="destination"/>
+    <property name="messageListener" ref="indexerGroup"/>
+    <property name="sessionTransacted" value="false"/>
+  </bean>
+
+</beans>
