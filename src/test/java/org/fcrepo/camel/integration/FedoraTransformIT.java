@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
 
+import org.springframework.test.context.ContextConfiguration;
+
+@ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraTransformIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")

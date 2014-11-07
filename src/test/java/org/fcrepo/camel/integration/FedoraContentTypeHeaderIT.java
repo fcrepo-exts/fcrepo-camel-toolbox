@@ -28,7 +28,9 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
+@ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraContentTypeHeaderIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")

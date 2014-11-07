@@ -32,7 +32,9 @@ import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
+@ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraPutIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")

@@ -27,7 +27,8 @@ import javax.annotation.PreDestroy;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.jena.fuseki.FusekiCmd;
 import org.fcrepo.http.commons.test.util.ContainerWrapper;
 import org.slf4j.Logger;
@@ -51,13 +52,13 @@ public class FusekiContainerWrapper extends ContainerWrapper {
     private static final String serverAddress = "http://localhost:" + MGT_PORT
             + "/mgt";
 
-    private static HttpClient client;
+    private static CloseableHttpClient client;
 
     @Override
     @PostConstruct
     public void start() throws Exception {
 
-        client = new DefaultHttpClient();
+        client = HttpClients.createDefault();
 
         final HttpGet method = new HttpGet(serverAddress);
         try {
