@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoEndpointUri;
-import static org.fcrepo.camel.FedoraTestUtils.getTurtleDocument;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,8 +32,15 @@ import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
-public class FedoraPutTest extends CamelTestSupport {
+/**
+ * Test adding an RDF resource with PUT
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
+@ContextConfiguration({"/spring-test/test-container.xml"})
+public class FedoraPutIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -82,7 +89,9 @@ public class FedoraPutTest extends CamelTestSupport {
 
                 from("direct:start")
                     .to(fcrepo_uri)
-                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
+                    .filter().xpath(
+                        "/rdf:RDF/rdf:Description/rdf:type" +
+                        "[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
                     .to("mock:result");
 
                 from("direct:teardown")

@@ -55,7 +55,8 @@ public class FedoraComponent extends DefaultComponent {
      *  @throws Exception
      */
     @Override
-    protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters) throws Exception {
+    protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters)
+            throws Exception {
         final Endpoint endpoint = new FedoraEndpoint(uri, remaining, this);
         setProperties(endpoint, parameters);
         LOGGER.info("Created Fedora Endpoint [{}]", endpoint);

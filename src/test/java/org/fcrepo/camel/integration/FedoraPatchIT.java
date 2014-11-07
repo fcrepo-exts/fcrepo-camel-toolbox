@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoBaseUri;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoEndpointUri;
-import static org.fcrepo.camel.FedoraTestUtils.getTextDocument;
-import static org.fcrepo.camel.FedoraTestUtils.getTurtleDocument;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getPatchDocument;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,64 +30,66 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.xml.Namespaces;
+import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
-public class FedoraFileTest extends CamelTestSupport {
+/**
+ * Test updating a fedora object with sparql-update
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
+@ContextConfiguration({"/spring-test/test-container.xml"})
+public class FedoraPatchIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
-    @EndpointInject(uri = "mock:file")
-    protected MockEndpoint fileEndpoint;
+    @EndpointInject(uri = "mock:titles")
+    protected MockEndpoint titleEndpoint;
 
     @Produce(uri = "direct:start")
     protected ProducerTemplate template;
 
     @Test
-    public void testFile() throws IOException, InterruptedException {
+    public void testPatch() throws IOException, InterruptedException {
         // Assertions
-        fileEndpoint.expectedBodiesReceived(getTextDocument());
-        fileEndpoint.expectedMessageCount(1);
-        fileEndpoint.expectedHeaderReceived("Content-Type", "text/plain");
-
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedHeaderReceived("Content-Type", "application/rdf+xml");
+        titleEndpoint.expectedMessageCount(2);
+        titleEndpoint.expectedBodiesReceivedInAnyOrder("some title", "another title");
 
-        Map<String, Object> headers = new HashMap<>();
+        // Setup
+        final Map<String, Object> headers = new HashMap<>();
         headers.put(HTTP_METHOD, "POST");
         headers.put(CONTENT_TYPE, "text/turtle");
 
         final String fullPath = template.requestBodyAndHeaders(
-                "direct:setup",
-                getTurtleDocument(),
-                headers, String.class);
+                "direct:setup", getTurtleDocument(), headers, String.class);
 
-        // Strip off the baseUri to get the resource path
         final String identifier = fullPath.replaceAll(getFcrepoBaseUri(), "");
 
-        Map<String, Object> fileHeaders = new HashMap<>();
-        fileHeaders.put(HTTP_METHOD, "PUT");
-        fileHeaders.put(CONTENT_TYPE, "text/plain");
-        fileHeaders.put("FCREPO_IDENTIFIER", identifier + "/file");
-        template.sendBodyAndHeaders("direct:setup", getTextDocument(), fileHeaders);
+        // Test
+        final Map<String, Object> patchHeaders = new HashMap<>();
+        patchHeaders.put(HTTP_METHOD, "PATCH");
+        patchHeaders.put(CONTENT_TYPE, "text/turtle");
+        patchHeaders.put("FCREPO_IDENTIFIER", identifier);
 
-        template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", identifier + "/file");
-        template.sendBodyAndHeader("direct:file", null, "FCREPO_IDENTIFIER", identifier + "/file");
+        template.sendBodyAndHeaders(getPatchDocument(), patchHeaders);
 
+        template.sendBodyAndHeader("direct:test", null,
+                "FCREPO_IDENTIFIER", identifier);
 
-        Map<String, Object> teardownHeaders = new HashMap<>();
+        // Teardown
+        final Map<String, Object> teardownHeaders = new HashMap<>();
         teardownHeaders.put(HTTP_METHOD, "DELETE");
-        teardownHeaders.put("FCREPO_IDENTIFIER", identifier + "/file");
-        template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
         teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
-        // Confirm that assertions passed
+        // Confirm that the assertions passed
         resultEndpoint.assertIsSatisfied();
-        fileEndpoint.assertIsSatisfied();
+        titleEndpoint.assertIsSatisfied();
     }
 
     @Override
@@ -98,23 +100,24 @@ public class FedoraFileTest extends CamelTestSupport {
 
                 final String fcrepo_uri = getFcrepoEndpointUri();
 
-                Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                final XPathBuilder xpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
+                xpath.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                xpath.namespace("dc", "http://purl.org/dc/elements/1.1/");
 
                 from("direct:setup")
                     .to(fcrepo_uri);
 
                 from("direct:start")
                     .to(fcrepo_uri)
-                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#NonRdfSourceDescription']", ns)
                     .to("mock:result");
 
-                from("direct:file")
-                    .to(fcrepo_uri + "?metadata=false")
-                    .to("mock:file");
+                from("direct:test")
+                    .to(fcrepo_uri)
+                    .split(xpath)
+                    .to("mock:titles");
 
                 from("direct:teardown")
                     .to(fcrepo_uri)
-                    .log("TEST TEARDOWN: ${header.FCREPO_IDENTIFIER}")
                     .to(fcrepo_uri + "?tombstone=true");
             }
         };

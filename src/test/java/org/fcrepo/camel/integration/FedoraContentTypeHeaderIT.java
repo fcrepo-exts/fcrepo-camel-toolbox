@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.DEFAULT_CONTENT_TYPE;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoEndpointUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 
 import java.io.IOException;
 
@@ -28,8 +28,16 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
-public class FedoraContentTypeHeaderTest extends CamelTestSupport {
+/**
+ * Test the retrieved content-type from a fcrepo endpoint
+ * when the Accept type is put in a message header.
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
+@ContextConfiguration({"/spring-test/test-container.xml"})
+public class FedoraContentTypeHeaderIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;

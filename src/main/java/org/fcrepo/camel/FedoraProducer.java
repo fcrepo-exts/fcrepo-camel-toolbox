@@ -70,7 +70,8 @@ public class FedoraProducer extends DefaultProducer {
      * @throws URISyntaxException
      */
     @Override
-    public void process(final Exchange exchange) throws ClientProtocolException, HttpOperationFailedException, IOException, URISyntaxException {
+    public void process(final Exchange exchange)
+            throws ClientProtocolException, HttpOperationFailedException, IOException, URISyntaxException {
         final Message in = exchange.getIn();
         final FedoraClient client = new FedoraClient(
                 endpoint.getAuthUsername(),

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoEndpointUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 
 import java.io.IOException;
 
@@ -26,15 +26,36 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.junit.runner.RunWith;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-public class FedoraContentTypeEndpointTest extends CamelTestSupport {
+/**
+ * Test the retrieved content-type from a fcrepo endpoint
+ * when the Accept type is put directly on the endpoint.
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"/spring-test/test-container.xml"})
+public class FedoraContentTypeEndpointIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
     @Produce(uri = "direct:start")
-    protected ProducerTemplate template;
+    public ProducerTemplate template;
+
+    @Override
+    public void doPreSetup() {
+        System.out.println("SetUp App");
+    }
+
+    @Override
+    public void tearDown() {
+        System.out.println("Teardown App");
+    }
 
     @Test
     public void testContentTypeTurtle() throws InterruptedException {

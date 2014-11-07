@@ -92,121 +92,151 @@ public class FedoraEndpoint extends DefaultEndpoint {
     }
 
     /**
-     * baseUrl accessor methods
+     * baseUrl setter
      * @param url the baseUrl string
      */
     public void setBaseUrl(final String url) {
         this.baseUrl = url;
     }
 
+    /**
+     * baseUrl getter
+     */
     public String getBaseUrl() {
         return baseUrl;
     }
 
     /**
-     * accept accessor methods
+     * accept setter
      * @param type the content-type for Accept headers
      */
     public void setAccept(final String type) {
         this.accept = type.replaceAll(" ", "+");
     }
 
+    /**
+     * accept getter
+     */
     public String getAccept() {
         return accept;
     }
 
     /**
-     * contentType accessor methods
+     * contentType setter
      * @param type the content-type for Content-Type headers
      */
     public void setContentType(final String type) {
         this.contentType = type.replaceAll(" ", "+");
     }
 
+    /**
+     * contentType getter
+     */
     public String getContentType() {
         return contentType;
     }
 
     /**
-     * authUsername accessor methods
+     * authUsername setter
      * @param username used for authentication
      */
     public void setAuthUsername(final String username) {
         this.authUsername = username;
     }
 
+    /**
+     * authUsername getter
+     */
     public String getAuthUsername() {
         return authUsername;
     }
 
     /**
-     * authPassword accessor methods
+     * authPassword setter
      * @param password used for authentication
      */
     public void setAuthPassword(final String password) {
         this.authPassword = password;
     }
 
+    /**
+     * authPassword getter
+     */
     public String getAuthPassword() {
         return authPassword;
     }
 
     /**
-     * authHost accessor methods
+     * authHost setter
      * @param host used for authentication
      */
-    public String getAuthHost() {
-        return authHost;
-    }
-
     public void setAuthHost(final String host) {
         this.authHost = host;
     }
 
     /**
-     * metadata accessor methods
-     * @param metadata whether to retrieve rdf metadata for non-rdf nodes
+     * authHost getter
      */
-    public Boolean getMetadata() {
-        return metadata;
+    public String getAuthHost() {
+        return authHost;
     }
 
+    /**
+     * metadata setter
+     * @param metadata whether to retrieve rdf metadata for non-rdf nodes
+     */
     public void setMetadata(final String metadata) {
         this.metadata = Boolean.valueOf(metadata);
     }
 
     /**
-     * throwExceptionOnFailure accessor methods
+     * metadata getter
+     */
+    public Boolean getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * throwExceptionOnFailure setter
      * @param throwOnFailure whether non-2xx HTTP response codes throw exceptions
      */
     public void setThrowExceptionOnFailure(final String throwOnFailure) {
         this.throwExceptionOnFailure = Boolean.valueOf(throwOnFailure);
     }
 
+    /**
+     * throwExceptionOnFailure getter
+     */
     public Boolean getThrowExceptionOnFailure() {
         return throwExceptionOnFailure;
     }
 
     /**
-     * transform accessor methods
+     * transform setter
      * @param transform define an LD-Path transform program for converting RDF to JSON
      */
     public void setTransform(final String transform) {
         this.transform = transform;
     }
 
+    /**
+     * transform getter
+     */
     public String getTransform() {
         return transform;
     }
 
     /**
-     * tombstone accessor methods
+     * tombstone setter
      * @param tombstone whether to access the /fcr:tombstone endpoint for a resource
      */
     public void setTombstone(final String tombstone) {
         this.tombstone = Boolean.valueOf(tombstone);
     }
 
+    /**
+     * tombstone getter
+     */
     public Boolean getTombstone() {
         return tombstone;
     }

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.FedoraTestUtils.getFcrepoBaseUri;
-import static org.fcrepo.camel.FedoraTestUtils.getTurtleDocument;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
 
 import org.apache.camel.Produce;
 import org.apache.camel.Exchange;
@@ -32,7 +32,15 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
 
-public class FedoraTransformTest extends CamelTestSupport {
+import org.springframework.test.context.ContextConfiguration;
+
+/**
+ * Test the fcr:transform endpoint
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
+@ContextConfiguration({"/spring-test/test-container.xml"})
+public class FedoraTransformIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
