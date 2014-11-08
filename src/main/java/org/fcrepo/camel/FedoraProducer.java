@@ -22,7 +22,7 @@ import static org.apache.camel.component.http4.HttpMethods.DELETE;
 import static org.apache.camel.component.http4.HttpMethods.POST;
 import static org.fcrepo.camel.FedoraEndpoint.DEFAULT_CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
-import static org.fcrepo.camel.FedoraEndpoint.FCREPO_JMS_IDENTIFIER;
+import static org.fcrepo.jms.headers.DefaultMessageFactory.IDENTIFIER_HEADER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -201,8 +201,8 @@ public class FedoraProducer extends DefaultProducer {
         String url = "http://" + endpoint.getBaseUrl();
         if (in.getHeader(FCREPO_IDENTIFIER) != null) {
             url += in.getHeader(FCREPO_IDENTIFIER, String.class);
-        } else if (in.getHeader(FCREPO_JMS_IDENTIFIER) != null) {
-            url += in.getHeader(FCREPO_JMS_IDENTIFIER, String.class);
+        } else if (in.getHeader(IDENTIFIER_HEADER_NAME) != null) {
+            url += in.getHeader(IDENTIFIER_HEADER_NAME, String.class);
         }
         if (endpoint.getTransform() != null) {
             if (method == POST) {

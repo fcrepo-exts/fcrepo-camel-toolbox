@@ -28,9 +28,7 @@ import org.apache.camel.impl.DefaultEndpoint;
  */
 public class FedoraEndpoint extends DefaultEndpoint {
 
-    public static final String JMS_HEADER_PREFIX = "org.fcrepo.jms.";
-
-    public static final String FCREPO_JMS_IDENTIFIER = JMS_HEADER_PREFIX + "identifier";
+    public static final String FCREPO_BASEURL = "FCREPO_BASEURL";
 
     public static final String FCREPO_IDENTIFIER = "FCREPO_IDENTIFIER";
 
