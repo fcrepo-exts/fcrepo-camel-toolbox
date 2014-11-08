@@ -21,6 +21,7 @@ import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTextDocument;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
+import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -78,18 +79,18 @@ public class FedoraFileIT extends CamelTestSupport {
         final Map<String, Object> fileHeaders = new HashMap<>();
         fileHeaders.put(HTTP_METHOD, "PUT");
         fileHeaders.put(CONTENT_TYPE, "text/plain");
-        fileHeaders.put("FCREPO_IDENTIFIER", identifier + "/file");
+        fileHeaders.put(FCREPO_IDENTIFIER, identifier + "/file");
         template.sendBodyAndHeaders("direct:setup", getTextDocument(), fileHeaders);
 
-        template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", identifier + "/file");
-        template.sendBodyAndHeader("direct:file", null, "FCREPO_IDENTIFIER", identifier + "/file");
+        template.sendBodyAndHeader(null, FCREPO_IDENTIFIER, identifier + "/file");
+        template.sendBodyAndHeader("direct:file", null, FCREPO_IDENTIFIER, identifier + "/file");
 
 
         final Map<String, Object> teardownHeaders = new HashMap<>();
         teardownHeaders.put(HTTP_METHOD, "DELETE");
-        teardownHeaders.put("FCREPO_IDENTIFIER", identifier + "/file");
+        teardownHeaders.put(FCREPO_IDENTIFIER, identifier + "/file");
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
-        teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
+        teardownHeaders.put(FCREPO_IDENTIFIER, identifier);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
         // Confirm that assertions passed

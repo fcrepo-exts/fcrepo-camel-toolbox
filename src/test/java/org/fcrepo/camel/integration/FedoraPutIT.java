@@ -19,6 +19,7 @@ import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
+import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -58,17 +59,17 @@ public class FedoraPutIT extends CamelTestSupport {
         // Setup
         final Map<String, Object> setupHeaders = new HashMap<>();
         setupHeaders.put(HTTP_METHOD, "PUT");
-        setupHeaders.put("FCREPO_IDENTIFIER", path);
+        setupHeaders.put(FCREPO_IDENTIFIER, path);
         setupHeaders.put(CONTENT_TYPE, "text/turtle");
         template.sendBodyAndHeaders("direct:setup", getTurtleDocument(), setupHeaders);
 
         // Test
-        template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", path);
+        template.sendBodyAndHeader(null, FCREPO_IDENTIFIER, path);
 
         // Teardown
         final Map<String, Object> teardownHeaders = new HashMap<>();
         teardownHeaders.put(HTTP_METHOD, "DELETE");
-        teardownHeaders.put("FCREPO_IDENTIFIER", path);
+        teardownHeaders.put(FCREPO_IDENTIFIER, path);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
         // Confirm that assertions passed
