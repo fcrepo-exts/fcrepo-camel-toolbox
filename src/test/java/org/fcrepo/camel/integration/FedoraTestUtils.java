@@ -15,6 +15,9 @@
  */
 package org.fcrepo.camel.integration;
 
+import static java.lang.Integer.parseInt;
+import static java.lang.System.getProperty;
+
 /**
  * Utility functions for integration testing
  * @author Aaron Coburn
@@ -22,26 +25,55 @@ package org.fcrepo.camel.integration;
  */
 public final class FedoraTestUtils {
 
+    private static final int FCREPO_PORT = parseInt(getProperty(
+                "test.port", "8080"));
+
+    /**
+     * This is a utility class; the constructor is off-limits
+     */
     private FedoraTestUtils() {
     }
 
-    public static String getFcrepoBaseUri() {
-        return "http://localhost:8080/rest";
+    /**
+     * Retrieve the baseUrl for the fcrepo instance
+     */
+    public static String getFcrepoBaseUrl() {
+        if (FCREPO_PORT == 80) {
+            return "http://localhost/rest";
+        } else {
+            return "http://localhost:" + FCREPO_PORT + "/rest";
+        }
     }
 
+    /**
+     * Retrieve the endpoint uri for fcrepo
+     */
     public static String getFcrepoEndpointUri() {
-        return "fcrepo:localhost:8080/rest";
+        if (FCREPO_PORT == 80) {
+            return "fcrepo://localhost/rest";
+        } else {
+            return "fcrepo://localhost:" + FCREPO_PORT + "/rest";
+        }
     }
 
+    /**
+     * Retrieve an RDF document serialized in TTL
+     */
     public static String getTurtleDocument() {
         return "PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n" +
                 "<> dc:title \"some title\" .";
     }
 
+    /**
+     * Retrieve a simple text document
+     */
     public static String getTextDocument() {
         return "Simple plain text document";
     }
 
+    /**
+     * Retrieve a sparql-update document
+     */
     public static String getPatchDocument() {
         return "PREFIX dc: <http://purl.org/dc/elements/1.1/> \n\n" +
                 "INSERT { <> dc:title \"another title\" . } \nWHERE { }";

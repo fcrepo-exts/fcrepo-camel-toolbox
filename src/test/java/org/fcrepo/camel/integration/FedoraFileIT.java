@@ -17,7 +17,7 @@ package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTextDocument;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
@@ -73,7 +73,7 @@ public class FedoraFileIT extends CamelTestSupport {
                 headers, String.class);
 
         // Strip off the baseUri to get the resource path
-        final String identifier = fullPath.replaceAll(getFcrepoBaseUri(), "");
+        final String identifier = fullPath.replaceAll(getFcrepoBaseUrl(), "");
 
         final Map<String, Object> fileHeaders = new HashMap<>();
         fileHeaders.put(HTTP_METHOD, "PUT");

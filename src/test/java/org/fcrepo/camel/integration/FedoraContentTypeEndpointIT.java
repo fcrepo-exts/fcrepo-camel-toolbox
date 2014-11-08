@@ -47,16 +47,6 @@ public class FedoraContentTypeEndpointIT extends CamelTestSupport {
     @Produce(uri = "direct:start")
     public ProducerTemplate template;
 
-    @Override
-    public void doPreSetup() {
-        System.out.println("SetUp App");
-    }
-
-    @Override
-    public void tearDown() {
-        System.out.println("Teardown App");
-    }
-
     @Test
     public void testContentTypeTurtle() throws InterruptedException {
         resultEndpoint.expectedHeaderReceived("Content-Type", "text/turtle");

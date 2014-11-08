@@ -17,7 +17,7 @@ package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUri;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
 
@@ -64,7 +64,7 @@ public class FedoraPostIT extends CamelTestSupport {
         final String fullPath = template.requestBodyAndHeaders(
                 "direct:setup", getTurtleDocument(), headers, String.class);
 
-        final String identifier = fullPath.replaceAll(getFcrepoBaseUri(), "");
+        final String identifier = fullPath.replaceAll(getFcrepoBaseUrl(), "");
 
         // Test
         template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", identifier);
