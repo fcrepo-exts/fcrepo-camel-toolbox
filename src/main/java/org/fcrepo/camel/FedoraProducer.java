@@ -84,7 +84,7 @@ public class FedoraProducer extends DefaultProducer {
         final String accept = getAccept(exchange);
         final String url = getUrl(exchange);
 
-        LOGGER.info("Fcrepo Request [{}] with method [{}]", url, method);
+        LOGGER.debug("Fcrepo Request [{}] with method [{}]", url, method);
 
         FedoraResponse headResponse;
         FedoraResponse response;
