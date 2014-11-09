@@ -16,11 +16,11 @@
 package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
-import static org.fcrepo.jms.headers.DefaultMessageFactory.IDENTIFIER_HEADER_NAME;
-import static org.fcrepo.jms.headers.DefaultMessageFactory.BASE_URL_HEADER_NAME;
+import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_BASE_URL;
+import static org.fcrepo.jms.headers.DefaultMessageFactory.IDENTIFIER_HEADER_NAME;
+import static org.fcrepo.jms.headers.DefaultMessageFactory.BASE_URL_HEADER_NAME;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class SparqlDescribeProcessorTest extends CamelTestSupport {
 
         // Assertions
         resultEndpoint.expectedBodiesReceived("query=DESCRIBE <" + base + path + ">");
-        resultEndpoint.expectedHeaderReceived("Content-Type", "application/x-www-form-urlencoded");
+        resultEndpoint.expectedHeaderReceived(CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(HTTP_METHOD, "POST");
 
         // Test
@@ -89,12 +89,8 @@ public class SparqlDescribeProcessorTest extends CamelTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws IOException {
-
-                final String fcrepo_uri = getFcrepoEndpointUri();
-
                 from("direct:start")
                     .process(new SparqlDescribeProcessor())
-                    .log("${body}")
                     .to("mock:result");
             }
         };
