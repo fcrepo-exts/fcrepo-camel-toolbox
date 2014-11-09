@@ -169,6 +169,18 @@
         </exclusion>
       </exclusions>
     </dependency>
+    
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-arq</artifactId>
+      <version>${jena.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+      <version>${jena.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>javax.ws.rs</groupId>
@@ -227,20 +239,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.jena</groupId>
-      <artifactId>jena-arq</artifactId>
-      <version>${jena.version}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.jena</groupId>
-      <artifactId>jena-core</artifactId>
-      <version>${jena.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
       <version>2.0</version>
@@ -275,6 +273,8 @@
             <includes>
               <include>**/src/main/java/**</include>
               <include>**/src/test/java/**</include>
+              <include>**/examples/fcrepo-camel-solr/src/main/java/**</include>
+              <include>**/examples/fcrepo-camel-solr-scala/src/main/scala/**</include>
             </includes>
             <excludes>
               <exclude>target/**</exclude>
