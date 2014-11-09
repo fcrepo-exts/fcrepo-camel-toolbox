@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.Node_URI;
-import com.hp.hpl.jena.update.UpdateRequest;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
@@ -39,7 +38,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
-
 
 /**
  * Represends a message processor that deletes objects from an
@@ -101,12 +99,12 @@ public class SparqlDeleteProcessor implements Processor {
         for (final String uri : uris) {
             del.add("DELETE WHERE { <" + uri + "> ?p ?o }");
         }
-        
+
         exchange.getIn().setBody(StringUtils.join(del, ";\n"));
         exchange.getIn().setHeader(HTTP_METHOD, "POST");
         exchange.getIn().setHeader(CONTENT_TYPE, "application/sparql-update");
     }
-    
+
     private boolean matches( final String resource, final String candidate) {
         // All triples that will match this logic are ones that:
         // - have a candidate subject or object that equals the target resource of removal, or

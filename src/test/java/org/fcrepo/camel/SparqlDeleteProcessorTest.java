@@ -52,16 +52,19 @@ public class SparqlDeleteProcessorTest extends CamelTestSupport {
     public void testDelete() throws IOException, InterruptedException {
         final String base = "http://localhost/rest";
         final String path = "/path/book3";
-        final String incomingDoc = "_:B7a2aea322baa0335ba565419d128bd9e <http://www.w3.org/2001/vcard-rdf/3.0#FN> \"J.K. Rowling\" .\n" +
-            "_:B7a2aea322baa0335ba565419d128bd9e <http://www.w3.org/2001/vcard-rdf/3.0#N> _:B4b31ccfac030360126a91c43e8ca732b .\n" +
-            "_:B4b31ccfac030360126a91c43e8ca732b <http://www.w3.org/2001/vcard-rdf/3.0#Family> \"Rowling\" .\n" +
-            "_:B4b31ccfac030360126a91c43e8ca732b <http://www.w3.org/2001/vcard-rdf/3.0#Given> \"Joanna\" .\n" +
-            "<" + base + path + "> <http://purl.org/dc/elements/1.1/title> \"Harry Potter and the Prisoner Of Azkaban\" .\n" +
+        final String incomingDoc =
+            "_:B1 <http://www.w3.org/2001/vcard-rdf/3.0#FN> \"George Elliot\" .\n" +
+            "_:B1 <http://www.w3.org/2001/vcard-rdf/3.0#N> _:B2 .\n" +
+            "_:B2 <http://www.w3.org/2001/vcard-rdf/3.0#Family> \"George\" .\n" +
+            "_:B2 <http://www.w3.org/2001/vcard-rdf/3.0#Given> \"Elliot\" .\n" +
+            "<" + base + path + "> <http://purl.org/dc/elements/1.1/title> \"Middlemarch\" .\n" +
             "<" + base + path + "> <http://purl.org/dc/elements/1.1/relation> <" + base + path + "/appendix> .\n" +
-            "<" + base + path + "> <http://purl.org/dc/elements/1.1/creator> _:B7a2aea322baa0335ba565419d128bd9e .";
-        
+            "<" + base + path + "> <http://purl.org/dc/elements/1.1/creator> _:B1 .";
+
         // Assertions
-        resultEndpoint.expectedBodiesReceived("DELETE WHERE { <" + base + path + "> ?p ?o };\nDELETE WHERE { <" + base + path + "/appendix> ?p ?o }");
+        resultEndpoint.expectedBodiesReceived(
+                "DELETE WHERE { <" + base + path + "> ?p ?o };\n" +
+                "DELETE WHERE { <" + base + path + "/appendix> ?p ?o }");
         resultEndpoint.expectedHeaderReceived(CONTENT_TYPE, "application/sparql-update");
         resultEndpoint.expectedHeaderReceived(HTTP_METHOD, "POST");
 
