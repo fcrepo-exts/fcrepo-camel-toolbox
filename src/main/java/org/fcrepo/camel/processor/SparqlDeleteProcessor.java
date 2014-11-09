@@ -28,8 +28,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.commons.lang3.StringUtils;
 
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.Node_URI;
+import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
@@ -80,7 +80,7 @@ public class SparqlDeleteProcessor implements Processor {
             if ( triple.getSubject().isURI() ) {
                 final String uri = ((Node_URI)triple.getSubject()).getURI();
 
-                if ( matches(subject, uri) ) {
+                if (uriMatches(subject, uri) ) {
                     uris.add(uri);
                 }
             }
@@ -88,24 +88,24 @@ public class SparqlDeleteProcessor implements Processor {
             // add object uri, if it is part of this object
             if ( triple.getObject().isURI() ) {
                 final String uri = ((Node_URI)triple.getObject()).getURI();
-                if ( matches(subject, uri) ) {
+                if (uriMatches(subject, uri) ) {
                     uris.add(uri);
                 }
             }
         }
 
-        // build update commands
-        final List<String> del = new ArrayList<String>();
+        // build delete commands
+        final List<String> commands = new ArrayList<String>();
         for (final String uri : uris) {
-            del.add("DELETE WHERE { <" + uri + "> ?p ?o }");
+            commands.add("DELETE WHERE { <" + uri + "> ?p ?o }");
         }
 
-        exchange.getIn().setBody(StringUtils.join(del, ";\n"));
+        exchange.getIn().setBody(StringUtils.join(commands, ";\n"));
         exchange.getIn().setHeader(HTTP_METHOD, "POST");
         exchange.getIn().setHeader(CONTENT_TYPE, "application/sparql-update");
     }
 
-    private boolean matches( final String resource, final String candidate) {
+    private static boolean uriMatches(final String resource, final String candidate) {
         // All triples that will match this logic are ones that:
         // - have a candidate subject or object that equals the target resource of removal, or
         // - have a candidate subject or object that is prefixed with the resource of removal
