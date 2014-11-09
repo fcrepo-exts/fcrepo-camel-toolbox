@@ -1,11 +1,13 @@
 /**
+ * Copyright 2014 DuraSpace, Inc.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/license/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software     
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -13,14 +15,14 @@
  */
 package org.fcrepo.camel;
 
-import java.util.Map;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
+import org.slf4j.Logger;
 
 /**
  * Represents the component that manages {@link FedoraEndpoint}.
@@ -29,7 +31,7 @@ import org.apache.camel.impl.DefaultComponent;
  */
 public class FedoraComponent extends DefaultComponent {
 
-    private static final Logger LOGGER  = LoggerFactory.getLogger(FedoraComponent.class);
+    private static final Logger LOGGER  = getLogger(FedoraComponent.class);
 
     /**
      * Create a FedoraComponent independent of a CamelContext.
@@ -52,7 +54,9 @@ public class FedoraComponent extends DefaultComponent {
      *  @param parameters any optional attributes added to the endpoint
      *  @throws Exception
      */
-    protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters) throws Exception {
+    @Override
+    protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters)
+            throws Exception {
         final Endpoint endpoint = new FedoraEndpoint(uri, remaining, this);
         setProperties(endpoint, parameters);
         LOGGER.info("Created Fedora Endpoint [{}]", endpoint);

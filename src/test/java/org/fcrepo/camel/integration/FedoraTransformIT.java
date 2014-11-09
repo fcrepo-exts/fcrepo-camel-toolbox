@@ -1,35 +1,47 @@
 /**
+ * Copyright 2014 DuraSpace, Inc.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/license/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software     
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel;
+package org.fcrepo.camel.integration;
+
+import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
+import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 
 import org.apache.camel.Produce;
 import org.apache.camel.Exchange;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.xml.Namespaces;
-import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
 import java.util.Map;
 import java.util.HashMap;
-
 import java.io.IOException;
 
-public class FedoraPostTest extends CamelTestSupport {
+import org.springframework.test.context.ContextConfiguration;
+
+/**
+ * Test the fcr:transform endpoint
+ * @author Aaron Coburn
+ * @since November 7, 2014
+ */
+@ContextConfiguration({"/spring-test/test-container.xml"})
+public class FedoraTransformIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -38,53 +50,46 @@ public class FedoraPostTest extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testPost() throws Exception {
-        // Assertions
-        resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedBodiesReceived("some title");
+    public void testTransform() throws IOException, InterruptedException {
 
         // Setup
-        Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
         headers.put(Exchange.HTTP_METHOD, "POST");
         headers.put(Exchange.CONTENT_TYPE, "text/turtle");
 
         final String fullPath = template.requestBodyAndHeaders(
-                "direct:setup", FedoraTestUtils.getTurtleDocument(), headers, String.class);
+                "direct:setup", getTurtleDocument(), headers, String.class);
 
-        final String identifier = fullPath.replaceAll(FedoraTestUtils.getFcrepoBaseUri(), "");
-        
+        final String identifier = fullPath.replaceAll(getFcrepoBaseUrl(), "");
+
         // Test
-        template.sendBodyAndHeader(null, "FCREPO_IDENTIFIER", identifier);
+        template.sendBodyAndHeader(null, FCREPO_IDENTIFIER,
+                identifier);
 
         // Teardown
-        Map<String, Object> teardownHeaders = new HashMap<String, Object>();
-        teardownHeaders.put(Exchange.HTTP_METHOD, "DELETE");
-        teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
+        final Map<String, Object> teardownHeaders = new HashMap<>();
+        teardownHeaders.put(HTTP_METHOD, "DELETE");
+        teardownHeaders.put(FCREPO_IDENTIFIER, identifier);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
-        // Confirm that the assertions passed
+        // Assertions
+        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedHeaderReceived("Content-Type", "application/json");
         resultEndpoint.assertIsSatisfied();
     }
 
     @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
+    protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
+            @Override
             public void configure() throws IOException {
                 final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
-
-                Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-                
-                XPathBuilder titleXpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
-                titleXpath.namespaces(ns);
-                titleXpath.namespace("dc", "http://purl.org/dc/elements/1.1/");
 
                 from("direct:setup")
                     .to(fcrepo_uri);
 
                 from("direct:start")
-                    .to(fcrepo_uri)
-                    .filter().xpath("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
-                    .split(titleXpath)
+                    .to(fcrepo_uri + "?accept=application/json&transform=default")
                     .to("mock:result");
 
                 from("direct:teardown")

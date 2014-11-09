@@ -1,20 +1,19 @@
 /**
+ * Copyright 2014 DuraSpace, Inc.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/license/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software     
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package org.fcrepo.camel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
@@ -29,12 +28,7 @@ import org.apache.camel.impl.DefaultEndpoint;
  */
 public class FedoraEndpoint extends DefaultEndpoint {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FedoraEndpoint.class);
-
-    public static final String JMS_HEADER_PREFIX = "org.fcrepo.jms.";
-
-    public static final String FCREPO_JMS_IDENTIFIER =
-        JMS_HEADER_PREFIX + "identifier";
+    public static final String FCREPO_BASEURL = "FCREPO_BASEURL";
 
     public static final String FCREPO_IDENTIFIER = "FCREPO_IDENTIFIER";
 
@@ -72,23 +66,17 @@ public class FedoraEndpoint extends DefaultEndpoint {
     }
 
     /**
-     * Create a FedoraEndpoint with only a uri string
-     * @param uri the complete endpoint uri
-     */
-    public FedoraEndpoint(final String uri) {
-        super(uri);
-    }
-
-    /**
      * Create a producer endpoint.
      */
-    public Producer createProducer() throws Exception {
+    @Override
+    public Producer createProducer() {
         return new FedoraProducer(this);
     }
 
     /**
      * This component does not implement a consumer endpoint.
      */
+    @Override
     public Consumer createConsumer(final Processor processor) throws Exception {
         throw new RuntimeCamelException("Cannot produce to a FedoraEndpoint: " + getEndpointUri());
     }
@@ -96,126 +84,157 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * Define the component as a singleton
      */
+    @Override
     public boolean isSingleton() {
         return true;
     }
 
     /**
-     * baseUrl accessor methods
+     * baseUrl setter
      * @param url the baseUrl string
      */
     public void setBaseUrl(final String url) {
         this.baseUrl = url;
     }
 
+    /**
+     * baseUrl getter
+     */
     public String getBaseUrl() {
         return baseUrl;
     }
 
     /**
-     * accept accessor methods
+     * accept setter
      * @param type the content-type for Accept headers
      */
     public void setAccept(final String type) {
         this.accept = type.replaceAll(" ", "+");
     }
 
+    /**
+     * accept getter
+     */
     public String getAccept() {
         return accept;
     }
 
     /**
-     * contentType accessor methods
+     * contentType setter
      * @param type the content-type for Content-Type headers
      */
     public void setContentType(final String type) {
         this.contentType = type.replaceAll(" ", "+");
     }
 
+    /**
+     * contentType getter
+     */
     public String getContentType() {
         return contentType;
     }
 
     /**
-     * authUsername accessor methods
+     * authUsername setter
      * @param username used for authentication
      */
     public void setAuthUsername(final String username) {
         this.authUsername = username;
     }
 
+    /**
+     * authUsername getter
+     */
     public String getAuthUsername() {
         return authUsername;
     }
 
     /**
-     * authPassword accessor methods
+     * authPassword setter
      * @param password used for authentication
      */
     public void setAuthPassword(final String password) {
         this.authPassword = password;
     }
 
+    /**
+     * authPassword getter
+     */
     public String getAuthPassword() {
         return authPassword;
     }
 
     /**
-     * authHost accessor methods
+     * authHost setter
      * @param host used for authentication
      */
-    public String getAuthHost() {
-        return authHost;
-    }
-
     public void setAuthHost(final String host) {
         this.authHost = host;
     }
 
     /**
-     * metadata accessor methods
-     * @param metadata whether to retrieve rdf metadata for non-rdf nodes
+     * authHost getter
      */
-    public Boolean getMetadata() {
-        return metadata;
+    public String getAuthHost() {
+        return authHost;
     }
 
+    /**
+     * metadata setter
+     * @param metadata whether to retrieve rdf metadata for non-rdf nodes
+     */
     public void setMetadata(final String metadata) {
         this.metadata = Boolean.valueOf(metadata);
     }
 
     /**
-     * throwExceptionOnFailure accessor methods
+     * metadata getter
+     */
+    public Boolean getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * throwExceptionOnFailure setter
      * @param throwOnFailure whether non-2xx HTTP response codes throw exceptions
      */
     public void setThrowExceptionOnFailure(final String throwOnFailure) {
         this.throwExceptionOnFailure = Boolean.valueOf(throwOnFailure);
     }
 
+    /**
+     * throwExceptionOnFailure getter
+     */
     public Boolean getThrowExceptionOnFailure() {
         return throwExceptionOnFailure;
     }
-    
+
     /**
-     * transform accessor methods
+     * transform setter
      * @param transform define an LD-Path transform program for converting RDF to JSON
      */
     public void setTransform(final String transform) {
         this.transform = transform;
     }
 
+    /**
+     * transform getter
+     */
     public String getTransform() {
         return transform;
     }
 
     /**
-     * tombstone accessor methods
-     * @param tombstone whether to access the /fcr:tombstone endpoint for a resource 
+     * tombstone setter
+     * @param tombstone whether to access the /fcr:tombstone endpoint for a resource
      */
     public void setTombstone(final String tombstone) {
         this.tombstone = Boolean.valueOf(tombstone);
     }
 
+    /**
+     * tombstone getter
+     */
     public Boolean getTombstone() {
         return tombstone;
     }
