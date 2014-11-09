@@ -26,7 +26,6 @@ import org.apache.camel.Processor;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 
-
 /**
  * Represents a Processor class that formulates a Sparql DESCRIBE query
  * that is ready to be POSTed to a Sparql endpoint.
