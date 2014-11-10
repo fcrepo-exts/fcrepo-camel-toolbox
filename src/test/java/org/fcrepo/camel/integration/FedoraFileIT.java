@@ -115,7 +115,7 @@ public class FedoraFileIT extends CamelTestSupport {
                     .to(fcrepo_uri)
                     .filter().xpath(
                         "/rdf:RDF/rdf:Description/rdf:type" +
-                        "[@rdf:resource='http://fedora.info/definitions/v4/rest-api#NonRdfSourceDescription']", ns)
+                        "[@rdf:resource='http://fedora.info/definitions/v4/repository#Binary']", ns)
                     .to("mock:result");
 
                 from("direct:file")
@@ -124,7 +124,6 @@ public class FedoraFileIT extends CamelTestSupport {
 
                 from("direct:teardown")
                     .to(fcrepo_uri)
-                    .log("TEST TEARDOWN: ${header.FCREPO_IDENTIFIER}")
                     .to(fcrepo_uri + "?tombstone=true");
             }
         };
