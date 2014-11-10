@@ -92,7 +92,7 @@ public class FedoraPutIT extends CamelTestSupport {
                     .to(fcrepo_uri)
                     .filter().xpath(
                         "/rdf:RDF/rdf:Description/rdf:type" +
-                        "[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Resource']", ns)
+                        "[@rdf:resource='http://fedora.info/definitions/v4/repository#Resource']", ns)
                     .to("mock:result");
 
                 from("direct:teardown")
