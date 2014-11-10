@@ -42,10 +42,17 @@ public class FedoraComponentTest {
     private CamelContext mockContext;
 
     @Test
-    public void testCreateEndpoint() throws Exception {
+    public void testCreateEndpoint() {
         final FedoraComponent testComponent = new FedoraComponent(mockContext);
         final Endpoint testEndpoint = testComponent.createEndpoint(TEST_ENDPOINT_URI, "", EMPTY_MAP);
         assertEquals(mockContext, testEndpoint.getCamelContext());
+        assertEquals(TEST_ENDPOINT_URI, testEndpoint.getEndpointUri());
+    }
+
+    @Test
+    public void testCreateEndpointFromDefaultConstructor() {
+        final FedoraComponent testComponent = new FedoraComponent();
+        final Endpoint testEndpoint = testComponent.createEndpoint(TEST_ENDPOINT_URI, "", EMPTY_MAP);
         assertEquals(TEST_ENDPOINT_URI, testEndpoint.getEndpointUri());
     }
 

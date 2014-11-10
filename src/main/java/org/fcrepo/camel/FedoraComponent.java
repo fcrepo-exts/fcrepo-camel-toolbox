@@ -52,13 +52,11 @@ public class FedoraComponent extends DefaultComponent {
      *  @param uri the fcrepo uri identifying the repository hostname and port
      *  @param remaining the string identifying the repository path
      *  @param parameters any optional attributes added to the endpoint
-     *  @throws Exception
      */
     @Override
-    protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters)
-            throws Exception {
+    protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters) {
         final Endpoint endpoint = new FedoraEndpoint(uri, remaining, this);
-        setProperties(endpoint, parameters);
+        endpoint.configureProperties(parameters);
         LOGGER.info("Created Fedora Endpoint [{}]", endpoint);
         return endpoint;
     }
