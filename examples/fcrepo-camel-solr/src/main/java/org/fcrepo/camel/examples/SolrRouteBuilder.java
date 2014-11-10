@@ -22,7 +22,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.XPathBuilder;
 
 /**
- * A Camel Java DSL Router
+ * A Camel Java DSL Router.
  *
  * @author Aaron Coburn
  *      Nov 8, 2014
@@ -30,12 +30,18 @@ import org.apache.camel.builder.xml.XPathBuilder;
 public class SolrRouteBuilder extends RouteBuilder {
 
     /**
-     * Let's configure the Camel routing rules using Java code...
+     * Let's configure the Camel routing rules using Java code.
      */
-    public void configure() {
-        getContext().addComponent("activemq", activeMQComponent("vm://localhost:61616?broker.persistent=false"));
+    public final void configure() throws Exception {
 
-        XPathBuilder xpath = new XPathBuilder("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#Indexable']");
+        final String indexable =
+            "http://fedora.info/definitions/v4/repository#Indexable";
+
+        getContext().addComponent("activemq",
+            activeMQComponent("vm://localhost:61616?broker.persistent=false"));
+
+        XPathBuilder xpath = new XPathBuilder(
+            "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='" + indexable + "']");
         xpath.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
         from("activemq:topic:fedora")

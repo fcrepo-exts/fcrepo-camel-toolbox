@@ -18,15 +18,22 @@ package org.fcrepo.camel.examples;
 import org.apache.camel.main.Main;
 
 /**
- * A Camel Application
+ * A Camel Application.
  */
-public class MainApp {
+public final class MainApp {
 
     /**
-     * A main() so we can easily run these routing rules in our IDE
+     *  Keep the default constructor private.
      */
-    public static void main(String... args) throws Exception {
-        Main main = new Main();
+    private MainApp() {
+    }
+
+    /**
+     * A main() so we can easily run these routing rules in our IDE.
+     * @param args The incoming argument list
+     */
+    public static void main(final String... args) throws Exception {
+        final Main main = new Main();
         main.enableHangupSupport();
         main.addRouteBuilder(new SolrRouteBuilder());
         main.run(args);
