@@ -40,9 +40,8 @@ public final class FedoraTestUtils {
     public static String getFcrepoBaseUrl() {
         if (FCREPO_PORT == 80) {
             return "http://localhost/rest";
-        } else {
-            return "http://localhost:" + FCREPO_PORT + "/rest";
         }
+        return "http://localhost:" + FCREPO_PORT + "/rest";
     }
 
     /**
@@ -51,9 +50,8 @@ public final class FedoraTestUtils {
     public static String getFcrepoEndpointUri() {
         if (FCREPO_PORT == 80) {
             return "fcrepo://localhost/rest";
-        } else {
-            return "fcrepo://localhost:" + FCREPO_PORT + "/rest";
         }
+        return "fcrepo://localhost:" + FCREPO_PORT + "/rest";
     }
 
     /**

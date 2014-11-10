@@ -19,8 +19,6 @@ import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.DEFAULT_CONTENT_TYPE;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 
-import java.io.IOException;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
@@ -116,7 +114,7 @@ public class FedoraContentTypeHeaderIT extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             @Override
-            public void configure() throws IOException {
+            public void configure() {
                 final String fcrepo_uri = getFcrepoEndpointUri();
 
                 from("direct:start")

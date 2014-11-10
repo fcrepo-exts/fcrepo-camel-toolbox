@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -88,7 +89,7 @@
       <artifactId>camel-core</artifactId>
       <version>${camel.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
@@ -98,45 +99,36 @@
     <!-- fcrepo -->
     <dependency>
       <groupId>org.fcrepo</groupId>
-      <artifactId>fcrepo-kernel-impl</artifactId>
-      <version>${fcrepo.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-jms</artifactId>
-      <version>${fcrepo.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-http-api</artifactId>
-      <version>${fcrepo.version}</version>
+      <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-configs</artifactId>
-      <version>${fcrepo.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-transform</artifactId>
-      <version>${fcrepo.version}</version>
+      <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-auth-common</artifactId>
-      <version>${fcrepo.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-http-commons</artifactId>
-      <version>${fcrepo.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
@@ -144,20 +136,12 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>${httpclient.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-common</artifactId>
-      <version>${jersey.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>apache-jena-libs</artifactId>
       <type>pom</type>
-      <version>${jena.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -180,9 +164,8 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-    </dependency>    
-    
+    </dependency>
+
     <!-- testing -->
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -190,35 +173,32 @@
       <version>${camel.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
       <version>${camel.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>${spring.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>${spring.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>${spring.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-fuseki</artifactId>
@@ -232,7 +212,7 @@
       <version>${jena.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-core</artifactId>
@@ -243,17 +223,15 @@
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
-      <version>2.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.glassfish.jersey.test-framework.providers</groupId>
       <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-      <version>${jersey.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.glassfish.jersey.ext</groupId>
       <artifactId>jersey-spring3</artifactId>
@@ -312,7 +290,7 @@
     <defaultGoal>install</defaultGoal>
 
     <plugins>
-      <!--Bring in F4 webapp for integration testing-->
+      <!--Bring in F4 webapp for integration testing -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -379,7 +357,7 @@
               <goal>verify</goal>
             </goals>
           </execution>
-        </executions>        
+        </executions>
       </plugin>
 
       <plugin>
@@ -412,8 +390,8 @@
             </goals>
           </execution>
         </executions>
-      </plugin>        
-    
+      </plugin>
+
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.2</version>
@@ -422,7 +400,7 @@
           <target>1.7</target>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>2.7</version>
