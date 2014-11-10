@@ -16,23 +16,21 @@
 package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
-import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 
-import org.apache.camel.Produce;
-import org.apache.camel.Exchange;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
+import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.io.IOException;
-
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -50,7 +48,7 @@ public class FedoraTransformIT extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testTransform() throws IOException, InterruptedException {
+    public void testTransform() throws InterruptedException {
 
         // Setup
         final Map<String, Object> headers = new HashMap<>();
@@ -82,7 +80,7 @@ public class FedoraTransformIT extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             @Override
-            public void configure() throws IOException {
+            public void configure() {
                 final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
 
                 from("direct:setup")
