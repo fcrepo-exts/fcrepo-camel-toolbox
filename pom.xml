@@ -19,7 +19,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <fcrepo.version>4.0.0-beta-04-SNAPSHOT</fcrepo.version>
+    <fcrepo.version>4.0.0-beta-05-SNAPSHOT</fcrepo.version>
     <camel.version>2.14.0</camel.version>
     <httpclient.version>4.3.5</httpclient.version>
     <jena.fuseki.version>0.2.3</jena.fuseki.version>
