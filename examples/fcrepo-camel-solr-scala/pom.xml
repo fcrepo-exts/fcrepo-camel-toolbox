@@ -22,6 +22,7 @@
     <activemq.version>5.10.0</activemq.version>
     <camel.version>2.14.0</camel.version>
     <scala.version>2.11.2</scala.version>
+    <logback.version>1.1.2</logback.version>
   </properties>
 
   <licenses>
@@ -63,19 +64,9 @@
 
     <!-- logging -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.7</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.7</version>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
     </dependency>
 
     <!-- testing -->

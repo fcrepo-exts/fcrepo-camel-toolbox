@@ -23,7 +23,7 @@ import org.apache.activemq.camel.component.ActiveMQComponent;
  * A Camel Router using the Scala DSL
  *
  * @author Aaron Coburn
- *    Nov 8, 2014
+ * @since  Nov 8, 2014
  */
 class SolrRouteBuilder extends RouteBuilder {
 

@@ -20,9 +20,9 @@ import org.apache.camel.scala.dsl.builder.RouteBuilderSupport
 
 /**
  * A Main to run Camel with SolrRouteBuilder
- * 
+ *
  * @author Aaron Coburn
- *    Nov 8, 2014
+ * @since  Nov 8, 2014
  */
 object SolrRouteMain extends RouteBuilderSupport {
 
