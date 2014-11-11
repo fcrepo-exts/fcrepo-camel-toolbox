@@ -19,13 +19,19 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.RuntimeCamelException;
+import org.apache.camel.api.management.ManagedResource;
+import org.apache.camel.api.management.ManagedAttribute;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.spi.UriEndpoint;
+import org.apache.camel.spi.UriParam;
 
 /**
  * Represents a Fedora endpoint.
  * @author Aaron Coburn
  * @since October 20, 2014
  */
+@ManagedResource(description = "Managed FcrepoEndpoint")
+@UriEndpoint(scheme = "fcrepo")
 public class FedoraEndpoint extends DefaultEndpoint {
 
     public static final String FCREPO_BASE_URL = "FCREPO_BASE_URL";
@@ -34,24 +40,33 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public static final String DEFAULT_CONTENT_TYPE = "application/rdf+xml";
 
-    private volatile String contentType = null;
-
-    private volatile String accept = null;
-
     private volatile String baseUrl = "";
 
+    @UriParam
+    private volatile String contentType = null;
+
+    @UriParam
+    private volatile String accept = null;
+
+    @UriParam
     private volatile String transform = null;
 
+    @UriParam
     private volatile String authUsername = null;
 
+    @UriParam
     private volatile String authPassword = null;
 
+    @UriParam
     private volatile String authHost = null;
 
+    @UriParam
     private volatile Boolean tombstone = false;
 
+    @UriParam
     private volatile Boolean metadata = true;
 
+    @UriParam
     private volatile Boolean throwExceptionOnFailure = true;
 
     /**
@@ -77,7 +92,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * This component does not implement a consumer endpoint.
      */
     @Override
-    public Consumer createConsumer(final Processor processor) throws Exception {
+    public Consumer createConsumer(final Processor processor) {
         throw new RuntimeCamelException("Cannot produce to a FedoraEndpoint: " + getEndpointUri());
     }
 
@@ -108,6 +123,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * accept setter
      * @param type the content-type for Accept headers
      */
+    @ManagedAttribute(description = "Accept: Header")
     public void setAccept(final String type) {
         this.accept = type.replaceAll(" ", "+");
     }
@@ -115,6 +131,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * accept getter
      */
+    @ManagedAttribute(description = "Accept: Header")
     public String getAccept() {
         return accept;
     }
@@ -123,6 +140,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * contentType setter
      * @param type the content-type for Content-Type headers
      */
+    @ManagedAttribute(description = "Content-Type: Header")
     public void setContentType(final String type) {
         this.contentType = type.replaceAll(" ", "+");
     }
@@ -130,6 +148,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * contentType getter
      */
+    @ManagedAttribute(description = "Content-Type: Header")
     public String getContentType() {
         return contentType;
     }
@@ -138,6 +157,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * authUsername setter
      * @param username used for authentication
      */
+    @ManagedAttribute(description = "Username for authentication")
     public void setAuthUsername(final String username) {
         this.authUsername = username;
     }
@@ -145,6 +165,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * authUsername getter
      */
+    @ManagedAttribute(description = "Username for authentication")
     public String getAuthUsername() {
         return authUsername;
     }
@@ -153,6 +174,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * authPassword setter
      * @param password used for authentication
      */
+    @ManagedAttribute(description = "Password for authentication")
     public void setAuthPassword(final String password) {
         this.authPassword = password;
     }
@@ -160,6 +182,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * authPassword getter
      */
+    @ManagedAttribute(description = "Password for authentication")
     public String getAuthPassword() {
         return authPassword;
     }
@@ -168,6 +191,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * authHost setter
      * @param host used for authentication
      */
+    @ManagedAttribute(description = "Hostname for authentication")
     public void setAuthHost(final String host) {
         this.authHost = host;
     }
@@ -175,6 +199,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * authHost getter
      */
+    @ManagedAttribute(description = "Hostname for authentication")
     public String getAuthHost() {
         return authHost;
     }
@@ -183,6 +208,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * metadata setter
      * @param metadata whether to retrieve rdf metadata for non-rdf nodes
      */
+    @ManagedAttribute(description = "Whether to retrieve the /fcr:metadata endpoint for Binary nodes")
     public void setMetadata(final String metadata) {
         this.metadata = Boolean.valueOf(metadata);
     }
@@ -190,6 +216,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * metadata getter
      */
+    @ManagedAttribute(description = "Whether to retrieve the /fcr:metadata endpoint for Binary nodes")
     public Boolean getMetadata() {
         return metadata;
     }
@@ -198,6 +225,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * throwExceptionOnFailure setter
      * @param throwOnFailure whether non-2xx HTTP response codes throw exceptions
      */
+    @ManagedAttribute(description = "Whether non 2xx response codes should throw an exception")
     public void setThrowExceptionOnFailure(final String throwOnFailure) {
         this.throwExceptionOnFailure = Boolean.valueOf(throwOnFailure);
     }
@@ -205,6 +233,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * throwExceptionOnFailure getter
      */
+    @ManagedAttribute(description = "Whether non 2xx response codes should throw an exception")
     public Boolean getThrowExceptionOnFailure() {
         return throwExceptionOnFailure;
     }
@@ -213,6 +242,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * transform setter
      * @param transform define an LD-Path transform program for converting RDF to JSON
      */
+    @ManagedAttribute(description = "The LDPath transform program to use")
     public void setTransform(final String transform) {
         this.transform = transform;
     }
@@ -220,6 +250,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * transform getter
      */
+    @ManagedAttribute(description = "The LDPath transform program to use")
     public String getTransform() {
         return transform;
     }
@@ -228,6 +259,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * tombstone setter
      * @param tombstone whether to access the /fcr:tombstone endpoint for a resource
      */
+    @ManagedAttribute(description = "Whether to use the /fcr:tombstone endpoint on objects")
     public void setTombstone(final String tombstone) {
         this.tombstone = Boolean.valueOf(tombstone);
     }
@@ -235,6 +267,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
     /**
      * tombstone getter
      */
+    @ManagedAttribute(description = "Whether to use the /fcr:tombstone endpoint on objects")
     public Boolean getTombstone() {
         return tombstone;
     }

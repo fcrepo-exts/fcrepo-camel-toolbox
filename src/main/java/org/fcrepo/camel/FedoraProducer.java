@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fcrepo.camel;
 
+import static java.net.URI.create;
 import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.HTTP_RESPONSE_CODE;
 import static org.apache.camel.component.http4.HttpMethods.DELETE;
+import static org.apache.camel.component.http4.HttpMethods.GET;
 import static org.apache.camel.component.http4.HttpMethods.POST;
 import static org.fcrepo.camel.FedoraEndpoint.DEFAULT_CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
@@ -27,7 +30,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -35,7 +37,6 @@ import org.apache.camel.component.http4.HttpMethods;
 import org.apache.camel.component.http4.HttpOperationFailedException;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.camel.util.ExchangeHelper;
-import org.apache.http.client.ClientProtocolException;
 import org.slf4j.Logger;
 
 /**
@@ -66,12 +67,9 @@ public class FedoraProducer extends DefaultProducer {
      * @param exchange the InOut message exchange
      * @throws IOException
      * @throws HttpOperationFailedException
-     * @throws ClientProtocolException
-     * @throws URISyntaxException
      */
     @Override
-    public void process(final Exchange exchange)
-            throws ClientProtocolException, HttpOperationFailedException, IOException, URISyntaxException {
+    public void process(final Exchange exchange) throws HttpOperationFailedException, IOException {
         final Message in = exchange.getIn();
         final FedoraClient client = new FedoraClient(
                 endpoint.getAuthUsername(),
@@ -91,41 +89,41 @@ public class FedoraProducer extends DefaultProducer {
 
         switch (method) {
         case PATCH:
-            headResponse = client.head(new URI(url));
+            headResponse = client.head(create(url));
             if (headResponse.getLocation() != null) {
                 response = client.patch(headResponse.getLocation(), in.getBody(String.class));
             } else {
-                response = client.patch(new URI(url), in.getBody(String.class));
+                response = client.patch(create(url), in.getBody(String.class));
             }
             exchange.getIn().setBody(response.getBody());
             break;
         case PUT:
-            response = client.put(new URI(url), in.getBody(String.class), contentType);
+            response = client.put(create(url), in.getBody(String.class), contentType);
             exchange.getIn().setBody(response.getBody());
             break;
         case POST:
-            response = client.post(new URI(url), in.getBody(String.class), contentType);
+            response = client.post(create(url), in.getBody(String.class), contentType);
             exchange.getIn().setBody(response.getBody());
             break;
         case DELETE:
-            response = client.delete(new URI(url));
+            response = client.delete(create(url));
             exchange.getIn().setBody(response.getBody());
             break;
         case HEAD:
-            response = client.head(new URI(url));
+            response = client.head(create(url));
             exchange.getIn().setBody(null);
             break;
         case GET:
         default:
             if (endpoint.getMetadata()) {
-                headResponse = client.head(new URI(url));
+                headResponse = client.head(create(url));
                 if (headResponse.getLocation() != null) {
                     response = client.get(headResponse.getLocation(), accept);
                 } else {
-                    response = client.get(new URI(url), accept);
+                    response = client.get(create(url), accept);
                 }
             } else {
-                response = client.get(new URI(url), null);
+                response = client.get(create(url), null);
             }
             exchange.getIn().setBody(response.getBody());
             exchange.getIn().setHeader("Content-Type", response.getContentType());
@@ -198,7 +196,8 @@ public class FedoraProducer extends DefaultProducer {
     protected String getUrl(final Exchange exchange) {
         final Message in = exchange.getIn();
         final HttpMethods method = exchange.getIn().getHeader(HTTP_METHOD, HttpMethods.class);
-        String url = "http://" + endpoint.getBaseUrl();
+        final URI baseUri = create(endpoint.getBaseUrl());
+        String url = "http://" + baseUri;
         if (in.getHeader(FCREPO_IDENTIFIER) != null) {
             url += in.getHeader(FCREPO_IDENTIFIER, String.class);
         } else if (in.getHeader(IDENTIFIER_HEADER_NAME) != null) {
@@ -207,7 +206,7 @@ public class FedoraProducer extends DefaultProducer {
         if (endpoint.getTransform() != null) {
             if (method == POST) {
                 url += "/fcr:transform";
-            } else if (method == null || method == HttpMethods.GET) {
+            } else if (method == null || method == GET) {
                 url += "/fcr:transform/" + endpoint.getTransform();
             }
         } else if (method == DELETE && endpoint.getTombstone()) {
