@@ -23,7 +23,7 @@
     <fcrepo.version>4.0.0-beta-04-SNAPSHOT</fcrepo.version>
     <camel.version>2.14.0</camel.version>
     <httpclient.version>4.3.5</httpclient.version>
-    <jena.fuseki.version>0.2.3</jena.fuseki.version>
+    <jena.fuseki.version>1.1.0</jena.fuseki.version>
     <jena.version>2.12.1</jena.version>
     <jersey.version>2.13</jersey.version>
     <logback.version>1.1.2</logback.version>
@@ -332,6 +332,7 @@
           <portNames>
             <portName>test.port</portName>
             <!-- reserves the stop port for jetty-maven-plugin -->
+            <portName>test.fuseki.port</portName>
             <portName>test.mgt.port</portName>
           </portNames>
         </configuration>
@@ -353,6 +354,8 @@
         <configuration>
           <systemPropertyVariables>
             <test.port>${test.port}</test.port>
+            <test.fuseki.port>${test.fuseki.port}</test.fuseki.port>
+            <test.mgt.port>${test.mgt.port}</test.mgt.port>
             <test.context.path>${test.context.path}</test.context.path>
           </systemPropertyVariables>
         </configuration>
