@@ -17,13 +17,12 @@ package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getPatchDocument;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
-import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +54,7 @@ public class FedoraPatchIT extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testPatch() throws IOException, InterruptedException {
+    public void testPatch() throws InterruptedException {
         // Assertions
         resultEndpoint.expectedMessageCount(1);
         titleEndpoint.expectedMessageCount(2);
@@ -97,7 +96,7 @@ public class FedoraPatchIT extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             @Override
-            public void configure() throws IOException {
+            public void configure() {
 
                 final String fcrepo_uri = getFcrepoEndpointUri();
 

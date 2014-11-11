@@ -17,12 +17,11 @@ package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
-import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +51,7 @@ public class FedoraPostIT extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testPost() throws IOException, InterruptedException {
+    public void testPost() throws InterruptedException {
         // Assertions
         resultEndpoint.expectedMessageCount(1);
         resultEndpoint.expectedBodiesReceived("some title");
@@ -84,7 +83,7 @@ public class FedoraPostIT extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             @Override
-            public void configure() throws IOException {
+            public void configure() {
                 final String fcrepo_uri = getFcrepoEndpointUri();
 
                 final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");

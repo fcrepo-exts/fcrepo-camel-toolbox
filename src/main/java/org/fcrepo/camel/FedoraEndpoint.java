@@ -77,7 +77,7 @@ public class FedoraEndpoint extends DefaultEndpoint {
      * This component does not implement a consumer endpoint.
      */
     @Override
-    public Consumer createConsumer(final Processor processor) throws Exception {
+    public Consumer createConsumer(final Processor processor) {
         throw new RuntimeCamelException("Cannot produce to a FedoraEndpoint: " + getEndpointUri());
     }
 
