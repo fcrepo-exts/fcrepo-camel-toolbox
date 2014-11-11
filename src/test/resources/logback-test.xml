@@ -7,19 +7,10 @@
         </encoder>
     </appender>
 
-  <logger name="org.fcrepo.indexer" additivity="false" level="DEBUG">
+  <logger name="org.fcrepo.camel" additivity="false" level="DEBUG">
     <appender-ref ref="STDOUT"/>
   </logger>
   <logger name="org.fcrepo" additivity="false" level="INFO">
-    <appender-ref ref="STDOUT"/>
-  </logger>
-  <logger name="org.fcrepo.transform" additivity="false" level="DEBUG">
-    <appender-ref ref="STDOUT"/>
-  </logger>
-  <logger name="org.apache.solr" additivity="false" level="ERROR">
-    <appender-ref ref="STDOUT"/>
-  </logger>
-  <logger name="org.apache.lucene" additivity="false" level="ERROR">
     <appender-ref ref="STDOUT"/>
   </logger>
   <root additivity="false" level="WARN">
