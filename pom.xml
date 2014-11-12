@@ -35,6 +35,11 @@
     <!-- values -->
     <test.context.path>/</test.context.path>
     <project.copyrightYear>2014</project.copyrightYear>
+    <jacoco.outputDir>${project.build.directory}</jacoco.outputDir>
+    <jacoco.out.unit.file>jacoco-ut.exec</jacoco.out.unit.file>
+    <jacoco.out.it.file>jacoco-it.exec</jacoco.out.it.file>
+    <sonar.jacoco.reportPath>${jacoco.outputDir}/${jacoco.out.unit.file}</sonar.jacoco.reportPath>
+    <sonar.jacoco.itReportPath>${jacoco.outputDir}/${jacoco.out.it.file}</sonar.jacoco.itReportPath>
   </properties>
 
   <licenses>
@@ -303,6 +308,58 @@
             </execution>
           </executions>
         </plugin>
+
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.7.1.201405082137</version>
+          <executions>
+            <execution>
+              <id>default-prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+
+              <configuration>
+                <destFile>${sonar.jacoco.reportPath}</destFile>
+                <propertyName>jacoco.agent.unit.arg</propertyName>
+                <append>true</append>
+              </configuration>
+            </execution>
+            <execution>
+              <id>default-prepare-agent-integration</id>
+              <goals>
+                <goal>prepare-agent-integration</goal>
+              </goals>
+              <configuration>
+                <destFile>${sonar.jacoco.itReportPath}</destFile>
+                <propertyName>jacoco.agent.it.arg</propertyName>
+                <append>true</append>
+              </configuration>
+            </execution>
+            <execution>
+              <id>default-report</id>
+              <goals>
+                <goal>report</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>default-report-integration</id>
+              <goals>
+                <goal>report-integration</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.17</version>
+          <configuration>
+            <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=512m</argLine>
+          </configuration>
+        </plugin>
+
       </plugins>
     </pluginManagement>
 
@@ -366,6 +423,7 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>2.17</version>
         <configuration>
+          <argLine>-XX:MaxPermSize=128m ${jacoco.agent.it.arg}</argLine>
           <systemPropertyVariables>
             <test.port>${test.port}</test.port>
             <test.fuseki.port>${test.fuseki.port}</test.fuseki.port>
@@ -381,6 +439,22 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!--
+            This line enables code-coverage. However, it also blows the build's permgen.
+            Fix me!
+          -->
+          <argLine>-XX:-UseSplitVerifier ${jacoco.agent.unit.arg}</argLine>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
       </plugin>
 
       <plugin>
