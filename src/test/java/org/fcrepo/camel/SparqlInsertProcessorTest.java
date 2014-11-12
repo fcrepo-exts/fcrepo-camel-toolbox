@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel.integration;
+package org.fcrepo.camel;
 
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.commons.lang3.StringUtils.normalizeSpace;
