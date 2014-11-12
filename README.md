@@ -6,6 +6,7 @@ The **fcrepo:** component provides access to an external
 [API](https://wiki.duraspace.org/display/FF/RESTful+HTTP+API+-+Objects)
 for use with [Apache Camel](https://camel.apache.org).
 
+[![Build Status](https://travis-ci.org/fcrepo4-labs/fcrepo-camel.png?branch=master)](https://travis-ci.org/fcrepo4-labs/fcrepo-camel)
 
 URI format
 ----------
@@ -32,7 +33,7 @@ Examples
 
 A simple example for sending messages to an external Solr service:
 
-    XPathBuilder xpath = new XPathBuilder("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#indexable']");
+    XPathBuilder xpath = new XPathBuilder("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/repository#Indexable']");
     xpath.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
     from("activemq:topic:fedora")
@@ -48,7 +49,7 @@ Or, using the Spring DSL:
       <from uri="activemq:topic:fedora"/>
       <to uri="fcrepo:localhost:8080/rest"/>
       <filter>
-        <xpath>/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/rest-api#indexable']</xpath>
+        <xpath>/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/repository#Indexable']</xpath>
         <to uri="fcrepo:localhost:8080/rest?accept=application/json&amp;transform=mytransform"/>
         <setHeader headerName="Exchange.CONTENT_TYPE">
           <constant>application/json</constant>
@@ -207,94 +208,12 @@ The `eventType` values follow the JCR 2.0 specification and include:
 The `properties` field will list the RDF properties that changed with that
 event. `NODE_REMOVED` events contain no properties.
 
-###Distributed messaging deployments
+Examples and more information
+-----------------------------
 
-The default configuration is fine for locally-deployed listeners, but it can
-be problematic in a distributed context. For instance, if the listener is 
-restarted while a message is sent to the topic, that message will be missed. 
-Furthermore, if there is a networking hiccup between fedora's local broker 
-and the remote listener, that too can result in lost messages. Instead, in 
-this case, a queue may be better suited.
+There are several example projects in the `examples` directory of this distribution.
 
-####Supporting queues
-
-ActiveMQ supports “[virtual destinations](http://activemq.apache.org/virtual-destinations.html)”,
-allowing your broker to automatically forward messages from one
-location to another. If fedora4 is deployed in Tomcat, the ActiveMQ
-configuration will be located in `WEB-INF/classes/config/activemq.xml`.
-That file can be edited to include the following block:
-
-    <destinationInterceptors>
-      <virtualDestinationInterceptor>
-        <virtualDestinations>
-          <compositeTopic name="fedora">
-            <forwardTo>
-              <queue physicalName="fedora"/>
-            </forwardTo>
-          </compositeTopic>
-        </virtualDestinations>
-      </virtualDestinationInterceptor>
-    </destinationInterceptors>
-
-Now a consumer can pull messages from a queue without risk of losing messages.
-
-This configuration, however, will not allow any other applications to read from
-the original topic. If it is necessary to have `/topic/fedora` available to
-consumers, this configuration will be useful:
-
-    <destinationInterceptors>
-      <virtualDestinationInterceptor>
-        <virtualDestinations>
-          <compositeTopic name="fedora" forwardOnly="false">
-            <forwardTo>
-              <queue physicalName="fedora"/>
-            </forwardTo>
-          </compositeTopic>
-        </virtualDestinations>
-      </virtualDestinationInterceptor>
-    </destinationInterceptors>
-
-Now, both `/topic/fedora` and `/queue/fedora` will be available to consumers.
-
-####Distributed brokers
-
-The above example will allow you to distribute the message consumers across
-multiple machines without missing messages, but it can also be useful to
-distribute the message broker across multiple machines. This can be especially
-useful if you want to further decouple the message producers and consumers.
-It can also be useful for high-availability and failover support.
-
-ActiveMQ supports a variety of distributed broker
-[topologies](http://activemq.apache.org/topologies.html). To push messages
-from both the message queue and topic to a remote broker, this configuration
-can be used:
-
-    <networkConnectors>
-      <networkConnector name="fedora_bridge" dynamicOnly="true" uri="static:(tcp://remote-host:61616)">
-        <dynamicallyIncludedDestinations>
-          <topic physicalName="fedora"/>
-          <queue physicalName="fedora"/>
-        </dynamicallyIncludedDestinations>
-      </networkConnector>
-    </networkConnectors>
-
-###Protocol support
-
-ActiveMQ brokers support a wide variety of protocols. The default Fedora4
-configuration includes [OpenWire](http://activemq.apache.org/openwire.html)
-and [Stomp](http://stomp.github.io/). If Fedora's internal broker is
-bridged to an external broker, please remember to enable the proper
-protocols on the remote broker. This can be done like so:
-
-    <transportConnectors>
-      <transportConnector name="openwire" uri="tcp://0.0.0.0:61616"/>
-      <transportConnector name="stomp" uri="stomp://0.0.0.0:61613"/>
-    </transportConnectors>
-
-Each transportConnector supports additional [options](http://activemq.apache.org/configuring-transports.html).
-
-Questions
----------
-
-Feel free to send me an email (acoburn@apache.org) with any questions.
+Furthermore, additional information about designing and deploying **fcrepo**-based message routes along
+with configuration options for Fedora's ActiveMQ broker can be found on the
+[fedora project wiki](https://wiki.duraspace.org/display/FF/Setup+Camel+Message+Integrations).
 
