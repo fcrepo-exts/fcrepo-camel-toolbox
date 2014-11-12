@@ -17,35 +17,39 @@ package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
-import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
-import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
-import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
-import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
+import static java.lang.System.getProperty;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+import java.io.IOException;
 
-import org.apache.camel.EndpointInject;
+import org.fcrepo.camel.processor.SparqlInsertProcessor;
+import org.fcrepo.camel.processor.SparqlDescribeProcessor;
+import org.fcrepo.camel.processor.SparqlDeleteProcessor;
+
 import org.apache.camel.Produce;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
+import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- * Test adding a new resource with POST
+ * Represents an integration test for interacting with an external triplestore.
+ *
  * @author Aaron Coburn
- * @since November 7, 2014
+ * @since Nov 8, 2014
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"/spring-test/test-container.xml"})
-public class FedoraPostIT extends CamelTestSupport {
+public class FedoraSparqlIT extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -54,28 +58,30 @@ public class FedoraPostIT extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testPost() throws InterruptedException {
+    public void testSparql() throws Exception {
         // Assertions
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedBodiesReceived("some title");
 
         // Setup
-        final Map<String, Object> headers = new HashMap<>();
+        final Map<String, Object> headers = new HashMap<String, Object>();
         headers.put(HTTP_METHOD, "POST");
         headers.put(CONTENT_TYPE, "text/turtle");
 
         final String fullPath = template.requestBodyAndHeaders(
-                "direct:setup", getTurtleDocument(), headers, String.class);
+                "direct:setup", FedoraTestUtils.getTurtleDocument(), headers, String.class);
 
-        final String identifier = fullPath.replaceAll(getFcrepoBaseUrl(), "");
+        final String identifier = fullPath.replaceAll(FedoraTestUtils.getFcrepoBaseUrl(), "");
 
         // Test
-        template.sendBodyAndHeader(null, FCREPO_IDENTIFIER, identifier);
+        final Map<String, Object> testHeaders = new HashMap<String, Object>();
+        testHeaders.put("FCREPO_IDENTIFIER", identifier);
+        testHeaders.put("org.fcrepo.jms.baseURL", "http://localhost:8080/fcrepo4/rest");
+        template.sendBodyAndHeaders(null, testHeaders);
 
         // Teardown
-        final Map<String, Object> teardownHeaders = new HashMap<>();
-        teardownHeaders.put(HTTP_METHOD, "DELETE");
-        teardownHeaders.put(FCREPO_IDENTIFIER, identifier);
+        final Map<String, Object> teardownHeaders = new HashMap<String, Object>();
+        teardownHeaders.put(Exchange.HTTP_METHOD, "DELETE");
+        teardownHeaders.put("FCREPO_IDENTIFIER", identifier);
         template.sendBodyAndHeaders("direct:teardown", null, teardownHeaders);
 
         // Confirm that the assertions passed
@@ -83,27 +89,30 @@ public class FedoraPostIT extends CamelTestSupport {
     }
 
     @Override
-    protected RouteBuilder createRouteBuilder() {
+    protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
-            @Override
-            public void configure() {
-                final String fcrepo_uri = getFcrepoEndpointUri();
+            public void configure() throws IOException {
 
-                final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-
+                final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
+                final String fuseki_url = "localhost:" + getProperty("test.fuseki.port", "3030");
+                final Processor sparqlInsert = new SparqlInsertProcessor();
                 final XPathBuilder titleXpath = new XPathBuilder("/rdf:RDF/rdf:Description/dc:title/text()");
-                titleXpath.namespaces(ns);
+                titleXpath.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
                 titleXpath.namespace("dc", "http://purl.org/dc/elements/1.1/");
 
                 from("direct:setup")
                     .to(fcrepo_uri);
 
                 from("direct:start")
-                    .to(fcrepo_uri)
-                    .filter().xpath(
-                        "/rdf:RDF/rdf:Description/rdf:type" +
-                        "[@rdf:resource='http://fedora.info/definitions/v4/repository#Resource']", ns)
-                    .split(titleXpath)
+                    .process(new SparqlDescribeProcessor())
+                    .to("http4:" + fuseki_url + "/test/query")
+                    //.log("${body}")
+                    .process(new SparqlDeleteProcessor())
+                    .to("http4:" + fuseki_url + "/test/update")
+                    .setHeader(Exchange.HTTP_METHOD).constant("GET")
+                    .to(fcrepo_uri + "?accept=application/n-triples")
+                    .process(new SparqlInsertProcessor())
+                    .to("http4:" + fuseki_url + "/test/update")
                     .to("mock:result");
 
                 from("direct:teardown")

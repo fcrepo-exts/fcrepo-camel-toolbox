@@ -40,9 +40,8 @@ public final class FedoraTestUtils {
     public static String getFcrepoBaseUrl() {
         if (FCREPO_PORT == 80) {
             return "http://localhost/rest";
-        } else {
-            return "http://localhost:" + FCREPO_PORT + "/rest";
         }
+        return "http://localhost:" + FCREPO_PORT + "/rest";
     }
 
     /**
@@ -51,9 +50,8 @@ public final class FedoraTestUtils {
     public static String getFcrepoEndpointUri() {
         if (FCREPO_PORT == 80) {
             return "fcrepo://localhost/rest";
-        } else {
-            return "fcrepo://localhost:" + FCREPO_PORT + "/rest";
         }
+        return "fcrepo://localhost:" + FCREPO_PORT + "/rest";
     }
 
     /**
@@ -62,6 +60,14 @@ public final class FedoraTestUtils {
     public static String getTurtleDocument() {
         return "PREFIX dc: <http://purl.org/dc/elements/1.1/>\n\n" +
                 "<> dc:title \"some title\" .";
+    }
+
+    /**
+     * Retrieve an N3 document
+     */
+    public static String getN3Document() {
+        return "<http://localhost/rest/path/a/b/c> <http://purl.org/dc/elements/1.1/author> \"Author\" .\n" +
+                "<http://localhost/rest/path/a/b/c> <http://purl.org/dc/elements/1.1/title> \"Title\" .";
     }
 
     /**

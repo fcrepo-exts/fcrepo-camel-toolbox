@@ -17,13 +17,12 @@ package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTextDocument;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
-import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,13 +34,16 @@ import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Test adding a non-RDF resource
  * @author Aaron Coburn
  * @since November 7, 2014
  */
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraFileIT extends CamelTestSupport {
 
@@ -55,7 +57,7 @@ public class FedoraFileIT extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
-    public void testFile() throws IOException, InterruptedException {
+    public void testFile() throws InterruptedException {
         // Assertions
         fileEndpoint.expectedBodiesReceived(getTextDocument());
         fileEndpoint.expectedMessageCount(1);
@@ -102,7 +104,7 @@ public class FedoraFileIT extends CamelTestSupport {
     protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {
             @Override
-            public void configure() throws IOException {
+            public void configure() {
 
                 final String fcrepo_uri = getFcrepoEndpointUri();
 
@@ -115,7 +117,7 @@ public class FedoraFileIT extends CamelTestSupport {
                     .to(fcrepo_uri)
                     .filter().xpath(
                         "/rdf:RDF/rdf:Description/rdf:type" +
-                        "[@rdf:resource='http://fedora.info/definitions/v4/rest-api#NonRdfSourceDescription']", ns)
+                        "[@rdf:resource='http://fedora.info/definitions/v4/repository#Binary']", ns)
                     .to("mock:result");
 
                 from("direct:file")
@@ -124,7 +126,6 @@ public class FedoraFileIT extends CamelTestSupport {
 
                 from("direct:teardown")
                     .to(fcrepo_uri)
-                    .log("TEST TEARDOWN: ${header.FCREPO_IDENTIFIER}")
                     .to(fcrepo_uri + "?tombstone=true");
             }
         };
