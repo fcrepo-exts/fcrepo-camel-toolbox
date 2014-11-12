@@ -53,7 +53,7 @@ public class SparqlDeleteProcessor implements Processor {
     public void process(final Exchange exchange) throws Exception {
 
         final Message in = exchange.getIn();
-        final Model model = createDefaultModel().read(in.getBody(InputStream.class), null, "N-TRIPLE");
+        final Model model = createDefaultModel().read(in.getBody(InputStream.class), null);
         final StmtIterator triples = model.listStatements();
         String subject = null;
 

@@ -53,13 +53,23 @@ public class SparqlDeleteProcessorTest extends CamelTestSupport {
         final String base = "http://localhost/rest";
         final String path = "/path/book3";
         final String incomingDoc =
-            "_:B1 <http://www.w3.org/2001/vcard-rdf/3.0#FN> \"George Elliot\" .\n" +
-            "_:B1 <http://www.w3.org/2001/vcard-rdf/3.0#N> _:B2 .\n" +
-            "_:B2 <http://www.w3.org/2001/vcard-rdf/3.0#Family> \"George\" .\n" +
-            "_:B2 <http://www.w3.org/2001/vcard-rdf/3.0#Given> \"Elliot\" .\n" +
-            "<" + base + path + "> <http://purl.org/dc/elements/1.1/title> \"Middlemarch\" .\n" +
-            "<" + base + path + "> <http://purl.org/dc/elements/1.1/relation> <" + base + path + "/appendix> .\n" +
-            "<" + base + path + "> <http://purl.org/dc/elements/1.1/creator> _:B1 .";
+            "<rdf:RDF" +
+            "    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"" +
+            "    xmlns:vcard=\"http://www.w3.org/2001/vcard-rdf/3.0#\"" +
+            "    xmlns:dc=\"http://purl.org/dc/elements/1.1/\"" +
+            "    xmlns=\"" + base + path + "\">" +
+            "  <rdf:Description rdf:about=\"" + base + path + "\">" +
+            "    <dc:title>Middlemarch</dc:title>" +
+            "    <dc:relation rdf:resource=\"" + base + path + "/appendix\"/>" +
+            "    <dc:creator rdf:parseType=\"Resource\">" +
+            "      <vcard:FN>George Elliot</vcard:FN>" +
+            "      <vcard:N rdf:parseType=\"Resource\">" +
+            "        <vcard:Family>Elliot</vcard:Family>" +
+            "        <vcard:Given>George</vcard:Given>" +
+            "      </vcard:N>" +
+            "    </dc:creator>" +
+            "  </rdf:Description>" +
+            "</rdf:RDF>";
 
         // Assertions
         resultEndpoint.expectedBodiesReceived(

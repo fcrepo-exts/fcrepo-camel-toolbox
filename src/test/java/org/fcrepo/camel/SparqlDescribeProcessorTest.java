@@ -17,6 +17,7 @@ package org.fcrepo.camel.integration;
 
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_BASE_URL;
 import static org.fcrepo.jms.headers.DefaultMessageFactory.IDENTIFIER_HEADER_NAME;
@@ -57,6 +58,7 @@ public class SparqlDescribeProcessorTest extends CamelTestSupport {
         resultEndpoint.expectedBodiesReceived("query=DESCRIBE <" + base + path + ">");
         resultEndpoint.expectedHeaderReceived(CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(HTTP_METHOD, "POST");
+        resultEndpoint.expectedHeaderReceived(ACCEPT_CONTENT_TYPE, "application/rdf+xml");
 
         // Test
         final Map<String, Object> headers = new HashMap<>();

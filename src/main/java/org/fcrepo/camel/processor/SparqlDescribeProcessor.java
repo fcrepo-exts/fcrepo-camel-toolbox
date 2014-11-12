@@ -17,6 +17,7 @@ package org.fcrepo.camel.processor;
 
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.jms.headers.DefaultMessageFactory.BASE_URL_HEADER_NAME;
@@ -66,6 +67,7 @@ public class SparqlDescribeProcessor implements Processor {
 
         exchange.getIn().setBody("query=DESCRIBE <" + subject + ">");
         exchange.getIn().setHeader(HTTP_METHOD, "POST");
+        exchange.getIn().setHeader(ACCEPT_CONTENT_TYPE, "application/rdf+xml");
         exchange.getIn().setHeader(CONTENT_TYPE, "application/x-www-form-urlencoded");
     }
 }
