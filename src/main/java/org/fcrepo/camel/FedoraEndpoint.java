@@ -34,7 +34,7 @@ import org.apache.camel.spi.UriParam;
 @UriEndpoint(scheme = "fcrepo")
 public class FedoraEndpoint extends DefaultEndpoint {
 
-    public static final String FCREPO_BASEURL = "FCREPO_BASEURL";
+    public static final String FCREPO_BASE_URL = "FCREPO_BASE_URL";
 
     public static final String FCREPO_IDENTIFIER = "FCREPO_IDENTIFIER";
 

@@ -63,6 +63,14 @@ public final class FedoraTestUtils {
     }
 
     /**
+     * Retrieve an N3 document
+     */
+    public static String getN3Document() {
+        return "<http://localhost/rest/path/a/b/c> <http://purl.org/dc/elements/1.1/author> \"Author\" .\n" +
+                "<http://localhost/rest/path/a/b/c> <http://purl.org/dc/elements/1.1/title> \"Title\" .";
+    }
+
+    /**
      * Retrieve a simple text document
      */
     public static String getTextDocument() {

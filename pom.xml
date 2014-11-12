@@ -22,6 +22,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <fcrepo.version>4.0.0-beta-05-SNAPSHOT</fcrepo.version>
     <camel.version>2.14.0</camel.version>
+    <commons.lang3.version>3.3.2</commons.lang3.version>
     <httpclient.version>4.3.5</httpclient.version>
     <jena.fuseki.version>1.1.0</jena.fuseki.version>
     <jena.version>2.12.1</jena.version>
@@ -136,6 +137,19 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
+      <version>${httpclient.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons.lang3.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>${jersey.version}</version>
     </dependency>
 
     <dependency>
@@ -152,6 +166,18 @@
           <artifactId>log4j</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-arq</artifactId>
+      <version>${jena.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+      <version>${jena.version}</version>
     </dependency>
 
     <dependency>
@@ -213,20 +239,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.jena</groupId>
-      <artifactId>jena-arq</artifactId>
-      <version>${jena.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.jena</groupId>
-      <artifactId>jena-core</artifactId>
-      <version>${jena.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
       <scope>test</scope>
@@ -259,6 +271,8 @@
             <includes>
               <include>**/src/main/java/**</include>
               <include>**/src/test/java/**</include>
+              <include>**/examples/fcrepo-camel-solr/src/main/java/**</include>
+              <include>**/examples/fcrepo-camel-solr-scala/src/main/scala/**</include>
             </includes>
             <excludes>
               <exclude>target/**</exclude>
