@@ -16,21 +16,23 @@
 package org.fcrepo.camel;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Link;
 
 import org.apache.camel.component.http4.HttpOperationFailedException;
+import org.apache.http.HttpStatus;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -38,7 +40,7 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -53,6 +55,10 @@ import org.apache.http.util.EntityUtils;
  * @since October 20, 2014
  */
 public class FedoraClient {
+
+    private static final String DESCRIBED_BY = "describedby";
+
+    private static final String CONTENT_TYPE = "Content-Type";
 
     private CloseableHttpClient httpclient;
 
@@ -88,7 +94,7 @@ public class FedoraClient {
     /**
      * Stop the client
      */
-    public void stop() throws ClientProtocolException, IOException {
+    public void stop() throws IOException {
         this.httpclient.close();
     }
 
@@ -96,17 +102,16 @@ public class FedoraClient {
      * Make a HEAD response
      */
     public FedoraResponse head(final URI url)
-            throws ClientProtocolException, IOException, HttpOperationFailedException {
+            throws IOException, HttpOperationFailedException {
 
         final HttpHead request = new HttpHead(url);
         final HttpResponse response = httpclient.execute(request);
         final int status = response.getStatusLine().getStatusCode();
         final String contentType = getContentTypeHeader(response);
 
-        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
-            final HttpEntity entity = response.getEntity();
+        if ((status >= HttpStatus.SC_OK && status < HttpStatus.SC_BAD_REQUEST) || !this.throwExceptionOnFailure) {
             URI describedBy = null;
-            final ArrayList<URI> links = getLinkHeaders(response, "describedby");
+            final List<URI> links = getLinkHeaders(response, DESCRIBED_BY);
             if (links.size() == 1) {
                 describedBy = links.get(0);
             }
@@ -119,22 +124,22 @@ public class FedoraClient {
     /**
      * Make a PUT request
      */
-    public FedoraResponse put(final URI url, final String body, final String contentType)
-            throws ClientProtocolException, IOException, HttpOperationFailedException {
+    public FedoraResponse put(final URI url, final InputStream body, final String contentType)
+            throws IOException, HttpOperationFailedException {
 
         final HttpPut request = new HttpPut(url);
         if (contentType != null) {
-            request.addHeader("Content-Type", contentType);
+            request.addHeader(CONTENT_TYPE, contentType);
         }
         if (body != null) {
-            request.setEntity(new StringEntity(body));
+            request.setEntity(new InputStreamEntity(body));
         }
 
         final HttpResponse response = httpclient.execute(request);
         final int status = response.getStatusLine().getStatusCode();
         final String contentTypeHeader = getContentTypeHeader(response);
 
-        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
+        if ((status >= HttpStatus.SC_OK && status < HttpStatus.SC_BAD_REQUEST) || !this.throwExceptionOnFailure) {
             final HttpEntity entity = response.getEntity();
             return new FedoraResponse(url, status, contentTypeHeader, null,
                     entity != null ? EntityUtils.toString(entity) : null);
@@ -146,20 +151,20 @@ public class FedoraClient {
     /**
      * Make a PATCH request
      */
-    public FedoraResponse patch(final URI url, final String body)
-            throws ClientProtocolException, IOException, HttpOperationFailedException {
+    public FedoraResponse patch(final URI url, final InputStream body)
+            throws IOException, HttpOperationFailedException {
 
         final HttpPatch request = new HttpPatch(url);
-        request.addHeader("Content-Type", "application/sparql-update");
+        request.addHeader(CONTENT_TYPE, "application/sparql-update");
         if (body != null) {
-            request.setEntity(new StringEntity(body));
+            request.setEntity(new InputStreamEntity(body));
         }
 
         final HttpResponse response = httpclient.execute(request);
         final int status = response.getStatusLine().getStatusCode();
         final String contentType = getContentTypeHeader(response);
 
-        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
+        if ((status >= HttpStatus.SC_OK && status < HttpStatus.SC_BAD_REQUEST) || !this.throwExceptionOnFailure) {
             final HttpEntity entity = response.getEntity();
             return new FedoraResponse(url, status, contentType, null,
                     entity != null ? EntityUtils.toString(entity) : null);
@@ -171,20 +176,20 @@ public class FedoraClient {
     /**
      * Make a POST request
      */
-    public FedoraResponse post(final URI url, final String body, final String contentType)
-            throws ClientProtocolException, IOException, HttpOperationFailedException {
+    public FedoraResponse post(final URI url, final InputStream body, final String contentType)
+            throws IOException, HttpOperationFailedException {
 
         final HttpPost request = new HttpPost(url);
-        request.addHeader("Content-Type", contentType);
+        request.addHeader(CONTENT_TYPE, contentType);
         if (body != null) {
-            request.setEntity(new StringEntity(body));
+            request.setEntity(new InputStreamEntity(body));
         }
 
         final HttpResponse response = httpclient.execute(request);
         final int status = response.getStatusLine().getStatusCode();
         final String contentTypeHeader = getContentTypeHeader(response);
 
-        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
+        if ((status >= HttpStatus.SC_OK && status < HttpStatus.SC_BAD_REQUEST) || !this.throwExceptionOnFailure) {
             final HttpEntity entity = response.getEntity();
             return new FedoraResponse(url, status, contentTypeHeader, null,
                     entity != null ? EntityUtils.toString(entity) : null);
@@ -197,14 +202,14 @@ public class FedoraClient {
      * Make a DELETE request
      */
     public FedoraResponse delete(final URI url)
-            throws ClientProtocolException, IOException, HttpOperationFailedException {
+            throws IOException, HttpOperationFailedException {
 
         final HttpDelete request = new HttpDelete(url);
         final HttpResponse response = httpclient.execute(request);
         final int status = response.getStatusLine().getStatusCode();
         final String contentType = getContentTypeHeader(response);
 
-        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
+        if ((status >= HttpStatus.SC_OK && status < HttpStatus.SC_BAD_REQUEST) || !this.throwExceptionOnFailure) {
             final HttpEntity entity = response.getEntity();
             return new FedoraResponse(url, status, contentType, null,
                     entity != null ? EntityUtils.toString(entity) : null);
@@ -217,7 +222,7 @@ public class FedoraClient {
      * Make a GET request
      */
     public FedoraResponse get(final URI url, final String accept)
-            throws ClientProtocolException, IOException, HttpOperationFailedException {
+            throws IOException, HttpOperationFailedException {
 
         final HttpGet request = new HttpGet(url);
 
@@ -229,10 +234,10 @@ public class FedoraClient {
         final int status = response.getStatusLine().getStatusCode();
         final String contentType = getContentTypeHeader(response);
 
-        if ((status >= 200 && status < 300) || !this.throwExceptionOnFailure) {
+        if ((status >= HttpStatus.SC_OK && status < HttpStatus.SC_BAD_REQUEST) || !this.throwExceptionOnFailure) {
             final HttpEntity entity = response.getEntity();
             URI describedBy = null;
-            final ArrayList<URI> links = getLinkHeaders(response, "describedby");
+            final List<URI> links = getLinkHeaders(response, DESCRIBED_BY);
             if (links.size() == 1) {
                 describedBy = links.get(0);
             }
@@ -255,7 +260,7 @@ public class FedoraClient {
         final HttpEntity entity = response.getEntity();
         String locationValue = null;
 
-        if (locationHeader != null && (status >= 300 && status < 400)) {
+        if (locationHeader != null && status < HttpStatus.SC_BAD_REQUEST) {
             locationValue = locationHeader.getValue();
         }
 
@@ -286,7 +291,7 @@ public class FedoraClient {
      * Extract the content-type header value
      */
     protected static String getContentTypeHeader(final HttpResponse response) {
-        final Header[] contentTypes = response.getHeaders("Content-Type");
+        final Header[] contentTypes = response.getHeaders(CONTENT_TYPE);
         if (contentTypes != null && contentTypes.length > 0) {
             return contentTypes[0].getValue();
         } else {
@@ -297,8 +302,8 @@ public class FedoraClient {
     /**
      * Extract any Link headers
      */
-    protected static ArrayList<URI> getLinkHeaders(final HttpResponse response, final String relationship) {
-        final ArrayList<URI> uris = new ArrayList<URI>();
+    protected static List<URI> getLinkHeaders(final HttpResponse response, final String relationship) {
+        final List<URI> uris = new ArrayList<URI>();
         final Header[] links = response.getHeaders("Link");
         if (links != null) {
             for (Header header: links) {

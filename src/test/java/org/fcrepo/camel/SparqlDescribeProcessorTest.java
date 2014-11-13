@@ -50,6 +50,15 @@ public class SparqlDescribeProcessorTest extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Test
+    public void missingHeaders() throws IOException, InterruptedException {
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put(FCREPO_IDENTIFIER, "/foo");
+        template.sendBodyAndHeaders(null, headers);
+        resultEndpoint.expectedMessageCount(0);
+        resultEndpoint.assertIsSatisfied();
+    }
+
+    @Test
     public void testDescribe() throws IOException, InterruptedException {
         final String base = "http://localhost/rest";
         final String path = "/path/a/b/c/d";
@@ -81,8 +90,12 @@ public class SparqlDescribeProcessorTest extends CamelTestSupport {
         headers.put(IDENTIFIER_HEADER_NAME, path);
         template.sendBodyAndHeaders(null, headers);
 
+        headers.clear();
+        headers.put(FCREPO_BASE_URL, base + path);
+        template.sendBodyAndHeaders(null, headers);
+
         // Confirm that assertions passed
-        resultEndpoint.expectedMessageCount(4);
+        resultEndpoint.expectedMessageCount(5);
         resultEndpoint.assertIsSatisfied();
     }
 
@@ -91,6 +104,9 @@ public class SparqlDescribeProcessorTest extends CamelTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws IOException {
+                onException(IOException.class)
+                    .handled(true);
+
                 from("direct:start")
                     .process(new SparqlDescribeProcessor())
                     .to("mock:result");

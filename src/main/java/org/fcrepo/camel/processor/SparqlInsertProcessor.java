@@ -30,6 +30,7 @@ import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
 import com.hp.hpl.jena.update.UpdateRequest;
 
 import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * Represents a processor for creating the sparql-update message to
@@ -42,7 +43,7 @@ public class SparqlInsertProcessor implements Processor {
     /**
      * Define how the message is processed.
      */
-    public void process(final Exchange exchange) throws Exception {
+    public void process(final Exchange exchange) throws IOException {
 
         final Message in = exchange.getIn();
         final Model model = createDefaultModel().read(in.getBody(InputStream.class), null, "N-TRIPLE");

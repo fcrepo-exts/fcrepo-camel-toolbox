@@ -28,8 +28,9 @@ import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.jms.headers.DefaultMessageFactory.IDENTIFIER_HEADER_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
 import java.net.URI;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -46,7 +47,6 @@ import org.slf4j.Logger;
  * @since October 20, 2014
  */
 public class FedoraProducer extends DefaultProducer {
-
     private static final Logger LOGGER = getLogger(FedoraProducer.class);
 
     private volatile FedoraEndpoint endpoint;
@@ -65,7 +65,6 @@ public class FedoraProducer extends DefaultProducer {
      * Define how message exchanges are processed.
      *
      * @param exchange the InOut message exchange
-     * @throws IOException
      * @throws HttpOperationFailedException
      */
     @Override
@@ -84,25 +83,19 @@ public class FedoraProducer extends DefaultProducer {
 
         LOGGER.debug("Fcrepo Request [{}] with method [{}]", url, method);
 
-        FedoraResponse headResponse;
         FedoraResponse response;
 
         switch (method) {
         case PATCH:
-            headResponse = client.head(create(url));
-            if (headResponse.getLocation() != null) {
-                response = client.patch(headResponse.getLocation(), in.getBody(String.class));
-            } else {
-                response = client.patch(create(url), in.getBody(String.class));
-            }
+            response = client.patch(getMetadataUri(client, url), in.getBody(InputStream.class));
             exchange.getIn().setBody(response.getBody());
             break;
         case PUT:
-            response = client.put(create(url), in.getBody(String.class), contentType);
+            response = client.put(create(url), in.getBody(InputStream.class), contentType);
             exchange.getIn().setBody(response.getBody());
             break;
         case POST:
-            response = client.post(create(url), in.getBody(String.class), contentType);
+            response = client.post(create(url), in.getBody(InputStream.class), contentType);
             exchange.getIn().setBody(response.getBody());
             break;
         case DELETE:
@@ -115,21 +108,25 @@ public class FedoraProducer extends DefaultProducer {
             break;
         case GET:
         default:
-            if (endpoint.getMetadata()) {
-                headResponse = client.head(create(url));
-                if (headResponse.getLocation() != null) {
-                    response = client.get(headResponse.getLocation(), accept);
-                } else {
-                    response = client.get(create(url), accept);
-                }
-            } else {
-                response = client.get(create(url), null);
-            }
+            response = client.get(endpoint.getMetadata() ? getMetadataUri(client, url) : create(url), accept);
             exchange.getIn().setBody(response.getBody());
             exchange.getIn().setHeader("Content-Type", response.getContentType());
         }
         exchange.getIn().setHeader(HTTP_RESPONSE_CODE, response.getStatusCode());
         client.stop();
+    }
+
+    /**
+     *
+     */
+    protected URI getMetadataUri(final FedoraClient client, final String url)
+            throws HttpOperationFailedException, IOException {
+        final FedoraResponse headResponse = client.head(create(url));
+        if (headResponse.getLocation() != null) {
+            return headResponse.getLocation();
+        } else {
+            return create(url);
+        }
     }
 
     /**
