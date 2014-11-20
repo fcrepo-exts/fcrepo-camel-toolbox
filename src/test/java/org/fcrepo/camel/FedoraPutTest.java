@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel.integration;
+package org.fcrepo.camel;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
@@ -43,7 +43,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"/spring-test/test-container.xml"})
-public class FedoraPutIT extends CamelTestSupport {
+public class FedoraPutTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -72,8 +72,15 @@ public class FedoraPutIT extends CamelTestSupport {
         template.sendBodyAndHeaders("direct:setup2", getTurtleDocument(), setupHeaders);
 
         // Test
-        template.sendBodyAndHeader(null, FCREPO_IDENTIFIER, path1);
-        template.sendBodyAndHeader(null, FCREPO_IDENTIFIER, path2);
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put(FCREPO_IDENTIFIER, path1);
+
+        template.sendBodyAndHeaders(null, headers);
+
+        headers.clear();
+        headers.put(CONTENT_TYPE, "text/plain");
+        headers.put(FCREPO_IDENTIFIER, path2);
+        template.sendBodyAndHeaders("foo", headers);
 
         // Teardown
         final Map<String, Object> teardownHeaders = new HashMap<>();
@@ -107,6 +114,7 @@ public class FedoraPutIT extends CamelTestSupport {
 
                 from("direct:start")
                     .to(fcrepo_uri)
+                    .log("${headers}")
                     .filter().xpath(
                         "/rdf:RDF/rdf:Description/rdf:type" +
                         "[@rdf:resource='http://fedora.info/definitions/v4/repository#Resource']", ns)

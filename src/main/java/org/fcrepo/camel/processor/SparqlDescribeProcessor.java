@@ -18,10 +18,6 @@ package org.fcrepo.camel.processor;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
-import static org.fcrepo.camel.FedoraEndpoint.FCREPO_BASE_URL;
-import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
-import static org.fcrepo.jms.headers.DefaultMessageFactory.BASE_URL_HEADER_NAME;
-import static org.fcrepo.jms.headers.DefaultMessageFactory.IDENTIFIER_HEADER_NAME;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -50,21 +46,7 @@ public class SparqlDescribeProcessor implements Processor {
     public void process(final Exchange exchange) throws IOException {
 
         final Message in = exchange.getIn();
-        String subject = null;
-
-        if (in.getHeader(FCREPO_BASE_URL) != null) {
-            subject = in.getHeader(FCREPO_BASE_URL, String.class);
-        } else if (in.getHeader(BASE_URL_HEADER_NAME) != null) {
-            subject = in.getHeader(BASE_URL_HEADER_NAME, String.class);
-        } else {
-            throw new IOException("No baseURL header available!");
-        }
-
-        if (in.getHeader(FCREPO_IDENTIFIER) != null) {
-           subject += in.getHeader(FCREPO_IDENTIFIER);
-        } else if (in.getHeader(IDENTIFIER_HEADER_NAME) != null) {
-           subject += in.getHeader(IDENTIFIER_HEADER_NAME);
-        }
+        final String subject = ProcessorUtils.getSubjectUri(in);
 
         exchange.getIn().setBody("query=DESCRIBE <" + subject + ">");
         exchange.getIn().setHeader(HTTP_METHOD, "POST");

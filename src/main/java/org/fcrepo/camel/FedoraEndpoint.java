@@ -40,34 +40,34 @@ public class FedoraEndpoint extends DefaultEndpoint {
 
     public static final String DEFAULT_CONTENT_TYPE = "application/rdf+xml";
 
-    private volatile String baseUrl = "";
+    private String baseUrl = "";
 
     @UriParam
-    private volatile String contentType = null;
+    private String contentType = null;
 
     @UriParam
-    private volatile String accept = null;
+    private String accept = null;
 
     @UriParam
-    private volatile String transform = null;
+    private String transform = null;
 
     @UriParam
-    private volatile String authUsername = null;
+    private String authUsername = null;
 
     @UriParam
-    private volatile String authPassword = null;
+    private String authPassword = null;
 
     @UriParam
-    private volatile String authHost = null;
+    private String authHost = null;
 
     @UriParam
-    private volatile Boolean tombstone = false;
+    private Boolean tombstone = false;
 
     @UriParam
-    private volatile Boolean metadata = true;
+    private Boolean metadata = true;
 
     @UriParam
-    private volatile Boolean throwExceptionOnFailure = true;
+    private Boolean throwExceptionOnFailure = true;
 
     /**
      * Create a FedoraEndpoint with a uri, path and component

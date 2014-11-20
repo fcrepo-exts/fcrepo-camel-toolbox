@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel.integration;
+package org.fcrepo.camel;
 
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
+import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getTurtleDocument;
 
 import java.util.HashMap;
@@ -44,7 +45,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"/spring-test/test-container.xml"})
-public class FedoraTransformIT extends CamelTestSupport {
+public class FedoraTransformTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -105,7 +106,7 @@ public class FedoraTransformIT extends CamelTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() {
-                final String fcrepo_uri = FedoraTestUtils.getFcrepoEndpointUri();
+                final String fcrepo_uri = getFcrepoEndpointUri();
 
                 from("direct:setup")
                     .to(fcrepo_uri);
