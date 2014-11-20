@@ -27,15 +27,15 @@ import java.net.URI;
  */
 public class FedoraResponse {
 
-    private volatile URI url;
+    private URI url;
 
-    private volatile int statusCode;
+    private int statusCode;
 
-    private volatile URI location;
+    private URI location;
 
-    private volatile String body;
+    private String body;
 
-    private volatile String contentType;
+    private String contentType;
 
     /**
      * Create a FedoraResponse object from the http response

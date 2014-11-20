@@ -62,10 +62,14 @@ public class FedoraClient {
 
     private CloseableHttpClient httpclient;
 
-    private volatile Boolean throwExceptionOnFailure = true;
+    private Boolean throwExceptionOnFailure = true;
 
     /**
      * Create a FedoraClient with a set of authentication values.
+     * @param username the username for the repository
+     * @param password the password for the repository
+     * @param host the authentication hostname (realm) for the repository
+     * @param throwExceptionOnFailure whether to throw an exception on any non-2xx or 3xx HTTP responses
      */
     public FedoraClient(final String username, final String password, final String host,
             final Boolean throwExceptionOnFailure) {
@@ -75,12 +79,14 @@ public class FedoraClient {
 
         this.throwExceptionOnFailure = throwExceptionOnFailure;
 
-        if ((username == null || username.isEmpty()) ||
-                (password == null || password.isEmpty())) {
+        if (username == null || username.isEmpty() ||
+                password == null || password.isEmpty()) {
             this.httpclient = HttpClients.createDefault();
         } else {
             if (host != null) {
                 scope = new AuthScope(new HttpHost(host));
+            } else {
+                scope = new AuthScope(AuthScope.ANY);
             }
             credsProvider.setCredentials(
                     scope,
@@ -100,6 +106,7 @@ public class FedoraClient {
 
     /**
      * Make a HEAD response
+     * @param url the URL of the resource to check
      */
     public FedoraResponse head(final URI url)
             throws IOException, HttpOperationFailedException {
@@ -123,6 +130,9 @@ public class FedoraClient {
 
     /**
      * Make a PUT request
+     * @param url the URL of the resource to PUT
+     * @param body the contents of the resource to send
+     * @param contentType the MIMEType of the resource
      */
     public FedoraResponse put(final URI url, final InputStream body, final String contentType)
             throws IOException, HttpOperationFailedException {
@@ -150,6 +160,9 @@ public class FedoraClient {
 
     /**
      * Make a PATCH request
+     * Please note: the body should have an application/sparql-update content-type
+     * @param url the URL of the resource to PATCH
+     * @param body the body to be sent to the repository
      */
     public FedoraResponse patch(final URI url, final InputStream body)
             throws IOException, HttpOperationFailedException {
@@ -175,6 +188,9 @@ public class FedoraClient {
 
     /**
      * Make a POST request
+     * @param url the URL of the resource to which to POST
+     * @param body the content to be sent to the server
+     * @param contentType the Content-Type of the body
      */
     public FedoraResponse post(final URI url, final InputStream body, final String contentType)
             throws IOException, HttpOperationFailedException {
@@ -200,6 +216,7 @@ public class FedoraClient {
 
     /**
      * Make a DELETE request
+     * @param url the URL of the resource to delete
      */
     public FedoraResponse delete(final URI url)
             throws IOException, HttpOperationFailedException {
@@ -220,6 +237,8 @@ public class FedoraClient {
 
     /**
      * Make a GET request
+     * @param url the URL of the resource to fetch
+     * @param accept the requested MIMEType of the resource to be retrieved
      */
     public FedoraResponse get(final URI url, final String accept)
             throws IOException, HttpOperationFailedException {
@@ -250,6 +269,8 @@ public class FedoraClient {
 
     /**
      * Build a HttpOperationFailedException object from an http response
+     * @param url the URL of the request
+     * @param response the HTTP response
      */
     protected static HttpOperationFailedException
         buildHttpOperationFailedException(final URI url, final HttpResponse response)
@@ -260,7 +281,7 @@ public class FedoraClient {
         final HttpEntity entity = response.getEntity();
         String locationValue = null;
 
-        if (locationHeader != null && status < HttpStatus.SC_BAD_REQUEST) {
+        if (locationHeader != null) {
             locationValue = locationHeader.getValue();
         }
 
@@ -275,7 +296,7 @@ public class FedoraClient {
      * Extract the response headers into a Map
      */
     protected static Map<String, String> extractResponseHeaders(final Header[] responseHeaders) {
-        if (responseHeaders == null || responseHeaders.length == 0) {
+        if (responseHeaders == null) {
             return null;
         }
 
@@ -292,7 +313,7 @@ public class FedoraClient {
      */
     protected static String getContentTypeHeader(final HttpResponse response) {
         final Header[] contentTypes = response.getHeaders(CONTENT_TYPE);
-        if (contentTypes != null && contentTypes.length > 0) {
+        if (contentTypes.length > 0) {
             return contentTypes[0].getValue();
         } else {
             return null;
@@ -305,12 +326,10 @@ public class FedoraClient {
     protected static List<URI> getLinkHeaders(final HttpResponse response, final String relationship) {
         final List<URI> uris = new ArrayList<URI>();
         final Header[] links = response.getHeaders("Link");
-        if (links != null) {
-            for (Header header: links) {
-                final Link link = Link.valueOf(header.getValue());
-                if (link.getRel().equals(relationship)) {
-                    uris.add(link.getUri());
-                }
+        for (Header header: links) {
+            final Link link = Link.valueOf(header.getValue());
+            if (link.getRel().equals(relationship)) {
+                uris.add(link.getUri());
             }
         }
         return uris;

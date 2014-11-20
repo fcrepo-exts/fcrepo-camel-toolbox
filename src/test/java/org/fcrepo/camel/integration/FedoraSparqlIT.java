@@ -60,7 +60,7 @@ public class FedoraSparqlIT extends CamelTestSupport {
     @Test
     public void testSparql() throws Exception {
         // Assertions
-        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(2);
 
         // Setup
         final Map<String, Object> headers = new HashMap<String, Object>();
@@ -76,6 +76,11 @@ public class FedoraSparqlIT extends CamelTestSupport {
         final Map<String, Object> testHeaders = new HashMap<String, Object>();
         testHeaders.put("FCREPO_IDENTIFIER", identifier);
         testHeaders.put("org.fcrepo.jms.baseURL", "http://localhost:8080/fcrepo4/rest");
+        template.sendBodyAndHeaders(null, testHeaders);
+
+        testHeaders.clear();
+        testHeaders.put("org.fcrepo.jms.identifier", identifier);
+        testHeaders.put("FCREPO_BASE_URL", "http://localhost:8080/fcrepo4/rest");
         template.sendBodyAndHeaders(null, testHeaders);
 
         // Teardown
