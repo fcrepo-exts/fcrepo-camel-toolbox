@@ -140,11 +140,12 @@ public class FedoraProducer extends DefaultProducer {
      * @param exchange the incoming message exchange
      */
     protected HttpMethods getMethod(final Exchange exchange) {
-        HttpMethods method = exchange.getIn().getHeader(HTTP_METHOD, HttpMethods.class);
+        final HttpMethods method = exchange.getIn().getHeader(HTTP_METHOD, HttpMethods.class);
         if (method == null) {
-            method = HttpMethods.GET;
+            return HttpMethods.GET;
+        } else {
+            return method;
         }
-        return method;
     }
 
     /**
@@ -155,35 +156,36 @@ public class FedoraProducer extends DefaultProducer {
      */
     protected String getContentType(final Exchange exchange) {
         final String contentTypeString = ExchangeHelper.getContentType(exchange);
-        String contentType = null;
         if (endpoint.getContentType() != null) {
-            contentType = endpoint.getContentType();
+            return endpoint.getContentType();
         } else if (contentTypeString != null) {
-            contentType = contentTypeString;
+            return contentTypeString;
+        } else {
+            return null;
         }
-        return contentType;
     }
 
     /**
-     * Given an exchange, extract the accept value for use with an Accept header. The order of preference is: 1) an
-     * accept value set on the endpoint 2) a value set on the Exchange.ACCEPT_CONTENT_TYPE header 3) a value set on an
-     * "Accept" header 4) the endpoint DEFAULT_CONTENT_TYPE (i.e. application/rdf+xml)
+     * Given an exchange, extract the accept value for use with an Accept header. The order of preference is:
+     * 1) whether a transform is being requested 2) an accept value is set on the endpoint 3) a value set on
+     * the Exchange.ACCEPT_CONTENT_TYPE header 4) a value set on an "Accept" header 5) the endpoint
+     * DEFAULT_CONTENT_TYPE (i.e. application/rdf+xml)
      *
      * @param exchange the incoming message exchange
      */
     protected String getAccept(final Exchange exchange) {
-        String accept;
         final Message in = exchange.getIn();
-        if (endpoint.getAccept() != null) {
-            accept = endpoint.getAccept();
+        if (endpoint.getTransform() != null) {
+            return "application/json";
+        } else if (endpoint.getAccept() != null) {
+            return endpoint.getAccept();
         } else if (in.getHeader(ACCEPT_CONTENT_TYPE, String.class) != null) {
-            accept = in.getHeader(ACCEPT_CONTENT_TYPE, String.class);
+            return in.getHeader(ACCEPT_CONTENT_TYPE, String.class);
         } else if (in.getHeader("Accept", String.class) != null) {
-            accept = in.getHeader("Accept", String.class);
+            return in.getHeader("Accept", String.class);
         } else {
-            accept = DEFAULT_CONTENT_TYPE;
+            return DEFAULT_CONTENT_TYPE;
         }
-        return accept;
     }
 
     /**

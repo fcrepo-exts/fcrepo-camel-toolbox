@@ -17,7 +17,6 @@ package org.fcrepo.camel;
 
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
-import static org.apache.camel.Exchange.ACCEPT_CONTENT_TYPE;
 import static org.fcrepo.camel.FedoraEndpoint.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoBaseUrl;
 import static org.fcrepo.camel.integration.FedoraTestUtils.getFcrepoEndpointUri;
@@ -78,13 +77,11 @@ public class FedoraTransformTest extends CamelTestSupport {
         headers.put(FCREPO_IDENTIFIER, identifier);
         headers.put(CONTENT_TYPE, "application/rdf+ldpath");
         headers.put(HTTP_METHOD, "POST");
-        headers.put(ACCEPT_CONTENT_TYPE, "application/json");
         template.sendBodyAndHeaders("direct:post", ldpath, headers);
 
         headers.clear();
         headers.put(FCREPO_IDENTIFIER, identifier);
         headers.put(HTTP_METHOD, "GET");
-        headers.put(ACCEPT_CONTENT_TYPE, "application/json");
         template.sendBodyAndHeaders("direct:get", null, headers);
 
 
@@ -112,7 +109,7 @@ public class FedoraTransformTest extends CamelTestSupport {
                     .to(fcrepo_uri);
 
                 from("direct:start")
-                    .to(fcrepo_uri + "?accept=application/json&transform=default")
+                    .to(fcrepo_uri + "?accept=application/foo&transform=default")
                     .to("mock:result");
 
                 from("direct:get")

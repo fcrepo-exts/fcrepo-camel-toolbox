@@ -24,7 +24,7 @@ FcrepoEndpoint options
 | `contentType`       | `null`         | Set the `Content-Type` header |
 | `accept` | `null` | Set the `Accept` header for content negotiation |
 | `metadata` | `true`  | Whether GET requests should retrieve RDF descriptions of non-RDF content  |
-| `transform` | `null` | If set, this defines the transform used for the given object. This should be used in the context of GET or POST. For GET requests, the value should be the name of the transform (e.g. `default`). For POST requests, the value can simply be `true`. |
+| `transform` | `null` | If set, this defines the transform used for the given object. This should be used in the context of GET or POST. For GET requests, the value should be the name of the transform (e.g. `default`). For POST requests, the value can simply be `true`. Using this causes the `Accept` header to be set as `application/json`. |
 | `throwExceptionOnFailure` | `true` | Option to disable throwing the HttpOperationFailedException in case of failed responses from the remote server. This allows you to get all responses regardless of the HTTP status code. |
 
 
@@ -39,8 +39,7 @@ A simple example for sending messages to an external Solr service:
     from("activemq:topic:fedora")
       .to("fcrepo:localhost:8080/rest")
       .filter(xpath)
-      .to("fcrepo:localhost:8080/rest?accept=application/json&transform=mytransform")
-      .setHeader(Exchange.CONTENT_TYPE).constant("application/json")
+      .to("fcrepo:localhost:8080/rest?transform=mytransform")
       .to("http4:solr-host:8080/solr/core/update")
 
 Or, using the Spring DSL:
@@ -50,10 +49,7 @@ Or, using the Spring DSL:
       <to uri="fcrepo:localhost:8080/rest"/>
       <filter>
         <xpath>/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='http://fedora.info/definitions/v4/repository#Indexable']</xpath>
-        <to uri="fcrepo:localhost:8080/rest?accept=application/json&amp;transform=mytransform"/>
-        <setHeader headerName="Exchange.CONTENT_TYPE">
-          <constant>application/json</constant>
-        </setHeader>
+        <to uri="fcrepo:localhost:8080/rest?transform=mytransform"/>
         <to uri="http4:solr-host:8080/solr/core/update"/>
       </filter>
     </route>
