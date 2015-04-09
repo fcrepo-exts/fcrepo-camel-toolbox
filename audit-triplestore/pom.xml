@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fcrepo.camel</groupId>
+    <artifactId>fcrepo-camel-toolbox</artifactId>
+    <version>4.1.2-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>audit-triplestore</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>Fedora Audit System with a Triplestore backend</name>
+  <description>Camel-based audit system built with a triplestore backend</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <project.copyrightYear>2015</project.copyrightYear>
+
+    <!-- Use ${project_name} instead of ${project.artifactId} to avoid incorrect
+      replacements of "fcrepo4" in child modules (for scm, site-distribution, etc -->
+    <project_name>fcrepo-audit-triplestore</project_name>
+
+    <!-- plugins -->
+    <bundle.plugin.version>2.3.7</bundle.plugin.version>
+  </properties>
+
+  <dependencies>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-blueprint</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-http4</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-camel</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.fcrepo.camel</groupId>
+        <artifactId>fcrepo-camel</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+      </dependency>
+
+      <!-- logging -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+      </dependency>
+      <!-- Testing & Camel Plugin -->
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-test-blueprint</artifactId>
+        <scope>test</scope>
+      </dependency>
+  </dependencies>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <plugins>
+    </plugins>
+
+  </build>
+
+</project>
