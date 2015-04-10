@@ -82,11 +82,11 @@ public class AuditSparqlProcessor implements Processor {
     }
 
     // namespaces and properties
-    private static final String AUDIT = "http://fedora.info/definitions/v4/audit#";
-    private static final String PREMIS = "http://www.loc.gov/premis/rdf/v1#";
-    private static final String EVENT_TYPE = "http://id.loc.gov/vocabulary/preservation/eventType/";
-    private static final String PROV = "http://www.w3.org/ns/prov#";
-    private static final String XSD = "http://www.w3.org/2001/XMLSchema#";
+    public static final String AUDIT = "http://fedora.info/definitions/v4/audit#";
+    public static final String PREMIS = "http://www.loc.gov/premis/rdf/v1#";
+    public static final String EVENT_TYPE = "http://id.loc.gov/vocabulary/preservation/eventType/";
+    public static final String PROV = "http://www.w3.org/ns/prov#";
+    public static final String XSD = "http://www.w3.org/2001/XMLSchema#";
 
     private static final UriRef INTERNAL_EVENT = new UriRef(AUDIT + "InternalEvent");
     private static final UriRef PREMIS_EVENT = new UriRef(PREMIS + "Event");
