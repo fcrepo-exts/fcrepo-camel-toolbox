@@ -15,8 +15,8 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 import static org.fcrepo.camel.RdfNamespaces.RDF;
+import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,21 +28,19 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.apache.camel.Processor;
+import org.fcrepo.camel.JmsHeaders;
+import org.fcrepo.camel.processor.ProcessorUtils;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.Processor;
 import org.apache.clerezza.rdf.core.Triple;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.impl.SimpleMGraph;
 import org.apache.clerezza.rdf.core.impl.TripleImpl;
 import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
-import org.apache.clerezza.rdf.core.serializedform.ParsingProvider;
 import org.apache.clerezza.rdf.core.serializedform.SerializingProvider;
-import org.apache.clerezza.rdf.jena.parser.JenaParserProvider;
 import org.apache.clerezza.rdf.jena.serializer.JenaSerializerProvider;
-
-import org.fcrepo.camel.JmsHeaders;
-import org.fcrepo.camel.processor.ProcessorUtils;
 
 
 /**
@@ -140,7 +138,7 @@ public class AuditSparqlProcessor implements Processor {
 
         // types
         Set<Triple> triples = new HashSet<>();
-         triples.add( new TripleImpl(subject, RDF_TYPE, INTERNAL_EVENT) );
+        triples.add( new TripleImpl(subject, RDF_TYPE, INTERNAL_EVENT) );
         triples.add( new TripleImpl(subject, RDF_TYPE, PREMIS_EVENT) );
         triples.add( new TripleImpl(subject, RDF_TYPE, PROV_EVENT) );
 
