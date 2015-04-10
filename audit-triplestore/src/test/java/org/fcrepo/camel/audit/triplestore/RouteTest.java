@@ -63,7 +63,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         headers.put(JmsHeaders.EVENT_TYPE, RdfNamespaces.REPOSITORY + "NODE_ADDED");
         headers.put(JmsHeaders.USER, "bypassAdmin");
         headers.put(JmsHeaders.USER_AGENT, "curl/7.37.1");
-        template.sendBodyAndHeaders(null, headers);
+        template.sendBodyAndHeaders("", headers);
 
         // assert expectations
         assertMockEndpointsSatisfied();

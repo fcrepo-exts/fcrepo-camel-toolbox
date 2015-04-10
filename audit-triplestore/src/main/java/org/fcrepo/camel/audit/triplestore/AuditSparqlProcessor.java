@@ -115,7 +115,7 @@ public class AuditSparqlProcessor implements Processor {
     private static final String PROPERTY_CHANGED = REPOSITORY + "PROPERTY_CHANGED";
 
     /**
-     * Convert a JMS message to audit event description.
+     * Convert a Camel message to audit event description.
      * @param m JMS message produced by an audit event
      * @param subject RDF subject of the audit description
      */
@@ -146,21 +146,21 @@ public class AuditSparqlProcessor implements Processor {
 
         // mapping event type/properties to audit event type
         if (eventType.contains(NODE_ADDED)) {
-            if (properties.contains(HAS_CONTENT)) {
+            if (properties != null && properties.contains(HAS_CONTENT)) {
                 triples.add( new TripleImpl(subject, PREMIS_TYPE, CONTENT_ADD) );
             } else {
                 triples.add( new TripleImpl(subject, PREMIS_TYPE, OBJECT_ADD) );
             }
         } else if (eventType.contains(NODE_REMOVED)) {
-            if (properties.contains(HAS_CONTENT)) {
+            if (properties != null && properties.contains(HAS_CONTENT)) {
                 triples.add( new TripleImpl(subject, PREMIS_TYPE, CONTENT_REM) );
             } else {
                 triples.add( new TripleImpl(subject, PREMIS_TYPE, OBJECT_REM) );
             }
         } else if (eventType.contains(PROPERTY_CHANGED)) {
-            if (properties.contains(HAS_CONTENT)) {
+            if (properties != null && properties.contains(HAS_CONTENT)) {
                 triples.add( new TripleImpl(subject, PREMIS_TYPE, CONTENT_MOD) );
-            } else if (properties.equals(LAST_MODIFIED)) {
+            } else if (properties != null && properties.equals(LAST_MODIFIED)) {
                 /* adding/removing a file updates the lastModified property of the parent container,
                    so ignore updates when only lastModified is changed */
             } else {
