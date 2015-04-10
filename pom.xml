@@ -46,7 +46,15 @@
     <bundle.plugin.version>2.3.7</bundle.plugin.version>
     <checkstyle.plugin.version>2.14</checkstyle.plugin.version>
     <compiler.plugin.version>3.2</compiler.plugin.version>
+    <jacoco.plugin.version>0.7.2.201409121644</jacoco.plugin.version>
     <license.plugin.version>2.9</license.plugin.version>
+    <resources.plugin.version>2.6</resources.plugin.version>
+    <!-- code coverage -->
+    <jacoco.outputDir>${project.build.directory}</jacoco.outputDir>
+    <jacoco.out.unit.file>jacoco-ut.exec</jacoco.out.unit.file>
+    <jacoco.out.it.file>jacoco-it.exec</jacoco.out.it.file>
+    <sonar.jacoco.reportPath>${jacoco.outputDir}/${jacoco.out.unit.file}</sonar.jacoco.reportPath>
+    <sonar.jacoco.itReportPath>${jacoco.outputDir}/${jacoco.out.it.file}</sonar.jacoco.itReportPath>
   </properties>
 
   <modules>
@@ -147,17 +155,8 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.5.1</version>
-          <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>2.6</version>
+          <version>${resources.plugin.version}</version>
           <configuration>
             <encoding>UTF-8</encoding>
           </configuration>
@@ -217,6 +216,53 @@
             </execution>
           </executions>
         </plugin>
+
+        <!-- use jacoco for code coverage -->
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>default-prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+              <configuration>
+                <destFile>${sonar.jacoco.reportPath}</destFile>
+                <propertyName>jacoco.agent.unit.arg</propertyName>
+                <append>true</append>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>default-prepare-agent-integration</id>
+              <goals>
+                <goal>prepare-agent-integration</goal>
+              </goals>
+              <configuration>
+                <destFile>${sonar.jacoco.itReportPath}</destFile>
+                <propertyName>jacoco.agent.it.arg</propertyName>
+                <append>true</append>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>default-report</id>
+              <goals>
+                <goal>report</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>default-report-integration</id>
+              <goals>
+                <goal>report-integration</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
