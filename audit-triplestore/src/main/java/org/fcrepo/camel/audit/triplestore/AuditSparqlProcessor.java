@@ -35,9 +35,7 @@ import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.impl.SimpleMGraph;
 import org.apache.clerezza.rdf.core.impl.TripleImpl;
 import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
-import org.apache.clerezza.rdf.core.serializedform.ParsingProvider;
 import org.apache.clerezza.rdf.core.serializedform.SerializingProvider;
-import org.apache.clerezza.rdf.jena.parser.JenaParserProvider;
 import org.apache.clerezza.rdf.jena.serializer.JenaSerializerProvider;
 
 import org.fcrepo.camel.JmsHeaders;
@@ -119,7 +117,7 @@ public class AuditSparqlProcessor implements Processor {
      * @param m JMS message produced by an audit event
      * @param subject RDF subject of the audit description
      */
-    private static Set<Triple> triplesForMessage(Message message, UriRef subject) throws IOException {
+    private static Set<Triple> triplesForMessage(final Message message, final UriRef subject) throws IOException {
 
         // get info from jms message headers
         final String eventType = message.getHeader(JmsHeaders.EVENT_TYPE, String.class);
@@ -133,7 +131,7 @@ public class AuditSparqlProcessor implements Processor {
         final String identifier = ProcessorUtils.getSubjectUri(message);
 
         // types
-        Set<Triple> triples = new HashSet<>();
+        final Set<Triple> triples = new HashSet<>();
         triples.add( new TripleImpl(subject, RDF_TYPE, INTERNAL_EVENT) );
         triples.add( new TripleImpl(subject, RDF_TYPE, PREMIS_EVENT) );
         triples.add( new TripleImpl(subject, RDF_TYPE, PROV_EVENT) );
