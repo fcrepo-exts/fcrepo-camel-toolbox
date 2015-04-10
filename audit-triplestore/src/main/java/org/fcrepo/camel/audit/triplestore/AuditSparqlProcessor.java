@@ -114,27 +114,29 @@ public class AuditSparqlProcessor implements Processor {
     private static final String NODE_REMOVED = REPOSITORY + "NODE_REMOVED";
     private static final String PROPERTY_CHANGED = REPOSITORY + "PROPERTY_CHANGED";
 
+    private static final String EMPTY_STRING = "";
+
     /**
      * Convert a Camel message to audit event description.
-     * @param m JMS message produced by an audit event
+     * @param message JMS message produced by an audit event
      * @param subject RDF subject of the audit description
      */
     private static Set<Triple> triplesForMessage(Message message, UriRef subject) throws IOException {
 
         // get info from jms message headers
-        final String eventType = message.getHeader(JmsHeaders.EVENT_TYPE, String.class);
-        final Long timestamp = Long.parseLong(message.getHeader(JmsHeaders.TIMESTAMP, String.class), 10);
+        final String eventType = (String) message.getHeader(JmsHeaders.EVENT_TYPE, EMPTY_STRING);
+        final Long timestamp = Long.parseLong((String) message.getHeader(JmsHeaders.TIMESTAMP, EMPTY_STRING), 10);
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String date = df.format(new Date(timestamp));
-        final String user = message.getHeader(JmsHeaders.USER, String.class);
-        final String agent = message.getHeader(JmsHeaders.USER_AGENT, String.class);
-        final String properties = message.getHeader(JmsHeaders.PROPERTIES, String.class);
+        final String user = (String) message.getHeader(JmsHeaders.USER, EMPTY_STRING);
+        final String agent = (String) message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING);
+        final String properties = (String) message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING);
         final String identifier = ProcessorUtils.getSubjectUri(message);
 
         // types
         Set<Triple> triples = new HashSet<>();
-        triples.add( new TripleImpl(subject, RDF_TYPE, INTERNAL_EVENT) );
+         triples.add( new TripleImpl(subject, RDF_TYPE, INTERNAL_EVENT) );
         triples.add( new TripleImpl(subject, RDF_TYPE, PREMIS_EVENT) );
         triples.add( new TripleImpl(subject, RDF_TYPE, PROV_EVENT) );
 
