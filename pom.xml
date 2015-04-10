@@ -39,13 +39,16 @@
     <activemq.version>5.10.0</activemq.version>
     <camel.version>2.15.1</camel.version>
     <commons.lang3.version>3.3.2</commons.lang3.version>
+    <jena.fuseki.version>1.1.1</jena.fuseki.version>
     <slf4j.version>1.7.10</slf4j.version>
     <!-- osgi -->
     <fcrepo.camel.osgi.import>*</fcrepo.camel.osgi.import>
     <!-- plugins -->
+    <build.helper.plugin.version>1.9.1</build.helper.plugin.version>
     <bundle.plugin.version>2.3.7</bundle.plugin.version>
     <checkstyle.plugin.version>2.14</checkstyle.plugin.version>
     <compiler.plugin.version>3.2</compiler.plugin.version>
+    <failsafe.plugin.version>2.18.1</failsafe.plugin.version>
     <jacoco.plugin.version>0.7.2.201409121644</jacoco.plugin.version>
     <license.plugin.version>2.9</license.plugin.version>
     <resources.plugin.version>2.6</resources.plugin.version>
@@ -142,6 +145,11 @@
         <artifactId>commons-lang3</artifactId>
         <version>${commons.lang3.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-fuseki</artifactId>
+        <version>${jena.fuseki.version}</version>
+      </dependency>
 
       <!-- logging -->
       <dependency>
@@ -159,7 +167,6 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-test-blueprint</artifactId>
         <version>${camel.version}</version>
-        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -277,9 +284,22 @@
             </execution>
           </executions>
         </plugin>
+                
+        <!-- reserve network ports for integration testing -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build.helper.plugin.version}</version>
+        </plugin>
 
+        <!-- integration testing -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${failsafe.plugin.version}</version>
+        </plugin>
 
-
+        <!-- check code style -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
@@ -342,6 +362,11 @@
           </execution>
         </executions>
         <configuration>
+          <supportedProjectTypes>
+            <supportedProjectType>jar</supportedProjectType>
+            <supportedProjectType>bundle</supportedProjectType>
+            <supportedProjectType>war</supportedProjectType>
+          </supportedProjectTypes>
           <instructions>
             <Bundle-Name>${project.artifactId}</Bundle-Name>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
