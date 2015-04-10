@@ -42,6 +42,6 @@ public class EventRouter extends RouteBuilder {
         from("activemq:{{jms.fcrepoEndpoint}}")
             .routeId("AuditEventRouter")
             .process(new AuditSparqlProcessor())
-            .to("http4:{{triplestore.baseUrl}}/statements");
+            .to("http4:{{triplestore.baseUrl}}/{{triplestore.suffix}}");
     }
 }
