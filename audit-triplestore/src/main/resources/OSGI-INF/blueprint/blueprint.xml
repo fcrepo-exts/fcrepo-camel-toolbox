@@ -15,6 +15,8 @@
        <cm:property name="triplestore.baseUrl" value="localhost:3030/fedora4"/>
        <!-- path to send updates to the triplestore: Fuseki -> /update , Sesame -> statements-->
        <cm:property name="triplestore.suffix" value="update"/>
+       <!-- Base URI to be used in contructing the URI for the JMS event -->
+       <cm:property name="eventURI.base" value="http://example.com"/>
      </cm:default-properties>
    </cm:property-placeholder>
 

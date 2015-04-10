@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.apache.camel.Processor;
 import org.apache.camel.Exchange;
@@ -62,7 +63,10 @@ public class AuditSparqlProcessor implements Processor {
      */
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
-        final UriRef eventURI = new UriRef("XXX");
+        //final String eventURIBase = (String) exchange.getProperty("eventURI.base", EMPTY_STRING);
+        final String eventURIBase = exchange.getProperty("eventURI.base").toString();
+        final String UUIDString = UUID.randomUUID().toString();
+        final UriRef eventURI = new UriRef(eventURIBase + "/" + UUIDString);
         final Set<Triple> triples = triplesForMessage(in, eventURI);
 
         // serialize triples
@@ -125,7 +129,7 @@ public class AuditSparqlProcessor implements Processor {
 
         // get info from jms message headers
         final String eventType = (String) message.getHeader(JmsHeaders.EVENT_TYPE, EMPTY_STRING);
-        final Long timestamp = Long.parseLong((String) message.getHeader(JmsHeaders.TIMESTAMP, EMPTY_STRING), 10);
+        final Long timestamp =  (Long) message.getHeader(JmsHeaders.TIMESTAMP, 0);
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String date = df.format(new Date(timestamp));
