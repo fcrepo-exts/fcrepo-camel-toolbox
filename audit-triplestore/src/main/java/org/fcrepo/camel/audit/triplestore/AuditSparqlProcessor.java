@@ -61,8 +61,7 @@ public class AuditSparqlProcessor implements Processor {
      */
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
-        //final String eventURIBase = (String) exchange.getProperty("eventURI.base", EMPTY_STRING);
-        final String eventURIBase = exchange.getProperty("eventURI.base").toString();
+        final String eventURIBase = (String) exchange.getProperty("eventURI.base");
         final String UUIDString = UUID.randomUUID().toString();
         final UriRef eventURI = new UriRef(eventURIBase + "/" + UUIDString);
         final Set<Triple> triples = triplesForMessage(in, eventURI);

@@ -59,7 +59,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final Map<String, Object> headers = new HashMap<>();
         headers.put(JmsHeaders.BASE_URL, "http://localhost/rest");
         headers.put(JmsHeaders.IDENTIFIER, "/foo");
-        headers.put(JmsHeaders.TIMESTAMP, "1428360320168");
+        headers.put(JmsHeaders.TIMESTAMP, 1428360320168L);
         headers.put(JmsHeaders.EVENT_TYPE, RdfNamespaces.REPOSITORY + "NODE_ADDED");
         headers.put(JmsHeaders.USER, "bypassAdmin");
         headers.put(JmsHeaders.USER_AGENT, "curl/7.37.1");
@@ -80,7 +80,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final Map<String, Object> headers = new HashMap<>();
         headers.put(JmsHeaders.BASE_URL, "http://localhost/rest");
         headers.put(JmsHeaders.IDENTIFIER, "/foo");
-        headers.put(JmsHeaders.TIMESTAMP, "1428360320168");
+        headers.put(JmsHeaders.TIMESTAMP, 1428360320168L);
         headers.put(JmsHeaders.EVENT_TYPE, RdfNamespaces.REPOSITORY + "FIXITY");
         headers.put("org.fcrepo.jms.fixity", "foo");
         headers.put("org.fcrepo.jms.contentDigest", "blahblahblah");
@@ -100,6 +100,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws IOException {
                 from("direct:start")
+                    .setProperty("eventURI.base", simple("{{eventURI.base}}"))
                     .process(new AuditSparqlProcessor())
                     .to("mock:result");
             }
