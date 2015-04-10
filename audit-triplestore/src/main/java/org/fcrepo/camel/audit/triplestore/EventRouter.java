@@ -43,6 +43,6 @@ public class EventRouter extends RouteBuilder {
             .routeId("AuditEventRouter")
             .setProperty("eventURI.base", simple("{{eventURI.base}}"))
             .process(new AuditSparqlProcessor())
-            .to("http4:{{triplestore.baseUrl}}/{{triplestore.suffix}}");
+            .to("http4:{{triplestore.baseUrl}}");
     }
 }

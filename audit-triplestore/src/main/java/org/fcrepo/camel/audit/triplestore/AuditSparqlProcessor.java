@@ -119,7 +119,7 @@ public class AuditSparqlProcessor implements Processor {
 
     /**
      * Convert a Camel message to audit event description.
-     * @param message JMS message produced by an audit event
+     * @param message Camel message produced by an audit event
      * @param subject RDF subject of the audit description
      */
     private static Set<Triple> triplesForMessage(Message message, UriRef subject) throws IOException {
