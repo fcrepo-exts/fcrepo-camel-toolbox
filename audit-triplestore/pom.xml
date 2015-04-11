@@ -69,6 +69,11 @@
         <artifactId>camel-test-blueprint</artifactId>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-fuseki</artifactId>
+        <scope>test</scope>
+      </dependency>
   </dependencies>
 
   <build>
@@ -78,8 +83,44 @@
         <groupId>org.apache.maven.plugins</groupId> 
         <artifactId>maven-checkstyle-plugin</artifactId> 
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <configuration>
+          <portNames>
+            <portName>fcrepo.dynamic.test.port</portName>
+            <portName>fuseki.dynamic.test.port</portName>
+          </portNames>
+        </configuration>
+        <executions>
+          <execution>
+            <id>reserve-port</id>
+            <phase>package</phase>
+            <goals>
+              <goal>reserve-network-port</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <argLine>${jacoco.agent.it.arg}</argLine>
+          <systemPropertyVariables>
+            <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
+            <fuseki.dynamic.test.port>${fuseki.dynamic.test.port}</fuseki.dynamic.test.port>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
-
   </build>
-
 </project>
