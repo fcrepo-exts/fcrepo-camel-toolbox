@@ -15,7 +15,6 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.camel.RdfNamespaces.RDF;
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.EVENT_TYPE;
