@@ -52,6 +52,7 @@
     <jacoco.plugin.version>0.7.2.201409121644</jacoco.plugin.version>
     <license.plugin.version>2.9</license.plugin.version>
     <resources.plugin.version>2.6</resources.plugin.version>
+    <surefire.plugin.version>2.18.1</surefire.plugin.version>
     <!-- code coverage -->
     <jacoco.outputDir>${project.build.directory}</jacoco.outputDir>
     <jacoco.out.unit.file>jacoco-ut.exec</jacoco.out.unit.file>
@@ -343,6 +344,10 @@
           </configuration>
         </plugin>
 
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${surefire.plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -374,6 +379,16 @@
             <Import-Package>${fcrepo.camel.osgi.import}</Import-Package>
           </instructions>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>-Xms512m -Xmx1024m -XX:-UseSplitVerifier ${jacoco.agent.unit.arg}</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
