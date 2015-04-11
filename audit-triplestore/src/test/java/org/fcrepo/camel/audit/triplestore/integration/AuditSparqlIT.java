@@ -17,7 +17,6 @@ package org.fcrepo.camel.audit.triplestore.integration;
 
 import static org.fcrepo.camel.RdfNamespaces.RDF;
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
-import static org.junit.Assert.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
@@ -26,7 +25,6 @@ import java.io.IOException;
 
 import org.apache.camel.Produce;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
@@ -122,12 +120,14 @@ public class AuditSparqlIT extends CamelTestSupport {
 
         sparqlQueryEndpoint.expectedMessageCount(1);
         sparqlQueryEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
-        sparqlQueryEndpoint.expectedBodiesReceivedInAnyOrder("http://id.loc.gov/vocabulary/preservation/eventType/cre");
+        sparqlQueryEndpoint.expectedBodiesReceivedInAnyOrder(
+                "http://id.loc.gov/vocabulary/preservation/eventType/cre");
 
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
 
-        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY, "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventType> ?o }");
+        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
+                "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventType> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -147,7 +147,8 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
 
-        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY, "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventRelatedObject> ?o }");
+        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
+                "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventRelatedObject> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -167,7 +168,8 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
 
-        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY, "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventDateTime> ?o }");
+        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
+                "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventDateTime> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -188,7 +190,8 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
 
-        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY, "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventRelatedAgent> ?o }");
+        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
+                "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventRelatedAgent> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -205,7 +208,8 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
 
-        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY, "query=SELECT ?o WHERE { ?s ?p ?o }");
+        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
+                "query=SELECT ?o WHERE { ?s ?p ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -227,7 +231,8 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
 
-        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY, "query=SELECT ?o WHERE { ?s <" + RDF + "type> ?o }");
+        template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
+                "query=SELECT ?o WHERE { ?s <" + RDF + "type> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -252,7 +257,7 @@ public class AuditSparqlIT extends CamelTestSupport {
 
         return new RouteBuilder() {
             public void configure() throws IOException {
-                final String fuseki_url = "localhost:" + System.getProperty("fuseki.dynamic.test.port", "3030");
+                final String fuseki_url = "localhost:" + Integer.toString(FUSEKI_PORT);
 
                 from("direct:start")
                     .process(new AuditSparqlProcessor())
