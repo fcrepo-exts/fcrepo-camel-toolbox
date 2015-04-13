@@ -17,6 +17,11 @@ package org.fcrepo.camel.audit.triplestore;
 
 import static org.fcrepo.camel.RdfNamespaces.RDF;
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.AUDIT;
+import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.EVENT_TYPE;
+import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.PREMIS;
+import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.PROV;
+import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.XSD;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,7 +66,7 @@ public class AuditSparqlProcessor implements Processor {
      */
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
-        final String eventURIBase = (String) exchange.getProperty("event.baseUri");
+        final String eventURIBase = in.getHeader(AuditHeaders.EVENT_BASE_URI, String.class);
         final String UUIDString = UUID.randomUUID().toString();
         final UriRef eventURI = new UriRef(eventURIBase + "/" + UUIDString);
         final Set<Triple> triples = triplesForMessage(in, eventURI);
@@ -82,12 +87,6 @@ public class AuditSparqlProcessor implements Processor {
     }
 
     // namespaces and properties
-    public static final String AUDIT = "http://fedora.info/definitions/v4/audit#";
-    public static final String PREMIS = "http://www.loc.gov/premis/rdf/v1#";
-    public static final String EVENT_TYPE = "http://id.loc.gov/vocabulary/preservation/eventType/";
-    public static final String PROV = "http://www.w3.org/ns/prov#";
-    public static final String XSD = "http://www.w3.org/2001/XMLSchema#";
-
     private static final UriRef INTERNAL_EVENT = new UriRef(AUDIT + "InternalEvent");
     private static final UriRef PREMIS_EVENT = new UriRef(PREMIS + "Event");
     private static final UriRef PROV_EVENT = new UriRef(PROV + "InstantaneousEvent");

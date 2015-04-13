@@ -33,15 +33,19 @@ public class EventRouter extends RouteBuilder {
          * A generic error handler (specific to this RouteBuilder)
          */
         onException(Exception.class)
-            .maximumRedeliveries(10)
+            .maximumRedeliveries("{{error.maxRedeliveries}}")
             .log("Event Routing Error: ${routeId}");
 
         /**
          * Process a message.
          */
         from("activemq:{{jms.fcrepoEndpoint}}")
+            .routeId("AuditFcrepoRouter")
+            .to("direct:event");
+
+        from("direct:event")
             .routeId("AuditEventRouter")
-            .setProperty("event.baseUri", simple("{{event.baseUri}}"))
+            .setHeader(AuditHeaders.EVENT_BASE_URI, simple("{{event.baseUri}}"))
             .process(new AuditSparqlProcessor())
             .to("http4:{{triplestore.baseUrl}}");
     }

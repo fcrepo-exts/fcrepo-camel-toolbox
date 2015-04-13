@@ -16,12 +16,9 @@
 package org.fcrepo.camel.audit.triplestore;
 
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
-import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
-import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.EVENT_TYPE;
-import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.PREMIS;
-import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.XSD;
+import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.AUDIT;
+import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.PREMIS;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,10 +26,10 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.fcrepo.camel.JmsHeaders;
+import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 
 import org.junit.Test;
 
@@ -51,11 +48,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Produce(uri = "direct:start")
     protected ProducerTemplate template;
 
-    @Override
-    protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
-    }
-
     private static final String baseURL = "http://localhost/rest";
     private static final String nodeID = "/foo";
     private static final String fileID = "/file1";
@@ -64,118 +56,33 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String userID = "bypassAdmin";
     private static final String userAgent = "curl/7.37.1";
 
-    @Test
-    public void testNodeAdded() throws Exception {
-
-        resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-
-        final String eventTypes = REPOSITORY + "NODE_ADDED," + REPOSITORY + "PROPERTY_ADDED";
-        final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "primaryType," +
-                REPOSITORY + "lastModifiedBy," + REPOSITORY + "created," + REPOSITORY + "mixinTypes," +
-                REPOSITORY + "createdBy," + REPOSITORY + "uuid";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, eventProps));
-
-        assertMockEndpointsSatisfied();
-        final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
-        assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + EVENT_TYPE + "cre>"));
-        assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
-        assertTrue("Event date not found!",
-            body.contains("<" + PREMIS + "hasEventDateTime> \"" + eventDate + "\"^^<" + XSD + "dateTime>"));
-        assertTrue("Event user not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedAgent> \"" + userID + "\"^^<" + XSD + "string>"));
-        assertTrue("Event agent not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedAgent> \"" + userAgent + "\"^^<" + XSD + "string>"));
+    @Override
+    protected String getBlueprintDescriptor() {
+        return "/OSGI-INF/blueprint/blueprint.xml";
     }
 
     @Test
-    public void testNodeRemoved() throws Exception {
+    public void testWithoutJms() throws Exception {
+
+        context.getRouteDefinition("AuditFcrepoRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:start");
+            }
+        });
+
+        context.getRouteDefinition("AuditEventRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                mockEndpointsAndSkip("http4*");
+                weaveAddLast().to("mock:result");
+            }
+        });
 
         resultEndpoint.expectedMessageCount(1);
         resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, null));
-
-        assertMockEndpointsSatisfied();
-        final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
-        assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + EVENT_TYPE + "del>"));
-        assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
-    }
-
-    @Test
-    public void testPropertiesChanged() throws Exception {
-
-        resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-
-        final String eventTypes = REPOSITORY + "PROPERTY_CHANGED," + REPOSITORY + "PROPERTY_ADDED";
-        final String eventProps = REPOSITORY + "lastModified,http://purl.org/dc/elements/1.1/title";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, eventProps));
-
-        assertMockEndpointsSatisfied();
-        final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
-        assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "metadataModification>"));
-        assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
-    }
-
-    @Test
-    public void testFileAdded() throws Exception {
-
-        resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-
-        final String eventTypes = REPOSITORY + "NODE_ADDED," + REPOSITORY + "PROPERTY_ADDED";
-        final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "primaryType," +
-                REPOSITORY + "lastModifiedBy," + REPOSITORY + "created," + REPOSITORY + "mixinTypes," +
-                REPOSITORY + "createdBy," + REPOSITORY + "uuid" + REPOSITORY + "hasContent," +
-                PREMIS + "hasSize," + PREMIS + "hasOriginalName," + REPOSITORY + "digest";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps));
-
-        assertMockEndpointsSatisfied();
-        final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
-        assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + EVENT_TYPE + "ing>"));
-        assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
-    }
-
-    @Test
-    public void testFileChanged() throws Exception {
-
-        resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-
-        final String eventTypes = REPOSITORY + "PROPERTY_CHANGED";
-        final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "hasContent," +
-                PREMIS + "hasSize," + PREMIS + "hasOriginalName," + REPOSITORY + "digest";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps));
-
-        assertMockEndpointsSatisfied();
-        final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
-        assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentModification>"));
-        assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
-    }
-
-    @Test
-    public void testFileRemoved() throws Exception {
-
-        resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+        resultEndpoint.expectedHeaderReceived(AuditHeaders.EVENT_BASE_URI, "http://example.com/event");
 
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
@@ -201,17 +108,5 @@ public class RouteTest extends CamelBlueprintTestSupport {
         headers.put(JmsHeaders.EVENT_TYPE, eventTypes);
         headers.put(JmsHeaders.PROPERTIES, eventProperties);
         return headers;
-    }
-
-    @Override
-    protected RouteBuilder createRouteBuilder() {
-        return new RouteBuilder() {
-            @Override
-            public void configure() throws IOException {
-                from("direct:start")
-                    .process(new AuditSparqlProcessor())
-                    .to("mock:result");
-            }
-        };
     }
 }
