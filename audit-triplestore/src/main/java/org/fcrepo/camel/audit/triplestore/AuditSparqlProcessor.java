@@ -15,8 +15,8 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 import static org.fcrepo.camel.RdfNamespaces.RDF;
+import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,10 +26,14 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.UUID;
 
-import org.apache.camel.Processor;
+import org.fcrepo.camel.JmsHeaders;
+import org.fcrepo.camel.processor.ProcessorUtils;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.Processor;
 import org.apache.clerezza.rdf.core.Triple;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.impl.SimpleMGraph;
@@ -37,9 +41,6 @@ import org.apache.clerezza.rdf.core.impl.TripleImpl;
 import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
 import org.apache.clerezza.rdf.core.serializedform.SerializingProvider;
 import org.apache.clerezza.rdf.jena.serializer.JenaSerializerProvider;
-
-import org.fcrepo.camel.JmsHeaders;
-import org.fcrepo.camel.processor.ProcessorUtils;
 
 
 /**
@@ -60,7 +61,9 @@ public class AuditSparqlProcessor implements Processor {
      */
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
-        final UriRef eventURI = new UriRef("XXX");
+        final String eventURIBase = (String) exchange.getProperty("eventURI.base");
+        final String UUIDString = UUID.randomUUID().toString();
+        final UriRef eventURI = new UriRef(eventURIBase + "/" + UUIDString);
         final Set<Triple> triples = triplesForMessage(in, eventURI);
 
         // serialize triples
@@ -112,22 +115,24 @@ public class AuditSparqlProcessor implements Processor {
     private static final String NODE_REMOVED = REPOSITORY + "NODE_REMOVED";
     private static final String PROPERTY_CHANGED = REPOSITORY + "PROPERTY_CHANGED";
 
+    private static final String EMPTY_STRING = "";
+
     /**
      * Convert a Camel message to audit event description.
-     * @param m JMS message produced by an audit event
+     * @param message Camel message produced by an audit event
      * @param subject RDF subject of the audit description
      */
     private static Set<Triple> triplesForMessage(final Message message, final UriRef subject) throws IOException {
 
         // get info from jms message headers
-        final String eventType = message.getHeader(JmsHeaders.EVENT_TYPE, String.class);
-        final Long timestamp = Long.parseLong(message.getHeader(JmsHeaders.TIMESTAMP, String.class), 10);
+        final String eventType = (String) message.getHeader(JmsHeaders.EVENT_TYPE, EMPTY_STRING);
+        final Long timestamp =  (Long) message.getHeader(JmsHeaders.TIMESTAMP, 0);
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String date = df.format(new Date(timestamp));
-        final String user = message.getHeader(JmsHeaders.USER, String.class);
-        final String agent = message.getHeader(JmsHeaders.USER_AGENT, String.class);
-        final String properties = message.getHeader(JmsHeaders.PROPERTIES, String.class);
+        final String user = (String) message.getHeader(JmsHeaders.USER, EMPTY_STRING);
+        final String agent = (String) message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING);
+        final String properties = (String) message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING);
         final String identifier = ProcessorUtils.getSubjectUri(message);
 
         // types

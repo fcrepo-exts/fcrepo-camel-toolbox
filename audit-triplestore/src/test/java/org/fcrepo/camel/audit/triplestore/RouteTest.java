@@ -59,7 +59,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String baseURL = "http://localhost/rest";
     private static final String nodeID = "/foo";
     private static final String fileID = "/file1";
-    private static final String timestamp = "1428360320168";
+    private static final long timestamp = 1428360320168L;
     private static final String eventDate = "2015-04-06T22:45:20Z";
     private static final String userID = "bypassAdmin";
     private static final String userAgent = "curl/7.37.1";
