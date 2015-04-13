@@ -63,6 +63,7 @@
 
   <modules>
     <module>audit-triplestore</module>
+    <module>audit-triplestore-web</module>
   </modules>
 
   <prerequisites>
