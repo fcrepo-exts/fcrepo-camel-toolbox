@@ -35,6 +35,7 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.fuseki.EmbeddedFusekiServer;
 import org.fcrepo.camel.JmsHeaders;
+import org.fcrepo.camel.audit.triplestore.AuditHeaders;
 import org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor;
 import org.junit.After;
 import org.junit.Before;
@@ -260,6 +261,7 @@ public class AuditSparqlIT extends CamelTestSupport {
                 final String fuseki_url = "localhost:" + Integer.toString(FUSEKI_PORT);
 
                 from("direct:start")
+                    .setHeader(AuditHeaders.EVENT_BASE_URI, constant("http://example.com/event"))
                     .process(new AuditSparqlProcessor())
                     .to("http4:" + fuseki_url + "/test/update")
                     .to("mock:sparql.update");
