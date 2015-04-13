@@ -106,7 +106,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         headers.put(JmsHeaders.EVENT_TYPE, StringUtils.join(events, ","));
         headers.put(JmsHeaders.IDENTIFIER, "/foo");
         headers.put(JmsHeaders.PROPERTIES, StringUtils.join(properties, ","));
-        headers.put(JmsHeaders.TIMESTAMP, "1428676236521");
+        headers.put(JmsHeaders.TIMESTAMP, 1428676236521L);
         headers.put(JmsHeaders.USER, USER);
         headers.put(JmsHeaders.USER_AGENT, USER_AGENT);
 
