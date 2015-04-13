@@ -16,16 +16,6 @@
   <description>Camel-based audit system built with a triplestore backend</description>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <project.copyrightYear>2015</project.copyrightYear>
-
-    <!-- Use ${project_name} instead of ${project.artifactId} to avoid incorrect
-      replacements of "fcrepo4" in child modules (for scm, site-distribution, etc -->
-    <project_name>fcrepo-audit-triplestore</project_name>
-
-    <!-- plugins -->
-    <bundle.plugin.version>2.3.7</bundle.plugin.version>
   </properties>
 
   <dependencies>
@@ -63,7 +53,8 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
       </dependency>
-      <!-- Testing & Camel Plugin -->
+
+      <!-- testing -->
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-test-blueprint</artifactId>
@@ -86,43 +77,28 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <configuration>
-          <portNames>
-            <portName>fcrepo.dynamic.test.port</portName>
-            <portName>fuseki.dynamic.test.port</portName>
-          </portNames>
-        </configuration>
-        <executions>
-          <execution>
-            <id>reserve-port</id>
-            <phase>package</phase>
-            <goals>
-              <goal>reserve-network-port</goal>
-            </goals>
-          </execution>
-        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <configuration>
-          <argLine>${jacoco.agent.it.arg}</argLine>
-          <systemPropertyVariables>
-            <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
-            <fuseki.dynamic.test.port>${fuseki.dynamic.test.port}</fuseki.dynamic.test.port>
-          </systemPropertyVariables>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

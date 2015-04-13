@@ -27,6 +27,39 @@ command from its shell:
 
     osgi:install -s mvn:org.fcrepo.camel/audit-triplestore/{VERSION}
 
+Or by copying the compiled bundle into `$KARAF_HOME/deploy`.
+
+##Configuration
+
+The application can be configured by creating the following configuration
+file `$KARAF_HOME/etc/org.fcrepo.camel.audit.cfg`. The following values
+are available for configuration:
+
+In the event of failure, the maximum number of times a redelivery will be attempted.
+
+    error.maxRedeliveries=10
+
+The baseUri to use for event URIs in the triplestore. A `UUID` will be appended
+to this value, forming, for instance: `http://example.com/event/{UUID}`
+
+    event.baseUri=http://example.com/event
+
+The connection URI used to connect to a local or remote ActiveMQ broker
+
+    jms.brokerUrl=tcp://localhost:61616
+
+The name of the JMS topic (or queue) from which the event stream is to be read.
+
+    jms.fcrepoEndpoint=topic:fedora
+
+The base URL of the triplestore being used.
+
+    triplestore.baseUrl=localhost:3030/test/update
+
+
+By editing this file, any currently running routes will be immediately redeployed
+with the new values.
+
 For more help see the Apache Camel documentation
 
     http://camel.apache.org/
