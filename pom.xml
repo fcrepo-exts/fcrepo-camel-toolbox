@@ -474,4 +474,24 @@
     </plugins>
   </build>
 
+  <mailingLists>
+    <mailingList>
+      <name>ff-tech</name>
+      <subscribe>ff-tech+subscribe@googlegroups.com</subscribe>
+      <unsubscribe>ff-tech+unsubscribe@googlegroups.com</unsubscribe>
+      <post>ff-tech@googlegroups.com</post>
+      <archive>https://groups.google.com/d/forum/ff-tech</archive>
+    </mailingList>
+  </mailingLists>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/issues</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>http://jenkins.fcrepo.org/job/fcrepo-camel-toolbox/</url>
+  </ciManagement>
+
 </project>
