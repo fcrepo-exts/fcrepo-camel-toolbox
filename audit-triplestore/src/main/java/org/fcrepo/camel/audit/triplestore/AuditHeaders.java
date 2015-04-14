@@ -22,6 +22,8 @@ public final class AuditHeaders {
 
     public static final String EVENT_BASE_URI = "CamelAuditEventBaseUri";
 
+    public static final String EVENT_URI = "CamelAuditEventUri";
+
     private AuditHeaders() {
         // prevent instantiation
     }
