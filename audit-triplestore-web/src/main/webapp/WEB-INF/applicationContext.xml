@@ -5,12 +5,12 @@
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="properties" class="org.apache.camel.component.properties.PropertiesComponent">
-        <property name="location" value="classpath:audit.properties"/>
+    <bean id="properties" class="org.apache.camel.spring.spi.BridgePropertyPlaceholderConfigurer">
+      <property name="location" value="classpath:application.properties"/>
     </bean>
 
     <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-      <property name="brokerURL" value="tcp://localhost:61616"/>
+      <property name="brokerURL" value="${jms.brokerUrl}"/>
     </bean>
 
     <camelContext xmlns="http://camel.apache.org/schema/spring">

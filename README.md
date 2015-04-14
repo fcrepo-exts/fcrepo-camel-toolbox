@@ -20,3 +20,8 @@ and [Open RDF Sesame](http://rdf4j.org/) are supported.
 More information about the proposed
 [audit service](https://wiki.duraspace.org/display/FF/Design+-+Audit+Service)
 is available on the Fedora wiki.
+
+This project is available as both an OSGi bundle (`audit-triplestore`)
+and as a web-deployable `war` artifact (`audit-triplestore-web`),
+so it can be deployed in either Karaf or a web container such as
+Jetty/Tomcat.

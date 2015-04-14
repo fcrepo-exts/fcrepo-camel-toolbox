@@ -9,7 +9,6 @@
     <version>4.1.2-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.fcrepo.camel.audit</groupId>
   <artifactId>audit-triplestore-web</artifactId>
   <packaging>war</packaging>
 
@@ -17,8 +16,6 @@
   <description>Camel-based audit system built with a triplestore backend, deployable to web containers</description>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
   <dependencies>
@@ -27,25 +24,17 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
-      <version>2.15.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
-      <version>2.15.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
-      <version>2.15.1</version>
-    </dependency>
-     <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-stream</artifactId>
-      <version>2.15.1</version>
     </dependency>
     <dependency>
-      <groupId>org.fcrepo.camel</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>audit-triplestore</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -55,32 +44,22 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>4.1.5.RELEASE</version>
     </dependency>
 
     <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.10</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.10</version>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
     </dependency>
 
     <!-- testing -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring</artifactId>
-      <version>2.15.1</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -90,47 +69,17 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.5.1</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <encoding>UTF-8</encoding>
-        </configuration>
+        <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
 
-      <!-- plugin so you can run mvn jetty:run -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>8.1.16.v20140903</version>
-        <configuration>
-          <webAppConfig>
-            <contextPath>/</contextPath>
-          </webAppConfig>
-          <systemProperties>
-            <!-- enable easy JMX connection to JConsole -->
-            <systemProperty>
-              <name>com.sun.management.jmxremote</name>
-              <value/>
-            </systemProperty>
-          </systemProperties>
-          <scanIntervalSeconds>10</scanIntervalSeconds>
-        </configuration>
-      </plugin>
-
-      <!-- plugin to deploy to JBoss AS with: mvn jboss-as:deploy (you can also do redeploy/undeploy) -->
-      <plugin>
-        <groupId>org.jboss.as.plugins</groupId>
-        <artifactId>jboss-as-maven-plugin</artifactId>
-        <version>7.4.Final</version>
       </plugin>
 
     </plugins>
