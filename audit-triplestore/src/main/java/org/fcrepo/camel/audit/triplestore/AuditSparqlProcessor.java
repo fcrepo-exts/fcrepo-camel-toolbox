@@ -82,6 +82,7 @@ public class AuditSparqlProcessor implements Processor {
 
         // update exchange
         in.setBody(query.toString());
+        in.setHeader(AuditHeaders.EVENT_URI, eventURI.toString());
         in.setHeader(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         in.setHeader(Exchange.HTTP_METHOD, "POST");
     }

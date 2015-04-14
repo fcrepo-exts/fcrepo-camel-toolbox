@@ -15,6 +15,8 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
+
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 
 /**
@@ -47,6 +49,8 @@ public class EventRouter extends RouteBuilder {
             .routeId("AuditEventRouter")
             .setHeader(AuditHeaders.EVENT_BASE_URI, simple("{{event.baseUri}}"))
             .process(new AuditSparqlProcessor())
+            .log(LoggingLevel.INFO, "org.fcrepo.camel.audit",
+                    "Audit Event: ${headers[org.fcrepo.jms.identifier]} :: ${headers[CamelAuditEventUri]}")
             .to("http4:{{triplestore.baseUrl}}");
     }
 }
