@@ -10,8 +10,6 @@ with [Fedora4](http://fcrepo.org). These applications use
 
 ### Repository Audit Service (Triplestore)
 
-**This application is currently in development**
-
 This application listens to Fedora's event stream, and stores
 audit-related events in an external triplestore. Both
 [Jena Fuseki](http://jena.apache.org/documentation/serving_data/)
@@ -25,3 +23,14 @@ This project is available as both an OSGi bundle (`audit-triplestore`)
 and as a web-deployable `war` artifact (`audit-triplestore-web`),
 so it can be deployed in either Karaf or a web container such as
 Jetty/Tomcat.
+
+### Solr Indexer
+
+This application listens to Fedora's event stream, and
+indexes objects in an external Solr server.
+
+## Building
+
+To build these projects use this command
+
+    MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m" mvn clean install
