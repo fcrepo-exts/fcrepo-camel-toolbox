@@ -88,6 +88,11 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
+        <configuration>
+          <portNames>
+            <portName>fuseki.dynamic.test.port</portName>
+          </portNames>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -98,6 +103,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <argLine>${jacoco.agent.it.arg}</argLine>
+          <systemPropertyVariables>
+            <fuseki.dynamic.test.port>${fuseki.dynamic.test.port}</fuseki.dynamic.test.port>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
 
       <plugin>

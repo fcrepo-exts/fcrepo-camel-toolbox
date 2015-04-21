@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel.indexing.solr;
+package org.fcrepo.camel.indexing.triplestore;
 
 import static org.apache.camel.builder.PredicateBuilder.or;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_TRANSFORM;
-import static org.fcrepo.camel.HttpMethods.POST;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_NAMED_GRAPH;
 import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
 import static org.fcrepo.camel.RdfNamespaces.INDEXING;
 import static org.fcrepo.camel.RdfNamespaces.RDF;
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.builder.xml.XPathBuilder;
+import org.fcrepo.camel.processor.SparqlDeleteProcessor;
+import org.fcrepo.camel.processor.SparqlUpdateProcessor;
+import org.slf4j.Logger;
 
 /**
  * A content router for handling JMS events.
  *
  * @author Aaron Coburn
  */
-public class EventRouter extends RouteBuilder {
+public class TriplestoreRouter extends RouteBuilder {
 
-    private static final String logger = "org.fcrepo.camel.indexing";
-
-    private static final String hasIndexingTransform = "/rdf:RDF/rdf:Description/indexing:hasIndexingTransform/text()";
+    private static final Logger logger = getLogger(TriplestoreRouter.class);
 
     /**
      * Configure the message route workflow.
@@ -64,43 +64,41 @@ public class EventRouter extends RouteBuilder {
          * it is a DELETE or UPDATE operation.
          */
         from("{{input.stream}}")
-            .routeId("FcrepoSolrRouter")
+            .routeId("FcrepoTriplestoreRouter")
             .choice()
                 .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
-                    .to("direct:delete.solr")
+                    .to("direct:delete.triplestore")
                 .otherwise()
                     .removeHeaders("CamelHttp*")
                     .to("fcrepo:{{fcrepo.baseUrl}}")
-                    .setHeader(FCREPO_TRANSFORM).xpath(hasIndexingTransform, String.class, ns)
-                    .removeHeaders("CamelHttp*")
                     .choice()
                         .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
-                            .to("direct:update.solr")
+                            .to("direct:update.triplestore")
                         .otherwise()
-                            .to("direct:delete.solr");
+                            .to("direct:delete.triplestore");
 
         /**
-         * Remove an item from the solr index.
+         * Remove an item from the triplestore index.
          */
-        from("direct:delete.solr")
-            .routeId("FcrepoSolrDeleter")
-            .process(new SolrDeleteProcessor())
+        from("direct:delete.triplestore")
+            .routeId("FcrepoTriplestoreDeleter")
+            .process(new SparqlDeleteProcessor())
             .log(LoggingLevel.INFO, logger,
-                    "Deleting Solr Object ${headers[CamelFcrepoIdentifier]}")
-            .setHeader(Exchange.HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
-            .to("http4://{{solr.baseUrl}}/update");
-
-        /**
-         * Perform the solr update.
-         */
-        from("direct:update.solr")
-            .routeId("FcrepoSolrUpdater")
-            .log(LoggingLevel.INFO, logger,
-                    "Indexing Solr Object ${headers[CamelFcrepoIdentifier]} " +
+                    "Deleting Triplestore Object ${headers[CamelFcrepoIdentifier]} " +
                     "${headers[org.fcrepo.jms.identifier]}")
-            .to("fcrepo:{{fcrepo.baseUrl}}?transform={{fcrepo.defaultTransform}}")
-            .setHeader(Exchange.HTTP_METHOD).constant(POST)
-            .setHeader(Exchange.HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
-            .to("http4://{{solr.baseUrl}}/update");
+            .to("http4://{{triplestore.baseUrl}}");
+
+        /**
+         * Perform the sparql update.
+         */
+        from("direct:update.triplestore")
+            .routeId("FcrepoTriplestoreUpdater")
+            .setHeader(FCREPO_NAMED_GRAPH)
+                .simple("{{triplestore.namedGraph}}")
+            .process(new SparqlUpdateProcessor())
+            .log(LoggingLevel.INFO, logger,
+                    "Indexing Triplestore Object ${headers[CamelFcrepoIdentifier]} " +
+                    "${headers[org.fcrepo.jms.identifier]}")
+            .to("http4://{{triplestore.baseUrl}}");
     }
 }
