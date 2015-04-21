@@ -24,13 +24,18 @@ and as a web-deployable `war` artifact (`audit-triplestore-web`),
 so it can be deployed in either Karaf or a web container such as
 Jetty/Tomcat.
 
-### Solr Indexer
+### Repository Indexer (Solr)
 
-This application listens to Fedora's event stream, and
-indexes objects in an external Solr server.
+This application listens to Fedora's event stream and
+indexes objects into an external Solr server.
+
+### Repository Indexer (Triplestore)
+
+This application listens to Fedora's event stream and
+indexes objects into an external triplestore.
 
 ## Building
 
 To build these projects use this command
 
-    MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m" mvn clean install
+    MAVEN_OPTS="-Xmx1024m" mvn clean install

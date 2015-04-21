@@ -9,11 +9,11 @@
     <version>4.1.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>audit-triplestore-web</artifactId>
+  <artifactId>indexing-triplestore-web</artifactId>
   <packaging>war</packaging>
 
-  <name>Web-deployed Audit System with a Triplestore backend</name>
-  <description>Camel-based audit system built with a triplestore backend, deployable to web containers</description>
+  <name>Web-deployed indexing service with a Triplestore backend</name>
+  <description>Camel-based indexing system built with a triplestore backend, deployable to web containers</description>
 
   <properties>
   </properties>
@@ -35,10 +35,9 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>audit-triplestore</artifactId>
+      <artifactId>indexing-triplestore</artifactId>
       <version>${project.version}</version>
     </dependency>
-
 
     <!-- Spring Web -->
     <dependency>

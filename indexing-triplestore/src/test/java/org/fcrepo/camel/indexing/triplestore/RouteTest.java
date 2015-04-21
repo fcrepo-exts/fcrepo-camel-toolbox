@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel.indexing.solr;
+package org.fcrepo.camel.indexing.triplestore;
 
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_TRANSFORM;
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 
 import java.util.HashMap;
@@ -40,7 +39,7 @@ import org.junit.Test;
  * Test the route workflow.
  *
  * @author Aaron Coburn
- * @since 2015-04-10
+ * @since 2015-04-22
  */
 public class RouteTest extends CamelBlueprintTestSupport {
 
@@ -85,7 +84,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
@@ -94,8 +93,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         });
         context.start();
 
-        getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(1);
-        getMockEndpoint("mock:direct.update.solr").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
+        getMockEndpoint("mock:direct.update.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
@@ -110,21 +109,20 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_ADDED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
                 mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("direct:update.solr");
-                mockEndpointsAndSkip("direct:delete.solr");
+                mockEndpointsAndSkip("direct:update.triplestore");
+                mockEndpointsAndSkip("direct:delete.triplestore");
             }
         });
 
         context.start();
 
-        getMockEndpoint("mock:direct:update.solr").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:update.solr").expectedHeaderReceived(FCREPO_TRANSFORM, "default");
-        getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(1);
+        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
@@ -142,21 +140,20 @@ public class RouteTest extends CamelBlueprintTestSupport {
         pc.setCache(false);
         System.setProperty("indexing.predicate", "false");
 
-        context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
                 mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("direct:update.solr");
-                mockEndpointsAndSkip("direct:delete.solr");
+                mockEndpointsAndSkip("direct:update.triplestore");
+                mockEndpointsAndSkip("direct:delete.triplestore");
             }
         });
 
         context.start();
 
-        getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
-        getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:delete.solr").expectedHeaderReceived(FCREPO_TRANSFORM, "");
+        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
@@ -168,11 +165,17 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testUpdateRouter() throws Exception {
 
-        final String body = String.format("{\"delete\":{\"id\":\"${headers[%s]}\", \"commitWithin\": 500}}", fileID);
+        final String document = IOUtils.toString(ObjectHelper.loadResourceAsStream("container.nt"), "UTF-8").trim();
         final String eventTypes = REPOSITORY + "NODE_ADDED";
         final String eventProps = REPOSITORY + "hasContent";
+        final String responsePrefix =
+                  "update=DELETE WHERE { <" + baseURL + fileID + "> ?p ?o }; " +
+                  "DELETE WHERE { <" + baseURL + fileID + "/fcr:export?format=jcr/xml> ?p ?o }; " +
+                  "INSERT DATA { ";
+        final String responseSuffix = " }";
 
-        context.getRouteDefinition("FcrepoSolrUpdater").adviceWith(context, new AdviceWithRouteBuilder() {
+
+        context.getRouteDefinition("FcrepoTriplestoreUpdater").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 mockEndpointsAndSkip("fcrepo*");
@@ -182,25 +185,34 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         context.start();
 
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
-            .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedBodiesReceived(body);
+        final MockEndpoint endpoint = getMockEndpoint("mock:http4:localhost:3030/test/update");
+         
+        endpoint.expectedMessageCount(1);
+        endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+        endpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
+        endpoint.allMessages().body().regexReplaceAll("\\s+", " ").startsWith(responsePrefix);
+        endpoint.allMessages().body().regexReplaceAll("\\s+", " ").endsWith(responseSuffix);
+        for (final String s : document.split("\n")) {
+            endpoint.expectedBodyReceived().body().contains(s);
+        }   
 
-        template.sendBodyAndHeaders("direct:update.solr", body,
-                createEvent(fileID, eventTypes, eventProps));
+        final Map<String, Object> headers = createEvent(fileID, eventTypes, eventProps);
+        headers.put(Exchange.CONTENT_TYPE, "application/rdf+xml");
+
+        template.sendBodyAndHeaders("direct:update.triplestore",
+                IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
+                headers);
 
         assertMockEndpointsSatisfied();
     }
 
-
     @Test
     public void testDeleteRouter() throws Exception {
 
-        final String eventTypes = REPOSITORY + "NODE_ADDED";
+        final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoSolrDeleter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoTriplestoreDeleter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 mockEndpointsAndSkip("http4*");
@@ -209,13 +221,13 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         context.start();
 
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
-            .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/json");
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
+        getMockEndpoint("mock:http4:localhost:3030/test/update").expectedMessageCount(1);
+        getMockEndpoint("mock:http4:localhost:3030/test/update")
+            .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
+        getMockEndpoint("mock:http4:localhost:3030/test/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        template.sendBodyAndHeaders("direct:delete.solr", "",
+        template.sendBodyAndHeaders("direct:delete.triplestore", "",
                 createEvent(fileID, eventTypes, eventProps));
 
         assertMockEndpointsSatisfied();
