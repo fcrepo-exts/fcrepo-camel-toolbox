@@ -15,13 +15,11 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
+import static org.fcrepo.audit.AuditNamespaces.AUDIT;
+import static org.fcrepo.audit.AuditNamespaces.PREMIS;
+import static org.fcrepo.audit.AuditNamespaces.PROV;
+import static org.fcrepo.audit.AuditNamespaces.XSD;
 import static org.fcrepo.camel.RdfNamespaces.RDF;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
-import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.AUDIT;
-import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.EVENT_TYPE;
-import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.PREMIS;
-import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.PROV;
-import static org.fcrepo.camel.audit.triplestore.AuditNamespaces.XSD;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,6 +31,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import org.fcrepo.audit.InternalAuditor;
 import org.fcrepo.camel.JmsHeaders;
 import org.fcrepo.camel.processor.ProcessorUtils;
 
@@ -92,14 +91,6 @@ public class AuditSparqlProcessor implements Processor {
     private static final UriRef PREMIS_EVENT = new UriRef(PREMIS + "Event");
     private static final UriRef PROV_EVENT = new UriRef(PROV + "InstantaneousEvent");
 
-    private static final UriRef CONTENT_MOD = new UriRef(AUDIT + "contentModification");
-    private static final UriRef CONTENT_REM = new UriRef(AUDIT + "contentRemoval");
-    private static final UriRef METADATA_MOD = new UriRef(AUDIT + "metadataModification");
-
-    private static final UriRef CONTENT_ADD = new UriRef(EVENT_TYPE + "ing");
-    private static final UriRef OBJECT_ADD = new UriRef(EVENT_TYPE + "cre");
-    private static final UriRef OBJECT_REM = new UriRef(EVENT_TYPE + "del");
-
     private static final UriRef PREMIS_TIME = new UriRef(PREMIS + "hasEventDateTime");
     private static final UriRef PREMIS_OBJ = new UriRef(PREMIS + "hasEventRelatedObject");
     private static final UriRef PREMIS_AGENT = new UriRef(PREMIS + "hasEventRelatedAgent");
@@ -109,11 +100,6 @@ public class AuditSparqlProcessor implements Processor {
     private static final UriRef XSD_DATE = new UriRef(XSD + "dateTime");
     private static final UriRef XSD_STRING = new UriRef(XSD + "string");
 
-    private static final String HAS_CONTENT = REPOSITORY + "hasContent";
-    private static final String LAST_MODIFIED = REPOSITORY + "lastModified";
-    private static final String NODE_ADDED = REPOSITORY + "NODE_ADDED";
-    private static final String NODE_REMOVED = REPOSITORY + "NODE_REMOVED";
-    private static final String PROPERTY_CHANGED = REPOSITORY + "PROPERTY_CHANGED";
 
     private static final String EMPTY_STRING = "";
 
@@ -134,6 +120,7 @@ public class AuditSparqlProcessor implements Processor {
         final String agent = (String) message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING);
         final String properties = (String) message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING);
         final String identifier = ProcessorUtils.getSubjectUri(message);
+        final String premisType = InternalAuditor.getAuditEventType(eventType, properties);
 
         // types
         final Set<Triple> triples = new HashSet<>();
@@ -146,29 +133,8 @@ public class AuditSparqlProcessor implements Processor {
         triples.add( new TripleImpl(subject, PREMIS_OBJ, new UriRef(identifier)) );
         triples.add( new TripleImpl(subject, PREMIS_AGENT, new TypedLiteralImpl(user, XSD_STRING)) );
         triples.add( new TripleImpl(subject, PREMIS_AGENT, new TypedLiteralImpl(agent, XSD_STRING)) );
-
-        // mapping event type/properties to audit event type
-        if (eventType.contains(NODE_ADDED)) {
-            if (properties != null && properties.contains(HAS_CONTENT)) {
-                triples.add( new TripleImpl(subject, PREMIS_TYPE, CONTENT_ADD) );
-            } else {
-                triples.add( new TripleImpl(subject, PREMIS_TYPE, OBJECT_ADD) );
-            }
-        } else if (eventType.contains(NODE_REMOVED)) {
-            if (properties != null && properties.contains(HAS_CONTENT)) {
-                triples.add( new TripleImpl(subject, PREMIS_TYPE, CONTENT_REM) );
-            } else {
-                triples.add( new TripleImpl(subject, PREMIS_TYPE, OBJECT_REM) );
-            }
-        } else if (eventType.contains(PROPERTY_CHANGED)) {
-            if (properties != null && properties.contains(HAS_CONTENT)) {
-                triples.add( new TripleImpl(subject, PREMIS_TYPE, CONTENT_MOD) );
-            } else if (properties != null && properties.equals(LAST_MODIFIED)) {
-                /* adding/removing a file updates the lastModified property of the parent container,
-                   so ignore updates when only lastModified is changed */
-            } else {
-                triples.add( new TripleImpl(subject, PREMIS_TYPE, METADATA_MOD) );
-            }
+        if (premisType != null) {
+            triples.add(new TripleImpl(subject, PREMIS_TYPE, new UriRef(premisType)));
         }
         return triples;
     }
