@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="fcrepo-camel-toolbox-${project.version}">
+  <repository>mvn:org.fcrepo.camel/fcrepo-camel/${project.version}/xml/features</repository>
+  <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
+  <repository>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</repository>
+
+  <feature name="fcrepo-indexing-solr" version="${project.version}" resolver="(obr)" start-level="50">
+    <details>Installs the fcrepo solr indexer</details>
+    <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}</bundle>
+
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang3.version}</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
+
+    <feature version="${camel.version}">camel</feature>
+    <feature version="${camel.version}">camel-http4</feature>
+    <feature version="${camel.version}">camel-blueprint</feature>
+    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${activemq.version}">activemq-camel</feature>
+    <feature version="${project.version}">fcrepo-camel</feature>
+  </feature>
+
+  <feature name="fcrepo-indexing-triplestore" version="${project.version}" resolver="(obr)" start-level="50">
+    <details>Installs the fcrepo triplestore indexer</details>
+    <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}</bundle>
+
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang3.version}</bundle>
+
+    <feature version="${camel.version}">camel</feature>
+    <feature version="${camel.version}">camel-http4</feature>
+    <feature version="${camel.version}">camel-blueprint</feature>
+    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${activemq.version}">activemq-camel</feature>
+    <feature version="${project.version}">fcrepo-camel</feature>
+  </feature>
+
+  <feature name="fcrepo-audit-triplestore" version="${project.version}" resolver="(obr)" start-level="50">
+    <details>Installs the fcrepo audit service with a triplestore backend</details>
+    <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}</bundle>
+
+    <!-- These should be moved into a self-contained feature, as a part of fcrepo-audit -->
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${project.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${project.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel/${project.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-impl/${project.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-mint/${project.version}</bundle>
+    <bundle dependency="true">mvn:javax.jcr/jcr/2.0</bundle>
+    <bundle dependency="true">mvn:org.glassfish.hk2.external/javax.inject/2.3.0</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr-api/4.2.0.Final</bundle>
+    <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-jvm/3.1.0</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-json/3.1.0</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-servlets/3.1.0</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-healthchecks/3.1.0</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-graphite/3.1.0</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-core/3.1.0</bundle>
+    <bundle dependency="true">mvn:io.netty/netty/3.9.0.Final</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
+    <!-- end of fcrepo-audit transitive dependencies -->
+
+    <feature version="${camel.version}">camel</feature>
+    <feature version="${camel.version}">camel-http4</feature>
+    <feature version="${camel.version}">camel-blueprint</feature>
+    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${activemq.version}">activemq-camel</feature>
+    <feature version="${project.version}">fcrepo-camel</feature>
+  </feature>
+
+</features>
