@@ -44,3 +44,16 @@ indexes objects into an external triplestore.
 To build these projects use this command
 
     MAVEN_OPTS="-Xmx1024m" mvn clean install
+
+## OSGi deployment (Karaf 3.x)
+
+These applications are distributed as OSGi features, meaning they can be installed
+directly from the karaf console. First, add the `fcrepo-camel-toolbox` repository:
+
+    $> feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
+
+Then, you can add any combination of the following applications:
+
+    $> feature:install fcrepo-indexing-solr
+    $> feature:install fcrepo-indexing-triplestore
+    $> feature:install fcrepo-audit-triplestore
