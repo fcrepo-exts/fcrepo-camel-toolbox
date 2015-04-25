@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.fcrepo.audit.InternalAuditor;
+import org.fcrepo.audit.AuditUtils;
 import org.fcrepo.camel.JmsHeaders;
 import org.fcrepo.camel.processor.ProcessorUtils;
 
@@ -120,7 +120,7 @@ public class AuditSparqlProcessor implements Processor {
         final String agent = (String) message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING);
         final String properties = (String) message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING);
         final String identifier = ProcessorUtils.getSubjectUri(message);
-        final String premisType = InternalAuditor.getAuditEventType(eventType, properties);
+        final String premisType = AuditUtils.getAuditEventType(eventType, properties);
 
         // types
         final Set<Triple> triples = new HashSet<>();
