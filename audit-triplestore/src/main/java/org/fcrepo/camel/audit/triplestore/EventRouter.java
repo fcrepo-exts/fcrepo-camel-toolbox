@@ -15,6 +15,7 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
+import static org.apache.camel.builder.PredicateBuilder.not;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
@@ -43,7 +44,9 @@ public class EventRouter extends RouteBuilder {
          */
         from("activemq:{{jms.fcrepoEndpoint}}")
             .routeId("AuditFcrepoRouter")
-            .to("direct:event");
+            .choice()
+            .when(not(header("org.fcrepo.jms.identifier").startsWith("{{audit.container}}")))
+                .to("direct:event");
 
         from("direct:event")
             .routeId("AuditEventRouter")
