@@ -16,6 +16,7 @@
        <cm:property name="triplestore.baseUrl" value="localhost:3030/test/update"/>
        <!-- Base URI to be used in contructing the URI for the JMS event -->
        <cm:property name="event.baseUri" value="http://example.com/event"/>
+       <cm:property name="audit.container" value="/audit"/>
      </cm:default-properties>
    </cm:property-placeholder>
 

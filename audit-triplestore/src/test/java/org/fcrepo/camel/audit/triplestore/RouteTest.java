@@ -51,6 +51,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String baseURL = "http://localhost/rest";
     private static final String nodeID = "/foo";
     private static final String fileID = "/file1";
+    private static final String auditContainer = "/audit";
+    private static final String auditNode = auditContainer + "/1234";
+    private static final String similarNode = auditContainer + "ions/1234";
     private static final long timestamp = 1428360320168L;
     private static final String eventDate = "2015-04-06T22:45:20Z";
     private static final String userID = "bypassAdmin";
@@ -79,7 +82,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             }
         });
 
-        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(2);
         resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
         resultEndpoint.expectedHeaderReceived(AuditHeaders.EVENT_BASE_URI, "http://example.com/event");
@@ -87,6 +90,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
         template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps));
+        template.sendBodyAndHeaders("", createEvent(similarNode, eventTypes, eventProps));
+        template.sendBodyAndHeaders("", createEvent(auditNode, REPOSITORY + "NODE_ADDED", REPOSITORY + "lastModified"));
+        template.sendBodyAndHeaders("", createEvent(auditContainer, REPOSITORY + "PROPERTY_CHANGED",
+                REPOSITORY + "lastModified"));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
