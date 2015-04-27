@@ -45,7 +45,7 @@ public class EventRouter extends RouteBuilder {
         from("activemq:{{jms.fcrepoEndpoint}}")
             .routeId("AuditFcrepoRouter")
             .choice()
-            .when(not(header("org.fcrepo.jms.identifier").startsWith("{{audit.container}}")))
+            .when(not(header("org.fcrepo.jms.identifier").startsWith(simple("{{audit.container}}"))))
                 .to("direct:event");
 
         from("direct:event")
