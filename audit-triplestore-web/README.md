@@ -32,6 +32,12 @@ All configurable properties are stored in the `WEB-INF/classes/application.prope
 
 In addition, many of these can be set from the external environment.
 
+The name of the container where internal audit events are created (if using
+[fcrepo-audit](http://github.com/fcrepo4-labs/fcrepo-audit)).  Events about
+resources in this container are ignored.
+
+    fcrepo.audit.container=/audit
+
 In the event of failure, the maximum number of times a redelivery will be attempted.
 
     fcrepo.audit.redeliveries (default=10)
