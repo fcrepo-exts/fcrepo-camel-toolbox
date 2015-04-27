@@ -35,6 +35,12 @@ The application can be configured by creating the following configuration
 file `$KARAF_HOME/etc/org.fcrepo.camel.audit.cfg`. The following values
 are available for configuration:
 
+The name of the container where internal audit events are created (if using
+[fcrepo-audit](http://github.com/fcrepo4-labs/fcrepo-audit)).  Events about
+resources in this container are ignored.
+
+    audit.container=/audit
+
 In the event of failure, the maximum number of times a redelivery will be attempted.
 
     error.maxRedeliveries=10

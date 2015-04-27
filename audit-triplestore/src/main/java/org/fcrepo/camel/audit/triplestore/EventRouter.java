@@ -15,7 +15,9 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
+import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
 import static org.apache.camel.builder.PredicateBuilder.not;
+import static org.apache.camel.builder.PredicateBuilder.or;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
@@ -24,6 +26,7 @@ import org.apache.camel.builder.RouteBuilder;
  * A content router for handling JMS events.
  *
  * @author Aaron Coburn
+ * @author escowles
  */
 public class EventRouter extends RouteBuilder {
 
@@ -44,8 +47,8 @@ public class EventRouter extends RouteBuilder {
          */
         from("activemq:{{jms.fcrepoEndpoint}}")
             .routeId("AuditFcrepoRouter")
-            .choice()
-            .when(not(header("org.fcrepo.jms.identifier").startsWith(simple("{{audit.container}}"))))
+            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
+                           header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
                 .to("direct:event");
 
         from("direct:event")
