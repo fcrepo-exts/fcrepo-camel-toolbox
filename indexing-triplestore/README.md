@@ -1,6 +1,7 @@
-#Fedora Indexing Service (Solr)
+#Fedora Indexing Service (Triplestore)
 
-This application implements a bridge to an external, solr index
+This application implements a bridge to an external triplestore,
+such as Sesame or Fuseki
 for [Fedora4](http://fcrepo.org).
 
 ##Building
@@ -22,7 +23,7 @@ This project can be deployed in an OSGi container. For example using
 [Apache Karaf](http://karaf.apache.org), you can run the following
 command from its shell:
 
-    osgi:install -s mvn:org.fcrepo.camel/indexing-solr/{VERSION}
+    osgi:install -s mvn:org.fcrepo.camel/indexing-triplestore/{VERSION}
 
 ##Configuration
 
@@ -45,11 +46,6 @@ The baseUrl for the fedora repository.
 
     fcrepo.baseUrl=localhost:8080/fcrepo4/rest
 
-The default `LDPath` transformation to use. This is overridden on a per-object
-basis with the `indexing:hasIndexingTransformation` predicate.
-
-    fcrepo.defaultTransform=default
-
 If you would like to index only those objects with a type `indexing:Indexable`,
 set this property to `true`
 
@@ -63,14 +59,14 @@ The camel URI for the incoming message stream.
 
     input.stream=activemq:topic:fedora
 
-The baseUrl for the Solr server. If using Solr 4.x or better, the URL should include
-the core name.
+The base URL of the triplestore being used.
 
-    solr.baseUrl=localhost:8983/solr/collection1
+    triplestore.baseUrl=localhost:3030/test/update
 
-The timeframe (in milliseconds) within which new items should be committed to the solr index.
+A named graph for any objects being indexed in the triplestore. This value, if
+not left blank, should be a valid URI.
 
-    solr.commitWithin=10000
+    triplestore.namedGraph=
 
 By editing this file, any currently running routes will be immediately redeployed
 with the new values.

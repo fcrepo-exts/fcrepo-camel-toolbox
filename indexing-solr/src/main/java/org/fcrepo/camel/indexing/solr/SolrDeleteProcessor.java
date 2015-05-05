@@ -67,7 +67,7 @@ public class SolrDeleteProcessor implements Processor {
         final ObjectNode root = mapper.createObjectNode();
 
         root.putObject("delete")
-                    .put("id", 
+                    .put("id",
                             in.getHeader(FcrepoHeaders.FCREPO_BASE_URL, String.class) +
                             in.getHeader(FcrepoHeaders.FCREPO_IDENTIFIER, String.class));
 
