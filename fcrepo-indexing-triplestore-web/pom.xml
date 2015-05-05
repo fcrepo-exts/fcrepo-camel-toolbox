@@ -9,11 +9,11 @@
     <version>4.1.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>indexing-solr-web</artifactId>
+  <artifactId>fcrepo-indexing-triplestore-web</artifactId>
   <packaging>war</packaging>
 
-  <name>Web-deployed Solr-based indexing system</name>
-  <description>Camel-based solr indexer, deployable to web containers</description>
+  <name>Web-deployed indexing service with a Triplestore backend</name>
+  <description>Camel-based indexing system built with a triplestore backend, deployable to web containers</description>
 
   <properties>
   </properties>
@@ -34,15 +34,10 @@
       <artifactId>camel-http4</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.fcrepo.camel</groupId>
-      <artifactId>fcrepo-camel</artifactId>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>indexing-solr</artifactId>
+      <artifactId>fcrepo-indexing-triplestore</artifactId>
       <version>${project.version}</version>
     </dependency>
-
 
     <!-- Spring Web -->
     <dependency>

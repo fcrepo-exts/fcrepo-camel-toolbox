@@ -9,11 +9,11 @@
     <version>4.1.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>audit-triplestore-web</artifactId>
+  <artifactId>fcrepo-indexing-solr-web</artifactId>
   <packaging>war</packaging>
 
-  <name>Web-deployed Audit System with a Triplestore backend</name>
-  <description>Camel-based audit system built with a triplestore backend, deployable to web containers</description>
+  <name>Web-deployed Solr-based indexing system</name>
+  <description>Camel-based solr indexer, deployable to web containers</description>
 
   <properties>
   </properties>
@@ -34,8 +34,12 @@
       <artifactId>camel-http4</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.fcrepo.camel</groupId>
+      <artifactId>fcrepo-camel</artifactId>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>audit-triplestore</artifactId>
+      <artifactId>fcrepo-indexing-solr</artifactId>
       <version>${project.version}</version>
     </dependency>
 

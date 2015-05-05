@@ -9,10 +9,10 @@
     <version>4.1.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>indexing-triplestore</artifactId>
+  <artifactId>fcrepo-indexing-triplestore</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fedora Indexing Service with a triplestore backend</name>
+  <name>Fedora Indexing Service with a Triplestore backend</name>
   <description>Camel-based indexing service for an external triplestore</description>
 
   <properties>
