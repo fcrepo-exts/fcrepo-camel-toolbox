@@ -20,14 +20,12 @@ import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
@@ -35,7 +33,6 @@ import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.commons.io.IOUtils;
 import org.apache.jena.fuseki.EmbeddedFusekiServer;
 import org.fcrepo.camel.JmsHeaders;
 import org.fcrepo.camel.FcrepoClient;
@@ -79,7 +76,6 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
 
     @Before
     public void setUpFuseki() throws Exception {
-        final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/test";
         final FcrepoClient client = new FcrepoClient(null, null, null, true);
         final FcrepoResponse res = client.post(
                 URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"),
@@ -166,15 +162,15 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
         getMockEndpoint("mock://direct:delete.triplestore").expectedMessageCount(1);
         getMockEndpoint("mock://direct:update.triplestore").expectedMessageCount(0);
         getMockEndpoint(fcrepoEndpoint).expectedMessageCount(0);
-       
+
         template.sendBodyAndHeaders("direct:start", "", headers);
-        
+
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), equalTo(0));
 
         assertMockEndpointsSatisfied();
     }
 
-    //@Test
+    @Test
     public void testDeletedResourceWithFcrepoHeaders() throws Exception {
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
         final String fusekiEndpoint = "mock:http4:localhost:" + FUSEKI_PORT + "/test/update";

@@ -154,7 +154,7 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
         getMockEndpoint(fcrepoEndpoint).expectedMessageCount(1);
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), equalTo(0));
-        
+
         template.sendBodyAndHeaders("direct:start", "", headers);
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), greaterThanOrEqualTo(1));

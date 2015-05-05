@@ -20,12 +20,10 @@ import java.net.URLEncoder;
 import java.util.concurrent.Callable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.apache.camel.Exchange;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -42,12 +40,16 @@ public class TestUtils {
      *  Format a Sparql-update for the provided subject.
      */
     public static String sparqlUpdate(final String uri) {
+        final String rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+        final String fcrepo = "http://fedora.info/definitions/v4/repository#";
+        final String uuid = "278bad29-b6c9-4574-a921-00d822cd65da";
+
         return "update=INSERT DATA { " +
-            "<" + uri + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/ldp#RDFSource> . " +
-            "<" + uri + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fedora.info/definitions/v4/repository#Resource> . " +
-            "<" + uri + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/ldp#Container> . " +
-            "<" + uri + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fedora.info/definitions/v4/repository#Container> . " +
-            "<" + uri + "> <http://fedora.info/definitions/v4/repository#uuid> \"278bad29-b6c9-4574-a921-00d822cd65da\"^^<http://www.w3.org/2001/XMLSchema#string> . }";
+            "<" + uri + "> <" + rdf + "type> <http://www.w3.org/ns/ldp#RDFSource> . " +
+            "<" + uri + "> <" + rdf + "type> <" + fcrepo + "Resource> . " +
+            "<" + uri + "> <" + rdf + "type> <http://www.w3.org/ns/ldp#Container> . " +
+            "<" + uri + "> <" + rdf + "type> <" + fcrepo + "Container> . " +
+            "<" + uri + "> <" + fcrepo + "uuid> \"" + uuid + "\"^^<http://www.w3.org/2001/XMLSchema#string> . }";
     }
 
     /**
@@ -88,7 +90,8 @@ public class TestUtils {
         final ObjectMapper mapper = new ObjectMapper();
         return new Callable<Integer>() {
             public Integer call() throws Exception {
-                return Integer.valueOf(mapper.readTree(httpGet(url)).get("results").get("bindings").get(0).get("n").get("value").asText(), 10);
+                return Integer.valueOf(mapper.readTree(httpGet(url))
+                        .get("results").get("bindings").get(0).get("n").get("value").asText(), 10);
             }
         };
     }

@@ -110,6 +110,12 @@
         <artifactId>camel-maven-plugin</artifactId>
       </plugin>
 
+      <!-- enable checkstyle plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+
         <!-- reserve network ports for integration testing -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>

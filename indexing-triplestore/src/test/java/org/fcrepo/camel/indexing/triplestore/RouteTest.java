@@ -186,7 +186,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         final MockEndpoint endpoint = getMockEndpoint("mock:http4:localhost:3030/test/update");
-         
+
         endpoint.expectedMessageCount(1);
         endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
         endpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
@@ -194,7 +194,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         endpoint.allMessages().body().regexReplaceAll("\\s+", " ").endsWith(responseSuffix);
         for (final String s : document.split("\n")) {
             endpoint.expectedBodyReceived().body().contains(s);
-        }   
+        }
 
         final Map<String, Object> headers = createEvent(fileID, eventTypes, eventProps);
         headers.put(Exchange.CONTENT_TYPE, "application/rdf+xml");
