@@ -14,7 +14,7 @@
   <packaging>pom</packaging>
   <version>4.1.2-SNAPSHOT</version>
 
-  <name>Fedora4 Camel workflows</name>
+  <name>Fedora4 Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
   <url>http://fcrepo.org</url>
 
@@ -74,12 +74,12 @@
   </properties>
 
   <modules>
-    <module>audit-triplestore</module>
-    <module>audit-triplestore-web</module>
-    <module>indexing-solr</module>
-    <module>indexing-solr-web</module>
-    <module>indexing-triplestore</module>
-    <module>indexing-triplestore-web</module>
+    <module>fcrepo-audit-triplestore</module>
+    <module>fcrepo-audit-triplestore-web</module>
+    <module>fcrepo-indexing-solr</module>
+    <module>fcrepo-indexing-solr-web</module>
+    <module>fcrepo-indexing-triplestore</module>
+    <module>fcrepo-indexing-triplestore-web</module>
   </modules>
 
   <prerequisites>

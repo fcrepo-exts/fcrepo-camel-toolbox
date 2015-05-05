@@ -9,7 +9,7 @@
     <version>4.1.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>indexing-solr-web</artifactId>
+  <artifactId>fcrepo-indexing-solr-web</artifactId>
   <packaging>war</packaging>
 
   <name>Web-deployed Solr-based indexing system</name>

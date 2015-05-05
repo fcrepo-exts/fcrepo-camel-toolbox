@@ -9,7 +9,7 @@
     <version>4.1.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>indexing-solr</artifactId>
+  <artifactId>fcrepo-indexing-solr</artifactId>
   <packaging>bundle</packaging>
 
   <name>Fedora Indexing Service with a Solr backend</name>

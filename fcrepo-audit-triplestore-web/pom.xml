@@ -9,7 +9,7 @@
     <version>4.1.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>audit-triplestore-web</artifactId>
+  <artifactId>fcrepo-audit-triplestore-web</artifactId>
   <packaging>war</packaging>
 
   <name>Web-deployed Audit System with a Triplestore backend</name>
