@@ -35,7 +35,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>audit-triplestore</artifactId>
+      <artifactId>fcrepo-audit-triplestore</artifactId>
       <version>${project.version}</version>
     </dependency>
 

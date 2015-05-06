@@ -39,7 +39,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>indexing-solr</artifactId>
+      <artifactId>fcrepo-indexing-solr</artifactId>
       <version>${project.version}</version>
     </dependency>
 
