@@ -8,6 +8,16 @@ with [Fedora4](http://fcrepo.org). These applications use
 
 ## Applications
 
+Each of these applications are available as OSGi bundles and can be deployed
+directly into an OSGi container such as Karaf. These applications can also
+be built into a web-deployable application (`fcrepo-camel-webapp`) for use in
+Tomcat or Jetty. It is possible to bundle all of the applications or only selected
+modules into the web application.
+
+For more information, see the
+[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+module.
+
 ### Repository Audit Service (Triplestore)
 
 This application listens to Fedora's event stream, and stores
@@ -15,14 +25,9 @@ audit-related events in an external triplestore. Both
 [Jena Fuseki](http://jena.apache.org/documentation/serving_data/)
 and [Open RDF Sesame](http://rdf4j.org/) are supported.
 
-More information about the proposed
+More information about the
 [audit service](https://wiki.duraspace.org/display/FF/Design+-+Audit+Service)
 is available on the Fedora wiki.
-
-This project is available as both an OSGi bundle (`audit-triplestore`)
-and as a web-deployable `war` artifact (`audit-triplestore-web`),
-so it can be deployed in either Karaf or a web container such as
-Jetty/Tomcat.
 
 ### Repository Indexer (Solr)
 

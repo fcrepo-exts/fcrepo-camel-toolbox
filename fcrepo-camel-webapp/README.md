@@ -8,9 +8,17 @@ for [Fedora4](http://fcrepo.org).
 
 ###Building
 
-To build this project use
+To build this project with the audit service, use
 
     MAVEN_OPTS="-Xmx1024m" mvn install -Pat
+
+To build this project with the solr and triplestore indexers, use
+
+    MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit
+
+To build this project with all three applications, use
+
+    MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit -Pat
 
 ###Configuration
 
