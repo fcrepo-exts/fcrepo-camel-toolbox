@@ -19,6 +19,8 @@ To build this project with the solr and triplestore indexers, use
 To build this project with all three applications, use
 
     MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit -Pat
+    
+Note: The following syntax is also valid: `mvn install -Pis,it,at`
 
 ###Configuration
 
