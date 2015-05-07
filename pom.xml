@@ -75,11 +75,8 @@
 
   <modules>
     <module>fcrepo-audit-triplestore</module>
-    <module>fcrepo-audit-triplestore-web</module>
     <module>fcrepo-indexing-solr</module>
-    <module>fcrepo-indexing-solr-web</module>
     <module>fcrepo-indexing-triplestore</module>
-    <module>fcrepo-indexing-triplestore-web</module>
     <module>fcrepo-camel-webapp</module>
   </modules>
 
