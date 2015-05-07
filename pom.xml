@@ -80,6 +80,7 @@
     <module>fcrepo-indexing-solr-web</module>
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-indexing-triplestore-web</module>
+    <module>fcrepo-camel-webapp</module>
   </modules>
 
   <prerequisites>
