@@ -54,9 +54,9 @@ The connection URI used to connect to a local or remote ActiveMQ broker
 
     jms.brokerUrl=tcp://localhost:61616
 
-The name of the JMS topic (or queue) from which the event stream is to be read.
+The camel URI for the incoming message stream.
 
-    jms.fcrepoEndpoint=topic:fedora
+    input.stream=activemq:topic:fedora
 
 The base URL of the triplestore being used.
 
