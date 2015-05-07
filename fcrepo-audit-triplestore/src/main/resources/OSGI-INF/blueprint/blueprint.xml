@@ -12,7 +12,7 @@
      <cm:default-properties>
        <cm:property name="error.maxRedeliveries" value="10"/>
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
-       <cm:property name="jms.fcrepoEndpoint" value="topic:fedora"/>
+       <cm:property name="input.stream" value="activemq:topic:fedora"/>
        <cm:property name="triplestore.baseUrl" value="localhost:3030/test/update"/>
        <!-- Base URI to be used in contructing the URI for the JMS event -->
        <cm:property name="event.baseUri" value="http://example.com/event"/>

@@ -45,7 +45,7 @@ public class EventRouter extends RouteBuilder {
         /**
          * Process a message.
          */
-        from("activemq:{{jms.fcrepoEndpoint}}")
+        from("{{input.stream}}")
             .routeId("AuditFcrepoRouter")
             .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
                            header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
