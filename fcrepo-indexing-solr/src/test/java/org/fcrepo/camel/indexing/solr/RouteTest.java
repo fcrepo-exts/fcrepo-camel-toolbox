@@ -97,7 +97,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(1);
-        getMockEndpoint("mock:direct.update.solr").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
@@ -112,7 +112,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
@@ -122,9 +122,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(0);
-        getMockEndpoint("mock:direct.update.solr").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
 
-        template.sendBodyAndHeaders("",
+        template.sendBodyAndHeaders(
+                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
                 createEvent(auditContainer + fileID, eventTypes, eventProps));
 
         assertMockEndpointsSatisfied();
@@ -136,7 +137,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
@@ -146,9 +147,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(0);
-        getMockEndpoint("mock:direct.update.solr").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
 
-        template.sendBodyAndHeaders("",
+        template.sendBodyAndHeaders(
+                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
                 createEvent(auditContainer, eventTypes, eventProps));
 
         assertMockEndpointsSatisfied();
@@ -157,10 +159,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testFilterAuditNearMatch() throws Exception {
 
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
+        final String eventTypes = REPOSITORY + "NODE_ADDED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
@@ -169,10 +171,11 @@ public class RouteTest extends CamelBlueprintTestSupport {
         });
         context.start();
 
-        getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(1);
-        getMockEndpoint("mock:direct.update.solr").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.solr").expectedMessageCount(1);
 
-        template.sendBodyAndHeaders("",
+        template.sendBodyAndHeaders(
+                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
                 createEvent(auditContainer + "orium" + fileID, eventTypes, eventProps));
 
         assertMockEndpointsSatisfied();
@@ -189,6 +192,13 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
+                mockEndpointsAndSkip("direct:delete.solr");
+            }
+        });
+
+        context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
                 mockEndpointsAndSkip("fcrepo*");
                 mockEndpointsAndSkip("direct:update.solr");
                 mockEndpointsAndSkip("direct:delete.solr");
@@ -221,6 +231,13 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
+                mockEndpointsAndSkip("direct:delete.solr");
+            }
+        });
+
+        context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
                 mockEndpointsAndSkip("fcrepo*");
                 mockEndpointsAndSkip("direct:update.solr");
                 mockEndpointsAndSkip("direct:delete.solr");

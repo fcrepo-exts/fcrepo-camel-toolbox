@@ -25,8 +25,10 @@
     <is.profile />
     <!--Indexing Triplestore-->
     <it.profile />
+    <!--Reindexing Service-->
+    <rs.profile />
 
-    <build.profile.names>${at.profile}${is.profile}${it.profile}</build.profile.names>
+    <build.profile.names>${at.profile}${is.profile}${it.profile}${rs.profile}</build.profile.names>
   </properties>
 
   <dependencies>
@@ -139,6 +141,21 @@
         <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>fcrepo-indexing-triplestore</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <profile>
+      <!--Reindexing Service module-->
+      <id>rs</id>
+      <properties>
+        <rs.profile>-rs</rs.profile>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>fcrepo-reindexing</artifactId>
           <version>${project.version}</version>
         </dependency>
       </dependencies>

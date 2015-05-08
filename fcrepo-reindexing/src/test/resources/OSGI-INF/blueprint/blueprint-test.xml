@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+       xsi:schemaLocation="
+       http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+   <!-- OSGI blueprint property placeholder -->
+   <cm:property-placeholder id="properties" persistent-id="fcrepo-testing">
+     <cm:default-properties>
+       <cm:property name="error.maxRedeliveries" value="10"/>
+       <cm:property name="reindexing.stream" value="activemq:queue:reindexing"/>
+       <cm:property name="rest.prefix" value="/reindexing"/>
+     </cm:default-properties>
+   </cm:property-placeholder>
+
+  <camelContext id="FcrepoIndexer" xmlns="http://camel.apache.org/schema/blueprint">
+    <package>org.fcrepo.camel.reindexing</package>
+    <restConfiguration component="restlet" port="{{rest.port}}" />
+  </camelContext>
+
+</blueprint>

@@ -39,6 +39,20 @@ indexes objects into an external Solr server.
 This application listens to Fedora's event stream and
 indexes objects into an external triplestore.
 
+### Repository Re-Indexer
+
+This application allows a user to initiate a re-indexing process
+from any location within the Fedora node hierarchy, sending
+re-indexing requests to a specified list of external applications
+(e.g. fcrepo-indexing-solr and/or fcrepo-indexing-triplestore)
+
+One can specify which applications/endpoints to send these 
+reindexing events, by POSTing a JSON array to the re-indexing
+service:
+
+    curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
+        -d '["activemq:queue:solr.reindex","activemq:queue:triplestore.reindex"]'
+
 ## Building
 
 To build these projects use this command
@@ -57,3 +71,4 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-indexing-solr
     $> feature:install fcrepo-indexing-triplestore
     $> feature:install fcrepo-audit-triplestore
+    $> feature:install fcrepo-reindexer

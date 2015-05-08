@@ -1,8 +1,9 @@
-#Fedora Indexing Service (Triplestore)
+#Fedora Reindexing Service
 
-This application implements a bridge to an external triplestore,
-such as Sesame or Fuseki
-for [Fedora4](http://fcrepo.org).
+This application implements a reindexing service so that
+any node hierarchy in fedora (e.g. the entire repository
+or some subset thereof) can be reindexed by a set of external
+services.
 
 ##Building
 
@@ -24,12 +25,12 @@ This project can be deployed in an OSGi container. For example using
 command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
-    feature:install fcrepo-indexing-triplestore
+    feature:install fcrepo-reindexing
 
 ##Configuration
 
 The application can be configured by creating a file in
-`$KARAF_HOME/etc/org.fcrepo.camel.indexing.triplestore.cfg`. The following
+`$KARAF_HOME/etc/org.fcrepo.camel.reindexing.cfg`. The following
 values are available for configuration:
 
 In the event of failure, the maximum number of times a redelivery will be attempted.
@@ -47,27 +48,21 @@ The baseUrl for the fedora repository.
 
     fcrepo.baseUrl=localhost:8080/fcrepo/rest
 
-If you would like to index only those objects with a type `indexing:Indexable`,
-set this property to `true`
-
-    indexing.predicate=false
-
 The JMS connection URI, used for connecting to a local or remote ActiveMQ broker.
 
     jms.brokerUrl=tcp://localhost:61616
 
-The camel URI for the incoming message stream.
+The camel URI for the internal reindexing queue.
 
-    input.stream=activemq:topic:fedora
+    reindexing.stream=activemq:queue:reindexing
 
-The base URL of the triplestore being used.
+The port at which reindexing requests can be sent.
 
-    triplestore.baseUrl=localhost:3030/test/update
+    rest.port=9080
 
-A named graph for any objects being indexed in the triplestore. This value, if
-not left blank, should be a valid URI.
+The URL path prefix for the reindexing service.
 
-    triplestore.namedGraph=
+    rest.prefix=/reindexing
 
 By editing this file, any currently running routes will be immediately redeployed
 with the new values.

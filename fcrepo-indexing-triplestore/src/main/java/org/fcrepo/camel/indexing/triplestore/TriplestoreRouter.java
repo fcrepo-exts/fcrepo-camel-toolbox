@@ -67,19 +67,33 @@ public class TriplestoreRouter extends RouteBuilder {
          */
         from("{{input.stream}}")
             .routeId("FcrepoTriplestoreRouter")
-            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
-                    header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .choice()
                 .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
                     .to("direct:delete.triplestore")
                 .otherwise()
-                    .removeHeaders("CamelHttp*")
-                    .to("fcrepo:{{fcrepo.baseUrl}}")
-                    .choice()
-                        .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
-                            .to("direct:update.triplestore")
-                        .otherwise()
-                            .to("direct:delete.triplestore");
+                    .to("direct:index.triplestore");
+
+        /**
+         * Handle re-index events
+         */
+        from("{{reindex.stream}}")
+            .routeId("FcrepoTriplestoreReindex")
+            .to("direct:index.triplestore");
+
+        /**
+         * Based on an item's metadata, determine if it is indexable.
+         */
+        from("direct:index.triplestore")
+            .routeId("FcrepoTriplestoreIndexer")
+            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
+                    header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
+            .removeHeaders("CamelHttp*")
+            .to("fcrepo:{{fcrepo.baseUrl}}")
+            .choice()
+                .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
+                    .to("direct:update.triplestore")
+                .otherwise()
+                    .to("direct:delete.triplestore");
 
         /**
          * Remove an item from the triplestore index.

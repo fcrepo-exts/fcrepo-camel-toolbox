@@ -33,6 +33,11 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-restlet</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>org.apache.activemq</groupId>
@@ -154,6 +159,15 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <configuration>
           <systemProperties>
+            <force>true</force>
+            <systemProperty>
+              <name>fcrepo.home</name>
+              <value>${project.build.directory}/fcrepo-data-fis</value>
+            </systemProperty>
+            <systemProperty>
+              <name>solr.solr.home</name>
+              <value>${project.build.directory}/test-classes/solr</value>
+            </systemProperty>
             <systemProperty>
               <name>solr.solr.home</name>
               <value>${project.build.directory}/test-classes/solr</value>

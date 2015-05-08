@@ -22,12 +22,13 @@ This project can be deployed in an OSGi container. For example using
 [Apache Karaf](http://karaf.apache.org), you can run the following
 command from its shell:
 
-    osgi:install -s mvn:org.fcrepo.camel/indexing-solr/{VERSION}
+    feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
+    feature:install fcrepo-indexing-solr
 
 ##Configuration
 
 The application can be configured by creating a file in
-`$KARAF_HOME/etc/org.fcrepo.camel.indexing.triplestore.cfg`. The following
+`$KARAF_HOME/etc/org.fcrepo.camel.indexing.solr.cfg`. The following
 values are available for configuration:
 
 In the event of failure, the maximum number of times a redelivery will be attempted.
@@ -43,7 +44,7 @@ can be set:
 
 The baseUrl for the fedora repository.
 
-    fcrepo.baseUrl=localhost:8080/fcrepo4/rest
+    fcrepo.baseUrl=localhost:8080/fcrepo/rest
 
 The default `LDPath` transformation to use. This is overridden on a per-object
 basis with the `indexing:hasIndexingTransformation` predicate.

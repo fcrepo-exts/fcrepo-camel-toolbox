@@ -27,7 +27,6 @@ import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
@@ -96,7 +95,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
-        getMockEndpoint("mock:direct.update.triplestore").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:index.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
@@ -111,7 +110,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
@@ -121,7 +120,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
-        getMockEndpoint("mock:direct.update.triplestore").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders("",
                 createEvent(auditContainer + fileID, eventTypes, eventProps));
@@ -135,7 +134,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
@@ -145,7 +144,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
-        getMockEndpoint("mock:direct.update.triplestore").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders("",
                 createEvent(auditContainer, eventTypes, eventProps));
@@ -156,10 +155,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testAuditFilterNearMatch() throws Exception {
 
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
+        final String eventTypes = REPOSITORY + "NODE_ADDED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
@@ -169,9 +168,35 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
-        getMockEndpoint("mock:direct.update.triplestore").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
 
-        template.sendBodyAndHeaders("",
+        template.sendBodyAndHeaders(
+                IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
+                createEvent(auditContainer + "orium" + fileID, eventTypes, eventProps));
+
+        assertMockEndpointsSatisfied();
+    }
+
+    @Test
+    public void testAuditFilterNearMatchIndexable() throws Exception {
+
+        final String eventTypes = REPOSITORY + "NODE_ADDED";
+        final String eventProps = REPOSITORY + "hasContent";
+
+        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:start");
+                mockEndpointsAndSkip("*");
+            }
+        });
+        context.start();
+
+        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(1);
+
+        template.sendBodyAndHeaders(
+                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
                 createEvent(auditContainer + "orium" + fileID, eventTypes, eventProps));
 
         assertMockEndpointsSatisfied();
@@ -189,14 +214,14 @@ public class RouteTest extends CamelBlueprintTestSupport {
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
                 mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("direct:update.triplestore");
+                mockEndpointsAndSkip("direct:index.triplestore");
                 mockEndpointsAndSkip("direct:delete.triplestore");
             }
         });
 
         context.start();
 
-        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(1);
+        getMockEndpoint("mock:direct:index.triplestore").expectedMessageCount(1);
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
@@ -207,15 +232,12 @@ public class RouteTest extends CamelBlueprintTestSupport {
     }
 
     @Test
-    public void testPrepareRouterContainer() throws Exception {
+    public void testIndexRouterContainer() throws Exception {
 
         final String eventTypes = REPOSITORY + "NODE_ADDED";
         final String eventProps = REPOSITORY + "hasContent";
-        final PropertiesComponent pc = context.getComponent("properties", PropertiesComponent.class);
-        pc.setCache(false);
-        System.setProperty("indexing.predicate", "false");
 
-        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
@@ -232,6 +254,34 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
+                createEvent(fileID, eventTypes, eventProps));
+
+        assertMockEndpointsSatisfied();
+    }
+
+    @Test
+    public void testIndexRouterIndexable() throws Exception {
+
+        final String eventTypes = REPOSITORY + "NODE_ADDED";
+        final String eventProps = REPOSITORY + "hasContent";
+
+        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:start");
+                mockEndpointsAndSkip("fcrepo*");
+                mockEndpointsAndSkip("direct:update.triplestore");
+                mockEndpointsAndSkip("direct:delete.triplestore");
+            }
+        });
+
+        context.start();
+
+        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(1);
+        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
+
+        template.sendBodyAndHeaders(
+                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
                 createEvent(fileID, eventTypes, eventProps));
 
         assertMockEndpointsSatisfied();

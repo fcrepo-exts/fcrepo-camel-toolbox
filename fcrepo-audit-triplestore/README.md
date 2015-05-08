@@ -25,7 +25,8 @@ This project can be deployed in an OSGi container. For example using
 [Apache Karaf](http://karaf.apache.org), you can run the following
 command from its shell:
 
-    osgi:install -s mvn:org.fcrepo.camel/audit-triplestore/{VERSION}
+    feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
+    feature:install fcrepo-audit-triplestore
 
 Or by copying the compiled bundle into `$KARAF_HOME/deploy`.
 

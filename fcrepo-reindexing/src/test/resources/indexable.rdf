@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:ldp="http://www.w3.org/ns/ldp#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<rdf:Description rdf:about="http://localhost:8080/fcrepo4/rest/foo">
+    <rdf:type rdf:resource="http://www.w3.org/ns/ldp#RDFSource"/>
+    <rdf:type rdf:resource="http://www.w3.org/ns/ldp#Container"/>
+    <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Container"/>
+    <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Resource"/>
+    <rdf:type rdf:resource="http://fedora.info/definitions/v4/indexing#Indexable"/>
+    <ldp:contains rdf:resource="http://localhost:8080/fcrepo4/rest/foo/a"/>
+    <ldp:contains rdf:resource="http://localhost:8080/fcrepo4/rest/foo/b"/>
+    <ldp:contains rdf:resource="http://localhost:8080/fcrepo4/rest/foo/c"/>
+    <ldp:contains rdf:resource="http://localhost:8080/fcrepo4/rest/foo/d"/>
+    <ldp:contains rdf:resource="http://localhost:8080/fcrepo4/rest/foo/e"/>
+    <ldp:contains rdf:resource="http://localhost:8080/fcrepo4/rest/foo/f"/>
+    <ldp:contains rdf:resource="http://localhost:8080/fcrepo4/rest/foo/g"/>
+</rdf:Description>
+</rdf:RDF>

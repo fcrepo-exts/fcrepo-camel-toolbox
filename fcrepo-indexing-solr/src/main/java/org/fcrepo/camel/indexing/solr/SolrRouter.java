@@ -18,12 +18,8 @@ package org.fcrepo.camel.indexing.solr;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_TRANSFORM;
-import static org.fcrepo.camel.HttpMethods.POST;
 import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
 import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
-import static org.fcrepo.camel.RdfNamespaces.INDEXING;
-import static org.fcrepo.camel.RdfNamespaces.RDF;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.camel.Exchange;
@@ -31,6 +27,8 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.builder.xml.XPathBuilder;
+import org.fcrepo.camel.HttpMethods;
+import org.fcrepo.camel.RdfNamespaces;
 import org.slf4j.Logger;
 
 /**
@@ -49,12 +47,17 @@ public class SolrRouter extends RouteBuilder {
      */
     public void configure() throws Exception {
 
-        final Namespaces ns = new Namespaces("rdf", RDF);
-        ns.add("indexing", INDEXING);
+        final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
+        ns.add("indexing", RdfNamespaces.INDEXING);
+        ns.add("ldp", RdfNamespaces.LDP);
 
         final XPathBuilder indexable = new XPathBuilder(
-                String.format("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']", INDEXING + "Indexable"));
+                String.format(
+                    "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']", RdfNamespaces.INDEXING + "Indexable"));
         indexable.namespaces(ns);
+
+        final XPathBuilder children = new XPathBuilder("/rdf:RDF/rdf:Description/ldp:contains");
+        children.namespaces(ns);
 
         /**
          * A generic error handler (specific to this RouteBuilder)
@@ -69,21 +72,35 @@ public class SolrRouter extends RouteBuilder {
          */
         from("{{input.stream}}")
             .routeId("FcrepoSolrRouter")
-            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
-                    header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .choice()
-                .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
+                .when(header(EVENT_TYPE).isEqualTo(RdfNamespaces.REPOSITORY + "NODE_REMOVED"))
                     .to("direct:delete.solr")
                 .otherwise()
-                    .removeHeaders("CamelHttp*")
-                    .to("fcrepo:{{fcrepo.baseUrl}}")
-                    .setHeader(FCREPO_TRANSFORM).xpath(hasIndexingTransform, String.class, ns)
-                    .removeHeaders("CamelHttp*")
-                    .choice()
-                        .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
-                            .to("direct:update.solr")
-                        .otherwise()
-                            .to("direct:delete.solr");
+                    .to("direct:index.solr");
+
+        /**
+         * Handle re-index events
+         */
+        from("{{reindex.stream}}")
+            .routeId("FcrepoSolrReindex")
+            .to("direct:index.solr");
+
+        /**
+         * Based on an item's metadata, determine if it is indexable.
+         */
+        from("direct:index.solr")
+            .routeId("FcrepoSolrIndexer")
+            .removeHeaders("CamelHttp*")
+            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
+                    header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment")
+            .setHeader(FCREPO_TRANSFORM).xpath(hasIndexingTransform, String.class, ns)
+            .removeHeaders("CamelHttp*")
+            .choice()
+                .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
+                    .to("direct:update.solr")
+                .otherwise()
+                    .to("direct:delete.solr");
 
         /**
          * Remove an item from the solr index.
@@ -105,8 +122,9 @@ public class SolrRouter extends RouteBuilder {
                     "Indexing Solr Object ${headers[CamelFcrepoIdentifier]} " +
                     "${headers[org.fcrepo.jms.identifier]}")
             .to("fcrepo:{{fcrepo.baseUrl}}?transform={{fcrepo.defaultTransform}}")
-            .setHeader(Exchange.HTTP_METHOD).constant(POST)
+            .setHeader(Exchange.HTTP_METHOD).constant(HttpMethods.POST)
             .setHeader(Exchange.HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
             .to("http4://{{solr.baseUrl}}/update");
+
     }
 }

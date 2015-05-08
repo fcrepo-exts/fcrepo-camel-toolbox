@@ -41,6 +41,7 @@
     <commons.lang3.version>3.3.2</commons.lang3.version>
     <jackson2.version>2.5.2</jackson2.version>
     <logback.version>1.1.2</logback.version>
+    <mustache.version>0.9.0</mustache.version>
     <slf4j.version>1.7.10</slf4j.version>
     <spring.version>4.1.5.RELEASE</spring.version>
     <!-- testing -->
@@ -78,6 +79,7 @@
     <module>fcrepo-audit-triplestore</module>
     <module>fcrepo-indexing-solr</module>
     <module>fcrepo-indexing-triplestore</module>
+    <module>fcrepo-reindexing</module>
     <module>fcrepo-camel-webapp</module>
   </modules>
 
@@ -154,6 +156,11 @@
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
+        <artifactId>camel-restlet</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
         <artifactId>camel-spring</artifactId>
         <version>${camel.version}</version>
       </dependency>
@@ -187,11 +194,15 @@
         <artifactId>fcrepo-audit</artifactId>
         <version>4.2.0</version>
       </dependency>
-
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>${jackson2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.spullara.mustache.java</groupId>
+        <artifactId>compiler</artifactId>
+        <version>0.9.0</version>
       </dependency>
 
       <!-- Spring -->
