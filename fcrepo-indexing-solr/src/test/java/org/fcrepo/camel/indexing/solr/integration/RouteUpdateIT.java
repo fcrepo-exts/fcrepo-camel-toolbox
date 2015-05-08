@@ -110,6 +110,12 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
                 mockEndpoints("*");
             }
         });
+        context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                mockEndpoints("*");
+            }
+        });
         context.getRouteDefinition("FcrepoSolrUpdater").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {

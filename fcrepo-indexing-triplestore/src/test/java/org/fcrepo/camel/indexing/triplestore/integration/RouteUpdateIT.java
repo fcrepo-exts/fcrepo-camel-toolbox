@@ -131,6 +131,13 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
                 mockEndpoints("*");
             }
         });
+        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                mockEndpoints("*");
+            }
+        });
+
         context.getRouteDefinition("FcrepoTriplestoreUpdater").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {

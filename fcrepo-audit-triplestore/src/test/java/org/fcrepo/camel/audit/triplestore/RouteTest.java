@@ -21,6 +21,7 @@ import static org.fcrepo.audit.AuditNamespaces.PREMIS;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
@@ -62,6 +63,14 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Override
     protected String getBlueprintDescriptor() {
         return "/OSGI-INF/blueprint/blueprint.xml";
+    }
+
+    @Override
+    protected Properties useOverridePropertiesWithPropertiesComponent() {
+         final Properties props = new Properties();
+         props.put("audit.container", auditContainer);
+         props.put("input.stream", "seda:foo");
+         return props;
     }
 
     @Test

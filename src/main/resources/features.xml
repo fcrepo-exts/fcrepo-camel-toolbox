@@ -35,6 +35,23 @@
     <feature version="${project.version}">fcrepo-camel</feature>
   </feature>
 
+  <feature name="fcrepo-reindexing" version="${project.version}" resolver="(obr)" start-level="50">
+    <details>Installs a re-indexing application</details>
+    <bundle>mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}</bundle>
+
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
+    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
+    <bundle dependency="true">wrap:mvn:com.github.spullara.mustache.java/compiler/${mustache.version}</bundle>
+
+    <feature version="${camel.version}">camel</feature>
+    <feature version="${camel.version}">camel-blueprint</feature>
+    <feature version="${camel.version}">camel-restlet</feature>
+    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${activemq.version}">activemq-camel</feature>
+    <feature version="${project.version}">fcrepo-camel</feature>
+  </feature>
+
   <feature name="fcrepo-audit-triplestore" version="${project.version}" resolver="(obr)" start-level="50">
     <details>Installs the fcrepo audit service with a triplestore backend</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}</bundle>
