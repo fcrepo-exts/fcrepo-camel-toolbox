@@ -20,6 +20,7 @@
        <cm:property name="input.stream" value="activemq:topic:fedora"/>
        <cm:property name="triplestore.baseUrl" value="localhost:3030/test/update"/>
        <cm:property name="triplestore.namedGraph" value=""/>
+       <cm:property name="audit.container" value="/audit"/>
      </cm:default-properties>
    </cm:property-placeholder>
 
