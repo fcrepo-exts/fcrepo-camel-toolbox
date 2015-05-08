@@ -15,10 +15,12 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
+import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_TRANSFORM;
 import static org.fcrepo.camel.HttpMethods.POST;
 import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
+import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
 import static org.fcrepo.camel.RdfNamespaces.INDEXING;
 import static org.fcrepo.camel.RdfNamespaces.RDF;
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
@@ -67,6 +69,8 @@ public class SolrRouter extends RouteBuilder {
          */
         from("{{input.stream}}")
             .routeId("FcrepoSolrRouter")
+                .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
+                        header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .choice()
                 .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
                     .to("direct:delete.solr")
