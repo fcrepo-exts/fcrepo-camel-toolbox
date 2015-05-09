@@ -36,7 +36,7 @@
     <github.global.server>github</github.global.server>
 
     <!-- dependencies -->
-    <activemq.version>5.10.0</activemq.version>
+    <activemq.version>5.11.1</activemq.version>
     <camel.version>2.15.1</camel.version>
     <commons.lang3.version>3.3.2</commons.lang3.version>
     <jackson2.version>2.5.2</jackson2.version>
