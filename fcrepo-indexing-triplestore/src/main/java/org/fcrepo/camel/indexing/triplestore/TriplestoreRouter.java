@@ -67,8 +67,8 @@ public class TriplestoreRouter extends RouteBuilder {
          */
         from("{{input.stream}}")
             .routeId("FcrepoTriplestoreRouter")
-                .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
-                        header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
+            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
+                    header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .choice()
                 .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
                     .to("direct:delete.triplestore")

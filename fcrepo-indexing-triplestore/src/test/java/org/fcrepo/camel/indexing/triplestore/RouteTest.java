@@ -55,6 +55,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String eventDate = "2015-04-06T22:45:20Z";
     private static final String userID = "bypassAdmin";
     private static final String userAgent = "curl/7.37.1";
+    private static final String auditContainer = "/audit";
 
     @Override
     public boolean isUseAdviceWith() {
@@ -75,6 +76,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
          final Properties props = new Properties();
          props.put("indexing.predicate", "true");
+         props.put("audit.container", auditContainer);
          return props;
     }
 
@@ -102,6 +104,79 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         assertMockEndpointsSatisfied();
     }
+
+    @Test
+    public void testAuditFilter() throws Exception {
+
+        final String eventTypes = REPOSITORY + "NODE_REMOVED";
+        final String eventProps = REPOSITORY + "hasContent";
+
+        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:start");
+                mockEndpointsAndSkip("*");
+            }
+        });
+        context.start();
+
+        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
+        getMockEndpoint("mock:direct.update.triplestore").expectedMessageCount(0);
+
+        template.sendBodyAndHeaders("",
+                createEvent(auditContainer + fileID, eventTypes, eventProps));
+
+        assertMockEndpointsSatisfied();
+    }
+
+    @Test
+    public void testAuditFilterExactMatch() throws Exception {
+
+        final String eventTypes = REPOSITORY + "NODE_REMOVED";
+        final String eventProps = REPOSITORY + "hasContent";
+
+        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:start");
+                mockEndpointsAndSkip("*");
+            }
+        });
+        context.start();
+
+        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
+        getMockEndpoint("mock:direct.update.triplestore").expectedMessageCount(0);
+
+        template.sendBodyAndHeaders("",
+                createEvent(auditContainer, eventTypes, eventProps));
+
+        assertMockEndpointsSatisfied();
+    }
+
+    @Test
+    public void testAuditFilterNearMatch() throws Exception {
+
+        final String eventTypes = REPOSITORY + "NODE_REMOVED";
+        final String eventProps = REPOSITORY + "hasContent";
+
+        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:start");
+                mockEndpointsAndSkip("*");
+            }
+        });
+        context.start();
+
+        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
+        getMockEndpoint("mock:direct.update.triplestore").expectedMessageCount(0);
+
+        template.sendBodyAndHeaders("",
+                createEvent(auditContainer + "orium" + fileID, eventTypes, eventProps));
+
+        assertMockEndpointsSatisfied();
+    }
+
 
     @Test
     public void testPrepareRouterIndexable() throws Exception {
