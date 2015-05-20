@@ -12,7 +12,7 @@
   <groupId>org.fcrepo.camel</groupId>
   <artifactId>fcrepo-camel-toolbox</artifactId>
   <packaging>pom</packaging>
-  <version>4.1.2-SNAPSHOT</version>
+  <version>4.2.0</version>
 
   <name>Fedora4 Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
@@ -157,7 +157,7 @@
       <dependency>
         <groupId>org.fcrepo.camel</groupId>
         <artifactId>fcrepo-camel</artifactId>
-        <version>${project.version}</version>
+        <version>4.2.0</version>
         <exclusions>
           <exclusion>
             <groupId>org.slf4j</groupId>
@@ -177,7 +177,7 @@
       <dependency>
         <groupId>org.fcrepo</groupId>
         <artifactId>fcrepo-audit</artifactId>
-        <version>${project.version}</version>
+        <version>4.2.0</version>
       </dependency>
 
       <dependency>
@@ -402,7 +402,7 @@
                 <goal>reserve-network-port</goal>
               </goals>
               <configuration>
-                <portNames/>
+                <portNames />
               </configuration>
             </execution>
           </executions>
@@ -439,7 +439,7 @@
               <!-- enable easy JMX connection to JConsole -->
               <systemProperty>
                 <name>com.sun.management.jmxremote</name>
-                <value/>
+                <value />
               </systemProperty>
             </systemProperties>
             <scanIntervalSeconds>10</scanIntervalSeconds>

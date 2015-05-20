@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.fcrepo.camel</groupId>
     <artifactId>fcrepo-camel-toolbox</artifactId>
-    <version>4.1.2-SNAPSHOT</version>
+    <version>4.2.0</version>
   </parent>
 
   <artifactId>fcrepo-camel-webapp</artifactId>
@@ -20,11 +20,11 @@
     Each new module should add a profile to this set
     -->
     <!--Audit Triplestore-->
-    <at.profile></at.profile>
+    <at.profile />
     <!--Indexing Solr-->
-    <is.profile></is.profile>
+    <is.profile />
     <!--Indexing Triplestore-->
-    <it.profile></it.profile>
+    <it.profile />
 
     <build.profile.names>${at.profile}${is.profile}${it.profile}</build.profile.names>
   </properties>
