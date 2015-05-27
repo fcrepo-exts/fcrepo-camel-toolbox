@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AuditSparqlProcessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fedora Audit System with a Triplestore backend</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.audit.triplestore</a> &gt; <span class="el_source">AuditSparqlProcessor.java</span></div><h1>AuditSparqlProcessor.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2015 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.audit.triplestore;
+
+import static org.fcrepo.audit.AuditNamespaces.AUDIT;
+import static org.fcrepo.audit.AuditNamespaces.PREMIS;
+import static org.fcrepo.audit.AuditNamespaces.PROV;
+import static org.fcrepo.audit.AuditNamespaces.XSD;
+import static org.fcrepo.camel.RdfNamespaces.RDF;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
+
+import org.fcrepo.audit.AuditUtils;
+import org.fcrepo.camel.JmsHeaders;
+import org.fcrepo.camel.processor.ProcessorUtils;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.Processor;
+import org.apache.clerezza.rdf.core.Triple;
+import org.apache.clerezza.rdf.core.UriRef;
+import org.apache.clerezza.rdf.core.impl.SimpleMGraph;
+import org.apache.clerezza.rdf.core.impl.TripleImpl;
+import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
+import org.apache.clerezza.rdf.core.serializedform.SerializingProvider;
+import org.apache.clerezza.rdf.jena.serializer.JenaSerializerProvider;
+
+
+/**
+ * A processor that converts an audit message into a sparql-update
+ * statement for an external triplestore.
+ *
+ * @author Aaron Coburn
+ * @author escowles
+ * @since 2015-04-09
+ */
+
+<span class="fc" id="L59">public class AuditSparqlProcessor implements Processor {</span>
+
+    /**
+     * Define how a message should be processed.
+     *
+     * @param exchange the current camel message exchange
+     */
+    public void process(final Exchange exchange) throws Exception {
+<span class="fc" id="L67">        final Message in = exchange.getIn();</span>
+<span class="fc" id="L68">        final String eventURIBase = in.getHeader(AuditHeaders.EVENT_BASE_URI, String.class);</span>
+<span class="fc" id="L69">        final String UUIDString = UUID.randomUUID().toString();</span>
+<span class="fc" id="L70">        final UriRef eventURI = new UriRef(eventURIBase + &quot;/&quot; + UUIDString);</span>
+<span class="fc" id="L71">        final Set&lt;Triple&gt; triples = triplesForMessage(in, eventURI);</span>
+
+        // serialize triples
+<span class="fc" id="L74">        final SerializingProvider serializer = new JenaSerializerProvider();</span>
+<span class="fc" id="L75">        final ByteArrayOutputStream serializedGraph = new ByteArrayOutputStream();</span>
+<span class="fc" id="L76">        serializer.serialize(serializedGraph, new SimpleMGraph(triples), &quot;text/rdf+nt&quot;);</span>
+
+        // generate SPARQL Update
+<span class="fc" id="L79">        final StringBuilder query = new StringBuilder(&quot;update=&quot;);</span>
+<span class="fc" id="L80">        query.append(ProcessorUtils.insertData(serializedGraph.toString(&quot;UTF-8&quot;), null));</span>
+
+        // update exchange
+<span class="fc" id="L83">        in.setBody(query.toString());</span>
+<span class="fc" id="L84">        in.setHeader(AuditHeaders.EVENT_URI, eventURI.toString());</span>
+<span class="fc" id="L85">        in.setHeader(Exchange.CONTENT_TYPE, &quot;application/x-www-form-urlencoded&quot;);</span>
+<span class="fc" id="L86">        in.setHeader(Exchange.HTTP_METHOD, &quot;POST&quot;);</span>
+<span class="fc" id="L87">    }</span>
+
+    // namespaces and properties
+<span class="fc" id="L90">    private static final UriRef INTERNAL_EVENT = new UriRef(AUDIT + &quot;InternalEvent&quot;);</span>
+<span class="fc" id="L91">    private static final UriRef PREMIS_EVENT = new UriRef(PREMIS + &quot;Event&quot;);</span>
+<span class="fc" id="L92">    private static final UriRef PROV_EVENT = new UriRef(PROV + &quot;InstantaneousEvent&quot;);</span>
+
+<span class="fc" id="L94">    private static final UriRef PREMIS_TIME = new UriRef(PREMIS + &quot;hasEventDateTime&quot;);</span>
+<span class="fc" id="L95">    private static final UriRef PREMIS_OBJ = new UriRef(PREMIS + &quot;hasEventRelatedObject&quot;);</span>
+<span class="fc" id="L96">    private static final UriRef PREMIS_AGENT = new UriRef(PREMIS + &quot;hasEventRelatedAgent&quot;);</span>
+<span class="fc" id="L97">    private static final UriRef PREMIS_TYPE = new UriRef(PREMIS + &quot;hasEventType&quot;);</span>
+
+<span class="fc" id="L99">    private static final UriRef RDF_TYPE = new UriRef(RDF + &quot;type&quot;);</span>
+<span class="fc" id="L100">    private static final UriRef XSD_DATE = new UriRef(XSD + &quot;dateTime&quot;);</span>
+<span class="fc" id="L101">    private static final UriRef XSD_STRING = new UriRef(XSD + &quot;string&quot;);</span>
+
+
+    private static final String EMPTY_STRING = &quot;&quot;;
+
+    /**
+     * Convert a Camel message to audit event description.
+     * @param message Camel message produced by an audit event
+     * @param subject RDF subject of the audit description
+     */
+    private static Set&lt;Triple&gt; triplesForMessage(final Message message, final UriRef subject) throws IOException {
+
+        // get info from jms message headers
+<span class="fc" id="L114">        final String eventType = (String) message.getHeader(JmsHeaders.EVENT_TYPE, EMPTY_STRING);</span>
+<span class="fc" id="L115">        final Long timestamp =  (Long) message.getHeader(JmsHeaders.TIMESTAMP, 0);</span>
+<span class="fc" id="L116">        final DateFormat df = new SimpleDateFormat(&quot;yyyy-MM-dd'T'HH:mm:ss'Z'&quot;);</span>
+<span class="fc" id="L117">        df.setTimeZone(TimeZone.getTimeZone(&quot;UTC&quot;));</span>
+<span class="fc" id="L118">        final String date = df.format(new Date(timestamp));</span>
+<span class="fc" id="L119">        final String user = (String) message.getHeader(JmsHeaders.USER, EMPTY_STRING);</span>
+<span class="fc" id="L120">        final String agent = (String) message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING);</span>
+<span class="fc" id="L121">        final String properties = (String) message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING);</span>
+<span class="fc" id="L122">        final String identifier = ProcessorUtils.getSubjectUri(message);</span>
+<span class="fc" id="L123">        final String premisType = AuditUtils.getAuditEventType(eventType, properties);</span>
+
+        // types
+<span class="fc" id="L126">        final Set&lt;Triple&gt; triples = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L127">        triples.add( new TripleImpl(subject, RDF_TYPE, INTERNAL_EVENT) );</span>
+<span class="fc" id="L128">        triples.add( new TripleImpl(subject, RDF_TYPE, PREMIS_EVENT) );</span>
+<span class="fc" id="L129">        triples.add( new TripleImpl(subject, RDF_TYPE, PROV_EVENT) );</span>
+
+        // basic event info
+<span class="fc" id="L132">        triples.add( new TripleImpl(subject, PREMIS_TIME, new TypedLiteralImpl(date, XSD_DATE)) );</span>
+<span class="fc" id="L133">        triples.add( new TripleImpl(subject, PREMIS_OBJ, new UriRef(identifier)) );</span>
+<span class="fc" id="L134">        triples.add( new TripleImpl(subject, PREMIS_AGENT, new TypedLiteralImpl(user, XSD_STRING)) );</span>
+<span class="fc" id="L135">        triples.add( new TripleImpl(subject, PREMIS_AGENT, new TypedLiteralImpl(agent, XSD_STRING)) );</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (premisType != null) {</span>
+<span class="fc" id="L137">            triples.add(new TripleImpl(subject, PREMIS_TYPE, new UriRef(premisType)));</span>
+        }
+<span class="fc" id="L139">        return triples;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span></div></body></html>
