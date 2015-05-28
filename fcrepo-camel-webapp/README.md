@@ -16,11 +16,11 @@ To build this project with the solr and triplestore indexers, use
 
     MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit
 
-To build this project with all three applications, use
+To build this project with all four applications, use
 
-    MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit -Pat
-    
-Note: The following syntax is also valid: `mvn install -Pis,it,at`
+    MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit -Pat -Prs
+
+Note: The following syntax is also valid: `mvn install -Pis,it,at,rs`
 
 ###Configuration
 
@@ -160,6 +160,10 @@ The camel URI for the incoming message stream.
 
     input.stream=activemq:topic:fedora
 
+The camel URI for a reindexing queue.
+
+    reindexing.stream=activemq:queue:reindexing
+
 The baseUrl for the Solr server. If using Solr 4.x or better, the URL should include
 the core name.
 
@@ -168,6 +172,65 @@ the core name.
 The timeframe (in milliseconds) within which new items should be committed to the solr index.
 
     solr.commitWithin=10000
+
+##Fedora Reindexing Service
+
+This application implements a reindexing service for other components,
+such as fcrepo-indexing-solr or fcrepo-indexing-triplestore.
+
+###Building
+
+To build this project use
+
+    MAVEN_OPTS="-Xmx1024m" mvn install -Prs
+
+###Configuration
+
+A number of application values can be configured externally, through
+system properties. These include:
+
+The prefix for the exposed REST endpoint
+
+    fcrepo.reindexing.prefix=/reindexing
+
+The port used for the REST endpoint
+
+    fcrepo.dynamic.reindexing.port=9080
+
+Alternately, the application can be configured by updating the `application.properties`
+configuration file in the unpacked `WEB-INF/classes/application.properties` file.
+The following values are available for configuration:
+
+In the event of failure, the maximum number of times a redelivery will be attempted.
+
+    error.maxRedeliveries=10
+
+If the fedora repository requires authentication, the following values
+can be set:
+
+    fcrepo.authUsername=<username>
+    fcrepo.authPassword=<password>
+    fcrepo.authHost=<host realm>
+
+The baseUrl for the fedora repository.
+
+    fcrepo.baseUrl=localhost:8080/fcrepo/rest
+
+The JMS connection URI, used for connecting to a local or remote ActiveMQ broker.
+
+    jms.brokerUrl=tcp://localhost:61616
+
+The camel URI for the internal processing queue.
+
+    input.stream=activemq:queue:reindexing
+
+The prefix for the REST endpoint.
+
+    rest.prefix=/reindexing
+
+The port for the REST endpoint.
+
+    rest.port=9080
 
 ##Further Information
 For more help see the Apache Camel documentation

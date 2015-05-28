@@ -22,6 +22,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.PropertyInject;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.builder.xml.XPathBuilder;
@@ -36,12 +37,19 @@ import org.slf4j.Logger;
  */
 public class ReindexingRouter extends RouteBuilder {
 
-    private static final Logger logger = getLogger(ReindexingRouter.class);
+    private static final Logger LOGGER = getLogger(ReindexingRouter.class);
+    private static final int BAD_REQUEST = 400;
+
+    @PropertyInject(value = "rest.port", defaultValue = "9080")
+    private String port;
 
     /**
      * Configure the message route workflow.
      */
     public void configure() throws Exception {
+
+        restConfiguration().component("restlet").port(
+                System.getProperty("fcrepo.dynamic.reindexing.port", port));
 
         final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
         ns.add("ldp", RdfNamespaces.LDP);
@@ -80,13 +88,13 @@ public class ReindexingRouter extends RouteBuilder {
             .setHeader(FCREPO_BASE_URL).simple("{{fcrepo.baseUrl}}")
             .process(new RestProcessor())
             .choice()
-                .when(header(Exchange.HTTP_RESPONSE_CODE).isGreaterThanOrEqualTo(400))
+                .when(header(Exchange.HTTP_RESPONSE_CODE).isGreaterThanOrEqualTo(BAD_REQUEST))
                     .endChoice()
                 .when(header(ReindexingHeaders.RECIPIENTS).isEqualTo(""))
                     .transform().simple("No endpoints configured for indexing")
                     .endChoice()
                 .otherwise()
-                    .log(LoggingLevel.INFO, logger, "Initial indexing path: ${headers[CamelFcrepoIdentifier]}")
+                    .log(LoggingLevel.INFO, LOGGER, "Initial indexing path: ${headers[CamelFcrepoIdentifier]}")
                     .inOnly("{{reindexing.stream}}?disableTimeToLive=true")
                     .setHeader(Exchange.CONTENT_TYPE).constant("text/plain")
                     .transform().simple("Indexing started at ${headers[CamelFcrepoIdentifier]}");

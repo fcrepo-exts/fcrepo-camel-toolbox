@@ -110,6 +110,19 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemProperties>
+            <property>
+              <name>fcrepo.dynamic.reindexing.port</name>
+              <value>${fcrepo.dynamic.reindexing.port}</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+
         <!-- reserve network ports for integration testing -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -119,8 +132,8 @@
               <portName>fcrepo.dynamic.test.port</portName>
               <portName>fcrepo.dynamic.jms.port</portName>
               <portName>fcrepo.dynamic.stomp.port</portName>
+              <portName>fcrepo.dynamic.reindexing.port</portName>
               <portName>jetty.dynamic.stop.port</portName>
-              <portName>reindexer.dynamic.test.port</portName>
             </portNames>
           </configuration>
         </plugin>
@@ -135,8 +148,8 @@
               <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
               <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
               <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
+              <fcrepo.dynamic.reindexing.port>${fcrepo.dynamic.reindexing.port}</fcrepo.dynamic.reindexing.port>
               <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
-              <reindexer.dynamic.test.port>${reindexer.dynamic.test.port}</reindexer.dynamic.test.port>
             </systemPropertyVariables>
           </configuration>
         </plugin>
@@ -151,11 +164,11 @@
               <force>true</force>
               <systemProperty>
                 <name>fcrepo.home</name>
-                <value>${project.build.directory}/fcrepo-data-fr</value>
+                <value>${project.build.directory}/fcrepo-data</value>
               </systemProperty>
               <systemProperty>
-                <name>reindexer.dynamic.test.port</name>
-                <value>${reindexer.dynamic.test.port}</value>
+                <name>fcrepo.dynamic.reindexing.port</name>
+                <value>${fcrepo.dynamic.reindexing.port}</value>
               </systemProperty>
               <systemProperty>
                 <name>fcrepo.dynamic.test.port</name>

@@ -70,7 +70,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
 
-        final String restPort = System.getProperty("reindexing.dynamic.test.port", "9080");
+        final String restPort = System.getProperty("fcrepo.dynamic.reindexing.port", "9080");
 
         final Properties props = new Properties();
         props.put("reindexing.stream", reindexingStream);
@@ -82,8 +82,16 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testUsageRoute() throws Exception {
 
-        final String restPort = System.getProperty("reindexing.dynamic.test.port", "9080");
+        final String restPort = System.getProperty("fcrepo.dynamic.reindexing.port", "9080");
 
+        context.getRouteDefinition("FcrepoReindexingTraverse").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:traverse");
+                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("fcrepo:*");
+            }
+        });
         context.getRouteDefinition("FcrepoReindexingUsage").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -115,6 +123,14 @@ public class RouteTest extends CamelBlueprintTestSupport {
                 weaveByType(TransformDefinition.class).after().to("mock:result");
             }
         });
+        context.getRouteDefinition("FcrepoReindexingTraverse").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:traverse");
+                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("fcrepo:*");
+            }
+        });
         context.start();
 
         getMockEndpoint("mock:" + reindexingStream).expectedMessageCount(0);
@@ -141,6 +157,14 @@ public class RouteTest extends CamelBlueprintTestSupport {
             public void configure() throws Exception {
                 mockEndpointsAndSkip(reindexingStream + "?disableTimeToLive=true");
                 weaveByType(TransformDefinition.class).after().to("mock:result");
+            }
+        });
+        context.getRouteDefinition("FcrepoReindexingTraverse").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:traverse");
+                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("fcrepo:*");
             }
         });
         context.start();
@@ -187,6 +211,16 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testRecipientList() throws Exception {
         final String id = "/foo";
+
+        context.getRouteDefinition("FcrepoReindexingTraverse").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:traverse");
+                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("fcrepo:*");
+            }
+        });
+        context.start();
 
         getMockEndpoint("mock:foo").expectedMessageCount(1);
         getMockEndpoint("mock:foo").expectedHeaderReceived(FCREPO_IDENTIFIER, id);

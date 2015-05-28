@@ -14,7 +14,7 @@
        <cm:property name="fcrepo.authUsername" value=""/>
        <cm:property name="fcrepo.authPassword" value=""/>
        <cm:property name="fcrepo.authHost" value=""/>
-       <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo4/rest"/>
+       <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo/rest"/>
        <cm:property name="reindexing.stream" value="activemq:queue:reindexing"/>
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
        <cm:property name="rest.prefix" value="/reindexing"/>
@@ -36,7 +36,6 @@
 
   <camelContext id="FcrepoIndexer" xmlns="http://camel.apache.org/schema/blueprint">
     <package>org.fcrepo.camel.reindexing</package>
-    <restConfiguration component="restlet" port="{{rest.port}}" />
   </camelContext>
 
 </blueprint>

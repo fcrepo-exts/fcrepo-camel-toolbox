@@ -14,12 +14,12 @@
        <cm:property name="fcrepo.authUsername" value=""/>
        <cm:property name="fcrepo.authPassword" value=""/>
        <cm:property name="fcrepo.authHost" value=""/>
-       <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo4/rest"/>
+       <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo/rest"/>
        <cm:property name="fcrepo.defaultTransform" value="default"/>
        <cm:property name="indexing.predicate" value="false"/>
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
        <cm:property name="input.stream" value="activemq:topic:fedora"/>
-       <cm:property name="reindex.stream" value="activemq:queue:solr.reindex"/>
+       <cm:property name="solr.reindex.stream" value="activemq:queue:solr.reindex"/>
        <cm:property name="solr.baseUrl" value="localhost:8983/solr/collection1"/>
        <cm:property name="solr.commitWithin" value="10000"/>
        <cm:property name="audit.container" value="/audit"/>

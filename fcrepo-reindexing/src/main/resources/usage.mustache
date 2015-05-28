@@ -1,7 +1,7 @@
 Fedora Reindexing Service
 
-    Configured Fedora Location: {{fedora}}
-    Configured REST endpoint: {{reindexing}}
+    Configured Fedora Location: {{{fedora}}}
+    Configured REST endpoint: {{{reindexing}}}
 
 You can POST to the defined re-indexing endpoint, and it
 will begin to traverse the Fedora repository at that point,
@@ -10,12 +10,12 @@ sending "re-indexing" hints to the specified services
 
 For example:
 
-  curl -XPOST {{reindexing}}/objects \
+  curl -XPOST {{{reindexing}}}/objects \
     -d "CamelFcrepoReindexingRecipients=activemq:queue:solr.reindex,activemq:queue:triplestore.reindex"
 
 Or (as JSON)
 
-  curl -XPOST {{reindexing}}/objects -H"Content-Type: application/json" \
+  curl -XPOST {{{reindexing}}}/objects -H"Content-Type: application/json" \
     -d '["activemq:queue:solr.reindex","activemq:queue:triplestore.reindex"]'
 
 This will reindex both Solr and the external triplestore,

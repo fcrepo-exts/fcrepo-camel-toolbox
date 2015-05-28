@@ -81,7 +81,7 @@ public class SolrRouter extends RouteBuilder {
         /**
          * Handle re-index events
          */
-        from("{{reindex.stream}}")
+        from("{{solr.reindex.stream}}")
             .routeId("FcrepoSolrReindex")
             .to("direct:index.solr");
 

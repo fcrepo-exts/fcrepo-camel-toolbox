@@ -99,7 +99,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-        final String restPort = System.getProperty("reindexing.dynamic.test.port", "9080");
+        final String restPort = System.getProperty("fcrepo.dynamic.reindexing.port", "9080");
 
         final Properties props = new Properties();
         props.put("fcrepo.baseUrl", "localhost:" + webPort + "/fcrepo/rest");

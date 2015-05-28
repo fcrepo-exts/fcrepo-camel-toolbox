@@ -28,7 +28,6 @@ import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
@@ -78,6 +77,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
          final Properties props = new Properties();
          props.put("indexing.predicate", "true");
          props.put("audit.container", auditContainer);
+         props.put("input.stream", "seda:foo");
+         props.put("reindex.stream", "seda:bar");
          return props;
     }
 
@@ -99,8 +100,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(1);
         getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
 
-        template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
+        template.sendBodyAndHeaders("",
                 createEvent(fileID, eventTypes, eventProps));
 
         assertMockEndpointsSatisfied();
@@ -188,23 +188,15 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_ADDED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("direct:delete.solr");
-            }
-        });
-
         context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
+                replaceFromWith("direct:start");
                 mockEndpointsAndSkip("fcrepo*");
                 mockEndpointsAndSkip("direct:update.solr");
                 mockEndpointsAndSkip("direct:delete.solr");
             }
         });
-
         context.start();
 
         getMockEndpoint("mock:direct:update.solr").expectedMessageCount(1);
@@ -223,27 +215,16 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         final String eventTypes = REPOSITORY + "NODE_ADDED";
         final String eventProps = REPOSITORY + "hasContent";
-        final PropertiesComponent pc = context.getComponent("properties", PropertiesComponent.class);
-        pc.setCache(false);
-        System.setProperty("indexing.predicate", "false");
-
-        context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("direct:delete.solr");
-            }
-        });
 
         context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
+                replaceFromWith("direct:start");
                 mockEndpointsAndSkip("fcrepo*");
                 mockEndpointsAndSkip("direct:update.solr");
                 mockEndpointsAndSkip("direct:delete.solr");
             }
         });
-
         context.start();
 
         getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
@@ -271,7 +252,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
                 mockEndpointsAndSkip("http4*");
             }
         });
-
         context.start();
 
         getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedMessageCount(1);
@@ -298,7 +278,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
                 mockEndpointsAndSkip("http4*");
             }
         });
-
         context.start();
 
         getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedMessageCount(1);

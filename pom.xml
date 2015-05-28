@@ -447,7 +447,7 @@
           <executions>
             <execution>
               <id>reserve-port</id>
-              <phase>package</phase>
+              <phase>generate-test-resources</phase>
               <goals>
                 <goal>reserve-network-port</goal>
               </goals>
@@ -605,6 +605,12 @@
           </dependencies>
         </plugin>
 
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${surefire.plugin.version}</version>
+        </plugin>
+
       </plugins>
 
     </pluginManagement>
@@ -635,8 +641,8 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire.plugin.version}</version>
         <configuration>
           <argLine>-Xms512m -Xmx1024m -XX:-UseSplitVerifier ${jacoco.agent.unit.arg}</argLine>
         </configuration>

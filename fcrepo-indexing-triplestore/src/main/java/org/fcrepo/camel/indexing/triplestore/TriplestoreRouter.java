@@ -76,7 +76,7 @@ public class TriplestoreRouter extends RouteBuilder {
         /**
          * Handle re-index events
          */
-        from("{{reindex.stream}}")
+        from("{{triplestore.reindex.stream}}")
             .routeId("FcrepoTriplestoreReindex")
             .to("direct:index.triplestore");
 

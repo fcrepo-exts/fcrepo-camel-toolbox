@@ -159,7 +159,7 @@
               <force>true</force>
               <systemProperty>
                 <name>fcrepo.home</name>
-                <value>${project.build.directory}/fcrepo-data-fit</value>
+                <value>${project.build.directory}/fcrepo-data</value>
               </systemProperty>
               <systemProperty>
                 <name>fcrepo.dynamic.jms.port</name>

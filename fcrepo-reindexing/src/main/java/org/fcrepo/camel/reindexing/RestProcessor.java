@@ -45,6 +45,8 @@ public class RestProcessor implements Processor {
 
     private static final Logger LOGGER = getLogger(RestProcessor.class);
 
+    private static final int BAD_REQUEST = 400;
+
     /**
      * Convert the incoming REST request into the correct
      * Fcrepo header fields.
@@ -81,7 +83,7 @@ public class RestProcessor implements Processor {
                 }
             } catch (JsonProcessingException e) {
                 LOGGER.debug("Invalid JSON", e);
-                in.setHeader(Exchange.HTTP_RESPONSE_CODE, 400);
+                in.setHeader(Exchange.HTTP_RESPONSE_CODE, BAD_REQUEST);
                 in.setBody("Invalid JSON");
             }
         }

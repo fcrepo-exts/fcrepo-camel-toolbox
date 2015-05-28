@@ -63,7 +63,6 @@ public class UsageProcessorTest extends CamelTestSupport {
             public void configure() throws IOException {
                 from("direct:start")
                     .process(new UsageProcessor())
-                    .log("BODY: ${body}")
                     .to("mock:result");
             }
         };

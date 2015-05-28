@@ -18,7 +18,6 @@
 
   <camelContext id="FcrepoIndexer" xmlns="http://camel.apache.org/schema/blueprint">
     <package>org.fcrepo.camel.reindexing</package>
-    <restConfiguration component="restlet" port="{{rest.port}}" />
   </camelContext>
 
 </blueprint>
