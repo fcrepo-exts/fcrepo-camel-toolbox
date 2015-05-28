@@ -87,7 +87,7 @@ public class TestUtils {
     /**
      * Populate fuseki with some triples for the given subject
      *
-     * @param fusekiBase string containing base uri 
+     * @param fusekiBase string containing base uri
      * @param subject string containing subject
      * @throws Exception
      */
