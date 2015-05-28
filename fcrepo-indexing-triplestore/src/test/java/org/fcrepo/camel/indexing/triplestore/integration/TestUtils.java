@@ -38,6 +38,9 @@ public class TestUtils {
 
     /**
      *  Format a Sparql-update for the provided subject.
+     *
+     * @param uri string containing sparql-update
+     * @return string containing formatted sparql-update
      */
     public static String sparqlUpdate(final String uri) {
         final String rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -54,6 +57,10 @@ public class TestUtils {
 
     /**
      * Get data from the provided URL
+     *
+     * @param url string containing url
+     * @return InputStream containing data
+     * @throws Exception
      */
     public static InputStream httpGet(final String url) throws Exception {
         final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -63,6 +70,11 @@ public class TestUtils {
 
     /**
      * Post data to the provided URL
+     *
+     * @param url string containing URL
+     * @param content string containing data
+     * @param mimeType string containing MIMe type of content
+     * @throws Exception
      */
     public static void httpPost(final String url, final String content, final String mimeType) throws Exception {
         final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -74,6 +86,10 @@ public class TestUtils {
 
     /**
      * Populate fuseki with some triples for the given subject
+     *
+     * @param fusekiBase string containing base uri 
+     * @param subject string containing subject
+     * @throws Exception
      */
     public static void populateFuseki(final String fusekiBase, final String subject) throws Exception {
         httpPost(fusekiBase + "/update",
@@ -83,6 +99,11 @@ public class TestUtils {
 
     /**
      * get a count of the items in the triplestore, corresponding to a given subject.
+     *
+     * @param fusekiBase string containing fueski base uri
+     * @param subject string containing subject
+     * @return count of triplestore items for given subject
+     * @throws Exception
      */
     public static Callable<Integer> triplestoreCount(final String fusekiBase, final String subject)  throws Exception {
         final String query = "SELECT (COUNT(*) AS ?n) WHERE { <" + subject + "> ?o ?p . }";
