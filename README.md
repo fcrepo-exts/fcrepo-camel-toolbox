@@ -6,6 +6,7 @@ with [Fedora4](http://fcrepo.org). These applications use
 
 [![Build Status](https://travis-ci.org/fcrepo4-labs/fcrepo-camel-toolbox.png?branch=master)](https://travis-ci.org/fcrepo4-labs/fcrepo-camel-toolkit)
 
+
 ## Applications
 
 Each of these applications are available as OSGi bundles and can be deployed
