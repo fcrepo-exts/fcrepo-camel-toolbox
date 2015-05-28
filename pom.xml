@@ -63,6 +63,7 @@
     <dependency.plugin.version>2.10</dependency.plugin.version>
     <failsafe.plugin.version>2.18.1</failsafe.plugin.version>
     <jacoco.plugin.version>0.7.2.201409121644</jacoco.plugin.version>
+    <javadoc.plugin.version>2.10.3</javadoc.plugin.version>
     <jetty.plugin.version>9.2.6.v20141205</jetty.plugin.version>
     <license.plugin.version>2.9</license.plugin.version>
     <resources.plugin.version>2.6</resources.plugin.version>
@@ -715,6 +716,12 @@
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${javadoc.plugin.version}</version>
+      </plugin>
+
     </plugins>
   </build>
 
@@ -726,7 +733,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.1</version>
+        <version>${javadoc.plugin.version}</version>
         <configuration>
           <linksource>true</linksource>
         </configuration>
