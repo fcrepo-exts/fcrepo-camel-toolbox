@@ -40,7 +40,8 @@ public class SolrRouter extends RouteBuilder {
 
     private static final Logger logger = getLogger(SolrRouter.class);
 
-    private static final String hasIndexingTransform = "/rdf:RDF/rdf:Description/indexing:hasIndexingTransform/text()";
+    private static final String hasIndexingTransformation =
+        "/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/text()";
 
     /**
      * Configure the message route workflow.
@@ -94,7 +95,7 @@ public class SolrRouter extends RouteBuilder {
             .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
                     header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment")
-            .setHeader(FCREPO_TRANSFORM).xpath(hasIndexingTransform, String.class, ns)
+            .setHeader(FCREPO_TRANSFORM).xpath(hasIndexingTransformation, String.class, ns)
             .removeHeaders("CamelHttp*")
             .choice()
                 .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
