@@ -3,6 +3,24 @@
 This application implements a bridge to an external, solr index
 for [Fedora4](http://fcrepo.org).
 
+The application relies on LDPath-based transformations to convert a resource
+from RDF into JSON. More information on the LDPath language is available on the
+[Marmotta website](http://marmotta.apache.org/ldpath/language.html). It may also
+be helpful to read about Fedora's
+[transformation API](https://wiki.duraspace.org/display/FEDORA4x/RESTful+HTTP+API+-+Transform),
+which describes how to install special purpose LDPath programs in Fedora.
+
+Additional background information is available on the Fedora Wiki on the
+[Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
+
+Please also note that in order to push data into Solr, your Solr schema must
+be configured to accept the data you intend to send. This is typically accomplished
+by updating Solr's `[schema.xml](https://wiki.apache.org/solr/SchemaXml)` file,
+found in `$SOLR_HOME/<core name>/conf/` (for Solr 4.x). Starting with 5.2, Solr provides a
+[schema API](https://cwiki.apache.org/confluence/display/solr/Schema+API),
+which allows runtime (re-)configuration of Solr. Further information on using Solr
+can be found at the [Solr website](http://lucene.apache.org/solr/)
+
 ##Building
 
 To build this project use
@@ -24,6 +42,13 @@ command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
     feature:install fcrepo-indexing-solr
+
+##Deploying in Tomcat/Jetty
+
+If you intend to deploy this application in a web container such as Tomcat or Jetty,
+please refer to the documentation in the
+[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+project.
 
 ##Configuration
 
