@@ -1,8 +1,10 @@
 #Fedora Indexing Service (Triplestore)
 
 This application implements a bridge to an external triplestore,
-such as Sesame or Fuseki
-for [Fedora4](http://fcrepo.org).
+such as Sesame or Fuseki for [Fedora4](http://fcrepo.org).
+
+Additional background information on this service is available on the Fedora Wiki on the
+[Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
 
 ##Building
 
@@ -25,6 +27,13 @@ command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
     feature:install fcrepo-indexing-triplestore
+
+##Deploying in Tomcat/Jetty
+
+If you intend to deploy this application in a web container such as Tomcat or Jetty,
+please refer to the documentation in the
+[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+project.
 
 ##Configuration
 

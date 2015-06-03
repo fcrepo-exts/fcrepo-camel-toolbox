@@ -6,6 +6,8 @@ with [Fedora4](http://fcrepo.org). These applications use
 
 [![Build Status](https://travis-ci.org/fcrepo4-labs/fcrepo-camel-toolbox.png?branch=master)](https://travis-ci.org/fcrepo4-labs/fcrepo-camel-toolbox)
 
+Additional background information is available on the Fedora Wiki on the
+[Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
 
 ## Applications
 
@@ -73,3 +75,11 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-indexing-triplestore
     $> feature:install fcrepo-audit-triplestore
     $> feature:install fcrepo-reindexer
+
+##Deploying in Tomcat/Jetty
+
+If you intend to deploy this application in a web container such as Tomcat or Jetty,
+please refer to the documentation in the
+[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+project.
+

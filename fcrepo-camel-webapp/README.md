@@ -1,26 +1,36 @@
 #Web-Deployable Fedora/Camel integration components
 
+##Building
+
+This project can be built with all of the services enabled or with only
+selected services enabled.
+
+To build this with all services enabled, use
+
+    MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit -Pat -Prs
+
+Note: The following syntax is also valid: `mvn install -Pis,it,at,rs`
+
+To build only the audit service, use
+
+    MAVEN_OPTS="-Xmx1024m" mvn install -Pat
+
+Or, to build only the Solr indexing and reindexing service, use
+
+    MAVEN_OPTS="-Xmx1024m" mvn install -Pis,rs
+
+Any combination of services is possible, where the profile codes the following meanings:
+
+* at: Audit Service (Triplestore)
+* is: Indexing Service (Solr)
+* it: Indexing Service (Triplestore)
+* rs: Reindexing Service
+
 ##Fedora Audit Service (Triplestore)
 
 This application implements a bridge to an external, triplestore-based
 [Audit Service](https://wiki.duraspace.org/display/FF/Design+-+Audit+Service)
 for [Fedora4](http://fcrepo.org).
-
-###Building
-
-To build this project with the audit service, use
-
-    MAVEN_OPTS="-Xmx1024m" mvn install -Pat
-
-To build this project with the solr and triplestore indexers, use
-
-    MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit
-
-To build this project with all four applications, use
-
-    MAVEN_OPTS="-Xmx1024m" mvn install -Pis -Pit -Pat -Prs
-
-Note: The following syntax is also valid: `mvn install -Pis,it,at,rs`
 
 ###Configuration
 
@@ -60,12 +70,6 @@ The base URL of the triplestore being used.
 This application implements a bridge to an external triplestore,
 such as Sesame or Fuseki
 for [Fedora4](http://fcrepo.org).
-
-###Building
-
-To build this project use
-
-    MAVEN_OPTS="-Xmx1024m" mvn install -Pis
 
 ###Configuration
 
@@ -114,12 +118,6 @@ not left blank, should be a valid URI.
 
 This application implements a bridge to an external, solr index
 for [Fedora4](http://fcrepo.org).
-
-###Building
-
-To build this project use
-
-    MAVEN_OPTS="-Xmx1024m" mvn install -Pis
 
 ###Configuration
 
@@ -177,12 +175,6 @@ The timeframe (in milliseconds) within which new items should be committed to th
 
 This application implements a reindexing service for other components,
 such as fcrepo-indexing-solr or fcrepo-indexing-triplestore.
-
-###Building
-
-To build this project use
-
-    MAVEN_OPTS="-Xmx1024m" mvn install -Prs
 
 ###Configuration
 

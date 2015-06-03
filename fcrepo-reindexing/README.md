@@ -5,6 +5,9 @@ any node hierarchy in fedora (e.g. the entire repository
 or some subset thereof) can be reindexed by a set of external
 services.
 
+Additional background information on this service is available on the Fedora Wiki on the
+[Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
+
 ##Building
 
 To build this project use
@@ -26,6 +29,13 @@ command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
     feature:install fcrepo-reindexing
+
+##Deploying in Tomcat/Jetty
+
+If you intend to deploy this application in a web container such as Tomcat or Jetty,
+please refer to the documentation in the
+[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+project.
 
 ##Configuration
 
