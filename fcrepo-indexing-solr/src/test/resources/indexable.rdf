@@ -12,6 +12,5 @@
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Resource"/>
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/indexing#Indexable"/>
     <indexing:hasIndexingTransformation>default</indexing:hasIndexingTransformation>
-    <fedora:uuid rdf:datatype="http://www.w3.org/2001/XMLSchema#string">278bad29-b6c9-4574-a921-00d822cd65da</fedora:uuid>
 </rdf:Description>
 </rdf:RDF>

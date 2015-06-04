@@ -45,14 +45,12 @@ public class TestUtils {
     public static String sparqlUpdate(final String uri) {
         final String rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
         final String fcrepo = "http://fedora.info/definitions/v4/repository#";
-        final String uuid = "278bad29-b6c9-4574-a921-00d822cd65da";
 
         return "update=INSERT DATA { " +
             "<" + uri + "> <" + rdf + "type> <http://www.w3.org/ns/ldp#RDFSource> . " +
             "<" + uri + "> <" + rdf + "type> <" + fcrepo + "Resource> . " +
             "<" + uri + "> <" + rdf + "type> <http://www.w3.org/ns/ldp#Container> . " +
-            "<" + uri + "> <" + rdf + "type> <" + fcrepo + "Container> . " +
-            "<" + uri + "> <" + fcrepo + "uuid> \"" + uuid + "\"^^<http://www.w3.org/2001/XMLSchema#string> . }";
+            "<" + uri + "> <" + rdf + "type> <" + fcrepo + "Container> . }";
     }
 
     /**

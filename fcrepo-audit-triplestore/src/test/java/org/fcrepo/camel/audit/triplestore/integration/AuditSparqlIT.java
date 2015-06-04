@@ -97,8 +97,7 @@ public class AuditSparqlIT extends CamelTestSupport {
                 REPOSITORY + "primaryType",
                 REPOSITORY + "lastModifiedBy",
                 REPOSITORY + "created",
-                REPOSITORY + "mixinTypes",
-                REPOSITORY + "uuid"
+                REPOSITORY + "mixinTypes"
         };
 
         // send an audit event to an external triplestore
