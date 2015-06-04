@@ -29,7 +29,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.UUID;
 
 import org.fcrepo.audit.AuditUtils;
 import org.fcrepo.camel.JmsHeaders;
@@ -66,8 +65,8 @@ public class AuditSparqlProcessor implements Processor {
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
         final String eventURIBase = in.getHeader(AuditHeaders.EVENT_BASE_URI, String.class);
-        final String UUIDString = UUID.randomUUID().toString();
-        final UriRef eventURI = new UriRef(eventURIBase + "/" + UUIDString);
+        final String eventID = in.getHeader(JmsHeaders.EVENT_ID, String.class);
+        final UriRef eventURI = new UriRef(eventURIBase + "/" + eventID);
         final Set<Triple> triples = triplesForMessage(in, eventURI);
 
         // serialize triples
