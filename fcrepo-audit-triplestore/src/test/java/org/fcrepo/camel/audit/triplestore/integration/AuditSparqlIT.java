@@ -63,6 +63,12 @@ public class AuditSparqlIT extends CamelTestSupport {
 
     private static final String USER_AGENT = "curl/7.37.1";
 
+    private static final String EVENT_BASE_URI = "http://example.com/event";
+
+    private static final String EVENT_ID = "ab/cd/ef/gh/abcdefgh12345678";
+
+    private static final String EVENT_URI = EVENT_BASE_URI + "/" + EVENT_ID;
+
     @EndpointInject(uri = "mock:sparql.update")
     protected MockEndpoint sparqlUpdateEndpoint;
 
@@ -110,6 +116,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         headers.put(JmsHeaders.TIMESTAMP, 1428676236521L);
         headers.put(JmsHeaders.USER, USER);
         headers.put(JmsHeaders.USER_AGENT, USER_AGENT);
+        headers.put(JmsHeaders.EVENT_ID, EVENT_ID);
 
         return headers;
     }
@@ -128,7 +135,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBodyAndHeaders(null, getEventHeaders());
 
         template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
-                "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventType> ?o }");
+                "query=SELECT ?o WHERE { <" + EVENT_URI + "> <" + PREMIS + "hasEventType> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -149,7 +156,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBodyAndHeaders(null, getEventHeaders());
 
         template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
-                "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventRelatedObject> ?o }");
+                "query=SELECT ?o WHERE { <" + EVENT_URI + "> <" + PREMIS + "hasEventRelatedObject> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -170,7 +177,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBodyAndHeaders(null, getEventHeaders());
 
         template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
-                "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventDateTime> ?o }");
+                "query=SELECT ?o WHERE { <" + EVENT_URI + "> <" + PREMIS + "hasEventDateTime> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -192,7 +199,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBodyAndHeaders(null, getEventHeaders());
 
         template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
-                "query=SELECT ?o WHERE { ?s <" + PREMIS + "hasEventRelatedAgent> ?o }");
+                "query=SELECT ?o WHERE { <" + EVENT_URI + "> <" + PREMIS + "hasEventRelatedAgent> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -210,7 +217,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBodyAndHeaders(null, getEventHeaders());
 
         template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
-                "query=SELECT ?o WHERE { ?s ?p ?o }");
+                "query=SELECT ?o WHERE { <" + EVENT_URI + "> ?p ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -233,7 +240,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBodyAndHeaders(null, getEventHeaders());
 
         template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
-                "query=SELECT ?o WHERE { ?s <" + RDF + "type> ?o }");
+                "query=SELECT ?o WHERE { <" + EVENT_URI + "> <" + RDF + "type> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
@@ -261,7 +268,7 @@ public class AuditSparqlIT extends CamelTestSupport {
                 final String fuseki_url = "localhost:" + Integer.toString(FUSEKI_PORT);
 
                 from("direct:start")
-                    .setHeader(AuditHeaders.EVENT_BASE_URI, constant("http://example.com/event"))
+                    .setHeader(AuditHeaders.EVENT_BASE_URI, constant(EVENT_BASE_URI))
                     .process(new AuditSparqlProcessor())
                     .to("http4:" + fuseki_url + "/test/update")
                     .to("mock:sparql.update");

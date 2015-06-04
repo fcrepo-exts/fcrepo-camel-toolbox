@@ -173,7 +173,7 @@
       <dependency>
         <groupId>org.fcrepo.camel</groupId>
         <artifactId>fcrepo-camel</artifactId>
-        <version>4.2.0</version>
+        <version>4.2.1-SNAPSHOT</version>
         <exclusions>
           <exclusion>
             <groupId>org.slf4j</groupId>
