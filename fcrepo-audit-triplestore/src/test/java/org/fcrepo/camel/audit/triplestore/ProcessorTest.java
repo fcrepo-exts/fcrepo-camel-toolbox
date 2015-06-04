@@ -139,7 +139,7 @@ public class ProcessorTest extends CamelTestSupport {
         final String eventTypes = REPOSITORY + "NODE_ADDED," + REPOSITORY + "PROPERTY_ADDED";
         final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "primaryType," +
                 REPOSITORY + "lastModifiedBy," + REPOSITORY + "created," + REPOSITORY + "mixinTypes," +
-                REPOSITORY + "createdBy," + REPOSITORY + "uuid" + REPOSITORY + "hasContent," +
+                REPOSITORY + "createdBy," + REPOSITORY + "hasContent," +
                 PREMIS + "hasSize," + PREMIS + "hasOriginalName," + REPOSITORY + "digest";
         template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps, eventID));
 

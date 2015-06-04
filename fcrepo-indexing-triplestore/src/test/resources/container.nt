@@ -2,4 +2,4 @@
 <http://localhost:8080/fcrepo4/rest/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fedora.info/definitions/v4/repository#Resource> .
 <http://localhost:8080/fcrepo4/rest/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/ldp#Container> .
 <http://localhost:8080/fcrepo4/rest/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fedora.info/definitions/v4/repository#Container> .
-<http://localhost:8080/fcrepo4/rest/foo> <http://fedora.info/definitions/v4/repository#uuid> "278bad29-b6c9-4574-a921-00d822cd65da"^^<http://www.w3.org/2001/XMLSchema#string> .
+<http://localhost:8080/fcrepo4/rest/foo> .
