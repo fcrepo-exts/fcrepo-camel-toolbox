@@ -9,6 +9,5 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/ldp#Container"/>
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Container"/>
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Resource"/>
-    <fedora:uuid rdf:datatype="http://www.w3.org/2001/XMLSchema#string">278bad29-b6c9-4574-a921-00d822cd65da</fedora:uuid>
 </rdf:Description>
 </rdf:RDF>
