@@ -59,6 +59,8 @@ public class ProcessorTest extends CamelTestSupport {
     private static final String eventDate = "2015-04-06T22:45:20Z";
     private static final String userID = "bypassAdmin";
     private static final String userAgent = "curl/7.37.1";
+    private static final String eventID = "ab/cd/ef/gh/abcdefgh12345678";
+    private static final String eventURI = eventBaseURI + "/" + eventID;
 
     @Test
     public void testNodeAdded() throws Exception {
@@ -71,20 +73,23 @@ public class ProcessorTest extends CamelTestSupport {
         final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "primaryType," +
                 REPOSITORY + "lastModifiedBy," + REPOSITORY + "created," + REPOSITORY + "mixinTypes," +
                 REPOSITORY + "createdBy," + REPOSITORY + "uuid";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, eventProps));
+        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, eventProps, eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
         assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + EVENT_TYPE + "cre>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventType> <" + EVENT_TYPE + "cre>"));
         assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
         assertTrue("Event date not found!",
-            body.contains("<" + PREMIS + "hasEventDateTime> \"" + eventDate + "\"^^<" + XSD + "dateTime>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventDateTime> \"" + eventDate + "\"^^<"
+                    + XSD + "dateTime>"));
         assertTrue("Event user not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedAgent> \"" + userID + "\"^^<" + XSD + "string>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedAgent> \"" + userID + "\"^^<"
+                    + XSD + "string>"));
         assertTrue("Event agent not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedAgent> \"" + userAgent + "\"^^<" + XSD + "string>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedAgent> \"" + userAgent + "\"^^<"
+                    + XSD + "string>"));
     }
 
     @Test
@@ -95,14 +100,14 @@ public class ProcessorTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, null));
+        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, null, eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
         assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + EVENT_TYPE + "del>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventType> <" + EVENT_TYPE + "del>"));
         assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
     }
 
     @Test
@@ -114,14 +119,14 @@ public class ProcessorTest extends CamelTestSupport {
 
         final String eventTypes = REPOSITORY + "PROPERTY_CHANGED," + REPOSITORY + "PROPERTY_ADDED";
         final String eventProps = REPOSITORY + "lastModified,http://purl.org/dc/elements/1.1/title";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, eventProps));
+        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, eventProps, eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
         assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "metadataModification>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventType> <" + AUDIT + "metadataModification>"));
         assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedObject> <" + baseURL + nodeID + ">"));
     }
 
     @Test
@@ -136,14 +141,14 @@ public class ProcessorTest extends CamelTestSupport {
                 REPOSITORY + "lastModifiedBy," + REPOSITORY + "created," + REPOSITORY + "mixinTypes," +
                 REPOSITORY + "createdBy," + REPOSITORY + "uuid" + REPOSITORY + "hasContent," +
                 PREMIS + "hasSize," + PREMIS + "hasOriginalName," + REPOSITORY + "digest";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps));
+        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps, eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
         assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + EVENT_TYPE + "ing>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventType> <" + EVENT_TYPE + "ing>"));
         assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
     }
 
     @Test
@@ -156,14 +161,14 @@ public class ProcessorTest extends CamelTestSupport {
         final String eventTypes = REPOSITORY + "PROPERTY_CHANGED";
         final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "hasContent," +
                 PREMIS + "hasSize," + PREMIS + "hasOriginalName," + REPOSITORY + "digest";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps));
+        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps, eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
         assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentModification>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventType> <" + AUDIT + "contentModification>"));
         assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
     }
 
     @Test
@@ -175,18 +180,18 @@ public class ProcessorTest extends CamelTestSupport {
 
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps));
+        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps, eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
         assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentRemoval>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventType> <" + AUDIT + "contentRemoval>"));
         assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
     }
 
     private static Map<String,Object> createEvent(final String identifier, final String eventTypes,
-            final String eventProperties) {
+            final String eventProperties, final String eventID) {
 
         final Map<String, Object> headers = new HashMap<>();
         headers.put(JmsHeaders.BASE_URL, baseURL);
@@ -196,6 +201,7 @@ public class ProcessorTest extends CamelTestSupport {
         headers.put(JmsHeaders.USER_AGENT, userAgent);
         headers.put(JmsHeaders.EVENT_TYPE, eventTypes);
         headers.put(JmsHeaders.PROPERTIES, eventProperties);
+        headers.put(JmsHeaders.EVENT_ID, eventID);
         return headers;
     }
 
