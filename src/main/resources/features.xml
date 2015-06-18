@@ -21,6 +21,17 @@
     <feature version="${project.version}">fcrepo-camel</feature>
   </feature>
 
+  <feature name="fcrepo-fixity" version="${project.version}" resolver="(obr)" start-level="50">
+    <details>Installs the fcrepo fixity service</details>
+    <bundle>mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}</bundle>
+
+    <feature version="${camel.version}">camel</feature>
+    <feature version="${camel.version}">camel-blueprint</feature>
+    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${activemq.version}">activemq-camel</feature>
+    <feature version="${project.version}">fcrepo-camel</feature>
+  </feature>
+
   <feature name="fcrepo-indexing-triplestore" version="${project.version}" resolver="(obr)" start-level="50">
     <details>Installs the fcrepo triplestore indexer</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}</bundle>
