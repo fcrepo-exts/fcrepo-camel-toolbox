@@ -174,7 +174,7 @@ The timeframe (in milliseconds) within which new items should be committed to th
 ##Fedora Reindexing Service
 
 This application implements a reindexing service for other components,
-such as fcrepo-indexing-solr or fcrepo-indexing-triplestore.
+such as fcrepo-indexing-solr, fcrepo-indexing-triplestore or fcrepo-fixity.
 
 ###Configuration
 
@@ -223,6 +223,54 @@ The prefix for the REST endpoint.
 The port for the REST endpoint.
 
     rest.port=9080
+
+##Fedora Fixity Checking Service
+
+This application implements a fixity checking service that can be used
+in conjunction with the reindexing service. Each `Binary` resource
+encountered will have its checksum (fixity) value checked. If the result
+is `SUCCESS`, the full response will be sent to the `fixity.success` endpoint.
+Otherwise, the response will be sent to `fixity.failure`.
+
+###Configuration
+
+A number of application values can be configured externally, through
+system properties. These include:
+
+The log directory for fixity errors:
+
+    fcrepo.fixity.logdir=/tmp
+
+The fixity error log:
+
+    fcrepo.fixity.logfile=fixityErrors.log
+
+Alternately, the application can be configured by updating the `application.properties`
+configuration file in the unpacked `WEB-INF/classes/application.properties` file.
+
+As with other components, `error.maxRedeliveries`, `jms.brokerUrl` and the `fcrepo.*`
+configurations can be changed to match local settings. The configurations specific
+to this service are listed here:
+
+The camel URI for the incoming message stream.
+
+    fixity.stream=activemq:queue:fixity
+
+Because fixity checking can put a significant load on a server, it can be convenient
+to introduce a delay between each fixity check. That delay is measured in milliseconds.
+
+    fixity.delay=0
+
+Most importantly, it is possible to configure what should happen when a fixity check fails.
+By default, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can
+be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`)
+or use just about any other camel component.
+
+    fixity.failure=file:/tmp/?fileName=fixityErrors.log&fileExist=Append
+
+It is also possible to trigger an action on success (by default, this is a no-op):
+
+    fixity.success=mock:fixity.success
 
 ##Further Information
 For more help see the Apache Camel documentation
