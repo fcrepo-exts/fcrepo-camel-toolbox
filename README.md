@@ -42,19 +42,26 @@ indexes objects into an external Solr server.
 This application listens to Fedora's event stream and
 indexes objects into an external triplestore.
 
+### Fixity Checking Service
+
+This application can be used in conjunction with the Repository
+Re-Indexer to verify the checksums for all Binary resources in
+the repository.
+
 ### Repository Re-Indexer
 
 This application allows a user to initiate a re-indexing process
 from any location within the Fedora node hierarchy, sending
 re-indexing requests to a specified list of external applications
-(e.g. fcrepo-indexing-solr and/or fcrepo-indexing-triplestore)
+(e.g. fcrepo-indexing-solr, fcrepo-indexing-triplestore, and/or
+fcrepo-fixity).
 
 One can specify which applications/endpoints to send these 
 reindexing events, by POSTing a JSON array to the re-indexing
 service:
 
     curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
-        -d '["activemq:queue:solr.reindex","activemq:queue:triplestore.reindex"]'
+        -d '["activemq:queue:solr.reindex","activemq:queue:fixity","activemq:queue:triplestore.reindex"]'
 
 ## Building
 
@@ -75,6 +82,7 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-indexing-triplestore
     $> feature:install fcrepo-audit-triplestore
     $> feature:install fcrepo-reindexing
+    $> feature:install fcrepo-fixity
 
 ##Deploying in Tomcat/Jetty
 
