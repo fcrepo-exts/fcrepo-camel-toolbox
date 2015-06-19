@@ -60,7 +60,7 @@ public class TestUtils {
      *
      * @param url string containing url
      * @return InputStream containing data
-     * @throws Exception
+     * @throws Exception in the event of an HTTP client failure
      */
     public static InputStream httpGet(final String url) throws Exception {
         final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -74,7 +74,7 @@ public class TestUtils {
      * @param url string containing URL
      * @param content string containing data
      * @param mimeType string containing MIMe type of content
-     * @throws Exception
+     * @throws Exception in the event of an HTTP client failure
      */
     public static void httpPost(final String url, final String content, final String mimeType) throws Exception {
         final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -89,7 +89,7 @@ public class TestUtils {
      *
      * @param fusekiBase string containing base uri
      * @param subject string containing subject
-     * @throws Exception
+     * @throws Exception in the event of an HTTP client failure
      */
     public static void populateFuseki(final String fusekiBase, final String subject) throws Exception {
         httpPost(fusekiBase + "/update",
@@ -103,7 +103,7 @@ public class TestUtils {
      * @param fusekiBase string containing fueski base uri
      * @param subject string containing subject
      * @return count of triplestore items for given subject
-     * @throws Exception
+     * @throws Exception in the event of an error converting a String to an Integer
      */
     public static Callable<Integer> triplestoreCount(final String fusekiBase, final String subject)  throws Exception {
         final String query = "SELECT (COUNT(*) AS ?n) WHERE { <" + subject + "> ?o ?p . }";
