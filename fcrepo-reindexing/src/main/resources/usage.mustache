@@ -11,12 +11,12 @@ sending "re-indexing" hints to the specified services
 For example:
 
   curl -XPOST {{{reindexing}}}/objects \
-    -d "CamelFcrepoReindexingRecipients=activemq:queue:solr.reindex,activemq:queue:triplestore.reindex"
+    -d "CamelFcrepoReindexingRecipients=activemq:queue:solr.reindex,activemq:queue:fixity,activemq:queue:triplestore.reindex"
 
 Or (as JSON)
 
   curl -XPOST {{{reindexing}}}/objects -H"Content-Type: application/json" \
-    -d '["activemq:queue:solr.reindex","activemq:queue:triplestore.reindex"]'
+    -d '["activemq:queue:solr.reindex","activemq:queue:fixity","activemq:queue:triplestore.reindex"]'
 
 This will reindex both Solr and the external triplestore,
 starting at the /objects node in fedora.

@@ -27,8 +27,10 @@
     <it.profile />
     <!--Reindexing Service-->
     <rs.profile />
+    <!--Fixity Service-->
+    <fs.profile />
 
-    <build.profile.names>${at.profile}${is.profile}${it.profile}${rs.profile}</build.profile.names>
+    <build.profile.names>${at.profile}${is.profile}${it.profile}${rs.profile}${fs.profile}</build.profile.names>
   </properties>
 
   <dependencies>
@@ -161,6 +163,20 @@
       </dependencies>
     </profile>
 
+    <profile>
+      <!--Fixity Service module-->
+      <id>fs</id>
+      <properties>
+        <fs.profile>-fs</fs.profile>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>fcrepo-fixity</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 
 </project>
