@@ -74,7 +74,7 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-indexing-solr
     $> feature:install fcrepo-indexing-triplestore
     $> feature:install fcrepo-audit-triplestore
-    $> feature:install fcrepo-reindexer
+    $> feature:install fcrepo-reindexing
 
 ##Deploying in Tomcat/Jetty
 
