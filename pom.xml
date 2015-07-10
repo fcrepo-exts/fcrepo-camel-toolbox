@@ -494,6 +494,7 @@
               </systemProperty>
             </systemProperties>
             <scanIntervalSeconds>10</scanIntervalSeconds>
+            <stopWait>5</stopWait>
           </configuration>
           <dependencies>
             <dependency>
