@@ -70,8 +70,8 @@
     <!-- These should be moved into a self-contained feature, as a part of fcrepo-audit -->
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${project.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${project.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel/${project.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-impl/${project.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-api/${project.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-modeshape/${project.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-mint/${project.version}</bundle>
     <bundle dependency="true">mvn:javax.jcr/jcr/2.0</bundle>
     <bundle dependency="true">mvn:org.glassfish.hk2.external/javax.inject/2.3.0</bundle>
