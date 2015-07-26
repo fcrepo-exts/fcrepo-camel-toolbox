@@ -12,7 +12,7 @@
   <groupId>org.fcrepo.camel</groupId>
   <artifactId>fcrepo-camel-toolbox</artifactId>
   <packaging>pom</packaging>
-  <version>4.3.0</version>
+  <version>4.3.1-SNAPSHOT</version>
 
   <name>Fedora4 Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
