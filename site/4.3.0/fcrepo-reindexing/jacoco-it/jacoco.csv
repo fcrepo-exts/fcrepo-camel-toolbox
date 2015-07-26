@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Fedora Re-indexing Service,org.fcrepo.camel.reindexing,ReindexingHeaders,3,0,0,0,2,0,1,0,1,0
+Fedora Re-indexing Service,org.fcrepo.camel.reindexing,UsageProcessor,67,3,0,0,13,1,1,1,1,1
+Fedora Re-indexing Service,org.fcrepo.camel.reindexing,RestProcessor,44,108,7,3,12,19,4,4,0,3
+Fedora Re-indexing Service,org.fcrepo.camel.reindexing,ReindexingRouter,0,192,0,0,0,53,0,3,0,3
+Fedora Re-indexing Service,org.fcrepo.camel.reindexing,PathProcessor,2,50,1,1,0,8,1,2,0,2
