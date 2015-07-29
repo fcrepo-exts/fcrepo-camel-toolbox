@@ -636,7 +636,7 @@
               <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
               <artifacts>
                 <artifact>
-                  <file>target/classes/features.xml</file>
+                  <file>${project.basedir}/target/classes/features.xml</file>
                   <type>xml</type>
                   <classifier>features</classifier>
                 </artifact>

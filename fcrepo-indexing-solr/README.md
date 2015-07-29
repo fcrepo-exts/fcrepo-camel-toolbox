@@ -89,6 +89,10 @@ The camel URI for the incoming message stream.
 
     input.stream=activemq:topic:fedora
 
+The camel URI for handling reindexing events.
+
+    solr.reindex.stream=activemq:queue:solr.reindex
+
 The baseUrl for the Solr server. If using Solr 4.x or better, the URL should include
 the core name.
 
@@ -97,6 +101,11 @@ the core name.
 The timeframe (in milliseconds) within which new items should be committed to the solr index.
 
     solr.commitWithin=10000
+
+The location of the internal Audit trail, if using the `fcrepo-audit` extension module.
+Nodes at this location will not be indexed.
+
+    audit.container=/audit
 
 By editing this file, any currently running routes will be immediately redeployed
 with the new values.
