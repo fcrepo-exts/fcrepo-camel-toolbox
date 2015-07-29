@@ -119,6 +119,7 @@
       </plugin>
 
         <!-- reserve network ports for integration testing -->
+        <!-- add configuration file to artifact set for OSGi deployment -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
@@ -131,6 +132,23 @@
               <portName>jetty.dynamic.stop.port</portName>
             </portNames>
           </configuration>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>attach-artifact</goal>
+              </goals>
+              <configuration>
+                <artifacts>
+                  <artifact>
+                    <file>src/main/cfg/org.fcrepo.camel.indexing.triplestore.cfg</file>
+                    <type>cfg</type>
+                    <classifier>configuration</classifier>
+                  </artifact>
+                </artifacts>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
 
         <!-- integration testing -->

@@ -19,6 +19,7 @@
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${project.version}">fcrepo-camel</feature>
+    <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>
   </feature>
 
   <feature name="fcrepo-fixity" version="${project.version}" resolver="(obr)" start-level="50">
@@ -30,6 +31,7 @@
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${project.version}">fcrepo-camel</feature>
+    <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}/cfg/configuration</configfile>
   </feature>
 
   <feature name="fcrepo-indexing-triplestore" version="${project.version}" resolver="(obr)" start-level="50">
@@ -44,6 +46,7 @@
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${project.version}">fcrepo-camel</feature>
+    <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
 
   <feature name="fcrepo-reindexing" version="${project.version}" resolver="(obr)" start-level="50">
@@ -61,6 +64,7 @@
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${project.version}">fcrepo-camel</feature>
+    <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}/cfg/configuration</configfile>
   </feature>
 
   <feature name="fcrepo-audit-triplestore" version="${project.version}" resolver="(obr)" start-level="50">
@@ -95,6 +99,7 @@
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${project.version}">fcrepo-camel</feature>
+    <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
 
 </features>
