@@ -4,7 +4,7 @@ A collection of ready-to-use messaging applications for use
 with [Fedora4](http://fcrepo.org). These applications use
 [Apache Camel](https://camel.apache.org).
 
-[![Build Status](https://travis-ci.org/fcrepo4-labs/fcrepo-camel-toolbox.png?branch=master)](https://travis-ci.org/fcrepo4-labs/fcrepo-camel-toolbox)
+[![Build Status](https://travis-ci.org/fcrepo4-exts/fcrepo-camel-toolbox.png?branch=master)](https://travis-ci.org/fcrepo4-exts/fcrepo-camel-toolbox)
 
 Additional background information is available on the Fedora Wiki on the
 [Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
@@ -18,7 +18,7 @@ Tomcat or Jetty. It is possible to bundle all of the applications or only select
 modules into the web application.
 
 For more information, see the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+[fcrepo-camel-webapp](https://github.com/fcrepo4-exts/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
 module.
 
 ### Repository Audit Service (Triplestore)
@@ -88,6 +88,6 @@ Then, you can add any combination of the following applications:
 
 If you intend to deploy this application in a web container such as Tomcat or Jetty,
 please refer to the documentation in the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+[fcrepo-camel-webapp](https://github.com/fcrepo4-exts/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
 project.
 
