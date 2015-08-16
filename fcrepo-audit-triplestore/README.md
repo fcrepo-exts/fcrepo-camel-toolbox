@@ -37,7 +37,7 @@ file `$KARAF_HOME/etc/org.fcrepo.camel.audit.cfg`. The following values
 are available for configuration:
 
 The name of the container where internal audit events are created (if using
-[fcrepo-audit](http://github.com/fcrepo4-labs/fcrepo-audit)).  Events about
+[fcrepo-audit](http://github.com/fcrepo4-exts/fcrepo-audit)).  Events about
 resources in this container are ignored.
 
     audit.container=/audit

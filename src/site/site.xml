@@ -15,7 +15,7 @@
     <links>
       <item name="Fedora" href="http://fcrepo.org/" />
       <item name="Fedora 4 on GitHub" href="http://github.com/fcrepo4/" />
-      <item name="Developer Documentation" href="http://fcrepo4-labs.github.com/fcrepo-camel-toolbox/" />
+      <item name="Developer Documentation" href="http://fcrepo4-exts.github.com/fcrepo-camel-toolbox/" />
     </links>
 
     <breadcrumbs>

@@ -71,19 +71,19 @@
     <surefire.plugin.version>2.18.1</surefire.plugin.version>
     <!-- code coverage -->
     <jacoco.outputDir>${project.build.directory}</jacoco.outputDir>
-    <jacoco.out.unit.file>jacoco-ut.exec</jacoco.out.unit.file>
     <jacoco.out.it.file>jacoco-it.exec</jacoco.out.it.file>
-    <sonar.jacoco.reportPath>${jacoco.outputDir}/${jacoco.out.unit.file}</sonar.jacoco.reportPath>
+    <jacoco.out.unit.file>jacoco-ut.exec</jacoco.out.unit.file>
     <sonar.jacoco.itReportPath>${jacoco.outputDir}/${jacoco.out.it.file}</sonar.jacoco.itReportPath>
+    <sonar.jacoco.reportPath>${jacoco.outputDir}/${jacoco.out.unit.file}</sonar.jacoco.reportPath>
   </properties>
 
   <modules>
     <module>fcrepo-audit-triplestore</module>
+    <module>fcrepo-camel-webapp</module>
+    <module>fcrepo-fixity</module>
     <module>fcrepo-indexing-solr</module>
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
-    <module>fcrepo-camel-webapp</module>
-    <module>fcrepo-fixity</module>
   </modules>
 
   <prerequisites>
@@ -107,9 +107,9 @@
   </distributionManagement>
 
   <scm>
-    <connection>scm:git:git://github.com/fcrepo4-labs/${project_name}.git</connection>
-    <developerConnection>scm:git:git@github.com:fcrepo4-labs/${project_name}.git</developerConnection>
-    <url>https://github.com/fcrepo4-labs/fcrepo-camel-toolbox</url>
+    <connection>scm:git:git://github.com/fcrepo4-exts/${project_name}.git</connection>
+    <developerConnection>scm:git:git@github.com:fcrepo4-exts/${project_name}.git</developerConnection>
+    <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -868,7 +868,7 @@
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/issues</url>
+    <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox/issues</url>
   </issueManagement>
 
   <ciManagement>
