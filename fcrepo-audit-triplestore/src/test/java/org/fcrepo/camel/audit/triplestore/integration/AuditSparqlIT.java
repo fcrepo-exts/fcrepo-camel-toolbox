@@ -53,7 +53,7 @@ public class AuditSparqlIT extends CamelTestSupport {
     final private Logger logger = getLogger(AuditSparqlIT.class);
 
     private static final int FUSEKI_PORT = Integer.parseInt(System.getProperty(
-            "fuseki.dynamic.test.port", "3030"));
+            "fuseki.dynamic.test.port", "8080"));
 
     private static EmbeddedFusekiServer server = null;
 
@@ -80,7 +80,7 @@ public class AuditSparqlIT extends CamelTestSupport {
 
     @Before
     public void setup() throws Exception {
-        server = EmbeddedFusekiServer.mem(FUSEKI_PORT, "/test") ;
+        server = EmbeddedFusekiServer.mem(FUSEKI_PORT, "/fuseki/test") ;
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
         server.start();
     }
@@ -269,11 +269,11 @@ public class AuditSparqlIT extends CamelTestSupport {
                 from("direct:start")
                     .setHeader(AuditHeaders.EVENT_BASE_URI, constant(EVENT_BASE_URI))
                     .process(new AuditSparqlProcessor())
-                    .to("http4:" + fuseki_url + "/test/update")
+                    .to("http4:" + fuseki_url + "/fuseki/test/update")
                     .to("mock:sparql.update");
 
                 from("direct:query")
-                    .to("http4:" + fuseki_url + "/test/query")
+                    .to("http4:" + fuseki_url + "/fuseki/test/query")
                     .split(xpath)
                         .choice()
                             .when().xpath("/sparql:binding/sparql:uri", String.class, ns)
@@ -287,7 +287,7 @@ public class AuditSparqlIT extends CamelTestSupport {
                     .transform().constant("update=DELETE WHERE { ?s ?o ?p }")
                     .setHeader(Exchange.CONTENT_TYPE).constant("application/x-www-form-urlencoded")
                     .setHeader(Exchange.HTTP_METHOD).constant("POST")
-                    .to("http4:" + fuseki_url + "/test/update")
+                    .to("http4:" + fuseki_url + "/fuseki/test/update")
                     .to("mock:sparql.update");
 
             }

@@ -19,7 +19,7 @@
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
        <cm:property name="input.stream" value="activemq:topic:fedora"/>
        <cm:property name="triplestore.reindex.stream" value="activemq:queue:triplestore.reindex"/>
-       <cm:property name="triplestore.baseUrl" value="localhost:3030/test/update"/>
+       <cm:property name="triplestore.baseUrl" value="localhost:8080/fuseki/test/update"/>
        <cm:property name="triplestore.namedGraph" value=""/>
        <cm:property name="audit.container" value="/audit"/>
      </cm:default-properties>
