@@ -59,7 +59,7 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
     private String fullPath = "";
 
     private static final String FUSEKI_PORT = System.getProperty(
-            "fuseki.dynamic.test.port", "3030");
+            "fuseki.dynamic.test.port", "8080");
 
     private static final String FCREPO_PORT = System.getProperty(
             "fcrepo.dynamic.test.port", "8080");
@@ -83,7 +83,7 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
         fullPath = res.getLocation().toString();
 
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
-        server = EmbeddedFusekiServer.mem(Integer.parseInt(FUSEKI_PORT, 10), "/test") ;
+        server = EmbeddedFusekiServer.mem(Integer.parseInt(FUSEKI_PORT, 10), "/fuseki/test") ;
         server.start();
     }
 
@@ -114,7 +114,7 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
         final Properties props = new Properties();
         props.put("indexing.predicate", "true");
         props.put("fcrepo.baseUrl", "localhost:" + FCREPO_PORT + "/fcrepo/rest");
-        props.put("triplestore.baseUrl", "localhost:" + FUSEKI_PORT + "/test/update");
+        props.put("triplestore.baseUrl", "localhost:" + FUSEKI_PORT + "/fuseki/test/update");
         props.put("input.stream", "direct:start");
         return props;
     }
@@ -122,9 +122,9 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
     @Test
     public void testDeletedResourceWithJmsHeaders() throws Exception {
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
-        final String fusekiEndpoint = "mock:http4:localhost:" + FUSEKI_PORT + "/test/update";
+        final String fusekiEndpoint = "mock:http4:localhost:" + FUSEKI_PORT + "/fuseki/test/update";
         final String fcrepoEndpoint = "mock:fcrepo:localhost:" + FCREPO_PORT + "/fcrepo/rest";
-        final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/test";
+        final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/fuseki/test";
 
         context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -173,9 +173,9 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
     @Test
     public void testDeletedResourceWithFcrepoHeaders() throws Exception {
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
-        final String fusekiEndpoint = "mock:http4:localhost:" + FUSEKI_PORT + "/test/update";
+        final String fusekiEndpoint = "mock:http4:localhost:" + FUSEKI_PORT + "/fuseki/test/update";
         final String fcrepoEndpoint = "mock:fcrepo:localhost:" + FCREPO_PORT + "/fcrepo/rest";
-        final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/test";
+        final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/fuseki/test";
 
         context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override

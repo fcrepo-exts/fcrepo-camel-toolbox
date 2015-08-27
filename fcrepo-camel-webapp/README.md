@@ -63,7 +63,7 @@ The camel URI for the incoming message stream.
 
 The base URL of the triplestore being used.
 
-    triplestore.baseUrl=localhost:3030/test/update
+    triplestore.baseUrl=localhost:8080/fuseki/test/update
 
 ##Fedora Indexing Service (Triplestore)
 
@@ -107,7 +107,7 @@ The camel URI for the incoming message stream.
 
 The base URL of the triplestore being used.
 
-    triplestore.baseUrl=localhost:3030/test/update
+    triplestore.baseUrl=localhost:8080/fuseki/test/update
 
 A named graph for any objects being indexed in the triplestore. This value, if
 not left blank, should be a valid URI.

@@ -312,7 +312,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         context.start();
 
-        final MockEndpoint endpoint = getMockEndpoint("mock:http4:localhost:3030/test/update");
+        final MockEndpoint endpoint = getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update");
 
         endpoint.expectedMessageCount(1);
         endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
@@ -348,10 +348,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         context.start();
 
-        getMockEndpoint("mock:http4:localhost:3030/test/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:localhost:3030/test/update")
+        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update").expectedMessageCount(1);
+        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update")
             .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        getMockEndpoint("mock:http4:localhost:3030/test/update")
+        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:delete.triplestore", "",

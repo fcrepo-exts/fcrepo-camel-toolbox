@@ -59,7 +59,7 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
     private String fullPath = "";
 
     private static final String FUSEKI_PORT = System.getProperty(
-            "fuseki.dynamic.test.port", "3030");
+            "fuseki.dynamic.test.port", "8080");
 
     private static final String FCREPO_PORT = System.getProperty(
             "fcrepo.dynamic.test.port", "8080");
@@ -81,7 +81,7 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
 
     @Before
     public void setUpFuseki() throws Exception {
-        server = EmbeddedFusekiServer.mem(Integer.parseInt(FUSEKI_PORT, 10), "/test") ;
+        server = EmbeddedFusekiServer.mem(Integer.parseInt(FUSEKI_PORT, 10), "/fuseki/test") ;
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
         server.start();
     }
@@ -113,7 +113,7 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
         final Properties props = new Properties();
         props.put("indexing.predicate", "true");
         props.put("fcrepo.baseUrl", "localhost:" + FCREPO_PORT + "/fcrepo/rest");
-        props.put("triplestore.baseUrl", "localhost:" + FUSEKI_PORT + "/test/update");
+        props.put("triplestore.baseUrl", "localhost:" + FUSEKI_PORT + "/fuseki/test/update");
         props.put("input.stream", "direct:start");
         return props;
     }
@@ -121,9 +121,9 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
     @Test
     public void testAddedEventRouter() throws Exception {
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
-        final String fusekiEndpoint = "mock:http4:localhost:" + FUSEKI_PORT + "/test/update";
+        final String fusekiEndpoint = "mock:http4:localhost:" + FUSEKI_PORT + "/fuseki/test/update";
         final String fcrepoEndpoint = "mock:fcrepo:localhost:" + FCREPO_PORT + "/fcrepo/rest";
-        final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/test";
+        final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/fuseki/test";
 
         context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
