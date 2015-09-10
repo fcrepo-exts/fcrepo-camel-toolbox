@@ -57,7 +57,7 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
     @Override
     protected void doPreSetup() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-        final FcrepoClient client = new FcrepoClient(null, null, null, true);
+        final FcrepoClient client = new FcrepoClient("user1", "password1", null, true);
         final FcrepoResponse res = client.post(
                 URI.create("http://localhost:" + webPort + "/fcrepo/rest"),
                 ObjectHelper.loadResourceAsStream("indexable.ttl"),
@@ -96,6 +96,8 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
         props.put("solr.baseUrl", "localhost:" + webPort + "/solr/testCore");
         props.put("solr.commitWithin", "100");
         props.put("input.stream", "direct:start");
+        props.put("fcrepo.authUsername", "user1");
+        props.put("fcrepo.authPassword", "password1");
         return props;
     }
 
