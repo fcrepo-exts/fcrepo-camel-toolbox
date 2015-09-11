@@ -19,7 +19,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 import static org.hamcrest.Matchers.equalTo;
 
-import java.net.URI;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -32,9 +32,8 @@ import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.commons.io.IOUtils;
 import org.fcrepo.camel.JmsHeaders;
-import org.fcrepo.camel.FcrepoClient;
-import org.fcrepo.camel.FcrepoResponse;
 
 import org.junit.Test;
 
@@ -52,16 +51,20 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
     @Produce(uri = "direct:start")
     protected ProducerTemplate template;
 
+    private final String USERNAME = "user1";
+    private final String PASSWORD = "password1";
+
     private String fullPath = "";
 
     @Override
     protected void doPreSetup() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-        final FcrepoClient client = new FcrepoClient("user1", "password1", null, true);
-        final FcrepoResponse res = client.post(
-                URI.create("http://localhost:" + webPort + "/fcrepo/rest"),
-                ObjectHelper.loadResourceAsStream("indexable.ttl"), "text/turtle");
-        fullPath = res.getLocation().toString();
+        final String content = IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.ttl"), "UTF-8");
+        fullPath = TestUtils.httpPost("http://localhost:" + webPort + "/fcrepo/rest", content, "text/turtle",
+                USERNAME, PASSWORD);
+        if (fullPath == null) {
+            throw new RuntimeException("Couldn't POST to fedora");
+        }
         TestUtils.httpPost("http://localhost:" + webPort + "/solr/testCore/update?commit=true",
                 "<delete><query>*:*</query></delete>", "application/xml");
     }
@@ -84,7 +87,6 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-        final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
 
         final Properties props = new Properties();
         props.put("indexing.predicate", "true");
@@ -92,15 +94,20 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
         props.put("solr.baseUrl", "localhost:" + webPort + "/solr/testCore");
         props.put("solr.commitWithin", "100");
         props.put("input.stream", "direct:start");
-        props.put("fcrepo.authUsername", "user1");
-        props.put("fcrepo.authPassword", "password1");
         return props;
+    }
+
+    @Override
+    protected String useOverridePropertiesWithConfigAdmin(final Dictionary props) {
+        props.put("fcrepo.authUsername", USERNAME);
+        props.put("fcrepo.authPassword", PASSWORD);
+
+        return "org.fcrepo.camel.indexing.solr";
     }
 
     @Test
     public void testAddedEventRouter() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-        final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
         final String solrEndpoint = "mock:http4:localhost:" + webPort + "/solr/testCore/update";
         final String fcrepoEndpoint = "mock:fcrepo:localhost:" + webPort + "/fcrepo/rest";

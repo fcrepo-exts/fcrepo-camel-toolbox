@@ -28,7 +28,7 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-blueprint</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
@@ -38,7 +38,7 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.fcrepo.camel</groupId>
       <artifactId>fcrepo-camel</artifactId>
@@ -74,7 +74,7 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-blueprint</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>com.jayway.awaitility</groupId>
       <artifactId>awaitility</artifactId>
@@ -96,7 +96,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -161,7 +161,6 @@
             <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
             <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
             <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
-            <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -194,7 +193,53 @@
           <stopKey>STOP</stopKey>
           <stopPort>${jetty.dynamic.stop.port}</stopPort>
           <daemon>true</daemon>
+          <loginServices>
+            <loginService implementation="org.eclipse.jetty.security.HashLoginService">
+              <name>fcrepo</name>
+              <config>${project.build.directory}/test-classes/realm.properties</config>
+            </loginService>
+          </loginServices>
         </configuration>
+        <dependencies>
+          <!-- It is very strange to me that these dependencies need to be specified at all,
+                but webapp-plus won't function properly unless these are defined here
+                acoburn 9/11/15 -->
+          <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-cachestore-leveldb</artifactId>
+            <version>${infinispan.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-model</artifactId>
+            <version>${sesame.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-api</artifactId>
+            <version>${sesame.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-ntriples</artifactId>
+            <version>${sesame.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-rdfxml</artifactId>
+            <version>${sesame.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-turtle</artifactId>
+            <version>${sesame.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>start-jetty</id>
