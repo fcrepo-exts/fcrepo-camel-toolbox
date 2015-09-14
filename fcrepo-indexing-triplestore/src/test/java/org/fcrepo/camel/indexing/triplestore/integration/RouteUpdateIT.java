@@ -158,7 +158,7 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
         getMockEndpoint(fusekiEndpoint).expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         getMockEndpoint("mock://direct:delete.triplestore").expectedMessageCount(0);
         getMockEndpoint("mock://direct:update.triplestore").expectedMessageCount(1);
-        getMockEndpoint(fcrepoEndpoint).expectedMessageCount(1);
+        getMockEndpoint(fcrepoEndpoint).expectedMessageCount(2);
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), equalTo(0));
 
