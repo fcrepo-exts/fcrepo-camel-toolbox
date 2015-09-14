@@ -68,7 +68,7 @@
       <groupId>com.jayway.awaitility</groupId>
       <artifactId>awaitility</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-all</artifactId>
@@ -88,6 +88,13 @@
 
   <build>
     <defaultGoal>install</defaultGoal>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
 
     <plugins>
       <plugin>
