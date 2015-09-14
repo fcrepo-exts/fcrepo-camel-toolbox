@@ -71,6 +71,8 @@
     <details>Installs the fcrepo audit service with a triplestore backend</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}</bundle>
 
+    <bundle dependency="true">mvn:org.apache.jena/jena-osgi/${jena.version}</bundle>
+
     <!-- The following bundles are defined in a self-contained feature in the fcrepo-karaf project.
          Once fcrepo-karaf is published to maven the following can be replaced with
          <feature version="${project.version}">fcrepo-audit</feature>

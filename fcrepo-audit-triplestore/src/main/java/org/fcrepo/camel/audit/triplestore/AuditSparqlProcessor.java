@@ -18,16 +18,19 @@ package org.fcrepo.camel.audit.triplestore;
 import static org.fcrepo.audit.AuditNamespaces.AUDIT;
 import static org.fcrepo.audit.AuditNamespaces.PREMIS;
 import static org.fcrepo.audit.AuditNamespaces.PROV;
-import static org.fcrepo.audit.AuditNamespaces.XSD;
 import static org.fcrepo.camel.RdfNamespaces.RDF;
+import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDdateTime;
+import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDstring;
+import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
+import static com.hp.hpl.jena.rdf.model.ResourceFactory.createProperty;
+import static com.hp.hpl.jena.rdf.model.ResourceFactory.createResource;
+import static com.hp.hpl.jena.rdf.model.ResourceFactory.createTypedLiteral;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TimeZone;
 
 import org.fcrepo.audit.AuditUtils;
@@ -37,14 +40,9 @@ import org.fcrepo.camel.processor.ProcessorUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.apache.clerezza.rdf.core.Triple;
-import org.apache.clerezza.rdf.core.UriRef;
-import org.apache.clerezza.rdf.core.impl.SimpleMGraph;
-import org.apache.clerezza.rdf.core.impl.TripleImpl;
-import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
-import org.apache.clerezza.rdf.core.serializedform.SerializingProvider;
-import org.apache.clerezza.rdf.jena.serializer.JenaSerializerProvider;
-
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * A processor that converts an audit message into a sparql-update
@@ -66,17 +64,11 @@ public class AuditSparqlProcessor implements Processor {
         final Message in = exchange.getIn();
         final String eventURIBase = in.getHeader(AuditHeaders.EVENT_BASE_URI, String.class);
         final String eventID = in.getHeader(JmsHeaders.EVENT_ID, String.class);
-        final UriRef eventURI = new UriRef(eventURIBase + "/" + eventID);
-        final Set<Triple> triples = triplesForMessage(in, eventURI);
-
-        // serialize triples
-        final SerializingProvider serializer = new JenaSerializerProvider();
-        final ByteArrayOutputStream serializedGraph = new ByteArrayOutputStream();
-        serializer.serialize(serializedGraph, new SimpleMGraph(triples), "text/rdf+nt");
+        final Resource eventURI = createResource(eventURIBase + "/" + eventID);
 
         // generate SPARQL Update
         final StringBuilder query = new StringBuilder("update=");
-        query.append(ProcessorUtils.insertData(serializedGraph.toString("UTF-8"), null));
+        query.append(ProcessorUtils.insertData(serializedGraphForMessage(in, eventURI), null));
 
         // update exchange
         in.setBody(query.toString());
@@ -86,19 +78,15 @@ public class AuditSparqlProcessor implements Processor {
     }
 
     // namespaces and properties
-    private static final UriRef INTERNAL_EVENT = new UriRef(AUDIT + "InternalEvent");
-    private static final UriRef PREMIS_EVENT = new UriRef(PREMIS + "Event");
-    private static final UriRef PROV_EVENT = new UriRef(PROV + "InstantaneousEvent");
+    private static final Resource INTERNAL_EVENT = createResource(AUDIT + "InternalEvent");
+    private static final Resource PREMIS_EVENT = createResource(PREMIS + "Event");
+    private static final Resource PROV_EVENT = createResource(PROV + "InstantaneousEvent");
 
-    private static final UriRef PREMIS_TIME = new UriRef(PREMIS + "hasEventDateTime");
-    private static final UriRef PREMIS_OBJ = new UriRef(PREMIS + "hasEventRelatedObject");
-    private static final UriRef PREMIS_AGENT = new UriRef(PREMIS + "hasEventRelatedAgent");
-    private static final UriRef PREMIS_TYPE = new UriRef(PREMIS + "hasEventType");
-
-    private static final UriRef RDF_TYPE = new UriRef(RDF + "type");
-    private static final UriRef XSD_DATE = new UriRef(XSD + "dateTime");
-    private static final UriRef XSD_STRING = new UriRef(XSD + "string");
-
+    private static final Property PREMIS_TIME = createProperty(PREMIS + "hasEventDateTime");
+    private static final Property PREMIS_OBJ = createProperty(PREMIS + "hasEventRelatedObject");
+    private static final Property PREMIS_AGENT = createProperty(PREMIS + "hasEventRelatedAgent");
+    private static final Property PREMIS_TYPE = createProperty(PREMIS + "hasEventType");
+    private static final Property RDF_TYPE = createProperty(RDF + "type");
 
     private static final String EMPTY_STRING = "";
 
@@ -107,7 +95,11 @@ public class AuditSparqlProcessor implements Processor {
      * @param message Camel message produced by an audit event
      * @param subject RDF subject of the audit description
      */
-    private static Set<Triple> triplesForMessage(final Message message, final UriRef subject) throws IOException {
+    private static String serializedGraphForMessage(final Message message, final Resource subject) throws IOException {
+
+        // serialize triples
+        final ByteArrayOutputStream serializedGraph = new ByteArrayOutputStream();
+        final Model model = createDefaultModel();
 
         // get info from jms message headers
         final String eventType = (String) message.getHeader(JmsHeaders.EVENT_TYPE, EMPTY_STRING);
@@ -121,20 +113,20 @@ public class AuditSparqlProcessor implements Processor {
         final String identifier = ProcessorUtils.getSubjectUri(message);
         final String premisType = AuditUtils.getAuditEventType(eventType, properties);
 
-        // types
-        final Set<Triple> triples = new HashSet<>();
-        triples.add( new TripleImpl(subject, RDF_TYPE, INTERNAL_EVENT) );
-        triples.add( new TripleImpl(subject, RDF_TYPE, PREMIS_EVENT) );
-        triples.add( new TripleImpl(subject, RDF_TYPE, PROV_EVENT) );
+        model.add( model.createStatement(subject, RDF_TYPE, INTERNAL_EVENT) );
+        model.add( model.createStatement(subject, RDF_TYPE, PREMIS_EVENT) );
+        model.add( model.createStatement(subject, RDF_TYPE, PROV_EVENT) );
 
         // basic event info
-        triples.add( new TripleImpl(subject, PREMIS_TIME, new TypedLiteralImpl(date, XSD_DATE)) );
-        triples.add( new TripleImpl(subject, PREMIS_OBJ, new UriRef(identifier)) );
-        triples.add( new TripleImpl(subject, PREMIS_AGENT, new TypedLiteralImpl(user, XSD_STRING)) );
-        triples.add( new TripleImpl(subject, PREMIS_AGENT, new TypedLiteralImpl(agent, XSD_STRING)) );
+        model.add( model.createStatement(subject, PREMIS_TIME, createTypedLiteral(date, XSDdateTime)) );
+        model.add( model.createStatement(subject, PREMIS_OBJ, createResource(identifier)) );
+        model.add( model.createStatement(subject, PREMIS_AGENT, createTypedLiteral(user, XSDstring)) );
+        model.add( model.createStatement(subject, PREMIS_AGENT, createTypedLiteral(agent, XSDstring)) );
         if (premisType != null) {
-            triples.add(new TripleImpl(subject, PREMIS_TYPE, new UriRef(premisType)));
+            model.add(model.createStatement(subject, PREMIS_TYPE, createResource(premisType)));
         }
-        return triples;
+
+        model.write(serializedGraph, "N-TRIPLE");
+        return serializedGraph.toString("UTF-8");
     }
 }
