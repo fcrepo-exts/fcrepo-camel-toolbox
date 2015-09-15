@@ -40,6 +40,7 @@
     <camel.version>2.15.1</camel.version>
     <commons.lang3.version>3.3.2</commons.lang3.version>
     <jackson2.version>2.5.2</jackson2.version>
+    <jena.version>2.13.0</jena.version>
     <logback.version>1.1.2</logback.version>
     <mustache.version>0.9.0</mustache.version>
     <slf4j.version>1.7.10</slf4j.version>
@@ -175,7 +176,7 @@
       <dependency>
         <groupId>org.fcrepo.camel</groupId>
         <artifactId>fcrepo-camel</artifactId>
-        <version>4.3.0</version>
+        <version>${project.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.slf4j</groupId>
@@ -188,6 +189,11 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-core</artifactId>
+        <version>${jena.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>${commons.lang3.version}</version>
@@ -195,7 +201,7 @@
       <dependency>
         <groupId>org.fcrepo</groupId>
         <artifactId>fcrepo-audit</artifactId>
-        <version>4.3.0</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
