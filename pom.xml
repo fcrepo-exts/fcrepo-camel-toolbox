@@ -176,7 +176,7 @@
       <dependency>
         <groupId>org.fcrepo.camel</groupId>
         <artifactId>fcrepo-camel</artifactId>
-        <version>4.3.0</version>
+        <version>${project.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.slf4j</groupId>
@@ -201,7 +201,7 @@
       <dependency>
         <groupId>org.fcrepo</groupId>
         <artifactId>fcrepo-audit</artifactId>
-        <version>4.3.0</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
