@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="fcrepo-camel-toolbox-${project.version}">
-  <repository>mvn:org.fcrepo.camel/fcrepo-camel/${project.version}/xml/features</repository>
+  <repository>mvn:org.fcrepo.camel/fcrepo-camel/${fcrepo-camel.version}/xml/features</repository>
   <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
   <repository>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</repository>
 
@@ -18,7 +18,7 @@
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
-    <feature version="${project.version}">fcrepo-camel</feature>
+    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>
   </feature>
 
@@ -30,7 +30,7 @@
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
-    <feature version="${project.version}">fcrepo-camel</feature>
+    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}/cfg/configuration</configfile>
   </feature>
 
@@ -45,7 +45,7 @@
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
-    <feature version="${project.version}">fcrepo-camel</feature>
+    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
 
@@ -63,7 +63,7 @@
     <feature version="${camel.version}">camel-restlet</feature>
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
-    <feature version="${project.version}">fcrepo-camel</feature>
+    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}/cfg/configuration</configfile>
   </feature>
 
@@ -75,13 +75,13 @@
 
     <!-- The following bundles are defined in a self-contained feature in the fcrepo-karaf project.
          Once fcrepo-karaf is published to maven the following can be replaced with
-         <feature version="${project.version}">fcrepo-audit</feature>
+         <feature version="${fcrepo-audit.version}">fcrepo-audit</feature>
          -->
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${project.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${project.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-api/${project.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-modeshape/${project.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-mint/${project.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${fcrepo-audit.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${fcrepo.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-api/${fcrepo.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-modeshape/${fcrepo.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-mint/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:javax.jcr/jcr/2.0</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.jena/jena-core/2.12.1</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.jena/jena-arq/2.12.1</bundle>
@@ -138,7 +138,7 @@
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
-    <feature version="${project.version}">fcrepo-camel</feature>
+    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
 

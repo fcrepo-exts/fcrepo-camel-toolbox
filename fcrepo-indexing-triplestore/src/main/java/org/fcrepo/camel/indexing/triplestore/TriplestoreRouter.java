@@ -113,6 +113,7 @@ public class TriplestoreRouter extends RouteBuilder {
             .routeId("FcrepoTriplestoreUpdater")
             .setHeader(FCREPO_NAMED_GRAPH)
                 .simple("{{triplestore.namedGraph}}")
+            .to("fcrepo:{{fcrepo.baseUrl}}?accept=application/n-triples")
             .process(new SparqlUpdateProcessor())
             .log(LoggingLevel.INFO, logger,
                     "Indexing Triplestore Object ${headers[CamelFcrepoIdentifier]} " +

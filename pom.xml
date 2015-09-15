@@ -45,6 +45,9 @@
     <mustache.version>0.9.0</mustache.version>
     <slf4j.version>1.7.10</slf4j.version>
     <spring.version>4.1.5.RELEASE</spring.version>
+    <fcrepo.version>4.3.0</fcrepo.version>
+    <fcrepo-audit.version>4.3.0</fcrepo-audit.version>
+    <fcrepo-camel.version>4.3.1-SNAPSHOT</fcrepo-camel.version>
     <!-- testing -->
     <awaitility.version>1.6.3</awaitility.version>
     <commons.codec.version>1.10</commons.codec.version>
@@ -176,7 +179,7 @@
       <dependency>
         <groupId>org.fcrepo.camel</groupId>
         <artifactId>fcrepo-camel</artifactId>
-        <version>4.3.0</version>
+        <version>${fcrepo-camel.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.slf4j</groupId>
@@ -199,9 +202,14 @@
         <version>${commons.lang3.version}</version>
       </dependency>
       <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons.io.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.fcrepo</groupId>
         <artifactId>fcrepo-audit</artifactId>
-        <version>4.3.0</version>
+        <version>${fcrepo-audit.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -318,13 +326,6 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
         <version>${spring.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons.io.version}</version>
         <scope>test</scope>
       </dependency>
 
