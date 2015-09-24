@@ -91,3 +91,11 @@ please refer to the documentation in the
 [fcrepo-camel-webapp](https://github.com/fcrepo4-exts/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
 project.
 
+
+##Maintainers
+
+Current maintainers:
+
+* [Aaron Coburn](https://github.com/acoburn)
+* [Daniel Lamb](https://github.com/daniel-dgi)
+
