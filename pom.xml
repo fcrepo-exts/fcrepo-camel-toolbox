@@ -455,6 +455,10 @@
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
 
+      <plugin>
+        <artifactId>maven-changelog-plugin</artifactId>
+      </plugin>
+
       <!-- use jacoco for code coverage -->
       <plugin>
         <groupId>org.jacoco</groupId>
