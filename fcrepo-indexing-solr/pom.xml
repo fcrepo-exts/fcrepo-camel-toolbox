@@ -200,46 +200,6 @@
             </loginService>
           </loginServices>
         </configuration>
-        <dependencies>
-          <!-- It is very strange to me that these dependencies need to be specified at all,
-                but webapp-plus won't function properly unless these are defined here
-                acoburn 9/11/15 -->
-          <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-cachestore-leveldb</artifactId>
-            <version>${infinispan.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-model</artifactId>
-            <version>${sesame.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-api</artifactId>
-            <version>${sesame.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-ntriples</artifactId>
-            <version>${sesame.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-rdfxml</artifactId>
-            <version>${sesame.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-turtle</artifactId>
-            <version>${sesame.version}</version>
-          </dependency>
-        </dependencies>
         <executions>
           <execution>
             <id>start-jetty</id>
