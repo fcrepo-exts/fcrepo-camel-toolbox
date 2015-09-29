@@ -25,7 +25,6 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.PropertyInject;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
-import org.apache.camel.builder.xml.XPathBuilder;
 import org.fcrepo.camel.HttpMethods;
 import org.fcrepo.camel.RdfNamespaces;
 import org.slf4j.Logger;
@@ -53,9 +52,6 @@ public class ReindexingRouter extends RouteBuilder {
 
         final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
         ns.add("ldp", RdfNamespaces.LDP);
-
-        final XPathBuilder children = new XPathBuilder("/rdf:RDF/rdf:Description/ldp:contains");
-        children.namespaces(ns);
 
         /**
          * A generic error handler (specific to this RouteBuilder)
@@ -105,13 +101,12 @@ public class ReindexingRouter extends RouteBuilder {
          */
         from("{{reindexing.stream}}?asyncConsumer=true")
             .routeId("FcrepoReindexingTraverse")
-            .streamCaching()
             .inOnly("direct:recipients")
             .removeHeaders("CamelHttp*")
             .setHeader(Exchange.HTTP_METHOD).constant(HttpMethods.GET)
             .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferContainment&preferOmit=ServerManaged")
             .convertBodyTo(StreamSource.class)
-            .split(children).streaming()
+            .split().xtokenize("/rdf:RDF/rdf:Description/ldp:contains", 'i', ns).streaming()
                 .transform().xpath("/ldp:contains/@rdf:resource", String.class, ns)
                 .process(new PathProcessor())
                 .inOnly("{{reindexing.stream}}?disableTimeToLive=true");
