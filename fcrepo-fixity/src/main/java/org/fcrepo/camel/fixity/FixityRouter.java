@@ -39,7 +39,7 @@ public class FixityRouter extends RouteBuilder {
     public void configure() throws Exception {
 
         final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
-        ns.add("fedora", RdfNamespaces.REPOSITORY);
+        ns.add("premis", "http://www.loc.gov/premis/rdf/v1#");
 
         /**
          * A generic error handler (specific to this RouteBuilder)
@@ -63,7 +63,7 @@ public class FixityRouter extends RouteBuilder {
             .to("fcrepo:{{fcrepo.baseUrl}}?fixity=true")
             .choice()
                 .when().xpath(
-                        "/rdf:RDF/rdf:Description/fedora:status" +
+                        "/rdf:RDF/rdf:Description/premis:hasEventOutcome" +
                         "[text()='SUCCESS']", ns)
                     .to("{{fixity.success}}")
                 .otherwise()
