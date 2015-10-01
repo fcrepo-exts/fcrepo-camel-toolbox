@@ -78,14 +78,6 @@
 
   <build>
     <defaultGoal>install</defaultGoal>
-
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-      </resource>
-    </resources>
-
     <plugins>
 
       <plugin>
