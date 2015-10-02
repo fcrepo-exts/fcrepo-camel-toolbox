@@ -15,6 +15,7 @@
  */
 package org.fcrepo.camel.indexing.triplestore;
 
+import static java.net.URLEncoder.encode;
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 
 import java.util.HashMap;
@@ -296,11 +297,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
         final String eventTypes = REPOSITORY + "NODE_ADDED";
         final String eventProps = REPOSITORY + "hasContent";
         final String responsePrefix =
-                  "update=DELETE WHERE { <" + baseURL + fileID + "> ?p ?o }; " +
-                  "DELETE WHERE { <" + baseURL + fileID + "/fcr:export?format=jcr/xml> ?p ?o }; " +
+                  "DELETE WHERE { <" + baseURL + fileID + "> ?p ?o };\n" +
+                  "DELETE WHERE { <" + baseURL + fileID + "/fcr:export?format=jcr/xml> ?p ?o };\n" +
                   "INSERT DATA { ";
-        final String responseSuffix = " }";
-
 
         context.getRouteDefinition("FcrepoTriplestoreUpdater").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -317,10 +316,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
         endpoint.expectedMessageCount(1);
         endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
         endpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        endpoint.allMessages().body().regexReplaceAll("\\s+", " ").startsWith(responsePrefix);
-        endpoint.allMessages().body().regexReplaceAll("\\s+", " ").endsWith(responseSuffix);
+        endpoint.allMessages().body().startsWith("update=" + encode(responsePrefix, "UTF-8"));
+        endpoint.allMessages().body().endsWith(encode("\n}", "UTF-8"));
         for (final String s : document.split("\n")) {
-            endpoint.expectedBodyReceived().body().contains(s);
+            endpoint.expectedBodyReceived().body().contains(encode(s, "UTF-8"));
         }
 
         final Map<String, Object> headers = createEvent(fileID, eventTypes, eventProps);
