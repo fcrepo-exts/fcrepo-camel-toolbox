@@ -2,4 +2,4 @@
 <http://localhost:8080/fcrepo4/rest/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fedora.info/definitions/v4/repository#Resource> .
 <http://localhost:8080/fcrepo4/rest/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/ldp#Container> .
 <http://localhost:8080/fcrepo4/rest/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fedora.info/definitions/v4/repository#Container> .
-<http://localhost:8080/fcrepo4/rest/foo> .
+<http://localhost:8080/fcrepo4/rest/foo> <http://purl.org/dc/elements/1.1/title> "This & That" .
