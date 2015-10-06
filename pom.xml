@@ -85,7 +85,6 @@
 
   <modules>
     <module>fcrepo-audit-triplestore</module>
-    <module>fcrepo-camel-webapp</module>
     <module>fcrepo-fixity</module>
     <module>fcrepo-indexing-solr</module>
     <module>fcrepo-indexing-triplestore</module>
