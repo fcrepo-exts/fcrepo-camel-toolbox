@@ -16,6 +16,7 @@
   <description>Camel-based indexing service for Solr</description>
 
   <properties>
+    <fcrepo-transform.version>4.4.1-SNAPSHOT</fcrepo-transform.version>
   </properties>
 
   <dependencies>
@@ -28,7 +29,7 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-blueprint</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
@@ -72,9 +73,113 @@
     <!-- Testing & Camel Plugin -->
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-test-blueprint</artifactId>
+      <artifactId>camel-test</artifactId>
+      <scope>test</scope>
+      <version>${camel.version}</version>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.glassfish.grizzly</groupId>
+      <artifactId>grizzly-http-servlet</artifactId>
+      <version>${grizzly.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>${jersey.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.ext</groupId>
+      <artifactId>jersey-spring3</artifactId>
+      <version>${jersey.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+      <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+      <version>${jersey.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+
+     <!--fcrepo testing -->
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-kernel-api</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-kernel-modeshape</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-jms</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-http-api</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-configs</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.transform</groupId>
+      <artifactId>fcrepo-transform</artifactId>
+      <version>${fcrepo-transform.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-auth-common</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-http-commons</artifactId>
+      <version>${fcrepo.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
+      <version>${spring.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>com.jayway.awaitility</groupId>
       <artifactId>awaitility</artifactId>
@@ -102,7 +207,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -135,6 +240,7 @@
             <portName>fcrepo.dynamic.test.port</portName>
             <portName>fcrepo.dynamic.jms.port</portName>
             <portName>fcrepo.dynamic.stomp.port</portName>
+            <portName>jetty.dynamic.test.port</portName>
             <portName>jetty.dynamic.stop.port</portName>
           </portNames>
         </configuration>
@@ -211,7 +317,7 @@
             </goals>
             <configuration>
               <httpConnector>
-                <port>${fcrepo.dynamic.test.port}</port>
+                <port>${jetty.dynamic.test.port}</port>
               </httpConnector>
               <scanIntervalSeconds>0</scanIntervalSeconds>
               <daemon>true</daemon>
@@ -219,10 +325,6 @@
                   <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
                     <war>${project.build.directory}/solr.war</war>
                     <contextPath>/solr</contextPath>
-                  </contextHandler>
-                  <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
-                    <war>${project.build.directory}/fcrepo.war</war>
-                    <contextPath>/fcrepo</contextPath>
                   </contextHandler>
               </contextHandlers>
             </configuration>
@@ -252,14 +354,6 @@
             </goals>
             <configuration>
               <artifactItems>
-                <artifactItem>
-                  <groupId>org.fcrepo</groupId>
-                  <artifactId>fcrepo-webapp</artifactId>
-                  <version>${fcrepo.version}</version>
-                  <type>war</type>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <destFileName>fcrepo.war</destFileName>
-                </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.solr</groupId>
                   <artifactId>solr</artifactId>

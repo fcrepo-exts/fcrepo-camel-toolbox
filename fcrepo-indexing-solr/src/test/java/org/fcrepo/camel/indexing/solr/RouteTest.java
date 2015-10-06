@@ -27,8 +27,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
 import org.fcrepo.camel.JmsHeaders;
@@ -41,7 +42,7 @@ import org.junit.Test;
  * @author Aaron Coburn
  * @since 2015-04-10
  */
-public class RouteTest extends CamelBlueprintTestSupport {
+public class RouteTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -50,6 +51,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     protected ProducerTemplate template;
 
     private static final String baseURL = "http://localhost/rest";
+    private static final String solrURL = "localhost:8983/solr/collection1";
     private static final String fileID = "/file1";
     private static final long timestamp = 1428360320168L;
     private static final String eventDate = "2015-04-06T22:45:20Z";
@@ -63,13 +65,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
     }
 
     @Override
-    public boolean isUseRouteBuilder() {
-        return false;
-    }
-
-    @Override
-    protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+    protected RouteBuilder createRouteBuilder() {
+        return new SolrRouter();
     }
 
     @Override
@@ -79,6 +76,13 @@ public class RouteTest extends CamelBlueprintTestSupport {
          props.put("audit.container", auditContainer);
          props.put("input.stream", "seda:foo");
          props.put("reindex.stream", "seda:bar");
+         props.put("error.maxRedeliveries", "10");
+         props.put("indexing.predicate", "true");
+         props.put("fcrepo.baseUrl", baseURL);
+         props.put("fcrepo.defaultTransform", "default");
+         props.put("solr.baseUrl", solrURL);
+         props.put("solr.commitWithin", "100");
+         props.put("solr.reindex.stream", "seda:reindex");
          return props;
     }
 
@@ -254,10 +258,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
         });
         context.start();
 
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
+        getMockEndpoint("mock:http4:" + solrURL + "/update").expectedMessageCount(1);
+        getMockEndpoint("mock:http4:" + solrURL + "/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedBodiesReceived(body);
+        getMockEndpoint("mock:http4:" + solrURL + "/update").expectedBodiesReceived(body);
 
         template.sendBodyAndHeaders("direct:update.solr", body,
                 createEvent(fileID, eventTypes, eventProps));
@@ -280,10 +284,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
         });
         context.start();
 
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
+        getMockEndpoint("mock:http4:" + solrURL + "/update").expectedMessageCount(1);
+        getMockEndpoint("mock:http4:" + solrURL + "/update")
             .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/json");
-        getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
+        getMockEndpoint("mock:http4:" + solrURL + "/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:delete.solr", "",
