@@ -74,12 +74,14 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
-         final Properties props = new Properties();
-         props.put("indexing.predicate", "true");
-         props.put("audit.container", auditContainer);
-         props.put("input.stream", "seda:foo");
-         props.put("reindex.stream", "seda:bar");
-         return props;
+        final Properties props = new Properties();
+        props.put("indexing.predicate", "true");
+        props.put("audit.container", auditContainer);
+        props.put("input.stream", "seda:foo");
+        props.put("reindex.stream", "seda:bar");
+        props.put("fcrepo.authUsername", "user1");
+        props.put("fcrepo.authPassword", "password1");
+        return props;
     }
 
     @Test
@@ -256,7 +258,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedMessageCount(1);
         getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
-            .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+        .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
         getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedBodiesReceived(body);
 
         template.sendBodyAndHeaders("direct:update.solr", body,
@@ -282,9 +284,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update").expectedMessageCount(1);
         getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
-            .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/json");
+        .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/json");
         getMockEndpoint("mock:http4:localhost:8983/solr/collection1/update")
-            .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+        .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:delete.solr", "",
                 createEvent(fileID, eventTypes, eventProps));

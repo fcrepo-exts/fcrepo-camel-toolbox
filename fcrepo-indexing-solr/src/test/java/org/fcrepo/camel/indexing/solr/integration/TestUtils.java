@@ -21,9 +21,15 @@ import java.util.concurrent.Callable;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.camel.Exchange;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
@@ -41,12 +47,36 @@ public class TestUtils {
         return httpClient.execute(get).getEntity().getContent();
     }
 
-    public static void httpPost(final String url, final String content, final String mimeType) throws Exception {
-        final CloseableHttpClient httpClient = HttpClients.createDefault();
+    public static String httpPost(final String url, final String content, final String mimeType) throws Exception {
+        return httpPost(url, content, mimeType, null, null);
+    }
+
+    public static String httpPost(final String url, final String content, final String mimeType, final String username,
+            final String password) throws Exception {
+        final CloseableHttpClient httpClient;
+
+        if (username != null && password != null) {
+            final CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            credsProvider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(username, password));
+            httpClient = HttpClients.custom()
+                    .setDefaultCredentialsProvider(credsProvider)
+                    .build();
+        } else {
+            httpClient = HttpClients.createDefault();
+        }
+
         final HttpPost post = new HttpPost(url);
         post.addHeader(Exchange.CONTENT_TYPE, mimeType);
         post.setEntity(new StringEntity(content));
-        httpClient.execute(post);
+        final HttpResponse response = httpClient.execute(post);
+        final Header location = response.getFirstHeader("Location");
+        if (location != null) {
+            return location.getValue();
+        } else {
+            return null;
+        }
     }
 
     public static Callable<Integer> solrCount(final String url) {
