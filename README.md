@@ -18,7 +18,7 @@ Tomcat or Jetty. It is possible to bundle all of the applications or only select
 modules into the web application.
 
 For more information, see the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-webapp)
 module.
 
 ### Repository Audit Service (Triplestore)
@@ -88,7 +88,7 @@ Then, you can add any combination of the following applications:
 
 If you intend to deploy this application in a web container such as Tomcat or Jetty,
 please refer to the documentation in the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
+[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-webapp)
 project.
 
 
