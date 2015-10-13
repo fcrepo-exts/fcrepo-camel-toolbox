@@ -6,7 +6,7 @@
   <parent>
     <artifactId>fcrepo-camel-toolbox</artifactId>
     <groupId>org.fcrepo.camel</groupId>
-    <version>4.4.0</version>
+    <version>4.4.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>fcrepo-indexing-solr</artifactId>
