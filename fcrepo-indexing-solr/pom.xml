@@ -255,7 +255,7 @@
                 <artifactItem>
                   <groupId>org.fcrepo</groupId>
                   <artifactId>fcrepo-webapp</artifactId>
-                  <version>${project.version}</version>
+                  <version>${fcrepo.version}</version>
                   <type>war</type>
                   <outputDirectory>${project.build.directory}</outputDirectory>
                   <destFileName>fcrepo.war</destFileName>
