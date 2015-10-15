@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="fcrepo-camel-toolbox-${project.version}">
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" name="fcrepo-camel-toolbox-${project.version}">
   <repository>mvn:org.fcrepo.camel/fcrepo-camel/${fcrepo-camel.version}/xml/features</repository>
   <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
   <repository>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</repository>
 
-  <feature name="fcrepo-indexing-solr" version="${project.version}" resolver="(obr)" start-level="50">
+  <feature name="fcrepo-indexing-solr" version="${project.version}" start-level="50">
     <details>Installs the fcrepo solr indexer</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}</bundle>
 
@@ -22,7 +22,7 @@
     <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-fixity" version="${project.version}" resolver="(obr)" start-level="50">
+  <feature name="fcrepo-fixity" version="${project.version}" start-level="50">
     <details>Installs the fcrepo fixity service</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}</bundle>
 
@@ -34,7 +34,7 @@
     <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-indexing-triplestore" version="${project.version}" resolver="(obr)" start-level="50">
+  <feature name="fcrepo-indexing-triplestore" version="${project.version}" start-level="50">
     <details>Installs the fcrepo triplestore indexer</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}</bundle>
 
@@ -49,10 +49,11 @@
     <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-reindexing" version="${project.version}" resolver="(obr)" start-level="50">
+  <feature name="fcrepo-reindexing" version="${project.version}" start-level="50">
     <details>Installs a re-indexing application</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}</bundle>
 
+    <feature prerequisite="true">wrap</feature>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
@@ -68,7 +69,7 @@
     <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-audit-triplestore" version="${project.version}" resolver="(obr)" start-level="50">
+  <feature name="fcrepo-audit-triplestore" version="${project.version}" start-level="50">
     <details>Installs the fcrepo audit service with a triplestore backend</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}</bundle>
 
@@ -78,6 +79,7 @@
          Once fcrepo-karaf is published to maven the following can be replaced with
          <feature version="${fcrepo-audit.version}">fcrepo-audit</feature>
          -->
+    <feature prerequisite="true">wrap</feature>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${fcrepo-audit.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-api/${fcrepo.version}</bundle>
