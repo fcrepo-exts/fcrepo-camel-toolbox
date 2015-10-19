@@ -494,4 +494,10 @@
     <url>http://jenkins.fcrepo.org/job/fcrepo-camel-toolbox/</url>
   </ciManagement>
 
+  <scm>
+    <connection>scm:git:git://github.com/fcrepo4-exts/fcrepo-camel-toolbox.git</connection>
+    <developerConnection>scm:git:git@github.com:fcrepo4-exts/fcrepo-camel-toolbox.git</developerConnection>
+    <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox</url>
+    <tag>HEAD</tag>
+  </scm>
 </project>
