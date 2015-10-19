@@ -16,6 +16,7 @@
   <description>Camel-based fixity checking service</description>
 
   <properties>
+    <osgi.export.packages>org.fcrepo.camel.fixity;version=${project.version}</osgi.export.packages>
   </properties>
 
   <dependencies>
@@ -87,7 +88,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -125,6 +126,7 @@
         </configuration>
         <executions>
           <execution>
+            <id>attach-artifacts</id>
             <phase>package</phase>
             <goals>
               <goal>attach-artifact</goal>

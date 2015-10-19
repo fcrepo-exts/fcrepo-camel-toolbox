@@ -16,6 +16,7 @@
   <description>Camel-based indexing service to feed the re-indexing of any external services</description>
 
   <properties>
+    <osgi.export.packages>org.fcrepo.camel.reindexing;version=${project.version}</osgi.export.packages>
   </properties>
 
   <dependencies>
@@ -143,6 +144,7 @@
           </configuration>
           <executions>
             <execution>
+              <id>attach-artifacts</id>
               <phase>package</phase>
               <goals>
                 <goal>attach-artifact</goal>
