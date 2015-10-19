@@ -16,6 +16,7 @@
   <description>Camel-based indexing service for an external triplestore</description>
 
   <properties>
+    <osgi.export.packages>org.fcrepo.camel.indexing.triplestore;version=${project.version}</osgi.export.packages>
   </properties>
 
   <dependencies>
@@ -134,6 +135,7 @@
           </configuration>
           <executions>
             <execution>
+              <id>attach-artifacts</id>
               <phase>package</phase>
               <goals>
                 <goal>attach-artifact</goal>

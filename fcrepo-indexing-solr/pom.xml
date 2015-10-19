@@ -16,7 +16,7 @@
   <description>Camel-based indexing service for Solr</description>
 
   <properties>
-    <fcrepo-transform.version>4.4.1-SNAPSHOT</fcrepo-transform.version>
+    <osgi.export.packages>org.fcrepo.camel.indexing.solr;version=${project.version}</osgi.export.packages>
   </properties>
 
   <dependencies>
@@ -39,7 +39,7 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.fcrepo.camel</groupId>
       <artifactId>fcrepo-camel</artifactId>
@@ -246,6 +246,7 @@
         </configuration>
         <executions>
           <execution>
+            <id>attach-artifacts</id>
             <phase>package</phase>
             <goals>
               <goal>attach-artifact</goal>
