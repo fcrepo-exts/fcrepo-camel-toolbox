@@ -67,6 +67,7 @@
     <module>fcrepo-indexing-solr</module>
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
+    <module>fcrepo-serialization</module>
   </modules>
 
   <repositories>
@@ -97,6 +98,11 @@
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-http4</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-exec</artifactId>
         <version>${camel.version}</version>
       </dependency>
       <dependency>
