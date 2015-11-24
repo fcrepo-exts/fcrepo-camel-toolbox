@@ -1,0 +1,8 @@
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX fedora: <http://fedora.info/definitions/v4/repository#>
+PREFIX indexing: <http://fedora.info/definitions/v4/indexing#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+
+<> a indexing:Indexable ;
+    dc:title "Indexable Object & Value" ;
+    indexing:hasIndexingTransformation "default" .

@@ -1,0 +1,1058 @@
+commit 9dd507d35169e57ed1a1ba51e5c96bda334f4b9e
+Merge: 4e90c6d 10b4374
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Tue Nov 24 15:50:46 2015 -0500
+
+    Merge
+
+commit 4e90c6d55317cd7ddcfe05aa3a6f7c66da62c2b0
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Tue Nov 24 15:17:54 2015 -0500
+
+    many small updates
+
+commit fc54a3df4b6e3611aa33ba653987831b0b933f51
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Wed Nov 18 09:22:59 2015 -0500
+
+    Modified configuration variables.
+
+commit 7e3e1f2082821bd12805ca6a5072624796a4ca73
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Tue Nov 17 23:36:29 2015 -0500
+
+    fixed typo, mostly complete
+
+commit 3b32d6a72f3384ffe2091686c2aa8269f2377532
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Thu Nov 5 14:14:57 2015 -0500
+
+    Incremental check-in. The unit tests pass.
+
+commit 975dff66709898035a0115b56d880855bdcfbdb3
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Thu Nov 5 14:07:59 2015 -0500
+
+    Added serialization module.
+
+commit 8be4e9859cf879e8888bff5c90e61520d219aa26
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Wed Oct 14 14:32:36 2015 -0400
+
+    Fixed the test up some. Named the routes (correctly).
+    Fixed a few typos that were causing problems.
+
+commit 098c0fc60f3d9fbdc16f27fb7e14ff712fd74f24
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Wed Oct 14 13:29:11 2015 -0400
+
+    Changed the logic around the file format a little.
+
+commit 1efc8a48e4397bb960e6a0839eff5701444c7e55
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Tue Oct 13 13:24:18 2015 -0400
+
+    Initial commit of fcrepo serialiazation service.
+
+commit 10b437485850dd57bc821a0b1c359c0372ec09ec
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Thu Nov 5 14:14:57 2015 -0500
+
+    Incremental check-in. The unit tests pass.
+
+commit 084578d941de909013809631c4eb5843c8adb109
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Thu Nov 5 14:07:59 2015 -0500
+
+    Added serialization module.
+
+commit bee4dbc3984c00b9411510076597c8d5413e3d6c
+Merge: 12b35a3 f36c66c
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Tue Oct 27 15:24:06 2015 -0400
+
+    Merge pull request #63 from whikloj/FCREPO-1763
+    
+    Update features.xml to add wrap as a prerequisite.
+
+commit 12b35a37bdd451a9281511f7d73c1085bb461959
+Merge: fbe58bd fb3c6e6
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon Oct 19 18:38:17 2015 -0400
+
+    Merge pull request #64 from acoburn/fcrepo-1781
+    
+    clean up maven configuration
+
+commit fb3c6e64eec9d707909daff8ac1a54934b5bff09
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Oct 19 17:44:09 2015 -0400
+
+    update scm section
+
+commit 281ee46f44bf9634ed59b9ce2cf0419e95c45d0b
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Oct 19 13:50:19 2015 -0400
+
+    clean up maven configuration
+
+commit fbe58bd8d52267919b0df4319ab55fe26062fdc1
+Author: Yinlin Chen <ylchen@vt.edu>
+Date:   Tue Oct 6 16:59:51 2015 -0400
+
+    Extract fcrepo-camel-webapp to fcrepo4-labs
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1691
+
+commit cb7a67db0ce54c43dc058ba0275cd9153a22c2e3
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Oct 5 22:25:22 2015 -0400
+
+    Replace CamelBlueprintTestSupport with plain old CamelTestSupport
+    
+    Related to: https://jira.duraspace.org/browse/FCREPO-1670
+
+commit f36c66c08b6c9f8fbd51aa697e80740037ebed5c
+Author: Jared Whiklo <jwhiklo@gmail.com>
+Date:   Thu Oct 15 11:16:52 2015 -0500
+
+    Update features.xml to add wrap as a prerequisite.
+
+commit 7835a1faf4dbd9172ec24d837722c8371fc76bfe
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Wed Oct 14 14:32:36 2015 -0400
+
+    Fixed the test up some. Named the routes (correctly).
+    Fixed a few typos that were causing problems.
+
+commit 67ed2cffd8971016af0913321eaa1f7668705396
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Wed Oct 14 13:29:11 2015 -0400
+
+    Changed the logic around the file format a little.
+
+commit 6478b5b68b983573ca6041c8db7cb1011d7d6ad6
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Tue Oct 13 15:46:15 2015 -0400
+
+    Prepare dependency versions for next development iteration
+
+commit 74d0a9a2682051546163ccd1d56dbeb6ca75e518
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Tue Oct 13 15:43:24 2015 -0400
+
+    [maven-release-plugin] prepare for next development iteration
+
+commit 591982cd340d1a0f586deffce3b012a739e67a0c
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Tue Oct 13 15:43:01 2015 -0400
+
+    [maven-release-plugin] prepare release fcrepo-camel-toolbox-4.4.0
+
+commit e3a652e259762551005811a72213b5a25ced301f
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Tue Oct 13 15:38:20 2015 -0400
+
+    Prepare dependency versions for 4.4.0 release
+
+commit 4b8bdccaac73b0dfeea90d451e5a663735639bf5
+Author: Bethany Seeger <bseeger@amherst.edu>
+Date:   Tue Oct 13 13:24:18 2015 -0400
+
+    Initial commit of fcrepo serialiazation service.
+
+commit 2053e073b44457dd84523ad6b40e416e1094ea32
+Merge: 2013b95 b86988c
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri Oct 2 14:20:45 2015 -0400
+
+    Merge pull request #60 from acoburn/fcrepo-1752
+    
+    added URL encoding support, related to upstream fcrepo-camel changes
+
+commit b86988ccd9a06fb7c27672a1204570b29c96b34b
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Oct 2 11:38:02 2015 -0400
+
+    added URL encoding support, related to upstream fcrepo-camel changes
+
+commit 2013b95e002e55c92a99fb9b7d54912caddc9aca
+Merge: 5544b9b 3f59162
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri Oct 2 11:02:01 2015 -0400
+
+    Merge pull request #59 from acoburn/fcrepo-1728b
+    
+    decouple build version
+
+commit 3f59162f997b1533c0ad598c98e824e51310325d
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Oct 2 10:36:46 2015 -0400
+
+    decouple build version
+
+commit 5544b9bac73a1e210c59dc8f2dbf2e28ca62e47a
+Merge: b8fa3ec ab7b93a
+Author: Jared Whiklo <jwhiklo@gmail.com>
+Date:   Thu Oct 1 12:37:25 2015 -0500
+
+    Merge pull request #58 from awoods/fcrepo-1728
+    
+    Revert "Clean up/reorg maven config, inheriting from fcrepo-parent"
+
+commit ab7b93aa9c34047a3f548db7fe71a48213bdef44
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Thu Oct 1 12:52:28 2015 -0400
+
+    Revert "Clean up/reorg maven config, inheriting from fcrepo-parent"
+    
+    This reverts commit a774c5dcdddcdce8374d613f4d8dd4d011303b3e.
+
+commit b8fa3ec50f4420394ab3c5146d88a8a9318367a5
+Merge: a774c5d 0958ee3
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Wed Sep 30 17:04:22 2015 -0400
+
+    Merge pull request #57 from acoburn/fcrepo-1746
+    
+    use premis:hasEventOutcome instead of non-existent fedora:status property
+
+commit a774c5dcdddcdce8374d613f4d8dd4d011303b3e
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Sep 14 17:49:12 2015 -0400
+
+    Clean up/reorg maven config, inheriting from fcrepo-parent
+    
+    Related to: https://jira.duraspace.org/browse/FCREPO-1728
+
+commit 274d2d3feba3163ab27f26e052f2a101a401459b
+Merge: 2d0ae5f 0577257
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Tue Sep 29 15:47:58 2015 -0400
+
+    Merge pull request #56 from acoburn/fcrepo-1748
+    
+    use xtokenize() function for xml streaming
+
+commit 0958ee3d10549d6d1198edd4afa583cb5abe2196
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Sep 25 00:19:03 2015 -0400
+
+    use premis:hasEventOutcome instead of non-existent fedora:status property
+
+commit 05772571911f38e4b7b8b0606c19307271a178a9
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Sep 25 00:08:03 2015 -0400
+
+    use xtokenize() function for xml streaming
+
+commit 2d0ae5feadd8cd43f88ea4eb53f5df706e29a7b8
+Merge: 56c1d73 c0c23e8
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Thu Sep 24 13:35:29 2015 -0400
+
+    Merge pull request #55 from daniel-dgi/maintainers
+    
+    Addresses fcrepo-1745:  Adding maintainers
+
+commit c0c23e816deeefb6cd4a9db50cd12f5e39575845
+Author: Daniel Lamb <daniel@discoverygarden.ca>
+Date:   Thu Sep 24 13:59:14 2015 -0300
+
+    Adding maintainers
+
+commit 56c1d73dc750bc3230bd8185296372c016697ef7
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Sep 14 15:55:00 2015 -0400
+
+    Replace clerezza code with jena
+    - Use n-triples content-type for jena RDF processing
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1730
+
+commit 44eeac17fb82e118f8d5762f2eb90c0200a29ba2
+Merge: 2075359 c3223b8
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Thu Aug 27 17:08:55 2015 -0400
+
+    Merge pull request #50 from ruebot/FCREPO-1467
+    
+    Updates for migrating from standalone Fuseki to fuseki.war. Address F…
+
+commit c3223b81717ea6c83435f69ea235d0dd6abee073
+Author: nruest <ruestn@gmail.com>
+Date:   Tue Aug 25 07:27:58 2015 -0400
+
+    Updates for migrating from standalone Fuseki to fuseki.war. Address FCREPO-1467.
+
+commit 2075359c4a4f740cc59ffd01823d170277a3c90f
+Merge: 62d6b2e f15c488
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Sun Aug 16 08:01:11 2015 -0600
+
+    Merge pull request #48 from acoburn/fcrepo-1683
+    
+    update scm information
+
+commit f15c48826980192fa9efa2a96f4d2a1ef8d1c7a5
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Aug 7 18:16:30 2015 -0400
+
+    update reflecting the relocation of fcrepo-audit
+
+commit f447331158bbaa53a2a1c878398c1b114e0f1ca1
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Aug 7 17:19:28 2015 -0400
+
+    nonfunctional reordering of modules
+
+commit b692ef5b580ce9c0752a9e8b25bd49b916278173
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Aug 7 17:03:14 2015 -0400
+
+    update readme files with correct path
+
+commit 75eaae7bdf554422db94091d6f01c30551bb740e
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Aug 7 16:42:28 2015 -0400
+
+    update scm information
+
+commit 62d6b2eb6c14ac681e74088c99611d0d24060825
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed Jul 29 08:21:03 2015 -0400
+
+    Add configuration files for OSGi deployment
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1660
+
+commit a7545cce6a1e04c1a61976506a23d97ecebd400d
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed Jul 29 11:00:58 2015 -0400
+
+    Silence unnecessary javadoc output
+    
+    Partial resolution of: https://jira.duraspace.org/browse/FCREPO-1656
+
+commit c2c95977e299a8e9eaf26b5c8b4345156d805a5a
+Merge: c864356 30f443f
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon Aug 3 16:55:00 2015 -0600
+
+    Merge pull request #47 from acoburn/fcrepo-1657
+    
+    remove redundant javadoc command
+
+commit c86435653db27be4c34c922c8524f4cb6bef0db4
+Merge: d4144e0 bb89dc4
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon Aug 3 16:33:47 2015 -0600
+
+    Merge pull request #42 from ruebot/FCREPO-1653
+    
+    FCREPO-1653 -- update site-maven-plugin from 0.11 to 0.12.
+
+commit d4144e06884549a7f6fd488955fedf822816f020
+Merge: b551d2e 35b1aa0
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Wed Jul 29 17:13:11 2015 -0600
+
+    Merge pull request #45 from acoburn/fcrepo-1661
+    
+    update transitive dependencies for the fcrepo-audit-triplestore feature
+
+commit 30f443f09cb9858a56a36f5cafcc5be33be52ddb
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed Jul 29 13:55:59 2015 -0400
+
+    remove redundant javadoc command
+
+commit 35b1aa0064c22c21c73522be00604ea01487ea50
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed Jul 29 10:50:35 2015 -0400
+
+    update transitive dependencies for the fcrepo-audit-triplestore feature
+
+commit b551d2e79095e751c959575aef8552363821dd82
+Merge: a26717f c3ed9ff
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed Jul 29 09:39:52 2015 -0400
+
+    Merge pull request #44 from ruebot/FCREPO-1659
+    
+    Address FCREPO-1659 -- Migration to TravisCI container-based infrastr…
+
+commit c3ed9ff32228e2b95fc2842cb8477652ba629bf5
+Author: nruest <ruestn@gmail.com>
+Date:   Wed Jul 29 08:34:56 2015 -0400
+
+    Address FCREPO-1659 -- Migration to TravisCI container-based infrastructure.
+
+commit bb89dc4411618f781db7508c374fe81859ecb991
+Author: nruest <ruestn@gmail.com>
+Date:   Tue Jul 28 06:48:13 2015 -0400
+
+    FCREPO-1653 -- update site-maven-plugin from 0.11 to 0.12.
+
+commit a26717fea1b5c47017c6c5a03586623618c2a64d
+Author: nruest <ruestn@gmail.com>
+Date:   Sun Jul 26 10:27:12 2015 -0400
+
+    [maven-release-plugin] prepare for next development iteration
+
+commit 35e6a7236e4746e1c9c08a0d328924163b4989ce
+Author: nruest <ruestn@gmail.com>
+Date:   Sun Jul 26 10:27:11 2015 -0400
+
+    [maven-release-plugin] prepare release fcrepo-camel-toolbox-4.3.0
+
+commit e8669467b19dbbdea3c4a05476ac758599b51911
+Merge: 2eee836 775f8e6
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon Jul 20 20:16:01 2015 -0400
+
+    Merge pull request #41 from acoburn/fcrepo-1641
+    
+    update kernel package names based on proposed upstream changes
+
+commit 775f8e6b9ad06fa697b00f1f08089b2476cf57a4
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Jul 20 14:51:23 2015 -0400
+
+    update kernel package names based on proposed upstream changes
+
+commit 2eee8368374711e12e61521c5e30e62d24ac38f6
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Jun 19 13:57:05 2015 -0400
+
+    updated documentation for fcrepo-fixity
+
+commit 8788576e27dcb825e269c573b2b5c7d156d5fd64
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed Jun 17 21:14:18 2015 -0400
+
+    implementation of a fixity checking service
+
+commit d47fd00bc13da520fcbb5b4a679e13c2cb109cc0
+Merge: d030280 a5c4c93
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Jul 10 15:43:20 2015 -0600
+
+    Merge pull request #38 from ksclarke/multiple-slf4j-fix
+    
+    Remove duplicate logback from jetty-maven-plugin's classpath
+
+commit d0302804e85de588c346f52aa1f626a7fe57c3cd
+Merge: 001b176 a3d3843
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Jul 10 15:42:59 2015 -0600
+
+    Merge pull request #37 from ksclarke/maven-jetty-fix
+    
+    Add stopWait configuration for jetty-maven-plugin
+
+commit 001b176175741426b324f02cd0eb0aee7441b0ed
+Merge: c69b8dd dc2afb6
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Jul 10 15:25:12 2015 -0600
+
+    Merge pull request #40 from awoods/patch-1
+    
+    Minor typo in README
+
+commit dc2afb608b5d991594252efe033c3cfee38340b5
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri Jul 10 17:22:34 2015 -0400
+
+    Minor typo in README
+
+commit c69b8ddb132722c40fd24b6d629844a375c1d40c
+Merge: 45aebe5 8d8ba74
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri Jul 10 13:55:39 2015 -0400
+
+    Merge pull request #39 from acoburn/fcrepo-1626
+    
+    update mailing list address
+
+commit 8d8ba74f0eae38b287d19c3861a5a48dd14b7f06
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Jul 10 10:41:20 2015 -0600
+
+    update mailing list address
+
+commit a5c4c930c0896cb38f9bb5d6f46c4ba82e0aebcd
+Author: Kevin S. Clarke <ksclarke@gmail.com>
+Date:   Tue Jul 7 16:35:58 2015 -0400
+
+    Remove duplicate logback from jetty-maven-plugin
+
+commit a3d3843a99fb3c197f66377276ea097796614605
+Author: Kevin S. Clarke <ksclarke@gmail.com>
+Date:   Tue Jul 7 15:56:19 2015 -0400
+
+    Add stopWait configuration for jetty-maven-plugin
+
+commit 45aebe5d220534321275e26115a42ed21e5581a5
+Merge: c60d353 304692a
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Jul 6 13:44:01 2015 -0600
+
+    Merge pull request #32 from yinlinchen/fcrepo-1552
+    
+    Remove UUID from default transform
+    https://jira.duraspace.org/browse/FCREPO-1552
+
+commit 304692ab507b1a584f186856622d8ca8e2ae6af8
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon Jun 29 18:48:12 2015 -0400
+
+    Update test schema.xml due to impact of updated transform
+    
+    Related to: https://jira.duraspace.org/browse/FCREPO-1552
+
+commit 8200073d4a3fe900b3d76cdb2caabd77870297a8
+Author: Yinlin Chen <ylchen@vt.edu>
+Date:   Thu Jun 4 13:53:50 2015 -0400
+
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1552
+
+commit c60d353f61d9ad9a32e48649c6c7e4e09c11eea1
+Merge: 795097f 730ac64
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri Jun 19 16:27:39 2015 -0400
+
+    Merge pull request #36 from acoburn/fcrepo-1592
+    
+    added comments to test utility class
+
+commit 730ac6442a6fe69edf9c78299fab7793edeb7d24
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Jun 19 14:04:44 2015 -0400
+
+    added comments to test utility class
+
+commit 795097f6b4558d521678a607187f2b136d6ceaf9
+Merge: 1aa6994 30bce69
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Tue Jun 16 16:50:04 2015 -0400
+
+    Merge pull request #34 from awoods/fcrepo-1580
+    
+    Use ${project.version} instead of hardcoded dep versions
+
+commit 30bce6990e3ac0e1f07b562b7cbed9e3f3ec60f9
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri Jun 5 16:58:52 2015 -0400
+
+    Use ${project.version} instead of hardcoded dep versions
+    
+    Partial resolution of: https://jira.duraspace.org/browse/FCREPO-1580
+
+commit 1aa699481fd87466eac3854340fdf11ca74daddc
+Author: Esmé Cowles <escowles@ucsd.edu>
+Date:   Thu Jun 4 16:56:00 2015 -0400
+
+    Use eventID instead of locally-generated UUID when building event URIs
+    
+    Partial resolution of: https://jira.duraspace.org/browse/FCREPO-1507
+
+commit 446d9d604843efa7075e9795cc8f41404dfbe8bd
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed Jun 3 16:17:17 2015 -0400
+
+    Update documentation
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1566
+
+commit df820d5373ae422edf166d68d19a37263f09480d
+Merge: fb54a67 4063d22
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Wed Jun 3 17:01:48 2015 -0400
+
+    Merge pull request #30 from acoburn/fcrepo-1564
+    
+    fix erroneous xpath
+
+commit fb54a6794c29ee9e4b2c1577e9f91aacef396ef6
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Tue Jun 2 20:32:50 2015 -0400
+
+    Fix typo in README.md
+
+commit eb8b054516f6b00d8884a9eaa68a5271c4e888fc
+Author: robyj <robyj@cc.umanitoba.ca>
+Date:   Thu May 28 13:11:46 2015 -0500
+
+    Fix javadoc errors and add javadoc to Travis
+    
+    Partial resolution of: https://jira.duraspace.org/browse/FCREPO-1556
+
+commit 4063d2204c1703931310476f4fdb9959d687cdbc
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Tue Jun 2 16:15:53 2015 -0400
+
+    fix erroneous xpath
+
+commit 170c289d3dd6d8064d90defae81d60fba5f53dfb
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri May 8 11:38:25 2015 -0400
+
+    Add reindexing service
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1488
+
+commit b498b2017e3ca8ab3da1dbd91ca6a0f7f97f7fad
+Merge: 56e6c46 1bdb336
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed May 27 14:18:36 2015 -0400
+
+    Merge pull request #27 from awoods/fcrepo-1557.master
+    
+    Enable maven site generation with javadocs
+
+commit 1bdb336c25053a39934ba4602305eaf98209d59c
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Wed May 27 11:18:21 2015 -0400
+
+    Enable maven site generation with javadocs
+    
+    Related to: https://jira.duraspace.org/browse/FCREPO-1557
+
+commit 56e6c465db6a92533fe1841b30c9dfa0e707f428
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Wed May 20 00:10:51 2015 -0400
+
+    [maven-release-plugin] prepare for next development iteration
+
+commit 5bdb1c8ae24b661ec280c6fb7209f86694160fd7
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Wed May 20 00:10:51 2015 -0400
+
+    [maven-release-plugin] prepare release fcrepo-camel-toolbox-4.2.0
+
+commit 4e42ca0eaabaa2e3a7230469de2ad8343b863c66
+Merge: 20f634d a84e58f
+Author: A. Soroka <ajs6f@virginia.edu>
+Date:   Mon May 18 14:16:16 2015 -0400
+
+    Merge pull request #25 from awoods/fcrepo-1522
+    
+    Update travis IRC channel
+
+commit a84e58f9d46063102853494cd2cd60186d968e22
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon May 18 12:56:47 2015 -0400
+
+    Update travis IRC channel
+    
+    Related to https://jira.duraspace.org/browse/FCREPO-1522
+
+commit 20f634d5c6a805108f701186824d9035eeb52e9e
+Merge: efcb7b7 9479aa9
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon May 18 07:32:31 2015 -0600
+
+    Merge pull request #24 from acoburn/fcrepo-1543
+    
+    update build machinery for java8
+
+commit 9479aa91db673bbccad297c9d1102e8c9457b46c
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Sun May 17 09:07:14 2015 -0400
+
+    update build machinery for java8
+
+commit efcb7b70be6a6f0a5ad778e18f82ff5b71dd571b
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Thu Apr 23 10:31:40 2015 -0400
+
+    Add maven configuration for feature.xml generation
+    - Incremented activemq version
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1479
+
+commit 0305887bfbe3b888c1096be531e10ebff31e4429
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri May 8 19:10:06 2015 -0400
+
+    Allow the solr.baseUrl to be configurable, and
+    - Disable audit-container updates to make it into the indexes
+    
+    Related to: https://jira.duraspace.org/browse/FCREPO-1529
+
+commit ae614a4ad881cee940eaa7fdf28d5da8a4ca5e9d
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Thu May 7 18:14:46 2015 -0400
+
+    Update README.md
+
+commit f62d187bd3c5efa4055a11ccb44ed0c1c363b126
+Merge: 3b012c7 1d689fe
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Thu May 7 18:07:22 2015 -0400
+
+    Merge pull request #22 from acoburn/fix-readme
+    
+    update readme files with new build information
+
+commit 1d689fe9791576a75df13cf37b3b1d1d830eb4b8
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Thu May 7 17:41:30 2015 -0400
+
+    update readme files with new build information
+
+commit 3b012c7465f85000cfae34d2b74c89cb82c81c1d
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Thu May 7 09:58:09 2015 -0400
+
+    Make configuration properties consistent
+    
+    Add new fcrepo-camel-webapp module
+    
+    Remove individual web modules
+    
+    Completes: https://jira.duraspace.org/browse/FCREPO-1523
+
+commit d142b434fff90deae2fb37748a4f899ef1d674b0
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Tue May 5 12:12:59 2015 -0400
+
+    Rename modules and artifactIds to be prefixed with fcrepo-
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1499
+
+commit 38d078360037a0dfd6ed05dcde08c6186a16c69c
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Tue Apr 21 16:42:23 2015 -0400
+
+    Add Camel-based triplestore implementation
+    
+    Partial resolution of: https://jira.duraspace.org/browse/FCREPO-1466
+
+commit 5c7912a47101f95ca4aac7cb3ef5f0edf7dfc912
+Merge: ae8d4c2 6537082
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Apr 27 14:45:53 2015 -0400
+
+    Merge branch 'suppress-internal-audit'
+
+commit 6537082a637e55d931f055a1e58f525c118a7ae7
+Author: Esmé Cowles <escowles@ucsd.edu>
+Date:   Mon Apr 27 10:55:00 2015 -0400
+
+    Merge pull request #18 from suppress-internal-audit
+    
+    Suppress events about internal audit nodes
+
+commit ae8d4c20a88e3939422064eac0f8e8bc8052da20
+Merge: 53d23d0 f13d31a
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Sat Apr 25 15:16:34 2015 -0400
+
+    Merge pull request #17 from acoburn/fcrepo-1501
+    
+    update location of util functions in auditor class
+
+commit f13d31a38127eb358b4013776239f696c20d2126
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Sat Apr 25 11:43:01 2015 -0400
+
+    update location of util functions in auditor class
+
+commit 53d23d0ffdf184c7d1f1c55eb3a3928d1a13634e
+Merge: 5ec6b93 cbe6561
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Thu Apr 23 20:15:01 2015 -0400
+
+    Merge pull request #15 from mohideen/master
+    
+    Reuse AuditNamespaces and getAuditEventType from fcrepo-audit
+
+commit cbe656128356e68072c3cb32936cb3df262c1ee2
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Wed Apr 22 14:28:52 2015 -0400
+
+    Reuse AuditNamespaces and getAuditEventType from fcrepo-audit
+    
+    https://jira.duraspace.org/browse/FCREPO-1484
+
+commit 5ec6b93c8bc480ad40a7b72b3709f32a7e53f6a3
+Merge: de4c6d3 79ce4f9
+Author: Esmé Cowles <escowles@ucsd.edu>
+Date:   Wed Apr 22 11:18:39 2015 -0400
+
+    Merge PR #14 from acoburn/fcrepo-1466
+
+commit 79ce4f9812dd43dfb18da25d4707c7cdca23b45b
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Wed Apr 15 11:13:50 2015 -0400
+
+    Implement a fedora to solr connector
+    make deployable for OSGi and a web container
+    
+    Resolves https://jira.duraspace.org/browse/FCREPO-1466
+
+commit de4c6d3b466ccecfaa8a664ea2b500a61e127440
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Tue Apr 14 17:02:20 2015 -0400
+
+    Add optional maven configuration info
+    
+    Related to: https://jira.duraspace.org/browse/FCREPO-1452
+
+commit 8ffdf40cab470072558602cc24b620b4816b8364
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Tue Apr 14 16:12:40 2015 -0400
+
+    Remove log4j config as per code review comments
+    
+    Related to: https://jira.duraspace.org/browse/FCREPO-1452
+
+commit 2b5ce4afbd2b7d9a1de0122f17b42fd734a349ac
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Apr 13 16:25:39 2015 -0400
+
+    Add web-deployable implementation
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1452
+
+commit a4a345ce044e3022c51c27953fbf8a5d9c671fa1
+Merge: 57cd026 a8167ef
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon Apr 13 16:23:49 2015 -0400
+
+    Merge pull request #12 from acoburn/fcrepo-1459
+    
+    code cleanup; decouple route processing
+
+commit a8167efc4f11e9ad6d9e29853370a89c60bc28e6
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Apr 13 13:55:53 2015 -0400
+
+    code cleanup
+
+commit 57cd026b23ba0305f7d9837233f11f38bb130827
+Merge: 31f3c83 86b6eb9
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Mon Apr 13 13:34:13 2015 -0400
+
+    Merge pull request #11 from fcrepo4-labs/event-baseUri
+    
+    Changing eventURI.base property to event.baseUri
+
+commit 86b6eb9e559979ae88974765105da21a746794c5
+Author: Esmé Cowles <escowles@ucsd.edu>
+Date:   Mon Apr 13 13:28:00 2015 -0400
+
+    Changing eventURI.base property to event.baseUri
+
+commit 31f3c836eb4185fdbd4dff2ad9a28ddd75d922d9
+Merge: 76921b3 a7fe71a
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Mon Apr 13 11:08:22 2015 -0400
+
+    Merge pull request #10 from mohideen/master
+    
+    Updated test to use Long for timestamp
+
+commit a7fe71ada56f3023828d8535236589bc15989aa8
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Mon Apr 13 11:00:01 2015 -0400
+
+    Updated test to use Long for timestamp
+
+commit 76921b3caf6e88af412866cdd769876e7ce34084
+Merge: 66405da 69a03f6
+Author: Esmé Cowles <escowles@ticklefish.org>
+Date:   Mon Apr 13 08:45:50 2015 -0400
+
+    Merge pull request #6 from mohideen/audit-triplestore
+    
+    Audit triplestore workflow is now functional, fixes https://jira.duraspace.org/browse/FCREPO-1451
+
+commit 66405da144c6c6fc25eed08f5388971797a9f8c0
+Merge: 6edabd5 14dde79
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Sat Apr 11 18:09:15 2015 -0400
+
+    Merge pull request #9 from acoburn/fcrepo-1458
+    
+    fixed jacoco and surefire plugin configs
+
+commit 14dde79f16f034126b582adbbc40329ec56a1d86
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Sat Apr 11 17:03:19 2015 -0400
+
+    fixed jacoco and surefire plugin configs for code coverage stats in sonar
+
+commit 6edabd57e21ee78126f5f7b3b8d632c84e6051d2
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Apr 10 11:48:19 2015 -0400
+
+    Add fuseki integration tests
+    
+    Resolves: https://jira.duraspace.org/browse/FCREPO-1449
+
+commit d8ea5b960217f759f1bb459352a6c0ce33aa6e4a
+Merge: acf068b 41dcdc0
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri Apr 10 20:33:57 2015 -0400
+
+    Merge pull request #8 from acoburn/fcrepo-1457
+    
+    add checkstyle plugin
+
+commit 41dcdc0547b4c82cb8f17661f067782d661e8dd9
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Apr 10 20:17:19 2015 -0400
+
+    added sonatype repo for plugins
+
+commit f830f6d93ef223f57b6e5265e0181d9243ac55fd
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Apr 10 19:55:06 2015 -0400
+
+    add checkstyle plugin; fix corresponding checkstyle errors
+
+commit 69a03f6a42c990eef91adf7425a1bfe1a907704c
+Merge: f363949 acf068b
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Fri Apr 10 17:05:10 2015 -0400
+
+    Merged in master and fixed conflicts
+
+commit f3639498092f43195654cb603b13de775bef0d5c
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Fri Apr 10 16:48:39 2015 -0400
+
+    Made triplestore url a single property and corrected Javadoc message
+
+commit 40607362d1cc967811575b090e0b2a02776c4fa2
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Fri Apr 10 16:27:37 2015 -0400
+
+    Updated tests and fixed a NPE source in AuditSparqlProcessor
+
+commit 4fdc2af199119b3e55524beadc4edab1ad7a3de3
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Fri Apr 10 15:35:46 2015 -0400
+
+    Import reordered and unwanted imports removed.
+
+commit 4587c7fae5cae4cc4e42f6b263e4025eb356b1ee
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Fri Apr 10 15:34:57 2015 -0400
+
+    FCREPO-1451. Subject URI is generated using a configurable base and a UUID.
+    
+    https://jira.duraspace.org/browse/FCREPO-1451
+
+commit acf068bc6d54258bbb3fa80f6bb4faa79ab781f7
+Merge: 1a276e2 2519ec0
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Apr 10 13:18:33 2015 -0400
+
+    Merge pull request #5 from fcrepo4-labs/audit-unit-tests
+    
+    Adding unit tests for AuditSparqlProcessor
+
+commit 2519ec0f629fb9d6f89e3f115b3330e6208f07b8
+Author: Esmé Cowles <escowles@ucsd.edu>
+Date:   Fri Apr 10 12:35:41 2015 -0400
+
+    Adding unit tests for AuditSparqlProcessor
+
+commit a6a5409ac192c915d2f58bb96616eeb77a5bfddc
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Fri Apr 10 12:33:03 2015 -0400
+
+    FCREPO-1451. Set header values to empty string instead of null.
+    
+    https://jira.duraspace.org/browse/FCREPO-1451
+
+commit 1a276e2c9b5e08a82032d19bf16583a26d803260
+Merge: daf9aaa dd1cb5c
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Fri Apr 10 11:39:55 2015 -0400
+
+    Merge pull request #4 from acoburn/sonar-support
+    
+    added sonar configuration
+
+commit 0b30ba2d33a1d91c67690aa3d7f1f1d0f331aacb
+Author: Mohamed Mohideen Abdul Rasheed <mohideen@umd.edu>
+Date:   Fri Apr 10 11:35:17 2015 -0400
+
+    FCREPO-1451. Make triplestore update path configurable.
+    
+    https://jira.duraspace.org/browse/FCREPO-1451
+
+commit dd1cb5cd7bd102f8224e54ed16e4e14c7f859204
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Apr 10 11:33:39 2015 -0400
+
+    added sonar configuration
+
+commit daf9aaa2e438a1d8ad5c587c640ef707e2a41d35
+Merge: 657ee17 9aca724
+Author: Esmé Cowles <escowles@ticklefish.org>
+Date:   Fri Apr 10 11:27:12 2015 -0400
+
+    Merge pull request #3 from fcrepo4-labs/audit-processor
+    
+    Adding audit processor implementation
+
+commit 657ee1709cd37cb8283691462ddb243dc1cb98cc
+Merge: 751a7f8 a58f294
+Author: Esmé Cowles <escowles@ticklefish.org>
+Date:   Fri Apr 10 11:21:25 2015 -0400
+
+    Merge pull request #2 from acoburn/readme
+    
+    updated readme files
+
+commit 9aca7249a5e478e8b5f3c8186bdaaad07547793d
+Author: Esmé Cowles <escowles@ucsd.edu>
+Date:   Fri Apr 10 10:35:04 2015 -0400
+
+    AuditSparqlProcessor now compiles and (empty) test runs
+
+commit 66a459dd5d97be5b591612300930a3df5e1a1a90
+Author: Esmé Cowles <escowles@ucsd.edu>
+Date:   Fri Apr 10 10:24:19 2015 -0400
+
+    Adding initial implementation of audit processor
+
+commit a58f294653728e8e230e9a94b603699c69bdc752
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Apr 10 10:04:41 2015 -0400
+
+    updated readme files
+
+commit 751a7f804f4ca8c5714aa36b492e8858279aa365
+Merge: a3b01a1 82d614c
+Author: Andrew Woods <awoods@duraspace.org>
+Date:   Thu Apr 9 18:54:02 2015 -0400
+
+    Merge pull request #1 from acoburn/audit-triplestore
+    
+    bare implementation of a triplestore router
+
+commit 82d614ca6208bf81d00b78b929887d141446a5b7
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Thu Apr 9 14:58:03 2015 -0400
+
+    added top-level maven config and travis ci config
+
+commit 4872fb1f2c049e3baf9fee773b7dc8c1207b6732
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Thu Apr 9 13:49:22 2015 -0400
+
+    implementation of a triplestore router
+
+commit a3b01a1413712641c754d555a47e6bce86abaf9b
+Author: Aaron Coburn <acoburn@amherst.edu>
+Date:   Fri Feb 27 16:27:39 2015 -0500
+
+    Initial commit
