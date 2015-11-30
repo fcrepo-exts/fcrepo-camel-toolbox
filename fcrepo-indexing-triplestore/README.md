@@ -61,6 +61,19 @@ set this property to `true`
 
     indexing.predicate=false
 
+It is possible to control the representation of fedora resources with Prefer headers
+by including or excluding certain types of triples. For instance, `ldp:contains` triples
+are excluded by default. This is so because, for large repositories, the `ldp:contains` triples
+may number in the hundreds of thousands or millions of triples, which lead to very large
+request/response sizes. It is important to note that `fedora:hasParent` functions as a logical
+inverse of `ldp:contains`, so in the context of a triplestore, you can use the inverse
+property in SPARQL queries to much the same effect. Alternately, a built-in reasoner will
+allow you to work directly with `ldp:contains` triples even if they haven't been explicitly
+added to the triplestore.
+
+    prefer.omit=http://www.w3.org/ns/ldp#PreferContainment
+    prefer.include=
+
 The JMS connection URI, used for connecting to a local or remote ActiveMQ broker.
 
     jms.brokerUrl=tcp://localhost:61616
