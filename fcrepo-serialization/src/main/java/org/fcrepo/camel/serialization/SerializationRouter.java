@@ -23,10 +23,12 @@ import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.apache.camel.component.exec.ExecBinding.EXEC_COMMAND_ARGS;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
+import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
+import static org.fcrepo.camel.RdfNamespaces.RDF;
+import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
-import org.fcrepo.camel.RdfNamespaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,7 @@ public class SerializationRouter extends RouteBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SerializationRouter.class);
 
     private static final String isBinaryResourceXPath =
-        "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='" + RdfNamespaces.REPOSITORY + "Binary']";
+        "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='" + REPOSITORY + "Binary']";
     /**
      * Configure the message route workflow
      *
@@ -51,11 +53,7 @@ public class SerializationRouter extends RouteBuilder {
 
     public void configure() throws Exception {
 
-        final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
-        ns.add("fedora", RdfNamespaces.REPOSITORY);
-
-        //boolean writeBinaries = Boolean.parseBoolean(
-         //       getContext().resolvePropertyPlaceholders("{{serialization.includeBinaries}}"));
+        final Namespaces ns = new Namespaces("rdf", RDF).add("fedora", REPOSITORY);
 
         /**
          * A generic error handler (specific to this RouteBuilder)
@@ -69,10 +67,11 @@ public class SerializationRouter extends RouteBuilder {
          */
         from("{{input.stream}}")
             .routeId("FcrepoSerialization")
+            .setHeader(FCREPO_IDENTIFIER).header(IDENTIFIER)
             .filter(not(or(header(FCREPO_IDENTIFIER).startsWith(simple("{{audit.container}}/")),
                     header(FCREPO_IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .choice()
-                .when(header(EVENT_TYPE).isEqualTo(RdfNamespaces.REPOSITORY + "NODE_REMOVED"))
+                .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
                     .multicast().to("direct:delete.metadata", "direct:delete.binary").endChoice()
                 .otherwise()
                     .multicast().to("direct:metadata", "direct:binary");
@@ -96,7 +95,7 @@ public class SerializationRouter extends RouteBuilder {
         from("direct:binary")
             .routeId("FcrepoSerializationBinaryUpdater")
             .filter().simple("{{serialization.includeBinaries}} == 'true'")
-            .to("fcrepo:{{fcrepo.baseUrl}}")
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer")
             .filter().xpath(isBinaryResourceXPath, ns)
             .log(INFO, LOGGER,
                     "Writing binary ${headers[CamelFcrepoIdentifier]}")

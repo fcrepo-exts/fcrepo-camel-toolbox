@@ -34,6 +34,7 @@
       <property name="authHost" value="${fcrepo.authHost}"/>
   </bean>
 
+  <!-- configuration of the activemq component -->
   <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
       <property name="brokerURL" value="${jms.brokerUrl}"/>
   </bean>

@@ -35,7 +35,6 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.fcrepo.camel.JmsHeaders;
-import org.fcrepo.camel.FcrepoHeaders;
 import org.fcrepo.camel.FcrepoClient;
 import org.fcrepo.camel.FcrepoResponse;
 
@@ -132,8 +131,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
         context.start();
 
         final Map<String, Object> headers = new HashMap<>();
-        //headers.put(JmsHeaders.IDENTIFIER, path);
-        headers.put(FcrepoHeaders.FCREPO_IDENTIFIER, path);
+        headers.put(JmsHeaders.IDENTIFIER, path);
         headers.put(JmsHeaders.BASE_URL, "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
         headers.put(JmsHeaders.EVENT_TYPE, REPOSITORY + "NODE_ADDED");
         headers.put(JmsHeaders.TIMESTAMP, 1428360320168L);
@@ -144,13 +142,8 @@ public class RouteIT extends CamelBlueprintTestSupport {
         // Binary request should not go through, so only 1 message to the fcrepoEndpoint
         getMockEndpoint(fcrepoEndpoint).expectedMessageCount(1);
 
-        logger.info("Testing that file currently does not exist: {}.ttl", path);
-
-        //final String fsPath = context.resolvePropertyPlaceholders(
-         //       "{{serialization.loc_basedir}}").replaceFirst("file://", "");
-        //final File f = new File(fsPath + "/metadata/" + path + ".ttl");
         final File f = new File("target/serialization/descriptions/" + path  + ".ttl");
-        logger.info("Looking for file: {}", f.getAbsolutePath());
+
         assertFalse(f.exists());
 
         template.sendBodyAndHeaders("direct:start", "", headers);

@@ -144,11 +144,10 @@
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
-  <feature name="fcrepo-serialization" version="${project.version}" resolver="(obr)" start-level="50">
+  <feature name="fcrepo-serialization" version="${project.version}" start-level="50">
     <details>Installs the fcrepo serialization tool</details>
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-serialization/${project.version}</bundle>
-    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang3.version}</bundle>
 
     <feature version="${camel.version}">camel</feature>
     <feature version="${camel.version}">camel-exec</feature>

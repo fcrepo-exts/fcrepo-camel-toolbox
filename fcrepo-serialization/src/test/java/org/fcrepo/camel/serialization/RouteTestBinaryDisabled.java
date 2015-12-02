@@ -15,28 +15,18 @@
  */
 package org.fcrepo.camel.serialization;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import static org.fcrepo.camel.JmsHeaders.BASE_URL;
+import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
+import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
+import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 
 import org.junit.Test;
+import java.util.Map;
 
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Produce;
-import org.apache.camel.ProducerTemplate;
+import com.google.common.collect.ImmutableMap;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
-
-import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
-import org.fcrepo.camel.FcrepoHeaders;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Test the route workflow (property 'includeBinaries' is false).
@@ -45,50 +35,7 @@ import org.slf4j.LoggerFactory;
  * @since 2015-09-28
  */
 
-public class RouteTest extends CamelBlueprintTestSupport {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RouteTest.class);
-
-    @EndpointInject(uri = "mock:result")
-    protected MockEndpoint resultEndpoint;
-
-    @Produce(uri = "direct:start")
-    protected ProducerTemplate template;
-
-    private static final String baseURL = "http://localhost/rest";
-    private static final String identifier = "/file1";
-    private static final String auditContainer = "/audit";
-
-    @Override
-    public boolean isUseAdviceWith() {
-        return true;
-    }
-
-    @Override
-    public boolean isUseRouteBuilder() {
-        return false;
-    }
-
-    @Override
-    protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
-    }
-
-    @Override
-    protected Properties useOverridePropertiesWithPropertiesComponent() {
-        final Properties props = new Properties();
-
-        props.put("serialization.stream", "seda:foo");
-        props.put("input.stream", "seda:bar");
-        props.put("serialization.format", "RDF_XML");
-        props.put("serialization.descriptions", "mock:direct:metadata_file");
-        props.put("serialization.binaries", "mock:direct:binary_file");
-        // in here to clearly show that we won't include binaries by default
-        props.put("serialization.includeBinaries", "false");
-        props.put("audit.container", auditContainer);
-
-        return props;
-    }
+public class RouteTestBinaryDisabled extends AbstractRouteTest {
 
     @Test
     public void testMetatdataSerialization() throws Exception {
@@ -96,7 +43,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");  // this mocks and skips sending to the ORIGINAL end point
+                mockEndpointsAndSkip("*");
             }
         });
         context.start();
@@ -107,8 +54,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        template.sendBodyAndHeaders(body, createEvent());
 
+        final Map<String, Object> headers = ImmutableMap.of(BASE_URL, baseURL);
+
+        template.sendBodyAndHeaders(body, headers);
         assertMockEndpointsSatisfied();
     }
 
@@ -118,8 +67,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                //mockEndpointsAndSkip("fcrepo:*");
-                mockEndpointsAndSkip("*");  // this mocks and skips sending to the ORIGINAL end point
+                mockEndpointsAndSkip("*");
             }
         });
         context.start();
@@ -131,7 +79,12 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        template.sendBodyAndHeaders(body, createRemoveEvent());
+        final Map<String, Object> headers = ImmutableMap.of(
+            BASE_URL, baseURL,
+            IDENTIFIER, identifier,
+            EVENT_TYPE, REPOSITORY + "NODE_REMOVE");
+
+        template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
     }
@@ -142,8 +95,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                //mockEndpointsAndSkip("fcrepo:*");
-                mockEndpointsAndSkip("*");  // this mocks and skips sending to the ORIGINAL end point
+                mockEndpointsAndSkip("*");
             }
         });
         context.start();
@@ -153,7 +105,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        template.sendBodyAndHeaders(body, createEvent());
+        final Map<String, Object> headers = ImmutableMap.of(BASE_URL, baseURL);
+
+        template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
     }
@@ -165,8 +119,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
                   @Override
                   public void configure() throws Exception {
                       replaceFromWith("direct:start");
-                      //mockEndpointsAndSkip("fcrepo:*");
-                      mockEndpointsAndSkip("*");  // this mocks and skips sending to the ORIGINAL end point
+                      mockEndpointsAndSkip("*");
                       weaveAddLast().to("mock:result");
                   }
               });
@@ -176,7 +129,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8");
-        template.sendBodyAndHeaders(body, createEvent());
+        final Map<String, Object> headers = ImmutableMap.of(BASE_URL, baseURL);
+
+        template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
     }
@@ -197,31 +152,12 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        template.sendBodyAndHeaders(body, createEvent("foo"));
+        final Map<String, Object> headers = ImmutableMap.of(
+            BASE_URL, baseURL,
+            IDENTIFIER, "foo");
+
+        template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
-    }
-
-    private static Map<String,Object> createEvent() {
-        return createEvent(null);
-    }
-
-    private static Map<String,Object> createEvent(final String name) {
-
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put(FcrepoHeaders.FCREPO_BASE_URL, baseURL);
-        if (name != null && !name.isEmpty()) {
-            headers.put(FcrepoHeaders.FCREPO_IDENTIFIER, name);
-        }
-        return headers;
-    }
-
-    private static Map<String,Object> createRemoveEvent() {
-
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put(FcrepoHeaders.FCREPO_BASE_URL, baseURL);
-        headers.put(FcrepoHeaders.FCREPO_IDENTIFIER, identifier);
-        headers.put(EVENT_TYPE, REPOSITORY + "NODE_REMOVED");
-        return headers;
     }
 }

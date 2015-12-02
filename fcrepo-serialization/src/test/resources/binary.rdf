@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
-    xmlns:premis="http://www.loc.gov/premis/rdf/v1#"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:fedora="http://fedora.info/definitions/v4/repository#">
+	xmlns:premis="http://www.loc.gov/premis/rdf/v1#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:fedora="http://fedora.info/definitions/v4/repository#"
+  xmlns:ebucore="http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#">
 
-<rdf:Description rdf:about="http://localhost:8080/rest/binary">
-    <premis:hasFixity rdf:resource="http://localhost:8080/rest/binary#fixity/1434585821367"/>
-    <!-- this is here just for mocking -->
-    <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Binary"/>
-</rdf:Description>
-
-<rdf:Description rdf:about="http://localhost:8080/rest/binary#fixity/1434585821367">
-    <rdf:type rdf:resource="http://www.loc.gov/premis/rdf/v1#Fixity"/>
-    <fedora:status rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SUCCESS</fedora:status>
-    <premis:hasMessageDigest rdf:resource="urn:sha1:a8069665cdee87b7963676cfcc759ef0f0c9a0e9"/>
-    <premis:hasSize rdf:datatype="http://www.w3.org/2001/XMLSchema#long">1636261</premis:hasSize>
-    <premis:hasContentLocation rdf:resource="info://org.modeshape.jcr.value.binary.FileSystemBinaryStore@48c53d0b/fcrepo4-data/fcrepo.binary.directory#a8069665cdee87b7963676cfcc759ef0f0c9a0e9"/>
+<rdf:Description rdf:about="http://localhost:8080/fcrepo/rest/BOOK1/goats">
+	<rdf:type rdf:resource="http://www.w3.org/ns/ldp#NonRDFSource"/>
+	<rdf:type rdf:resource="http://www.jcp.org/jcr/nt/1.0resource"/>
+	<rdf:type rdf:resource="http://www.jcp.org/jcr/mix/1.0mimeType"/>
+	<rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Binary"/>
+	<rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Resource"/>
+	<fedora:lastModifiedBy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">bypassAdmin</fedora:lastModifiedBy>
+	<premis:hasSize rdf:datatype="http://www.w3.org/2001/XMLSchema#long">85732</premis:hasSize>
+	<ebucore:hasMimeType rdf:datatype="http://www.w3.org/2001/XMLSchema#string">image/jpeg</ebucore:hasMimeType>
+	<fedora:createdBy rdf:datatype="http://www.w3.org/2001/XMLSchema#string">bypassAdmin</fedora:createdBy>
+	<fedora:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2015-12-01T21:15:07.679Z</fedora:created>
+	<premis:hasMessageDigest rdf:resource="urn:sha1:a4f6de3de33becfc51d94fcf98bf2ad0e3da405a"/>
+	<fedora:lastModified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2015-12-01T21:15:07.679Z</fedora:lastModified>
+	<ebucore:filename rdf:datatype="http://www.w3.org/2001/XMLSchema#string"></ebucore:filename>
+	<fedora:writable rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</fedora:writable>
+	<describedby xmlns="http://www.iana.org/assignments/relation/" rdf:resource="http://localhost:8080/fcrepo/rest/BOOK1/goats/fcr:metadata"/>
+	<fedora:hasParent rdf:resource="http://localhost:8080/fcrepo/rest/BOOK1"/>
+	<fedora:hasFixityService rdf:resource="http://localhost:8080/fcrepo/rest/BOOK1/goats/fcr:fixity"/>
 </rdf:Description>
 
 </rdf:RDF>
