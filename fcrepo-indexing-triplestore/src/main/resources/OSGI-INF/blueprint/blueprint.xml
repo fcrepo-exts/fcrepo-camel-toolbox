@@ -22,6 +22,8 @@
        <cm:property name="triplestore.baseUrl" value="localhost:8080/fuseki/test/update"/>
        <cm:property name="triplestore.namedGraph" value=""/>
        <cm:property name="audit.container" value="/audit"/>
+       <cm:property name="prefer.omit" value="http://www.w3.org/ns/ldp#PreferContainment"/>
+       <cm:property name="prefer.include" value=""/>
      </cm:default-properties>
    </cm:property-placeholder>
 

@@ -88,7 +88,7 @@ public class TriplestoreRouter extends RouteBuilder {
             .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
                     header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .removeHeaders("CamelHttp*")
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment")
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer")
             .choice()
                 .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
                     .to("direct:update.triplestore")
@@ -113,7 +113,8 @@ public class TriplestoreRouter extends RouteBuilder {
             .routeId("FcrepoTriplestoreUpdater")
             .setHeader(FCREPO_NAMED_GRAPH)
                 .simple("{{triplestore.namedGraph}}")
-            .to("fcrepo:{{fcrepo.baseUrl}}?accept=application/n-triples&preferOmit=PreferContainment")
+            .to("fcrepo:{{fcrepo.baseUrl}}?accept=application/n-triples" +
+                    "&preferOmit={{prefer.omit}}&preferInclude={{prefer.include}}")
             .process(new SparqlUpdateProcessor())
             .log(LoggingLevel.INFO, logger,
                     "Indexing Triplestore Object ${headers[CamelFcrepoIdentifier]} " +
