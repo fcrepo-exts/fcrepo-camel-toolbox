@@ -15,8 +15,6 @@
  */
 package org.fcrepo.camel.serialization;
 
-//import static com.google.common.base.Strings.isNullOrEmpty;
-
 import java.util.Properties;
 
 import org.apache.camel.EndpointInject;
@@ -74,27 +72,4 @@ public abstract class AbstractRouteTest extends CamelBlueprintTestSupport {
 
         return props;
     }
-/*
-    protected static Map<String, Object> createEvent() {
-        return createEvent(null);
-    }
-
-    protected static Map<String, Object> createEvent(final String name) {
-
-        final ImmutableMap.Builder<String, Object> headers = ImmutableMap.builder();
-        headers.put(BASE_URL, baseURL);
-        if (!isNullOrEmpty(name)) {
-            headers.put(IDENTIFIER, name);
-        }
-        return headers.build();
-    }
-
-    protected static Map<String, Object> createRemoveEvent() {
-
-        return ImmutableMap.of(
-              BASE_URL, baseURL,
-              IDENTIFIER, identifier,
-              EVENT_TYPE, REPOSITORY + "NODE_REMOVED");
-    }
-*/
 }
