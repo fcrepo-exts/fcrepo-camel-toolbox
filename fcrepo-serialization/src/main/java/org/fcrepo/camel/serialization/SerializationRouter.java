@@ -107,7 +107,7 @@ public class SerializationRouter extends RouteBuilder {
         from("direct:delete.metadata")
             .routeId("FcrepoSerializationMetadataDeleter")
             .setHeader(EXEC_COMMAND_ARGS).simple(
-                    "{{serialization.descriptions}}/${headers[CamelFcrepoIdentifier]}{{serialization.extension}}")
+                    "{{serialization.descriptions}}${headers[CamelFcrepoIdentifier]}{{serialization.extension}}")
             .to("exec:rm")
             .log(INFO, LOGGER,
                     "Deleting object from serialized backup ${headers[CamelFcrepoIdentifier]}");
