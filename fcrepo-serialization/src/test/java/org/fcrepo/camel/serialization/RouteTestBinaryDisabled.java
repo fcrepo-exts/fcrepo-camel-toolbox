@@ -49,8 +49,7 @@ public class RouteTestBinaryDisabled extends AbstractRouteTest {
         context.start();
         getMockEndpoint("mock:direct:metadata").expectedMessageCount(1);
         getMockEndpoint("mock:direct:binary").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:delete.metadata").expectedMessageCount(0);
-        getMockEndpoint("mock:direct:delete.binary").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:delete").expectedMessageCount(0);
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
@@ -74,8 +73,7 @@ public class RouteTestBinaryDisabled extends AbstractRouteTest {
 
         getMockEndpoint("mock:direct:metadata").expectedMessageCount(0);
         getMockEndpoint("mock:direct:binary").expectedMessageCount(0);
-        getMockEndpoint("mock:direct:delete.metadata").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:delete.binary").expectedMessageCount(1);
+        getMockEndpoint("mock:direct:delete").expectedMessageCount(1);
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");

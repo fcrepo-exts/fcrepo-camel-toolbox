@@ -45,7 +45,7 @@ public class SerializationRouter extends RouteBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SerializationRouter.class);
 
     private static final String isBinaryResourceXPath =
-        "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='" + REPOSITORY + "Binary']";
+        "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource=\"" + REPOSITORY + "Binary\"]";
     /**
      * Configure the message route workflow
      *
@@ -72,7 +72,7 @@ public class SerializationRouter extends RouteBuilder {
                     header(FCREPO_IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .choice()
                 .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
-                    .multicast().to("direct:delete.metadata", "direct:delete.binary").endChoice()
+                      .to("direct:delete").endChoice()
                 .otherwise()
                     .multicast().to("direct:metadata", "direct:binary");
 
@@ -90,7 +90,7 @@ public class SerializationRouter extends RouteBuilder {
             .setHeader(FILE_NAME)
                 .simple("${headers[CamelFcrepoIdentifier]}.{{serialization.extension}}")
             .log(DEBUG, LOGGER, "filename is ${headers[CamelFileName]}")
-            .to("{{serialization.descriptions}}");
+            .to("file://{{serialization.descriptions}}");
 
         from("direct:binary")
             .routeId("FcrepoSerializationBinaryUpdater")
@@ -102,23 +102,14 @@ public class SerializationRouter extends RouteBuilder {
             .to("fcrepo:{{fcrepo.baseUrl}}?metadata=false")
             .setHeader(FILE_NAME).header(FCREPO_IDENTIFIER)
             .log(DEBUG, LOGGER, "header filename is: ${headers[CamelFileName]}")
-            .to("{{serialization.binaries}}");
+            .to("file://{{serialization.binaries}}");
 
-        from("direct:delete.metadata")
-            .routeId("FcrepoSerializationMetadataDeleter")
+        from("direct:delete")
+            .routeId("FcrepoSerializationDeleter")
             .setHeader(EXEC_COMMAND_ARGS).simple(
-                    "{{serialization.descriptions}}${headers[CamelFcrepoIdentifier]}{{serialization.extension}}")
-            .to("exec:rm")
-            .log(INFO, LOGGER,
-                    "Deleting object from serialized backup ${headers[CamelFcrepoIdentifier]}");
-
-        from("direct:delete.binary")
-            .routeId("FcrepoSerializationBinaryDeleter")
-            .filter().xpath(isBinaryResourceXPath, String.class, ns)
-            .setHeader(EXEC_COMMAND_ARGS).simple(
+                    "-rf {{serialization.descriptions}}${headers[CamelFcrepoIdentifier]}.{{serialization.extension}} " +
+                    "{{serialization.descriptions}}${headers[CamelFcrepoIdentifier]} " +
                     "{{serialization.binaries}}${headers[CamelFcrepoIdentifier]}")
-            .to("exec:rm")
-            .log(INFO, LOGGER,
-                    "Deleting binary from serialized backup ${headers[CamelFcrepoIdentifier]}");
+            .to("exec:rm");
     }
 }

@@ -18,8 +18,8 @@
         <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
         <cm:property name="input.stream" value="activemq:topic:fedora"/>
         <cm:property name="serialization.stream" value="activemq:queue:serialization"/>
-        <cm:property name="serialization.descriptions" value="file:///tmp/descriptions"/>
-        <cm:property name="serialization.binaries" value="file:///tmp/binaries"/>
+        <cm:property name="serialization.descriptions" value="/tmp/descriptions"/>
+        <cm:property name="serialization.binaries" value="/tmp/binaries"/>
         <cm:property name="serialization.includeBinaries" value="false"/>
         <cm:property name="serialization.mimeType" value="text/turtle"/>
         <cm:property name="serialization.extension" value="ttl"/>

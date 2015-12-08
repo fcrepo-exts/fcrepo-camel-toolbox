@@ -95,8 +95,8 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
         final Properties props = new Properties();
         props.put("fcrepo.baseUrl", "localhost:" + FCREPO_PORT + "/fcrepo/rest");
-        props.put("serialization.descriptions", "file://target/serialization/descriptions");
-        props.put("serialization.binaries", "file://target/serialization/binaries");
+        props.put("serialization.descriptions", "target/serialization/descriptions");
+        props.put("serialization.binaries", "target/serialization/binaries");
         props.put("serialization.stream", "direct:foo");
         props.put("input.stream", "direct:start");
         return props;
