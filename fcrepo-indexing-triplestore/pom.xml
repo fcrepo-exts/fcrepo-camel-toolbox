@@ -85,6 +85,13 @@
       <artifactId>jackson-databind</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.client</groupId>
+      <artifactId>fcrepo-java-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
