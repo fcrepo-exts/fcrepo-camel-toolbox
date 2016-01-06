@@ -28,6 +28,10 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.builder.xml.XPathBuilder;
 import org.fcrepo.client.HttpMethods;
+import org.apache.camel.component.http4.HttpComponent;
+import org.apache.camel.util.jsse.KeyManagersParameters;
+import org.apache.camel.util.jsse.KeyStoreParameters;
+import org.apache.camel.util.jsse.SSLContextParameters;
 import org.fcrepo.camel.RdfNamespaces;
 import org.slf4j.Logger;
 
@@ -59,6 +63,21 @@ public class SolrRouter extends RouteBuilder {
 
         final XPathBuilder children = new XPathBuilder("/rdf:RDF/rdf:Description/ldp:contains");
         children.namespaces(ns);
+
+        
+        final KeyStoreParameters ksp = new KeyStoreParameters();
+        ksp.setResource(System.getProperty("javax.net.ssl.keyStore"));
+        ksp.setPassword(System.getProperty("javax.net.ssl.keyStorePassword"));
+    
+        final KeyManagersParameters kmp = new KeyManagersParameters();
+        kmp.setKeyStore(ksp);
+        kmp.setKeyPassword(System.getProperty("javax.net.ssl.keyStorePassword"));
+    
+        final SSLContextParameters scp = new SSLContextParameters();
+        scp.setKeyManagers(kmp);
+    
+        final HttpComponent httpComponent = (HttpComponent) getContext().getComponent("https4", HttpComponent.class);
+        httpComponent.setSslContextParameters(scp);
 
         /**
          * A generic error handler (specific to this RouteBuilder)
