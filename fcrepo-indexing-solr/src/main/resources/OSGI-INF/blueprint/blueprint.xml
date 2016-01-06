@@ -20,6 +20,7 @@
        <cm:property name="input.stream" value="broker:topic:fedora"/>
        <cm:property name="solr.reindex.stream" value="broker:queue:solr.reindex"/>
        <cm:property name="solr.baseUrl" value="localhost:8983/solr/collection1"/>
+       <cm:property name="solr.scheme" value="http"/>
        <cm:property name="solr.commitWithin" value="10000"/>
        <cm:property name="audit.container" value="/audit"/>
      </cm:default-properties>

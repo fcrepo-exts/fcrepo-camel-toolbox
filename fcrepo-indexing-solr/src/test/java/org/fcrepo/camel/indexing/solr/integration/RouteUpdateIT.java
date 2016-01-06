@@ -92,6 +92,7 @@ public class RouteUpdateIT extends CamelTestSupport {
         props.put("fcrepo.defaultTransform", "default");
         props.put("indexing.predicate", "false");
         props.put("solr.baseUrl", "localhost:" + jettyPort + "/solr/testCore");
+        props.put("solr.scheme", "http");
         props.put("solr.commitWithin", "100");
         props.put("input.stream", "direct:start");
         props.put("solr.reindex.stream", "seda:reindex");
