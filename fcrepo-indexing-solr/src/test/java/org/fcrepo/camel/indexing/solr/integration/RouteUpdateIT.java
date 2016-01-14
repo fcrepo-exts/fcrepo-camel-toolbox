@@ -34,8 +34,8 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.fcrepo.camel.JmsHeaders;
-import org.fcrepo.camel.FcrepoClient;
-import org.fcrepo.camel.FcrepoResponse;
+import org.fcrepo.client.FcrepoClient;
+import org.fcrepo.client.FcrepoResponse;
 import org.fcrepo.camel.indexing.solr.SolrRouter;
 
 import org.junit.Test;
