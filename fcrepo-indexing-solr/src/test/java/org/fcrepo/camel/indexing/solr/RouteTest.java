@@ -77,7 +77,6 @@ public class RouteTest extends CamelTestSupport {
          props.put("input.stream", "seda:foo");
          props.put("reindex.stream", "seda:bar");
          props.put("error.maxRedeliveries", "10");
-         props.put("indexing.predicate", "true");
          props.put("fcrepo.baseUrl", baseURL);
          props.put("fcrepo.defaultTransform", "default");
          props.put("solr.baseUrl", solrURL);
@@ -85,6 +84,7 @@ public class RouteTest extends CamelTestSupport {
          props.put("solr.reindex.stream", "seda:reindex");
          return props;
     }
+
 
     @Test
     public void testEventTypeRouter() throws Exception {
@@ -96,19 +96,21 @@ public class RouteTest extends CamelTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("direct:index.solr");
+                mockEndpointsAndSkip("direct:delete.solr");
             }
         });
         context.start();
 
         getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
+        getMockEndpoint("mock:direct:index.solr").expectedMessageCount(0);
 
         template.sendBodyAndHeaders("",
                 createEvent(fileID, eventTypes, eventProps));
 
         assertMockEndpointsSatisfied();
     }
+
 
     @Test
     public void testFilterAuditEvents() throws Exception {
@@ -120,7 +122,9 @@ public class RouteTest extends CamelTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("fcrepo*");
+                mockEndpointsAndSkip("direct:update.solr");
+                mockEndpointsAndSkip("direct:delete.solr");
             }
         });
         context.start();
@@ -145,7 +149,9 @@ public class RouteTest extends CamelTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("fcrepo*");
+                mockEndpointsAndSkip("direct:update.solr");
+                mockEndpointsAndSkip("direct:delete.solr");
             }
         });
         context.start();
@@ -170,7 +176,9 @@ public class RouteTest extends CamelTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("fcrepo*");
+                mockEndpointsAndSkip("direct:update.solr");
+                mockEndpointsAndSkip("direct:delete.solr");
             }
         });
         context.start();

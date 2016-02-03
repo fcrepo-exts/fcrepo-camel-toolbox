@@ -3,6 +3,8 @@
   <repository>mvn:org.fcrepo.camel/fcrepo-camel/${fcrepo-camel.version}/xml/features</repository>
   <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
   <repository>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</repository>
+  <repository>mvn:org.infinispan/infinispan-core/7.2.4.Final/xml/features</repository>
+  <repository>mvn:org.infinispan/infinispan-cachestore-leveldb/7.2.4.Final/xml/features</repository>
 
   <feature name="fcrepo-indexing-solr" version="${project.version}" start-level="50">
     <details>Installs the fcrepo solr indexer</details>
@@ -62,7 +64,7 @@
 
     <feature version="${camel.version}">camel</feature>
     <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-restlet</feature>
+    <feature version="${camel.version}">camel-jetty9</feature>
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
@@ -80,16 +82,19 @@
          <feature version="${fcrepo-audit.version}">fcrepo-audit</feature>
          -->
     <feature prerequisite="true">wrap</feature>
+
+    <feature version="7.2.4.Final">infinispan-core</feature>
+    <feature version="7.2.4.Final">infinispan-commons</feature>
+    <feature version="7.2.4.Final">infinispan-cachestore-leveldb-jni</feature>
+
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${fcrepo-audit.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-api/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-modeshape/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-mint/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:javax.jcr/jcr/2.0</bundle>
-    <bundle dependency="true">wrap:mvn:org.apache.jena/jena-core/2.12.1</bundle>
-    <bundle dependency="true">wrap:mvn:org.apache.jena/jena-arq/2.12.1</bundle>
+    <bundle dependency="true">mvn:org.apache.jena/jena-osgi/2.13.0</bundle>
     <bundle dependency="true">mvn:org.glassfish.hk2.external/javax.inject/2.3.0</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr-api/4.2.0.Final</bundle>
     <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
     <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-jvm/3.1.0</bundle>
     <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-json/3.1.0</bundle>
@@ -116,6 +121,10 @@
     <bundle dependency="true">mvn:org.glassfish.hk2/hk2-utils/2.3.0</bundle>
     <bundle dependency="true">mvn:org.glassfish.hk2.external/aopalliance-repackaged/2.3.0</bundle>
     <bundle dependency="true">mvn:org.glassfish.hk2/osgi-resource-locator/1.0.1</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr-api/4.4.0.Final</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr/4.4.0.Final</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-schematic/4.4.0.Final</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-common/4.4.0.Final</bundle>
     <bundle dependency="true">mvn:com.datastax.cassandra/cassandra-driver-core/2.1.7.1</bundle>
     <bundle dependency="true">mvn:org.mongodb/mongo-java-driver/3.0.0</bundle>
     <bundle dependency="true">mvn:io.netty/netty-handler/4.0.29.Final</bundle>
@@ -123,17 +132,11 @@
     <bundle dependency="true">mvn:io.netty/netty-transport/4.0.29.Final</bundle>
     <bundle dependency="true">mvn:io.netty/netty-buffer/4.0.29.Final</bundle>
     <bundle dependency="true">mvn:io.netty/netty-common/4.0.29.Final</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr/4.2.0.Final</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-schematic/4.2.0.Final</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-common/4.2.0.Final</bundle>
-    <bundle dependency="true">mvn:org.infinispan/infinispan-core/6.0.2.Final</bundle>
-    <bundle dependency="true">mvn:org.infinispan/infinispan-commons/6.0.2.Final</bundle>
     <bundle dependency="true">mvn:org.apache.tika/tika-core/1.6</bundle>
     <bundle dependency="true">mvn:joda-time/joda-time/1.6.2</bundle>
     <bundle dependency="true">mvn:org.mapdb/mapdb/1.0.6</bundle>
     <bundle dependency="true">mvn:org.jgroups/jgroups/3.5.0.Final</bundle>
     <bundle dependency="true">mvn:org.jboss.logging/jboss-logging/3.1.3.GA</bundle>
-    <bundle dependency="true">wrap:mvn:org.jboss.marshalling/jboss-marshalling/1.4.10.Final</bundle>
     <!-- end of fcrepo-audit transitive dependencies -->
 
     <feature version="${camel.version}">camel</feature>
