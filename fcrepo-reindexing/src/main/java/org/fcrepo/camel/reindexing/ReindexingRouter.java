@@ -47,7 +47,7 @@ public class ReindexingRouter extends RouteBuilder {
      */
     public void configure() throws Exception {
 
-        restConfiguration().component("restlet").port(
+        restConfiguration().component("jetty").port(
                 System.getProperty("fcrepo.dynamic.reindexing.port", port));
 
         final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
