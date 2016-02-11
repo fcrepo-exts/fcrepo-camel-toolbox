@@ -72,9 +72,9 @@ To build these projects use this command
 ## OSGi deployment (Karaf 3.x)
 
 These applications are distributed as OSGi features, meaning they can be installed
-directly from the karaf console. First, add the `fcrepo-karaf` repository:
+directly from the karaf console. First, add the `toolbox-features` repository:
 
-    $> feature:repo-add mvn:org.fcrepo.camel/fcrepo-karaf/LATEST/xml/features
+    $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
 
 Then, you can add any combination of the following applications:
 

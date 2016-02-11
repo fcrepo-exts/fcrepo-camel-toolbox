@@ -34,7 +34,7 @@ This project can be deployed in an OSGi container. For example using
 [Apache Karaf](http://karaf.apache.org), you can run the following
 command from its shell:
 
-    feature:repo-add mvn:org.fcrepo.camel/fcrepo-karaf/LATEST/xml/features
+    feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-fixity
 
 ##Deploying in Tomcat/Jetty

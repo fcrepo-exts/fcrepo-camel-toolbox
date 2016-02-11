@@ -7,7 +7,7 @@ such as Apache Karaf.
 In order to deploy the projects from `fcrepo-camel-toolbox` in Karaf, you can
 run this command in the Karaf console:
 
-    feature:repo-add mvn:org.fcrepo.camel/fcrepo-karaf/LATEST/xml/features
+    feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
 
 To list the various `fcrepo-*` features available, use this command:
 

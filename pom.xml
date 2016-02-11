@@ -72,7 +72,7 @@
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-serialization</module>
-    <module>fcrepo-karaf</module>
+    <module>toolbox-features</module>
   </modules>
 
   <repositories>

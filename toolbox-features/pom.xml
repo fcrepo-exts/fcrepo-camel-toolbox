@@ -9,7 +9,7 @@
     <version>4.4.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fcrepo-karaf</artifactId>
+  <artifactId>toolbox-features</artifactId>
   <packaging>bundle</packaging>
 
   <name>Provisioning features for Karaf</name>
