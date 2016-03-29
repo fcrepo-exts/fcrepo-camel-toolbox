@@ -26,13 +26,6 @@ command from its shell:
     feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-serialization
 
-##Deploying in Tomcat/Jetty
-
-If you intend to deploy this application in a web container such as Tomcat or Jetty,
-please refer to the documentation in the 
-[fcrepo-camel-webapp](https://github.com/fcrepo4-ext/fcrepo-camel-toolbox/tree/master/fcrepo-camel-webapp)
-project.
-
 ##Configuration
 
 This application can be configured by creating a file in 

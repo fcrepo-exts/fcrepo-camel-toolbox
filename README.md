@@ -12,14 +12,7 @@ Additional background information is available on the Fedora Wiki on the
 ## Applications
 
 Each of these applications are available as OSGi bundles and can be deployed
-directly into an OSGi container such as Karaf. These applications can also
-be built into a web-deployable application (`fcrepo-camel-webapp`) for use in
-Tomcat or Jetty. It is possible to bundle all of the applications or only selected
-modules into the web application.
-
-For more information, see the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-webapp)
-module.
+directly into an OSGi container such as Karaf. 
 
 ### Repository Audit Service (Triplestore)
 
@@ -84,13 +77,6 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-reindexing
     $> feature:install fcrepo-fixity
     $> feature:install fcrepo-serialization
-
-##Deploying in Tomcat/Jetty
-
-If you intend to deploy this application in a web container such as Tomcat or Jetty,
-please refer to the documentation in the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-webapp)
-project.
 
 
 ##Maintainers

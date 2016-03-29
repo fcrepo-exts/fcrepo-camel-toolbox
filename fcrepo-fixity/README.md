@@ -37,13 +37,6 @@ command from its shell:
     feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-fixity
 
-##Deploying in Tomcat/Jetty
-
-If you intend to deploy this application in a web container such as Tomcat or Jetty,
-please refer to the documentation in the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-webapp)
-project.
-
 ##Configuration
 
 The application can be configured by creating a file in
