@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TriplestoreRouter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fedora Indexing Service with a Triplestore backend</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.indexing.triplestore</a> &gt; <span class="el_source">TriplestoreRouter.java</span></div><h1>TriplestoreRouter.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2015 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.indexing.triplestore;
+
+import static org.apache.camel.builder.PredicateBuilder.not;
+import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_NAMED_GRAPH;
+import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
+import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
+import static org.fcrepo.camel.RdfNamespaces.INDEXING;
+import static org.fcrepo.camel.RdfNamespaces.RDF;
+import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.apache.camel.LoggingLevel;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.xml.Namespaces;
+import org.apache.camel.builder.xml.XPathBuilder;
+import org.fcrepo.camel.processor.SparqlDeleteProcessor;
+import org.fcrepo.camel.processor.SparqlUpdateProcessor;
+import org.slf4j.Logger;
+
+/**
+ * A content router for handling JMS events.
+ *
+ * @author Aaron Coburn
+ */
+<span class="fc" id="L41">public class TriplestoreRouter extends RouteBuilder {</span>
+
+<span class="fc" id="L43">    private static final Logger logger = getLogger(TriplestoreRouter.class);</span>
+
+    /**
+     * Configure the message route workflow.
+     */
+    public void configure() throws Exception {
+
+<span class="fc" id="L50">        final Namespaces ns = new Namespaces(&quot;rdf&quot;, RDF);</span>
+<span class="fc" id="L51">        ns.add(&quot;indexing&quot;, INDEXING);</span>
+
+<span class="fc" id="L53">        final XPathBuilder indexable = new XPathBuilder(</span>
+<span class="fc" id="L54">                String.format(&quot;/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']&quot;, INDEXING + &quot;Indexable&quot;));</span>
+<span class="fc" id="L55">        indexable.namespaces(ns);</span>
+
+        /**
+         * A generic error handler (specific to this RouteBuilder)
+         */
+<span class="fc" id="L60">        onException(Exception.class)</span>
+<span class="fc" id="L61">            .maximumRedeliveries(&quot;{{error.maxRedeliveries}}&quot;)</span>
+<span class="fc" id="L62">            .log(&quot;Index Routing Error: ${routeId}&quot;);</span>
+
+        /**
+         * route a message to the proper queue, based on whether
+         * it is a DELETE or UPDATE operation.
+         */
+<span class="fc" id="L68">        from(&quot;{{input.stream}}&quot;)</span>
+<span class="fc" id="L69">            .routeId(&quot;FcrepoTriplestoreRouter&quot;)</span>
+<span class="fc" id="L70">            .choice()</span>
+<span class="fc" id="L71">                .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + &quot;NODE_REMOVED&quot;))</span>
+<span class="fc" id="L72">                    .to(&quot;direct:delete.triplestore&quot;)</span>
+<span class="fc" id="L73">                .otherwise()</span>
+<span class="fc" id="L74">                    .to(&quot;direct:index.triplestore&quot;);</span>
+
+        /**
+         * Handle re-index events
+         */
+<span class="fc" id="L79">        from(&quot;{{triplestore.reindex.stream}}&quot;)</span>
+<span class="fc" id="L80">            .routeId(&quot;FcrepoTriplestoreReindex&quot;)</span>
+<span class="fc" id="L81">            .to(&quot;direct:index.triplestore&quot;);</span>
+
+        /**
+         * Based on an item's metadata, determine if it is indexable.
+         */
+<span class="fc" id="L86">        from(&quot;direct:index.triplestore&quot;)</span>
+<span class="fc" id="L87">            .routeId(&quot;FcrepoTriplestoreIndexer&quot;)</span>
+<span class="fc" id="L88">            .filter(not(or(header(IDENTIFIER).startsWith(simple(&quot;{{audit.container}}/&quot;)),</span>
+<span class="fc" id="L89">                    header(IDENTIFIER).isEqualTo(simple(&quot;{{audit.container}}&quot;)))))</span>
+<span class="fc" id="L90">            .removeHeaders(&quot;CamelHttp*&quot;)</span>
+<span class="fc" id="L91">            .to(&quot;fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&quot;)</span>
+<span class="fc" id="L92">            .choice()</span>
+<span class="fc" id="L93">                .when(or(simple(&quot;{{indexing.predicate}} != 'true'&quot;), indexable))</span>
+<span class="fc" id="L94">                    .to(&quot;direct:update.triplestore&quot;)</span>
+<span class="fc" id="L95">                .otherwise()</span>
+<span class="fc" id="L96">                    .to(&quot;direct:delete.triplestore&quot;);</span>
+
+        /**
+         * Remove an item from the triplestore index.
+         */
+<span class="fc" id="L101">        from(&quot;direct:delete.triplestore&quot;)</span>
+<span class="fc" id="L102">            .routeId(&quot;FcrepoTriplestoreDeleter&quot;)</span>
+<span class="fc" id="L103">            .process(new SparqlDeleteProcessor())</span>
+<span class="fc" id="L104">            .log(LoggingLevel.INFO, logger,</span>
+                    &quot;Deleting Triplestore Object ${headers[CamelFcrepoIdentifier]} &quot; +
+                    &quot;${headers[org.fcrepo.jms.identifier]}&quot;)
+<span class="fc" id="L107">            .to(&quot;http4://{{triplestore.baseUrl}}&quot;);</span>
+
+        /**
+         * Perform the sparql update.
+         */
+<span class="fc" id="L112">        from(&quot;direct:update.triplestore&quot;)</span>
+<span class="fc" id="L113">            .routeId(&quot;FcrepoTriplestoreUpdater&quot;)</span>
+<span class="fc" id="L114">            .setHeader(FCREPO_NAMED_GRAPH)</span>
+<span class="fc" id="L115">                .simple(&quot;{{triplestore.namedGraph}}&quot;)</span>
+<span class="fc" id="L116">            .to(&quot;fcrepo:{{fcrepo.baseUrl}}?accept=application/n-triples&quot; +</span>
+                    &quot;&amp;preferOmit={{prefer.omit}}&amp;preferInclude={{prefer.include}}&quot;)
+<span class="fc" id="L118">            .process(new SparqlUpdateProcessor())</span>
+<span class="fc" id="L119">            .log(LoggingLevel.INFO, logger,</span>
+                    &quot;Indexing Triplestore Object ${headers[CamelFcrepoIdentifier]} &quot; +
+                    &quot;${headers[org.fcrepo.jms.identifier]}&quot;)
+<span class="fc" id="L122">            .to(&quot;http4://{{triplestore.baseUrl}}&quot;);</span>
+<span class="fc" id="L123">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
