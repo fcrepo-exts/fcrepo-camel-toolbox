@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RestProcessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fedora Re-indexing Service</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.reindexing</a> &gt; <span class="el_source">RestProcessor.java</span></div><h1>RestProcessor.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2015 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.reindexing;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.Processor;
+import org.fcrepo.camel.FcrepoHeaders;
+import org.slf4j.Logger;
+
+/**
+ * A processor that converts the REST uri into the
+ * identifying path for an fcrepo node.
+ *
+ * This assumes that the `rest.prefix` value is stored
+ * in the CamelFcrepoRestPrefix header.
+ *
+ * @author Aaron Coburn
+ */
+<span class="fc" id="L44">public class RestProcessor implements Processor {</span>
+
+<span class="fc" id="L46">    private static final Logger LOGGER = getLogger(RestProcessor.class);</span>
+
+    private static final int BAD_REQUEST = 400;
+
+    /**
+     * Convert the incoming REST request into the correct
+     * Fcrepo header fields.
+     *
+     * @param exchange the current message exchange
+     */
+    public void process(final Exchange exchange) throws Exception {
+<span class="fc" id="L57">        final Message in = exchange.getIn();</span>
+
+<span class="fc" id="L59">        final URL url = new URL(in.getHeader(Exchange.HTTP_URI, String.class));</span>
+<span class="fc" id="L60">        final String prefix = in.getHeader(ReindexingHeaders.REST_PREFIX, &quot;&quot;, String.class);</span>
+<span class="fc" id="L61">        final String contentType = in.getHeader(Exchange.CONTENT_TYPE, &quot;&quot;, String.class);</span>
+<span class="fc" id="L62">        final String body = in.getBody(String.class);</span>
+<span class="fc" id="L63">        final Set&lt;String&gt; endpoints = new HashSet&lt;&gt;();</span>
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (final String s : in.getHeader(ReindexingHeaders.RECIPIENTS, &quot;&quot;, String.class).split(&quot;,&quot;)) {</span>
+<span class="fc" id="L66">            endpoints.add(s.trim());</span>
+        }
+
+<span class="fc" id="L69">        in.removeHeaders(&quot;CamelHttp*&quot;);</span>
+<span class="fc" id="L70">        in.removeHeaders(&quot;CamelRestlet*&quot;);</span>
+<span class="fc" id="L71">        in.removeHeaders(&quot;org.restlet*&quot;);</span>
+<span class="fc" id="L72">        in.removeHeader(&quot;JMSCorrelationID&quot;);</span>
+<span class="fc" id="L73">        in.setBody(null);</span>
+
+<span class="pc bpc" id="L75" title="5 of 6 branches missed.">        if (contentType.equals(&quot;application/json&quot;) &amp;&amp; body != null &amp;&amp; !body.trim().isEmpty()) {</span>
+<span class="nc" id="L76">            final ObjectMapper mapper = new ObjectMapper();</span>
+            try {
+<span class="nc" id="L78">                final JsonNode root = mapper.readTree(body);</span>
+<span class="nc" id="L79">                final Iterator&lt;JsonNode&gt; ite = root.elements();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                while (ite.hasNext()) {</span>
+<span class="nc" id="L81">                    final JsonNode n = ite.next();</span>
+<span class="nc" id="L82">                    endpoints.add(n.asText());</span>
+<span class="nc" id="L83">                }</span>
+<span class="nc" id="L84">            } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L85">                LOGGER.debug(&quot;Invalid JSON&quot;, e);</span>
+<span class="nc" id="L86">                in.setHeader(Exchange.HTTP_RESPONSE_CODE, BAD_REQUEST);</span>
+<span class="nc" id="L87">                in.setBody(&quot;Invalid JSON&quot;);</span>
+<span class="nc" id="L88">            }</span>
+        }
+
+<span class="fc" id="L91">        in.setHeader(FcrepoHeaders.FCREPO_IDENTIFIER, url.getPath().substring(prefix.length()));</span>
+<span class="fc" id="L92">        in.setHeader(ReindexingHeaders.RECIPIENTS, String.join(&quot;,&quot;, endpoints));</span>
+<span class="fc" id="L93">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
