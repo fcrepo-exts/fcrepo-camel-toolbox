@@ -62,7 +62,7 @@ To build these projects use this command
 
     MAVEN_OPTS="-Xmx1024m" mvn clean install
 
-## OSGi deployment (Karaf 3.x)
+## OSGi deployment (Karaf 4.x)
 
 These applications are distributed as OSGi features, meaning they can be installed
 directly from the karaf console. First, add the `toolbox-features` repository:
