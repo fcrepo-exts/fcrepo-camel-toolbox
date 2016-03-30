@@ -27,7 +27,7 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.builder.xml.XPathBuilder;
-import org.fcrepo.camel.HttpMethods;
+import org.fcrepo.client.HttpMethods;
 import org.fcrepo.camel.RdfNamespaces;
 import org.slf4j.Logger;
 

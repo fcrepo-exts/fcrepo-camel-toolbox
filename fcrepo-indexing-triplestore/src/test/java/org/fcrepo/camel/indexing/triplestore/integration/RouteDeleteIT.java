@@ -35,9 +35,9 @@ import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.jena.fuseki.EmbeddedFusekiServer;
 import org.fcrepo.camel.JmsHeaders;
-import org.fcrepo.camel.FcrepoClient;
+import org.fcrepo.client.FcrepoClient;
 import org.fcrepo.camel.FcrepoHeaders;
-import org.fcrepo.camel.FcrepoResponse;
+import org.fcrepo.client.FcrepoResponse;
 
 import org.junit.After;
 import org.junit.Before;
