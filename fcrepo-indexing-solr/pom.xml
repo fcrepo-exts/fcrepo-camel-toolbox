@@ -229,12 +229,6 @@
         <artifactId>maven-bundle-plugin</artifactId>
       </plugin>
 
-       <!-- to run the example using mvn camel:run -->
-      <plugin>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-maven-plugin</artifactId>
-      </plugin>
-
       <!-- reserve network ports for integration testing -->
       <!-- add configuration file to artifact set for OSGi deployment -->
       <plugin>
