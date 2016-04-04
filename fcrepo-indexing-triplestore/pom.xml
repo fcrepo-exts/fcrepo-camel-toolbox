@@ -114,12 +114,6 @@
         <artifactId>maven-bundle-plugin</artifactId>
       </plugin>
 
-       <!-- to run the example using mvn camel:run -->
-      <plugin>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-maven-plugin</artifactId>
-      </plugin>
-
       <!-- enable checkstyle plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

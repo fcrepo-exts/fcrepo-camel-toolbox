@@ -14,12 +14,6 @@ To build this project use
 
     MAVEN_OPTS="-Xmx1024m" mvn install
 
-##Running from the command line
-
-To run the project you can execute the following Maven goal
-
-    mvn camel:run
-
 ##Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
