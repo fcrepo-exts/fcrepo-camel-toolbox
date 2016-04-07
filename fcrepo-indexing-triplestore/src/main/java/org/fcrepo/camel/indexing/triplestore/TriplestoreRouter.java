@@ -88,7 +88,7 @@ public class TriplestoreRouter extends RouteBuilder {
             .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
                     header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .removeHeaders("CamelHttp*")
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer")
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
             .choice()
                 .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
                     .to("direct:update.triplestore")

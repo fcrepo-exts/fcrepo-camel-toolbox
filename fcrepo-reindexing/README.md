@@ -53,6 +53,10 @@ The camel URI for the internal reindexing queue.
 
     reindexing.stream=activemq:queue:reindexing
 
+The host to which to bind the HTTP endpoint
+
+    rest.host=localhost
+
 The port at which reindexing requests can be sent.
 
     rest.port=9080

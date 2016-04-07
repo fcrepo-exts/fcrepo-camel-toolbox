@@ -38,9 +38,6 @@ import org.junit.Test;
  */
 public class RestProcessorTest extends CamelTestSupport {
 
-    final static String restPrefix = "/camel-indexing";
-    final static String baseUrl = "http://localhost";
-
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
@@ -59,20 +56,17 @@ public class RestProcessorTest extends CamelTestSupport {
         resultEndpoint.message(2).header(ReindexingHeaders.RECIPIENTS).isEqualTo("");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/");
+        headers.put(Exchange.HTTP_PATH, "/");
         template.sendBodyAndHeaders("", headers);
 
         headers.clear();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/foo/bar");
+        headers.put(Exchange.HTTP_PATH, "/foo/bar");
         headers.put(ReindexingHeaders.RECIPIENTS,
                 "activemq:queue:foo, activemq:queue:bar,\t\nactivemq:queue:foo   ");
         template.sendBodyAndHeaders("", headers);
 
         headers.clear();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/foo/bar");
+        headers.put(Exchange.HTTP_PATH, "/foo/bar");
         headers.put(ReindexingHeaders.RECIPIENTS, null);
         template.sendBodyAndHeaders("", headers);
 
@@ -88,9 +82,8 @@ public class RestProcessorTest extends CamelTestSupport {
         resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).contains("activemq:queue:foo");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
         headers.put(Exchange.CONTENT_TYPE, "application/json");
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/foo/bar");
+        headers.put(Exchange.HTTP_PATH, "/foo/bar");
         template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
@@ -106,8 +99,7 @@ public class RestProcessorTest extends CamelTestSupport {
         resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).contains("activemq:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/foo/bar");
+        headers.put(Exchange.HTTP_PATH, "/foo/bar");
         headers.put(Exchange.CONTENT_TYPE, "application/json");
         headers.put(ReindexingHeaders.RECIPIENTS, "activemq:queue:baz");
         template.sendBodyAndHeaders(body, headers);
@@ -122,9 +114,8 @@ public class RestProcessorTest extends CamelTestSupport {
         resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("activemq:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
         headers.put(Exchange.CONTENT_TYPE, "application/json");
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/foo/bar");
+        headers.put(Exchange.HTTP_PATH, "/foo/bar");
         headers.put(ReindexingHeaders.RECIPIENTS, "activemq:queue:baz");
         template.sendBodyAndHeaders(null, headers);
 
@@ -140,8 +131,7 @@ public class RestProcessorTest extends CamelTestSupport {
         resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("activemq:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/foo/bar");
+        headers.put(Exchange.HTTP_PATH, "/foo/bar");
         headers.put(ReindexingHeaders.RECIPIENTS, "activemq:queue:baz");
         template.sendBodyAndHeaders(body, headers);
 
@@ -157,9 +147,8 @@ public class RestProcessorTest extends CamelTestSupport {
         resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("activemq:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
         headers.put(Exchange.CONTENT_TYPE, "application/foo");
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/foo/bar");
+        headers.put(Exchange.HTTP_PATH, "/foo/bar");
         headers.put(ReindexingHeaders.RECIPIENTS, "activemq:queue:baz");
         template.sendBodyAndHeaders(body, headers);
 
@@ -174,9 +163,8 @@ public class RestProcessorTest extends CamelTestSupport {
         resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("activemq:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(ReindexingHeaders.REST_PREFIX, restPrefix);
         headers.put(Exchange.CONTENT_TYPE, "application/json");
-        headers.put(Exchange.HTTP_URI, baseUrl + restPrefix + "/foo/bar");
+        headers.put(Exchange.HTTP_PATH, "/foo/bar");
         headers.put(ReindexingHeaders.RECIPIENTS, "activemq:queue:baz");
         template.sendBodyAndHeaders("    ", headers);
 

@@ -17,7 +17,6 @@ package org.fcrepo.camel.reindexing;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -56,8 +55,7 @@ public class RestProcessor implements Processor {
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
 
-        final URL url = new URL(in.getHeader(Exchange.HTTP_URI, String.class));
-        final String prefix = in.getHeader(ReindexingHeaders.REST_PREFIX, "", String.class);
+        final String path = in.getHeader(Exchange.HTTP_PATH, "", String.class);
         final String contentType = in.getHeader(Exchange.CONTENT_TYPE, "", String.class);
         final String body = in.getBody(String.class);
         final Set<String> endpoints = new HashSet<>();
@@ -67,8 +65,6 @@ public class RestProcessor implements Processor {
         }
 
         in.removeHeaders("CamelHttp*");
-        in.removeHeaders("CamelRestlet*");
-        in.removeHeaders("org.restlet*");
         in.removeHeader("JMSCorrelationID");
         in.setBody(null);
 
@@ -88,7 +84,7 @@ public class RestProcessor implements Processor {
             }
         }
 
-        in.setHeader(FcrepoHeaders.FCREPO_IDENTIFIER, url.getPath().substring(prefix.length()));
+        in.setHeader(FcrepoHeaders.FCREPO_IDENTIFIER, path);
         in.setHeader(ReindexingHeaders.RECIPIENTS, String.join(",", endpoints));
     }
 }
