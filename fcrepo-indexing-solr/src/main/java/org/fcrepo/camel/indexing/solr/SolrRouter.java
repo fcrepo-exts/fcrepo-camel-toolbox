@@ -94,7 +94,7 @@ public class SolrRouter extends RouteBuilder {
             .removeHeaders("CamelHttp*")
             .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
                     header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment")
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
             .setHeader(FCREPO_TRANSFORM).xpath(hasIndexingTransformation, String.class, ns)
             .removeHeaders("CamelHttp*")
             .choice()

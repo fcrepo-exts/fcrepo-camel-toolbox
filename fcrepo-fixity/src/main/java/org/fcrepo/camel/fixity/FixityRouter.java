@@ -53,14 +53,14 @@ public class FixityRouter extends RouteBuilder {
          */
         from("{{fixity.stream}}")
             .routeId("FcrepoFixity")
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=ServerManged")
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=ServerManged&accept=application/rdf+xml")
             .filter().xpath(
                     "/rdf:RDF/rdf:Description/rdf:type" +
                     "[@rdf:resource='" + RdfNamespaces.REPOSITORY + "Binary']", ns)
             .log(LoggingLevel.INFO, LOGGER,
                     "Checking Fixity for ${headers[CamelFcrepoIdentifier]}")
             .delay(simple("{{fixity.delay}}"))
-            .to("fcrepo:{{fcrepo.baseUrl}}?fixity=true")
+            .to("fcrepo:{{fcrepo.baseUrl}}?fixity=true&accept=application/rdf+xml")
             .choice()
                 .when().xpath(
                         "/rdf:RDF/rdf:Description/premis:hasEventOutcome" +

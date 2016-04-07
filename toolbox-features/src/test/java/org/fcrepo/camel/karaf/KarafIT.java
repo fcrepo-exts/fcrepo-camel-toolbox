@@ -15,10 +15,14 @@
  */
 package org.fcrepo.camel.karaf;
 
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.impl.client.HttpClientBuilder.create;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.bundle;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
@@ -30,6 +34,11 @@ import java.io.File;
 
 import javax.inject.Inject;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,6 +66,10 @@ public class KarafIT {
         final ConfigurationManager cm = new ConfigurationManager();
         final String fcrepoPort = cm.getProperty("fcrepo.dynamic.test.port");
         final String jmsPort = cm.getProperty("fcrepo.dynamic.jms.port");
+        final String reindexingPort = cm.getProperty("fcrepo.dynamic.reindexing.port");
+        final String rmiRegistryPort = cm.getProperty("karaf.rmiRegistry.port");
+        final String rmiServerPort = cm.getProperty("karaf.rmiServer.port");
+        final String sshPort = cm.getProperty("karaf.ssh.port");
         final String fcrepoFeatures = "file:" + cm.getProperty("project.build.outputDirectory") + "/features.xml";
         return new Option[] {
             karafDistributionConfiguration()
@@ -74,12 +87,17 @@ public class KarafIT {
             features(bundle(fcrepoFeatures).start(), "fcrepo-indexing-triplestore",
                     "fcrepo-indexing-solr", "fcrepo-reindexing", "fcrepo-serialization",
                     "fcrepo-fixity", "fcrepo-audit-triplestore"),
+            systemProperty("karaf.reindexing.port").value(reindexingPort),
+            editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
+            editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
+            editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "fcrepo.baseUrl", "localhost:" + fcrepoPort + "/fcrepo/rest"),
             editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "fcrepo.baseUrl", "localhost:" + fcrepoPort + "/fcrepo/rest"),
             editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "fcrepo.baseUrl", "localhost:" + fcrepoPort + "/fcrepo/rest"),
             editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "rest.port", reindexingPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.serialization.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.audit.triplestore.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.fixity.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
@@ -96,5 +114,21 @@ public class KarafIT {
         assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-serialization")));
         assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-audit-triplestore")));
         assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-fixity")));
+    }
+
+    @Test
+    public void testReindexingService() throws Exception {
+        final CloseableHttpClient client = create().build();
+        final String reindexingUrl = "http://localhost:" + System.getProperty("karaf.reindexing.port") + "/reindexing/";
+        try (final CloseableHttpResponse response = client.execute(new HttpGet(reindexingUrl))) {
+            assertEquals(SC_OK, response.getStatusLine().getStatusCode());
+        }
+
+        final HttpPost post = new HttpPost(reindexingUrl);
+        post.addHeader("Content-Type", "application/json");
+        post.setEntity(new StringEntity("[\"log:fcrepo\"]"));
+        try (final CloseableHttpResponse response = client.execute(post)) {
+            assertEquals(SC_OK, response.getStatusLine().getStatusCode());
+        }
     }
 }

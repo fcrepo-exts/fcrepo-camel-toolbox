@@ -95,10 +95,10 @@ public class SerializationRouter extends RouteBuilder {
         from("direct:binary")
             .routeId("FcrepoSerializationBinaryUpdater")
             .filter().simple("{{serialization.includeBinaries}} == 'true'")
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer")
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer" +
+                    "&accept=application/rdf+xml")
             .filter().xpath(isBinaryResourceXPath, ns)
-            .log(INFO, LOGGER,
-                    "Writing binary ${headers[CamelFcrepoIdentifier]}")
+            .log(INFO, LOGGER, "Writing binary ${headers[CamelFcrepoIdentifier]}")
             .to("fcrepo:{{fcrepo.baseUrl}}?metadata=false")
             .setHeader(FILE_NAME).header(FCREPO_IDENTIFIER)
             .log(DEBUG, LOGGER, "header filename is: ${headers[CamelFileName]}")

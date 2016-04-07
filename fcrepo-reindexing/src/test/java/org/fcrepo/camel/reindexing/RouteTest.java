@@ -140,7 +140,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_URI, "http://localhost" + restPrefix + id);
+        headers.put(Exchange.HTTP_PATH, id);
         headers.put(ReindexingHeaders.RECIPIENTS, "");
 
         template.sendBodyAndHeaders("direct:reindex", null, headers);
@@ -175,7 +175,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:result").expectedBodiesReceived("Indexing started at " + id);
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_URI, "http://localhost" + restPrefix + id);
+        headers.put(Exchange.HTTP_PATH, id);
         headers.put(ReindexingHeaders.RECIPIENTS, "mock:endpoint");
 
         template.sendBodyAndHeaders("direct:reindex", null, headers);

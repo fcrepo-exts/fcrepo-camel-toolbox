@@ -53,6 +53,7 @@
     <commons.logging.version>1.1.3</commons.logging.version>
     <grizzly.version>2.3.18</grizzly.version>
     <hamcrest.version>1.3</hamcrest.version>
+    <httpclient.version>4.3.6</httpclient.version>
     <hk2.version>2.3.0</hk2.version>
     <jena.fuseki.version>1.1.1</jena.fuseki.version>
     <jersey.version>2.15</jersey.version>
@@ -236,6 +237,13 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-test-blueprint</artifactId>
         <version>${camel.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
         <scope>test</scope>
       </dependency>
 

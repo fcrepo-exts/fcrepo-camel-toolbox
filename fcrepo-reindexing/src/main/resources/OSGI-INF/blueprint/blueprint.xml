@@ -18,6 +18,7 @@
        <cm:property name="reindexing.stream" value="activemq:queue:reindexing"/>
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
        <cm:property name="rest.prefix" value="/reindexing"/>
+       <cm:property name="rest.host" value="localhost"/>
        <cm:property name="rest.port" value="9080"/>
      </cm:default-properties>
    </cm:property-placeholder>
