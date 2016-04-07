@@ -50,6 +50,8 @@ public class ReindexingRouter extends RouteBuilder {
      */
     public void configure() throws Exception {
 
+        final String hostname = host.startsWith("http") ? host : "http://" + host;
+
         final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
         ns.add("ldp", RdfNamespaces.LDP);
 
@@ -63,7 +65,6 @@ public class ReindexingRouter extends RouteBuilder {
         /**
          * Expose a RESTful endpoint for re-indexing
          */
-        final String hostname = host.startsWith("http") ? host : "http://" + host;
         from("jetty:" + hostname + ":" + port + "{{rest.prefix}}?matchOnUriPrefix=true&httpMethodRestrict=GET,POST")
             .routeId("FcrepoReindexingRest")
             .routeDescription("Expose the reindexing endpoint over HTTP")
@@ -76,7 +77,7 @@ public class ReindexingRouter extends RouteBuilder {
         from("direct:usage")
             .routeId("FcrepoReindexingUsage")
             .setHeader(ReindexingHeaders.REST_PREFIX).simple("{{rest.prefix}}")
-            .setHeader(ReindexingHeaders.REST_PORT).simple("{{rest.port}}")
+            .setHeader(ReindexingHeaders.REST_PORT).simple(port)
             .setHeader(FCREPO_BASE_URL).simple("{{fcrepo.baseUrl}}")
             .process(new UsageProcessor());
 

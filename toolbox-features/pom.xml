@@ -183,6 +183,10 @@
             <portName>fcrepo.dynamic.test.port</portName>
             <portName>fcrepo.dynamic.jms.port</portName>
             <portName>fcrepo.dynamic.stomp.port</portName>
+            <portName>fcrepo.dynamic.reindexing.port</portName>
+            <portName>karaf.rmiRegistry.port</portName>
+            <portName>karaf.rmiServer.port</portName>
+            <portName>karaf.ssh.port</portName>
             <portName>jetty.dynamic.stop.port</portName>
           </portNames>
         </configuration>
@@ -212,9 +216,13 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
+            <fcrepo.dynamic.reindexing.port>${fcrepo.dynamic.reindexing.port}</fcrepo.dynamic.reindexing.port>
             <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
             <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
             <project.build.outputDirectory>${project.build.outputDirectory}</project.build.outputDirectory>
+            <karaf.ssh.port>${karaf.ssh.port}</karaf.ssh.port>
+            <karaf.rmiRegistry.port>${karaf.rmiRegistry.port}</karaf.rmiRegistry.port>
+            <karaf.rmiServer.port>${karaf.rmiServer.port}</karaf.rmiServer.port>
           </systemPropertyVariables>
         </configuration>
       </plugin>
