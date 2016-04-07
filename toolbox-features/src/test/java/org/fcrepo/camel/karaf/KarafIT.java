@@ -15,7 +15,10 @@
  */
 package org.fcrepo.camel.karaf;
 
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.impl.client.HttpClientBuilder.create;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.bundle;
@@ -30,6 +33,11 @@ import java.io.File;
 
 import javax.inject.Inject;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,5 +104,21 @@ public class KarafIT {
         assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-serialization")));
         assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-audit-triplestore")));
         assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-fixity")));
+    }
+
+    @Test
+    public void testReindexingService() throws Exception {
+        final CloseableHttpClient client = create().build();
+        final String reindexingUrl = "http://localhost:9080/reindexing/";
+        try (final CloseableHttpResponse response = client.execute(new HttpGet(reindexingUrl))) {
+            assertEquals(SC_OK, response.getStatusLine().getStatusCode());
+        }
+
+        final HttpPost post = new HttpPost(reindexingUrl);
+        post.addHeader("Content-Type", "application/json");
+        post.setEntity(new StringEntity("[\"log:fcrepo\"]"));
+        try (final CloseableHttpResponse response = client.execute(post)) {
+            assertEquals(SC_OK, response.getStatusLine().getStatusCode());
+        }
     }
 }
