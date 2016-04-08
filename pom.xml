@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo-parent</artifactId>
-    <version>4.4.0</version>
+    <version>4.5.0</version>
   </parent>
 
   <groupId>org.fcrepo.camel</groupId>
@@ -30,28 +30,27 @@
     <project_organization>fcrepo4-exts</project_organization>
 
     <!-- dependencies -->
-    <activemq.version>5.11.1</activemq.version>
-    <camel.version>2.16.2</camel.version>
-    <commons.lang3.version>3.3.2</commons.lang3.version>
-    <jackson2.version>2.5.2</jackson2.version>
+    <activemq.version>5.13.2</activemq.version>
+    <camel.version>2.17.0</camel.version>
+    <commons.lang3.version>3.4</commons.lang3.version>
+    <jackson2.version>2.7.3</jackson2.version>
     <jena.version>2.13.0</jena.version>
-    <logback.version>1.1.2</logback.version>
-    <mustache.version>0.9.0</mustache.version>
-    <slf4j.version>1.7.10</slf4j.version>
-    <spring.version>4.1.5.RELEASE</spring.version>
+    <logback.version>1.1.7</logback.version>
+    <mustache.version>0.9.1</mustache.version>
+    <slf4j.version>1.7.20</slf4j.version>
+    <spring.version>4.2.5.RELEASE</spring.version>
     <fcrepo.version>4.5.0</fcrepo.version>
     <fcrepo-audit.version>4.5.0</fcrepo-audit.version>
-    <fcrepo-transform.version>4.5.0</fcrepo-transform.version>
     <fcrepo-java-client.version>0.1.2</fcrepo-java-client.version>
     <fcrepo-camel.version>4.4.1</fcrepo-camel.version>
-    <fcrepo-build-tools.version>4.3.0</fcrepo-build-tools.version>
+    <fcrepo-build-tools.version>4.4.0</fcrepo-build-tools.version>
     <woodstox.version>4.4.1</woodstox.version>
     <!-- testing -->
-    <awaitility.version>1.6.3</awaitility.version>
+    <awaitility.version>1.7.0</awaitility.version>
     <commons.codec.version>1.10</commons.codec.version>
     <commons.io.version>2.4</commons.io.version>
     <commons.logging.version>1.1.3</commons.logging.version>
-    <grizzly.version>2.3.18</grizzly.version>
+    <grizzly.version>2.3.24</grizzly.version>
     <hamcrest.version>1.3</hamcrest.version>
     <httpclient.version>4.3.6</httpclient.version>
     <hk2.version>2.3.0</hk2.version>
