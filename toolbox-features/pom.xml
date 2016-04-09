@@ -25,7 +25,7 @@
     <guava.version>18.0</guava.version>
     <httpclient.version>4.3.3</httpclient.version>
     <httpcore.version>4.3.2</httpcore.version>
-    <commons.codec.version>1.10</commons.codec.version>
+    <commons.codec.version>1.6</commons.codec.version>
     <javax.annotation-api.version>1.2</javax.annotation-api.version>
     <javax.ws.rs.version>2.0.1</javax.ws.rs.version>
     <jacc-api.version>1.5</jacc-api.version>
