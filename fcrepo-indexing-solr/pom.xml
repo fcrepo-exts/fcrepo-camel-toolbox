@@ -151,7 +151,7 @@
     <dependency>
       <groupId>org.fcrepo.transform</groupId>
       <artifactId>fcrepo-transform</artifactId>
-      <version>${fcrepo.version}</version>
+      <version>${fcrepo-transform.version}</version>
       <scope>test</scope>
     </dependency>
 
