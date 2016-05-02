@@ -18,6 +18,8 @@
        <cm:property name="fcrepo.defaultTransform" value="default"/>
        <cm:property name="indexing.predicate" value="false"/>
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
+       <cm:property name="jms.username" value=""/>
+       <cm:property name="jms.password" value=""/>
        <cm:property name="input.stream" value="activemq:topic:fedora"/>
        <cm:property name="solr.reindex.stream" value="activemq:queue:solr.reindex"/>
        <cm:property name="solr.baseUrl" value="localhost:8983/solr/collection1"/>
@@ -29,6 +31,8 @@
   <!-- configuration of activemq component -->
   <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
     <property name="brokerURL" value="${jms.brokerUrl}"/>
+    <property name="userName" value="${jms.username}"/>
+    <property name="password" value="${jms.password}"/>
   </bean>
 
   <!-- component-wide configuration of fcrepo -->

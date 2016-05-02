@@ -17,6 +17,8 @@
        <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo/rest"/>
        <cm:property name="reindexing.stream" value="activemq:queue:reindexing"/>
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
+       <cm:property name="jms.username" value=""/>
+       <cm:property name="jms.password" value=""/>
        <cm:property name="rest.prefix" value="/reindexing"/>
        <cm:property name="rest.host" value="localhost"/>
        <cm:property name="rest.port" value="9080"/>
@@ -26,6 +28,8 @@
   <!-- configuration of activemq component -->
   <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
     <property name="brokerURL" value="${jms.brokerUrl}"/>
+    <property name="userName" value="${jms.username}"/>
+    <property name="password" value="${jms.password}"/>
   </bean>
 
   <!-- component-wide configuration of fcrepo -->

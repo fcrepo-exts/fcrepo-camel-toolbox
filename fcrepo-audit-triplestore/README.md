@@ -49,6 +49,11 @@ The connection URI used to connect to a local or remote ActiveMQ broker
 
     jms.brokerUrl=tcp://localhost:61616
 
+If the JMS connection requires authentication, these parameters should be populated
+
+    jms.username=<username>
+    jms.password=<password>
+
 The camel URI for the incoming message stream.
 
     input.stream=activemq:topic:fedora

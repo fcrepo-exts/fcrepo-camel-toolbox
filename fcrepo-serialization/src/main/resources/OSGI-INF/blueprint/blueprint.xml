@@ -16,6 +16,8 @@
         <cm:property name="fcrepo.authHost" value=""/>
         <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo/rest"/>
         <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
+        <cm:property name="jms.username" value=""/>
+        <cm:property name="jms.password" value=""/>
         <cm:property name="input.stream" value="activemq:topic:fedora"/>
         <cm:property name="serialization.stream" value="activemq:queue:serialization"/>
         <cm:property name="serialization.descriptions" value="/tmp/descriptions"/>
@@ -37,6 +39,8 @@
   <!-- configuration of the activemq component -->
   <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
       <property name="brokerURL" value="${jms.brokerUrl}"/>
+      <property name="userName" value="${jms.username}"/>
+      <property name="password" value="${jms.password}"/>
   </bean>
 
   <camelContext id="FcrepoSerialization" xmlns="http://camel.apache.org/schema/blueprint">

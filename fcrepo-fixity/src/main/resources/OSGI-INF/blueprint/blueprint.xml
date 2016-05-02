@@ -20,6 +20,8 @@
        <cm:property name="fixity.delay" value="0"/>
        <cm:property name="fixity.stream" value="activemq:queue:fixity"/>
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
+       <cm:property name="jms.username" value=""/>
+       <cm:property name="jms.password" value=""/>
      </cm:default-properties>
    </cm:property-placeholder>
 
@@ -33,6 +35,8 @@
   <!-- configuration of activemq component -->
   <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
     <property name="brokerURL" value="${jms.brokerUrl}"/>
+    <property name="userName" value="${jms.username}"/>
+    <property name="password" value="${jms.password}"/>
   </bean>
 
   <camelContext id="FcrepoFixity" xmlns="http://camel.apache.org/schema/blueprint">
