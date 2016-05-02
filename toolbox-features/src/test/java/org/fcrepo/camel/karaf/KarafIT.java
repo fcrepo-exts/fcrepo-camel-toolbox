@@ -19,9 +19,11 @@ import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.impl.client.HttpClientBuilder.create;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
@@ -29,6 +31,8 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDist
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+import static org.ops4j.pax.exam.util.PathUtils.getBaseDir;
+import static org.osgi.framework.Bundle.ACTIVE;
 
 import java.io.File;
 
@@ -47,6 +51,7 @@ import org.ops4j.pax.exam.ConfigurationManager;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 
 /**
@@ -61,6 +66,9 @@ public class KarafIT {
     @Inject
     protected FeaturesService featuresService;
 
+    @Inject
+    protected BundleContext bundleContext;
+
     @Configuration
     public Option[] config() {
         final ConfigurationManager cm = new ConfigurationManager();
@@ -70,7 +78,16 @@ public class KarafIT {
         final String rmiRegistryPort = cm.getProperty("karaf.rmiRegistry.port");
         final String rmiServerPort = cm.getProperty("karaf.rmiServer.port");
         final String sshPort = cm.getProperty("karaf.ssh.port");
-        final String fcrepoFeatures = "file:" + cm.getProperty("project.build.outputDirectory") + "/features.xml";
+        final String fcrepoFixity = "file:" + getBaseDir() + "/../fcrepo-fixity/target/fcrepo-fixity-" +
+                        cm.getProperty("project.version") + ".jar";
+        final String fcrepoSerialization = "file:" + getBaseDir() + "/../fcrepo-serialization/target/fcrepo-serialization-" +
+                        cm.getProperty("project.version") + ".jar";
+        final String fcrepoReindexing = "file:" + getBaseDir() + "/../fcrepo-reindexing/target/fcrepo-reindexing-" +
+                        cm.getProperty("project.version") + ".jar";
+        final String fcrepoIndexingSolr = "file:" + getBaseDir() + "/../fcrepo-indexing-solr/target/fcrepo-indexing-solr-" +
+                        cm.getProperty("project.version") + ".jar";
+        final String fcrepoIndexingTriplestore = "file:" + getBaseDir() + "/../fcrepo-indexing-triplestore/target/" +
+                        "fcrepo-indexing-triplestore-" + cm.getProperty("project.version") + ".jar";
         return new Option[] {
             karafDistributionConfiguration()
                 .frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf")
@@ -83,10 +100,26 @@ public class KarafIT {
             features(maven().groupId("org.apache.karaf.features").artifactId("standard")
                         .versionAsInProject().classifier("features").type("xml"), "scr"),
             features(maven().groupId("org.apache.camel.karaf").artifactId("apache-camel")
-                        .type("xml").classifier("features").versionAsInProject(), "camel-blueprint"),
-            features(bundle(fcrepoFeatures).start(), "fcrepo-indexing-triplestore",
-                    "fcrepo-indexing-solr", "fcrepo-reindexing", "fcrepo-serialization",
-                    "fcrepo-fixity", "fcrepo-audit-triplestore"),
+                        .type("xml").classifier("features").versionAsInProject(), "camel-mustache",
+                        "camel-blueprint", "camel-http4", "camel-spring", "camel-exec", "camel-jetty9", "camel-jacksonxml"),
+            features(maven().groupId("org.apache.activemq").artifactId("activemq-karaf")
+                        .type("xml").classifier("features").versionAsInProject(), "activemq-camel"),
+            features(maven().groupId("org.fcrepo.camel").artifactId("fcrepo-camel")
+                        .type("xml").classifier("features").versionAsInProject(), "fcrepo-camel"),
+            mavenBundle().groupId("org.codehaus.woodstox").artifactId("woodstox-core-asl").versionAsInProject(),
+
+            systemProperty("o.f.c.serialization-bundle").value(fcrepoSerialization),
+            systemProperty("o.f.c.fixity-bundle").value(fcrepoFixity),
+            systemProperty("o.f.c.reindexing-bundle").value(fcrepoReindexing),
+            systemProperty("o.f.c.i.triplestore-bundle").value(fcrepoIndexingTriplestore),
+            systemProperty("o.f.c.i.solr-bundle").value(fcrepoIndexingSolr),
+
+            bundle(fcrepoIndexingSolr).start(),
+            bundle(fcrepoIndexingTriplestore).start(),
+            bundle(fcrepoFixity).start(),
+            bundle(fcrepoSerialization).start(),
+            bundle(fcrepoReindexing).start(),
+
             systemProperty("karaf.reindexing.port").value(reindexingPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
@@ -106,14 +139,16 @@ public class KarafIT {
 
     @Test
     public void testInstallation() throws Exception {
+
         assertTrue(featuresService.isInstalled(featuresService.getFeature("camel-core")));
         assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-camel")));
-        assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-indexing-triplestore")));
-        assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-indexing-solr")));
-        assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-reindexing")));
-        assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-serialization")));
-        assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-audit-triplestore")));
-        assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-fixity")));
+        assertNotNull(bundleContext);
+
+        assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.serialization-bundle")).getState());
+        assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.fixity-bundle")).getState());
+        assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.reindexing-bundle")).getState());
+        assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.i.solr-bundle")).getState());
+        assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.i.triplestore-bundle")).getState());
     }
 
     @Test
