@@ -32,7 +32,7 @@
     <commons.io.version>2.4</commons.io.version>
     <jersey.version>2.13</jersey.version>
     <resource-locator.version>1.0.1</resource-locator.version>
-    <modeshape.version>4.4.0.Final</modeshape.version>
+    <modeshape.version>4.5.0.Final</modeshape.version>
     <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
     <mongo.driver.version>3.0.0</mongo.driver.version>
     <netty.version>4.0.29.Final</netty.version>
