@@ -217,12 +217,12 @@
         <configuration>
           <forkCount>3</forkCount>
           <reuseForks>true</reuseForks>
-          <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
+          <argLine>-Xmx1024m</argLine>
           <systemPropertyVariables>
             <fcrepo.dynamic.reindexing.port>${fcrepo.dynamic.reindexing.port}</fcrepo.dynamic.reindexing.port>
             <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
             <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
-            <project.build.outputDirectory>${project.build.outputDirectory}</project.build.outputDirectory>
+            <project.version>${project.version}</project.version>
             <karaf.ssh.port>${karaf.ssh.port}</karaf.ssh.port>
             <karaf.rmiRegistry.port>${karaf.rmiRegistry.port}</karaf.rmiRegistry.port>
             <karaf.rmiServer.port>${karaf.rmiServer.port}</karaf.rmiServer.port>
