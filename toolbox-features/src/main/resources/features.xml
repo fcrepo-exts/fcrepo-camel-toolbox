@@ -79,7 +79,7 @@
 
     <!-- The following bundles are defined in a self-contained feature in the fcrepo-karaf project.
          Once fcrepo-karaf is published to maven the following can be replaced with
-         <feature version="${fcrepo-audit.version}">fcrepo-audit</feature>
+         <feature version="${fcrepo.version}">fcrepo-audit</feature>
          -->
     <feature prerequisite="true">wrap</feature>
 
@@ -87,7 +87,7 @@
     <feature version="${infinispan.version}">infinispan-commons</feature>
     <feature version="${infinispan.version}">infinispan-cachestore-leveldb-jni</feature>
 
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${fcrepo-audit.version}</bundle>
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-api/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-modeshape/${fcrepo.version}</bundle>

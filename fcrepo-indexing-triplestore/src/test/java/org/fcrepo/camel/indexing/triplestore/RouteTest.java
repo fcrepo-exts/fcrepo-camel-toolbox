@@ -315,7 +315,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         endpoint.expectedMessageCount(1);
         endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-        endpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
+        endpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
         endpoint.allMessages().body().startsWith("update=" + encode(responsePrefix, "UTF-8"));
         endpoint.allMessages().body().endsWith(encode("\n}", "UTF-8"));
         for (final String s : document.split("\n")) {
@@ -349,7 +349,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update").expectedMessageCount(1);
         getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update")
-            .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
+            .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
         getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
