@@ -41,6 +41,12 @@ This application can be used in conjunction with the Repository
 Re-Indexer to verify the checksums for all Binary resources in
 the repository.
 
+### Repository Serializer
+
+This application automatically serializes Fedora resources to a filesystem
+location. Using the re-indexer, one can optionally serialize particular
+segments of the repository to a location on the filesystem.
+
 ### Repository Re-Indexer
 
 This application allows a user to initiate a re-indexing process
@@ -54,7 +60,7 @@ reindexing events, by POSTing a JSON array to the re-indexing
 service:
 
     curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
-        -d '["activemq:queue:solr.reindex","activemq:queue:fixity","activemq:queue:triplestore.reindex"]'
+        -d '["broker:queue:solr.reindex","broker:queue:fixity","broker:queue:triplestore.reindex"]'
 
 ## Building
 
@@ -77,6 +83,7 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-reindexing
     $> feature:install fcrepo-fixity
     $> feature:install fcrepo-serialization
+    $> feature:install fcrepo-service-activemq
 
 
 ##Maintainers

@@ -21,6 +21,7 @@ command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-indexing-triplestore
+    feature:install fcrepo-service-activemq
 
 ##Configuration
 
@@ -61,22 +62,13 @@ added to the triplestore.
     prefer.omit=http://www.w3.org/ns/ldp#PreferContainment
     prefer.include=
 
-The JMS connection URI, used for connecting to a local or remote ActiveMQ broker.
-
-    jms.brokerUrl=tcp://localhost:61616
-
-If the JMS connection requires authentication, these parameters should be populated
-
-    jms.username=<username>
-    jms.password=<password>
-
 The camel URI for the incoming message stream.
 
-    input.stream=activemq:topic:fedora
+    input.stream=broker:topic:fedora
 
 The camel URI for handling reindexing events.
 
-    triplestore.reindex.stream=activemq:queue:triplestore.reindex
+    triplestore.reindex.stream=broker:queue:triplestore.reindex
 
 The base URL of the triplestore being used.
 

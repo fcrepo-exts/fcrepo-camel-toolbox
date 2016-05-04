@@ -4,8 +4,6 @@ This application implements a bridge to an external, triplestore-based
 [Audit Service](https://wiki.duraspace.org/display/FF/Design+-+Audit+Service)
 for [Fedora4](http://fcrepo.org).
 
-**This application is currently in development**
-
 ##Building
 
 To build this project use
@@ -15,14 +13,13 @@ To build this project use
 ##Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
-[Apache ServiceMix](http://servicemix.apache.org/) or 
+[Apache ServiceMix](http://servicemix.apache.org/) or
 [Apache Karaf](http://karaf.apache.org), you can run the following
 command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-audit-triplestore
-
-Or by copying the compiled bundle into `$KARAF_HOME/deploy`.
+    feature:install fcrepo-service-activemq
 
 ##Configuration
 
@@ -45,18 +42,9 @@ to this value, forming, for instance: `http://example.com/event/{UUID}`
 
     event.baseUri=http://example.com/event
 
-The connection URI used to connect to a local or remote ActiveMQ broker
+The camel URI for the incoming message stream (e.g. with the ActiveMQ service).
 
-    jms.brokerUrl=tcp://localhost:61616
-
-If the JMS connection requires authentication, these parameters should be populated
-
-    jms.username=<username>
-    jms.password=<password>
-
-The camel URI for the incoming message stream.
-
-    input.stream=activemq:topic:fedora
+    input.stream=broker:topic:fedora
 
 The base URL of the triplestore being used.
 

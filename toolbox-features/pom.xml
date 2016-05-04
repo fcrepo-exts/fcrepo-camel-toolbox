@@ -94,6 +94,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.fcrepo.client</groupId>
+      <artifactId>fcrepo-java-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <scope>test</scope>
@@ -220,6 +226,7 @@
           <argLine>-Xmx1024m</argLine>
           <systemPropertyVariables>
             <fcrepo.dynamic.reindexing.port>${fcrepo.dynamic.reindexing.port}</fcrepo.dynamic.reindexing.port>
+            <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
             <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
             <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
             <project.version>${project.version}</project.version>
@@ -305,9 +312,15 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
 
+      <!-- enable checkstyle plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

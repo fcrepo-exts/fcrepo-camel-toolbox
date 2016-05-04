@@ -33,10 +33,6 @@
       <artifactId>camel-http4</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.fcrepo.camel</groupId>
       <artifactId>fcrepo-camel</artifactId>
     </dependency>
@@ -69,7 +65,13 @@
       <groupId>com.jayway.awaitility</groupId>
       <artifactId>awaitility</artifactId>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-camel</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-all</artifactId>

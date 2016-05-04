@@ -36,6 +36,7 @@ command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-indexing-solr
+    feature:install fcrepo-service-activemq
 
 ##Configuration
 
@@ -68,22 +69,13 @@ set this property to `true`
 
     indexing.predicate=false
 
-The JMS connection URI, used for connecting to a local or remote ActiveMQ broker.
-
-    jms.brokerUrl=tcp://localhost:61616
-
-If the JMS connection requires authentication, these parameters should be populated
-
-    jms.username=<username>
-    jms.password=<password>
-
 The camel URI for the incoming message stream.
 
-    input.stream=activemq:topic:fedora
+    input.stream=broker:topic:fedora
 
 The camel URI for handling reindexing events.
 
-    solr.reindex.stream=activemq:queue:solr.reindex
+    solr.reindex.stream=broker:queue:solr.reindex
 
 The baseUrl for the Solr server. If using Solr 4.x or better, the URL should include
 the core name.
