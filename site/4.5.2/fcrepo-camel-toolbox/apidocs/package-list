@@ -1,0 +1,6 @@
+org.fcrepo.camel.audit.triplestore
+org.fcrepo.camel.fixity
+org.fcrepo.camel.indexing.solr
+org.fcrepo.camel.indexing.triplestore
+org.fcrepo.camel.reindexing
+org.fcrepo.camel.serialization
