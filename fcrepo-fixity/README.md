@@ -56,6 +56,11 @@ The JMS connection URI, used as a default input stream (queue).
 
     jms.brokerUrl=tcp://localhost:61616
 
+If the JMS connection requires authentication, these parameters should be populated
+
+    jms.username=<username>
+    jms.password=<password>
+
 The camel URI for the incoming message stream.
 
     fixity.stream=activemq:queue:fixity
