@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SerializationRouter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fedora Serialization Service</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.serialization</a> &gt; <span class="el_source">SerializationRouter.java</span></div><h1>SerializationRouter.java</h1><pre class="source lang-java linenums">/**
+ * Copyright 2015 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.serialization;
+
+import static org.apache.camel.LoggingLevel.INFO;
+import static org.apache.camel.LoggingLevel.DEBUG;
+import static org.apache.camel.Exchange.FILE_NAME;
+import static org.apache.camel.builder.PredicateBuilder.not;
+import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.apache.camel.component.exec.ExecBinding.EXEC_COMMAND_ARGS;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
+import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
+import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
+import static org.fcrepo.camel.RdfNamespaces.RDF;
+import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.xml.Namespaces;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ *
+ * A router for serializing fedora objects and binaries.
+ *
+ * @author Bethany Seeger
+ * @since 2015-09-28
+ */
+
+<span class="fc" id="L43">public class SerializationRouter extends RouteBuilder {</span>
+
+<span class="fc" id="L45">    private static final Logger LOGGER = LoggerFactory.getLogger(SerializationRouter.class);</span>
+
+    private static final String isBinaryResourceXPath =
+        &quot;/rdf:RDF/rdf:Description/rdf:type[@rdf:resource=\&quot;&quot; + REPOSITORY + &quot;Binary\&quot;]&quot;;
+    /**
+     * Configure the message route workflow
+     *
+     */
+
+    public void configure() throws Exception {
+
+<span class="fc" id="L56">        final Namespaces ns = new Namespaces(&quot;rdf&quot;, RDF).add(&quot;fedora&quot;, REPOSITORY);</span>
+
+        /**
+         * A generic error handler (specific to this RouteBuilder)
+         */
+<span class="fc" id="L61">        onException(Exception.class)</span>
+<span class="fc" id="L62">                .maximumRedeliveries(&quot;{{error.maxRedeliveries}}&quot;)</span>
+<span class="fc" id="L63">                .log(&quot;Index Routing Error: ${routeId}&quot;);</span>
+
+        /**
+         * Handle Serialization Events
+         */
+<span class="fc" id="L68">        from(&quot;{{input.stream}}&quot;)</span>
+<span class="fc" id="L69">            .routeId(&quot;FcrepoSerialization&quot;)</span>
+<span class="fc" id="L70">            .setHeader(FCREPO_IDENTIFIER).header(IDENTIFIER)</span>
+<span class="fc" id="L71">            .filter(not(or(header(FCREPO_IDENTIFIER).startsWith(simple(&quot;{{audit.container}}/&quot;)),</span>
+<span class="fc" id="L72">                    header(FCREPO_IDENTIFIER).isEqualTo(simple(&quot;{{audit.container}}&quot;)))))</span>
+<span class="fc" id="L73">            .choice()</span>
+<span class="fc" id="L74">                .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + &quot;NODE_REMOVED&quot;))</span>
+<span class="fc" id="L75">                      .to(&quot;direct:delete&quot;).endChoice()</span>
+<span class="fc" id="L76">                .otherwise()</span>
+<span class="fc" id="L77">                    .multicast().to(&quot;direct:metadata&quot;, &quot;direct:binary&quot;);</span>
+
+<span class="fc" id="L79">        from(&quot;{{serialization.stream}}&quot;)</span>
+<span class="fc" id="L80">            .routeId(&quot;FcrepoReSerialization&quot;)</span>
+<span class="fc" id="L81">            .filter(not(or(header(FCREPO_IDENTIFIER).startsWith(simple(&quot;{{audit.container}}/&quot;)),</span>
+<span class="fc" id="L82">                    header(FCREPO_IDENTIFIER).isEqualTo(simple(&quot;{{audit.container}}&quot;)))))</span>
+<span class="fc" id="L83">            .multicast().to(&quot;direct:metadata&quot;, &quot;direct:binary&quot;);</span>
+
+<span class="fc" id="L85">        from(&quot;direct:metadata&quot;)</span>
+<span class="fc" id="L86">            .routeId(&quot;FcrepoSerializationMetadataUpdater&quot;)</span>
+<span class="fc" id="L87">            .to(&quot;fcrepo:{{fcrepo.baseUrl}}?accept={{serialization.mimeType}}&quot;)</span>
+<span class="fc" id="L88">            .log(INFO, LOGGER,</span>
+                    &quot;Serializing object ${headers[CamelFcrepoIdentifier]}&quot;)
+<span class="fc" id="L90">            .setHeader(FILE_NAME)</span>
+<span class="fc" id="L91">                .simple(&quot;${headers[CamelFcrepoIdentifier]}.{{serialization.extension}}&quot;)</span>
+<span class="fc" id="L92">            .log(DEBUG, LOGGER, &quot;filename is ${headers[CamelFileName]}&quot;)</span>
+<span class="fc" id="L93">            .to(&quot;file://{{serialization.descriptions}}&quot;);</span>
+
+<span class="fc" id="L95">        from(&quot;direct:binary&quot;)</span>
+<span class="fc" id="L96">            .routeId(&quot;FcrepoSerializationBinaryUpdater&quot;)</span>
+<span class="fc" id="L97">            .filter().simple(&quot;{{serialization.includeBinaries}} == 'true'&quot;)</span>
+<span class="fc" id="L98">            .to(&quot;fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&quot; +</span>
+                    &quot;&amp;accept=application/rdf+xml&quot;)
+<span class="fc" id="L100">            .filter().xpath(isBinaryResourceXPath, ns)</span>
+<span class="fc" id="L101">            .log(INFO, LOGGER, &quot;Writing binary ${headers[CamelFcrepoIdentifier]}&quot;)</span>
+<span class="fc" id="L102">            .to(&quot;fcrepo:{{fcrepo.baseUrl}}?metadata=false&quot;)</span>
+<span class="fc" id="L103">            .setHeader(FILE_NAME).header(FCREPO_IDENTIFIER)</span>
+<span class="fc" id="L104">            .log(DEBUG, LOGGER, &quot;header filename is: ${headers[CamelFileName]}&quot;)</span>
+<span class="fc" id="L105">            .to(&quot;file://{{serialization.binaries}}&quot;);</span>
+
+<span class="fc" id="L107">        from(&quot;direct:delete&quot;)</span>
+<span class="fc" id="L108">            .routeId(&quot;FcrepoSerializationDeleter&quot;)</span>
+<span class="fc" id="L109">            .setHeader(EXEC_COMMAND_ARGS).simple(</span>
+                    &quot;-rf {{serialization.descriptions}}${headers[CamelFcrepoIdentifier]}.{{serialization.extension}} &quot; +
+                    &quot;{{serialization.descriptions}}${headers[CamelFcrepoIdentifier]} &quot; +
+                    &quot;{{serialization.binaries}}${headers[CamelFcrepoIdentifier]}&quot;)
+<span class="fc" id="L113">            .to(&quot;exec:rm&quot;);</span>
+<span class="fc" id="L114">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
