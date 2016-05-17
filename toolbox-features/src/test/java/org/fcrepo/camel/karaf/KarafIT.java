@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 DuraSpace, Inc.
+/*
+ * Copyright 2016 DuraSpace, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,12 +80,12 @@ public class KarafIT {
         final String sshPort = cm.getProperty("karaf.ssh.port");
         final String fcrepoFixity = "file:" + getBaseDir() + "/../fcrepo-fixity/target/fcrepo-fixity-" +
                         cm.getProperty("project.version") + ".jar";
-        final String fcrepoSerialization = "file:" + getBaseDir() + "/../fcrepo-serialization/target/fcrepo-serialization-" +
-                        cm.getProperty("project.version") + ".jar";
+        final String fcrepoSerialization = "file:" + getBaseDir() + "/../fcrepo-serialization/target/" +
+                        "fcrepo-serialization-" + cm.getProperty("project.version") + ".jar";
         final String fcrepoReindexing = "file:" + getBaseDir() + "/../fcrepo-reindexing/target/fcrepo-reindexing-" +
                         cm.getProperty("project.version") + ".jar";
-        final String fcrepoIndexingSolr = "file:" + getBaseDir() + "/../fcrepo-indexing-solr/target/fcrepo-indexing-solr-" +
-                        cm.getProperty("project.version") + ".jar";
+        final String fcrepoIndexingSolr = "file:" + getBaseDir() + "/../fcrepo-indexing-solr/target/" +
+                        "fcrepo-indexing-solr-" + cm.getProperty("project.version") + ".jar";
         final String fcrepoIndexingTriplestore = "file:" + getBaseDir() + "/../fcrepo-indexing-triplestore/target/" +
                         "fcrepo-indexing-triplestore-" + cm.getProperty("project.version") + ".jar";
         return new Option[] {
@@ -101,7 +101,8 @@ public class KarafIT {
                         .versionAsInProject().classifier("features").type("xml"), "scr"),
             features(maven().groupId("org.apache.camel.karaf").artifactId("apache-camel")
                         .type("xml").classifier("features").versionAsInProject(), "camel-mustache",
-                        "camel-blueprint", "camel-http4", "camel-spring", "camel-exec", "camel-jetty9", "camel-jacksonxml"),
+                        "camel-blueprint", "camel-http4", "camel-spring", "camel-exec", "camel-jetty9",
+                        "camel-jacksonxml"),
             features(maven().groupId("org.apache.activemq").artifactId("activemq-karaf")
                         .type("xml").classifier("features").versionAsInProject(), "activemq-camel"),
             features(maven().groupId("org.fcrepo.camel").artifactId("fcrepo-camel")
@@ -124,15 +125,23 @@ public class KarafIT {
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
             editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort),
-            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "fcrepo.baseUrl", "localhost:" + fcrepoPort + "/fcrepo/rest"),
-            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
-            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "fcrepo.baseUrl", "localhost:" + fcrepoPort + "/fcrepo/rest"),
-            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
-            editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "fcrepo.baseUrl", "localhost:" + fcrepoPort + "/fcrepo/rest"),
-            editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "fcrepo.baseUrl",
+                    "localhost:" + fcrepoPort + "/fcrepo/rest"),
+            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "jms.brokerUrl",
+                    "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "fcrepo.baseUrl",
+                    "localhost:" + fcrepoPort + "/fcrepo/rest"),
+            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "jms.brokerUrl",
+                    "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "fcrepo.baseUrl",
+                    "localhost:" + fcrepoPort + "/fcrepo/rest"),
+            editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "jms.brokerUrl",
+                    "tcp://localhost:" + jmsPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "rest.port", reindexingPort),
-            editConfigurationFilePut("etc/org.fcrepo.camel.serialization.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
-            editConfigurationFilePut("etc/org.fcrepo.camel.audit.triplestore.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.serialization.cfg", "jms.brokerUrl",
+                    "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.audit.triplestore.cfg", "jms.brokerUrl",
+                    "tcp://localhost:" + jmsPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.fixity.cfg", "jms.brokerUrl", "tcp://localhost:" + jmsPort),
        };
     }
