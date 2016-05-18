@@ -82,7 +82,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint-integration-test.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override
