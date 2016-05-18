@@ -11,12 +11,28 @@
    <cm:property-placeholder id="properties" persistent-id="fcrepo-testing">
      <cm:default-properties>
        <cm:property name="error.maxRedeliveries" value="10"/>
-       <cm:property name="reindexing.stream" value="activemq:queue:reindexing"/>
+       <cm:property name="fcrepo.authUsername" value=""/>
+       <cm:property name="fcrepo.authPassword" value=""/>
+       <cm:property name="fcrepo.authHost" value=""/>
+       <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo/rest"/>
+       <cm:property name="reindexing.stream" value="broker:queue:reindexing"/>
        <cm:property name="rest.prefix" value="/reindexing"/>
+       <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
      </cm:default-properties>
    </cm:property-placeholder>
 
-  <camelContext id="FcrepoIndexer" xmlns="http://camel.apache.org/schema/blueprint">
+   <bean id="broker" class="org.apache.activemq.camel.component.ActiveMQComponent">
+      <property name="brokerURL" value="${jms.brokerUrl}"/>
+   </bean>
+
+  <!-- component-wide configuration of fcrepo -->
+  <bean id="fcrepo" class="org.fcrepo.camel.FcrepoComponent">
+    <property name="authUsername" value="${fcrepo.authUsername}"/>
+    <property name="authPassword" value="${fcrepo.authPassword}"/>
+    <property name="authHost" value="${fcrepo.authHost}"/>
+  </bean>
+
+  <camelContext id="FcrepoIndexerTest" xmlns="http://camel.apache.org/schema/blueprint">
     <package>org.fcrepo.camel.reindexing</package>
   </camelContext>
 

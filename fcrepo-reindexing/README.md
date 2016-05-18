@@ -17,12 +17,13 @@ To build this project use
 ##Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
-[Apache ServiceMix](http://servicemix.apache.org/) or 
+[Apache ServiceMix](http://servicemix.apache.org/) or
 [Apache Karaf](http://karaf.apache.org), you can run the following
 command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-reindexing
+    feature:install fcrepo-service-activemq
 
 ##Configuration
 
@@ -45,18 +46,9 @@ The baseUrl for the fedora repository.
 
     fcrepo.baseUrl=localhost:8080/fcrepo/rest
 
-The JMS connection URI, used for connecting to a local or remote ActiveMQ broker.
-
-    jms.brokerUrl=tcp://localhost:61616
-
-If the JMS connection requires authentication, these parameters should be populated
-
-    jms.username=<username>
-    jms.password=<password>
-
 The camel URI for the internal reindexing queue.
 
-    reindexing.stream=activemq:queue:reindexing
+    reindexing.stream=broker:queue:reindexing
 
 The host to which to bind the HTTP endpoint
 

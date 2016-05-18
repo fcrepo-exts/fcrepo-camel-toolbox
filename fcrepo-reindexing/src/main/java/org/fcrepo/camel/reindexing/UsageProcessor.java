@@ -47,6 +47,7 @@ public class UsageProcessor implements Processor {
         final Message in = exchange.getIn();
         final MustacheFactory mf = new DefaultMustacheFactory();
         final Map<String, Object> scopes = new HashMap<>();
+
         scopes.put("fedora", in.getHeader(FcrepoHeaders.FCREPO_BASE_URL, "", String.class));
         scopes.put("reindexing", InetAddress.getLocalHost().getHostName() + ":" +
                 in.getHeader(ReindexingHeaders.REST_PORT, "", String.class) +

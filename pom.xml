@@ -32,7 +32,7 @@
 
     <!-- dependencies -->
     <activemq.version>5.13.2</activemq.version>
-    <camel.version>2.17.0</camel.version>
+    <camel.version>2.17.1</camel.version>
     <commons.lang3.version>3.4</commons.lang3.version>
     <jackson2.version>2.7.3</jackson2.version>
     <jena.version>2.13.0</jena.version>
@@ -73,6 +73,7 @@
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-serialization</module>
+    <module>fcrepo-service-activemq</module>
     <module>toolbox-features</module>
   </modules>
 
@@ -227,6 +228,13 @@
       <!-- Testing & Camel Plugin -->
       <dependency>
         <groupId>org.apache.camel</groupId>
+        <artifactId>camel-test</artifactId>
+        <version>${camel.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
         <artifactId>camel-test-spring</artifactId>
         <version>${camel.version}</version>
         <scope>test</scope>
@@ -337,6 +345,15 @@
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-karaf</artifactId>
         <version>${activemq.version}</version>
+        <type>xml</type>
+        <classifier>features</classifier>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.karaf.features</groupId>
+        <artifactId>standard</artifactId>
+        <version>${karaf.version}</version>
         <type>xml</type>
         <classifier>features</classifier>
         <scope>test</scope>

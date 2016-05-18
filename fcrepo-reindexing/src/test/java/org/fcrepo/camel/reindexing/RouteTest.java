@@ -44,7 +44,7 @@ import org.junit.Test;
 public class RouteTest extends CamelBlueprintTestSupport {
 
     private static final String restPrefix = "/reindexing";
-    private static final String reindexingStream = "activemq:queue:foo";
+    private static final String reindexingStream = "broker:queue:foo";
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -64,7 +64,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override
@@ -88,7 +88,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:traverse");
-                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("broker:*");
                 mockEndpointsAndSkip("fcrepo:*");
             }
         });
@@ -127,7 +127,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:traverse");
-                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("broker:*");
                 mockEndpointsAndSkip("fcrepo:*");
             }
         });
@@ -163,7 +163,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:traverse");
-                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("broker:*");
                 mockEndpointsAndSkip("fcrepo:*");
             }
         });
@@ -216,7 +216,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:traverse");
-                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("broker:*");
                 mockEndpointsAndSkip("fcrepo:*");
             }
         });

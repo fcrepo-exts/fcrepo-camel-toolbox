@@ -18,10 +18,12 @@ package org.fcrepo.camel.fixity.integration;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
@@ -29,6 +31,7 @@ import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
+import org.apache.camel.util.KeyValueHolder;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.fcrepo.client.FcrepoClient;
@@ -79,7 +82,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override
@@ -92,6 +95,17 @@ public class RouteIT extends CamelBlueprintTestSupport {
         props.put("fixity.failure", "mock:failure");
         props.put("fixity.success", "mock:success");
         return props;
+    }
+
+    @Override
+    protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
+        final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
+        final ActiveMQComponent component = new ActiveMQComponent();
+
+        component.setBrokerURL("tcp://localhost:" + jmsPort);
+        component.setExposeAllQueues(true);
+
+        services.put("broker", asService(component, "osgi.jndi.service.name", "fcrepoqueue"));
     }
 
     @Test
