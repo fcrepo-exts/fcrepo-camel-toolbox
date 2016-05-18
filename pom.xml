@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo-parent</artifactId>
-    <version>4.5.0</version>
+    <version>4.5.1</version>
   </parent>
 
   <groupId>org.fcrepo.camel</groupId>
@@ -28,6 +28,7 @@
       replacements of "fcrepo4" in child modules (for scm, site-distribution, etc -->
     <project_name>fcrepo-camel-toolbox</project_name>
     <project_organization>fcrepo4-exts</project_organization>
+    <project.copyrightYear>2016</project.copyrightYear>
 
     <!-- dependencies -->
     <activemq.version>5.13.2</activemq.version>
@@ -518,6 +519,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
       </plugin>
 
     </plugins>
