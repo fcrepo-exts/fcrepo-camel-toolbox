@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 DuraSpace, Inc.
+/*
+ * Copyright 2016 DuraSpace, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,16 +104,17 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
-
+        final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final Properties props = new Properties();
         props.put("indexing.predicate", "true");
         props.put("fcrepo.baseUrl", "localhost:" + FCREPO_PORT + "/fcrepo/rest");
         props.put("triplestore.baseUrl", "localhost:" + FUSEKI_PORT + "/fuseki/test/update");
+        props.put("jms.brokerUrl", "tcp://localhost:" + jmsPort);
         props.put("input.stream", "direct:start");
         return props;
     }

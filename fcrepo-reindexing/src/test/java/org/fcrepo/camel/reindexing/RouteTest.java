@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 DuraSpace, Inc.
+/*
+ * Copyright 2016 DuraSpace, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import org.junit.Test;
 public class RouteTest extends CamelBlueprintTestSupport {
 
     private static final String restPrefix = "/reindexing";
-    private static final String reindexingStream = "activemq:queue:foo";
+    private static final String reindexingStream = "broker:queue:foo";
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -64,7 +64,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override
@@ -88,7 +88,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:traverse");
-                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("broker:*");
                 mockEndpointsAndSkip("fcrepo:*");
             }
         });
@@ -127,7 +127,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:traverse");
-                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("broker:*");
                 mockEndpointsAndSkip("fcrepo:*");
             }
         });
@@ -140,7 +140,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_URI, "http://localhost" + restPrefix + id);
+        headers.put(Exchange.HTTP_PATH, id);
         headers.put(ReindexingHeaders.RECIPIENTS, "");
 
         template.sendBodyAndHeaders("direct:reindex", null, headers);
@@ -163,7 +163,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:traverse");
-                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("broker:*");
                 mockEndpointsAndSkip("fcrepo:*");
             }
         });
@@ -175,7 +175,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:result").expectedBodiesReceived("Indexing started at " + id);
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_URI, "http://localhost" + restPrefix + id);
+        headers.put(Exchange.HTTP_PATH, id);
         headers.put(ReindexingHeaders.RECIPIENTS, "mock:endpoint");
 
         template.sendBodyAndHeaders("direct:reindex", null, headers);
@@ -216,7 +216,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:traverse");
-                mockEndpointsAndSkip("activemq:*");
+                mockEndpointsAndSkip("broker:*");
                 mockEndpointsAndSkip("fcrepo:*");
             }
         });

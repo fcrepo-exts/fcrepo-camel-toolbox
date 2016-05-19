@@ -6,7 +6,7 @@
   <parent>
     <artifactId>fcrepo-camel-toolbox</artifactId>
     <groupId>org.fcrepo.camel</groupId>
-    <version>4.4.1-SNAPSHOT</version>
+    <version>4.5.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>fcrepo-reindexing</artifactId>
@@ -30,11 +30,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-restlet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
+      <artifactId>camel-jetty9</artifactId>
     </dependency>
     <dependency>
       <groupId>org.fcrepo.camel</groupId>
@@ -82,6 +78,12 @@
       <artifactId>camel-test-spring</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-camel</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -101,12 +103,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
-
-       <!-- to run the example using mvn camel:run -->
-      <plugin>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-maven-plugin</artifactId>
       </plugin>
 
       <!-- enable checkstyle plugin -->

@@ -6,13 +6,13 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo-parent</artifactId>
-    <version>4.4.0</version>
+    <version>4.5.1</version>
   </parent>
 
   <groupId>org.fcrepo.camel</groupId>
   <artifactId>fcrepo-camel-toolbox</artifactId>
   <packaging>pom</packaging>
-  <version>4.4.1-SNAPSHOT</version>
+  <version>4.5.3-SNAPSHOT</version>
 
   <name>Fedora4 Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
@@ -28,38 +28,42 @@
       replacements of "fcrepo4" in child modules (for scm, site-distribution, etc -->
     <project_name>fcrepo-camel-toolbox</project_name>
     <project_organization>fcrepo4-exts</project_organization>
+    <project.copyrightYear>2016</project.copyrightYear>
 
     <!-- dependencies -->
-    <activemq.version>5.11.1</activemq.version>
-    <camel.version>2.15.1</camel.version>
-    <commons.lang3.version>3.3.2</commons.lang3.version>
-    <jackson2.version>2.5.2</jackson2.version>
+    <activemq.version>5.13.2</activemq.version>
+    <camel.version>2.17.1</camel.version>
+    <commons.lang3.version>3.4</commons.lang3.version>
+    <jackson2.version>2.7.3</jackson2.version>
     <jena.version>2.13.0</jena.version>
-    <logback.version>1.1.2</logback.version>
-    <mustache.version>0.9.0</mustache.version>
-    <slf4j.version>1.7.10</slf4j.version>
-    <spring.version>4.1.5.RELEASE</spring.version>
-    <fcrepo.version>4.4.0</fcrepo.version>
-    <fcrepo-audit.version>4.4.0</fcrepo-audit.version>
-    <fcrepo-camel.version>4.4.1-SNAPSHOT</fcrepo-camel.version>
-    <fcrepo-java-client.version>0.1.1</fcrepo-java-client.version>
-    <fcrepo-transform.version>4.4.1-SNAPSHOT</fcrepo-transform.version>
-    <fcrepo-build-tools.version>4.3.0</fcrepo-build-tools.version>
+    <logback.version>1.1.7</logback.version>
+    <mustache.version>0.9.1</mustache.version>
+    <slf4j.version>1.7.20</slf4j.version>
+    <spring.version>4.2.5.RELEASE</spring.version>
+    <fcrepo.version>4.5.1</fcrepo.version>
+    <fcrepo-java-client.version>0.1.2</fcrepo-java-client.version>
+    <fcrepo-camel.version>4.4.2</fcrepo-camel.version>
+    <fcrepo-build-tools.version>4.4.1</fcrepo-build-tools.version>
     <woodstox.version>4.4.1</woodstox.version>
     <!-- testing -->
-    <awaitility.version>1.6.3</awaitility.version>
+    <awaitility.version>1.7.0</awaitility.version>
     <commons.codec.version>1.10</commons.codec.version>
     <commons.io.version>2.4</commons.io.version>
     <commons.logging.version>1.1.3</commons.logging.version>
-    <grizzly.version>2.3.18</grizzly.version>
+    <grizzly.version>2.3.24</grizzly.version>
     <hamcrest.version>1.3</hamcrest.version>
+    <httpclient.version>4.3.6</httpclient.version>
+    <hk2.version>2.3.0</hk2.version>
     <jena.fuseki.version>1.1.1</jena.fuseki.version>
     <jersey.version>2.15</jersey.version>
+    <karaf.version>4.0.4</karaf.version>
+    <pax-exam.version>4.8.0</pax-exam.version>
     <solr.version>4.10.2</solr.version>
     <!-- osgi -->
     <osgi.import.packages>*</osgi.import.packages>
     <!-- plugins -->
     <jetty.plugin.version>9.2.6.v20141205</jetty.plugin.version>
+    <paxexam.plugin.version>1.2.4</paxexam.plugin.version>
   </properties>
 
   <modules>
@@ -69,6 +73,8 @@
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-serialization</module>
+    <module>fcrepo-service-activemq</module>
+    <module>toolbox-features</module>
   </modules>
 
   <repositories>
@@ -108,7 +114,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-restlet</artifactId>
+        <artifactId>camel-jetty9</artifactId>
         <version>${camel.version}</version>
       </dependency>
       <dependency>
@@ -164,7 +170,7 @@
       <dependency>
         <groupId>org.fcrepo</groupId>
         <artifactId>fcrepo-audit</artifactId>
-        <version>${fcrepo-audit.version}</version>
+        <version>${fcrepo.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -176,6 +182,12 @@
         <artifactId>compiler</artifactId>
         <version>${mustache.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.glassfish.hk2.external</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>${hk2.version}</version>
+      </dependency>
+
 
       <!-- Spring -->
       <dependency>
@@ -216,6 +228,13 @@
       <!-- Testing & Camel Plugin -->
       <dependency>
         <groupId>org.apache.camel</groupId>
+        <artifactId>camel-test</artifactId>
+        <version>${camel.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
         <artifactId>camel-test-spring</artifactId>
         <version>${camel.version}</version>
         <scope>test</scope>
@@ -225,6 +244,13 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-test-blueprint</artifactId>
         <version>${camel.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -285,6 +311,55 @@
       </dependency>
 
       <dependency>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>pax-exam-container-karaf</artifactId>
+        <version>${pax-exam.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>pax-exam-junit4</artifactId>
+        <version>${pax-exam.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.karaf</groupId>
+        <artifactId>apache-karaf</artifactId>
+        <version>${karaf.version}</version>
+        <type>zip</type>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel.karaf</groupId>
+        <artifactId>apache-camel</artifactId>
+        <version>${camel.version}</version>
+        <type>xml</type>
+        <classifier>features</classifier>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-karaf</artifactId>
+        <version>${activemq.version}</version>
+        <type>xml</type>
+        <classifier>features</classifier>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.karaf.features</groupId>
+        <artifactId>standard</artifactId>
+        <version>${karaf.version}</version>
+        <type>xml</type>
+        <classifier>features</classifier>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.jena</groupId>
         <artifactId>jena-fuseki</artifactId>
         <version>${jena.fuseki.version}</version>
@@ -307,35 +382,8 @@
   <build>
     <defaultGoal>install</defaultGoal>
 
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/features.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <excludes>
-          <exclude>**/features.xml</exclude>
-        </excludes>
-      </resource>
-    </resources>
-
     <pluginManagement>
       <plugins>
-
-        <!-- to run the example using mvn camel:run -->
-        <plugin>
-          <groupId>org.apache.camel</groupId>
-          <artifactId>camel-maven-plugin</artifactId>
-          <version>${camel.version}</version>
-          <configuration>
-            <useBlueprint>true</useBlueprint>
-          </configuration>
-        </plugin>
 
         <!-- reserve network ports for integration testing -->
         <plugin>
@@ -354,6 +402,21 @@
             </execution>
           </executions>
         </plugin>
+
+        <!-- pax exam -->
+        <plugin>
+         <groupId>org.ops4j.pax.exam</groupId>
+         <artifactId>maven-paxexam-plugin</artifactId>
+         <version>${paxexam.plugin.version}</version>
+         <executions>
+           <execution>
+             <id>generate-config</id>
+             <goals>
+               <goal>generate-depends-file</goal>
+             </goals>
+           </execution>
+         </executions>
+       </plugin>
 
         <!-- plugin so you can run mvn jetty:run -->
         <plugin>
@@ -394,24 +457,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.basedir}/target/classes/features.xml</file>
-                  <type>xml</type>
-                  <classifier>features</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -491,6 +536,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
       </plugin>
 
     </plugins>

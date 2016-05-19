@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 DuraSpace, Inc.
+/*
+ * Copyright 2016 DuraSpace, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class TriplestoreRouter extends RouteBuilder {
             .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
                     header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .removeHeaders("CamelHttp*")
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer")
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
             .choice()
                 .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
                     .to("direct:update.triplestore")

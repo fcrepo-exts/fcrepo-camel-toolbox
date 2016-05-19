@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 DuraSpace, Inc.
+/*
+ * Copyright 2016 DuraSpace, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
@@ -47,7 +46,6 @@ import org.slf4j.Logger;
  * @author bseeger
  * @since 2015-11-05
  */
-
 public class RouteIT extends CamelBlueprintTestSupport {
 
     final private Logger logger = getLogger(RouteIT.class);
@@ -87,17 +85,18 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
-
+        final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final Properties props = new Properties();
         props.put("fcrepo.baseUrl", "localhost:" + FCREPO_PORT + "/fcrepo/rest");
         props.put("serialization.descriptions", "target/serialization/descriptions");
         props.put("serialization.binaries", "target/serialization/binaries");
         props.put("serialization.stream", "direct:foo");
+        props.put("jms.brokerUrl", "tcp://localhost:" + jmsPort);
         props.put("input.stream", "direct:start");
         return props;
     }
@@ -148,12 +147,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
         template.sendBodyAndHeaders("direct:start", "", headers);
 
-        await().until(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return f.exists();
-            }
-        });
+        await().until(() -> f.exists());
 
         assertMockEndpointsSatisfied();
     }

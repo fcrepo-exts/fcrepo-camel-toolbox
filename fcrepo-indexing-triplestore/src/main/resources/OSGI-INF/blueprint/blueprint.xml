@@ -16,9 +16,8 @@
        <cm:property name="fcrepo.authHost" value=""/>
        <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo4/rest"/>
        <cm:property name="indexing.predicate" value="false"/>
-       <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
-       <cm:property name="input.stream" value="activemq:topic:fedora"/>
-       <cm:property name="triplestore.reindex.stream" value="activemq:queue:triplestore.reindex"/>
+       <cm:property name="input.stream" value="broker:topic:fedora"/>
+       <cm:property name="triplestore.reindex.stream" value="broker:queue:triplestore.reindex"/>
        <cm:property name="triplestore.baseUrl" value="localhost:8080/fuseki/test/update"/>
        <cm:property name="triplestore.namedGraph" value=""/>
        <cm:property name="audit.container" value="/audit"/>
@@ -27,10 +26,7 @@
      </cm:default-properties>
    </cm:property-placeholder>
 
-  <!-- configuration of activemq component -->
-  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-    <property name="brokerURL" value="${jms.brokerUrl}"/>
-  </bean>
+   <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepoqueue)"/>
 
   <!-- component-wide configuration of fcrepo -->
   <bean id="fcrepo" class="org.fcrepo.camel.FcrepoComponent">

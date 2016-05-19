@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 DuraSpace, Inc.
+/*
+ * Copyright 2016 DuraSpace, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.fcrepo.camel.JmsHeaders;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
+import org.fcrepo.camel.JmsHeaders;
 
 import org.junit.Test;
 
@@ -62,7 +62,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override

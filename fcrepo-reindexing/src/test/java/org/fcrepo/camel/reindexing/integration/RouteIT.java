@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 DuraSpace, Inc.
+/*
+ * Copyright 2016 DuraSpace, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ import org.slf4j.Logger;
  * @author Aaron Coburn
  * @since 2015-04-10
  */
-//public class RouteIT extends CamelSpringTestSupport {
 public class RouteIT extends CamelBlueprintTestSupport {
 
     private static final Logger LOGGER = getLogger(RouteIT.class);
@@ -88,7 +87,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
         component.setBrokerURL("tcp://localhost:" + jmsPort);
         component.setExposeAllQueues(true);
 
-        services.put("activemq", asService(component, null));
+        services.put("broker", asService(component, null));
     }
 
     @Override
@@ -103,7 +102,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
         final Properties props = new Properties();
         props.put("fcrepo.baseUrl", "localhost:" + webPort + "/fcrepo/rest");
-        props.put("reindexing.stream", "activemq:queue:reindexing");
+        props.put("reindexing.stream", "broker:queue:reindexing");
         props.put("rest.prefix", "/reindexing");
         props.put("rest.port", restPort);
 

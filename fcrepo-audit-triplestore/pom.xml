@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.fcrepo.camel</groupId>
     <artifactId>fcrepo-camel-toolbox</artifactId>
-    <version>4.4.1-SNAPSHOT</version>
+    <version>4.5.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>fcrepo-audit-triplestore</artifactId>
@@ -31,10 +31,6 @@
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-http4</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-camel</artifactId>
       </dependency>
       <dependency>
         <groupId>org.fcrepo.camel</groupId>
@@ -135,11 +131,6 @@
             <fuseki.dynamic.test.port>${fuseki.dynamic.test.port}</fuseki.dynamic.test.port>
           </systemPropertyVariables>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

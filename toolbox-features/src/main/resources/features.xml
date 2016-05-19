@@ -1,8 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" name="fcrepo-camel-toolbox-${project.version}">
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" name="toolbox-features-${project.version}">
   <repository>mvn:org.fcrepo.camel/fcrepo-camel/${fcrepo-camel.version}/xml/features</repository>
   <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
   <repository>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</repository>
+  <repository>mvn:org.infinispan/infinispan-core/${infinispan.version}/xml/features</repository>
+  <repository>mvn:org.infinispan/infinispan-cachestore-leveldb/${infinispan.version}/xml/features</repository>
 
   <feature name="fcrepo-indexing-solr" version="${project.version}" start-level="50">
     <details>Installs the fcrepo solr indexer</details>
@@ -17,7 +19,6 @@
     <feature version="${camel.version}">camel-http4</feature>
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -29,7 +30,6 @@
     <feature version="${camel.version}">camel</feature>
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -44,7 +44,6 @@
     <feature version="${camel.version}">camel-http4</feature>
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -62,9 +61,8 @@
 
     <feature version="${camel.version}">camel</feature>
     <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-restlet</feature>
+    <feature version="${camel.version}">camel-jetty9</feature>
     <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -77,73 +75,74 @@
 
     <!-- The following bundles are defined in a self-contained feature in the fcrepo-karaf project.
          Once fcrepo-karaf is published to maven the following can be replaced with
-         <feature version="${fcrepo-audit.version}">fcrepo-audit</feature>
+         <feature version="${fcrepo.version}">fcrepo-audit</feature>
          -->
     <feature prerequisite="true">wrap</feature>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${fcrepo-audit.version}</bundle>
+
+    <feature version="${infinispan.version}">infinispan-core</feature>
+    <feature version="${infinispan.version}">infinispan-commons</feature>
+    <feature version="${infinispan.version}">infinispan-cachestore-leveldb-jni</feature>
+
+    <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-api/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-modeshape/${fcrepo.version}</bundle>
     <bundle dependency="true">mvn:org.fcrepo/fcrepo-mint/${fcrepo.version}</bundle>
-    <bundle dependency="true">mvn:javax.jcr/jcr/2.0</bundle>
-    <bundle dependency="true">wrap:mvn:org.apache.jena/jena-core/2.12.1</bundle>
-    <bundle dependency="true">wrap:mvn:org.apache.jena/jena-arq/2.12.1</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2.external/javax.inject/2.3.0</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr-api/4.2.0.Final</bundle>
-    <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-jvm/3.1.0</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-json/3.1.0</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-servlets/3.1.0</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-healthchecks/3.1.0</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-graphite/3.1.0</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-core/3.1.0</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-annotation/3.1.0</bundle>
+    <bundle dependency="true">mvn:javax.jcr/jcr/${jcr.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.jena/jena-osgi/${jena.version}</bundle>
+    <bundle dependency="true">mvn:org.glassfish.hk2.external/javax.inject/${hk2.version}</bundle>
+    <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/${servlet-api.version}</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-jvm/${dropwizard.version}</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-json/${dropwizard.version}</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-servlets/${dropwizard.version}</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-healthchecks/${dropwizard.version}</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-graphite/${dropwizard.version}</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-core/${dropwizard.version}</bundle>
+    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-annotation/${dropwizard.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:commons-lang/commons-lang/2.6</bundle>
-    <bundle dependency="true">mvn:com.google.guava/guava/18.0</bundle>
-    <bundle dependency="true">mvn:org.apache.httpcomponents/httpclient-osgi/4.3.3</bundle>
-    <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/4.3.2</bundle>
-    <bundle dependency="true">mvn:commons-codec/commons-codec/1.6</bundle>
-    <bundle dependency="true">mvn:javax.annotation/javax.annotation-api/1.2</bundle>
-    <bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/2.0.1</bundle>
-    <bundle dependency="true">mvn:javax.security.jacc/javax.security.jacc-api/1.5</bundle>
-    <bundle dependency="true">mvn:commons-io/commons-io/2.4</bundle>
-    <bundle dependency="true">mvn:org.glassfish.jersey.core/jersey-common/2.13</bundle>
-    <bundle dependency="true">mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/2.13</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-api/2.3.0</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-utils/2.3.0</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2.external/aopalliance-repackaged/2.3.0</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/osgi-resource-locator/1.0.1</bundle>
-    <bundle dependency="true">mvn:com.datastax.cassandra/cassandra-driver-core/2.1.7.1</bundle>
-    <bundle dependency="true">mvn:org.mongodb/mongo-java-driver/3.0.0</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-handler/4.0.29.Final</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-codec/4.0.29.Final</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-transport/4.0.29.Final</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-buffer/4.0.29.Final</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-common/4.0.29.Final</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr/4.2.0.Final</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-schematic/4.2.0.Final</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-common/4.2.0.Final</bundle>
-    <bundle dependency="true">mvn:org.infinispan/infinispan-core/6.0.2.Final</bundle>
-    <bundle dependency="true">mvn:org.infinispan/infinispan-commons/6.0.2.Final</bundle>
-    <bundle dependency="true">mvn:org.apache.tika/tika-core/1.6</bundle>
-    <bundle dependency="true">mvn:joda-time/joda-time/1.6.2</bundle>
-    <bundle dependency="true">mvn:org.mapdb/mapdb/1.0.6</bundle>
-    <bundle dependency="true">mvn:org.jgroups/jgroups/3.5.0.Final</bundle>
-    <bundle dependency="true">mvn:org.jboss.logging/jboss-logging/3.1.3.GA</bundle>
-    <bundle dependency="true">wrap:mvn:org.jboss.marshalling/jboss-marshalling/1.4.10.Final</bundle>
+    <bundle dependency="true">mvn:commons-lang/commons-lang/${commons.lang.version}</bundle>
+    <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+    <bundle dependency="true">mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
+    <bundle dependency="true">mvn:javax.annotation/javax.annotation-api/${javax.annotation-api.version}</bundle>
+    <bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/${javax.ws.rs.version}</bundle>
+    <bundle dependency="true">mvn:javax.security.jacc/javax.security.jacc-api/${jacc-api.version}</bundle>
+    <bundle dependency="true">mvn:commons-io/commons-io/${commons.io.version}</bundle>
+    <bundle dependency="true">mvn:org.glassfish.jersey.core/jersey-common/${jersey.version}</bundle>
+    <bundle dependency="true">mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/${jersey.version}</bundle>
+    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-api/${hk2.version}</bundle>
+    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-utils/${hk2.version}</bundle>
+    <bundle dependency="true">mvn:org.glassfish.hk2.external/aopalliance-repackaged/${hk2.version}</bundle>
+    <bundle dependency="true">mvn:org.glassfish.hk2/osgi-resource-locator/${resource-locator.version}</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr-api/${modeshape.version}</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr/${modeshape.version}</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-schematic/${modeshape.version}</bundle>
+    <bundle dependency="true">mvn:org.modeshape/modeshape-common/${modeshape.version}</bundle>
+    <bundle dependency="true">mvn:com.datastax.cassandra/cassandra-driver-core/${cassandra.driver.version}</bundle>
+    <bundle dependency="true">mvn:org.mongodb/mongo-java-driver/${mongo.driver.version}</bundle>
+    <bundle dependency="true">mvn:io.netty/netty-handler/${netty.version}</bundle>
+    <bundle dependency="true">mvn:io.netty/netty-codec/${netty.version}</bundle>
+    <bundle dependency="true">mvn:io.netty/netty-transport/${netty.version}</bundle>
+    <bundle dependency="true">mvn:io.netty/netty-buffer/${netty.version}</bundle>
+    <bundle dependency="true">mvn:io.netty/netty-common/${netty.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.tika/tika-core/${tika.version}</bundle>
+    <bundle dependency="true">mvn:joda-time/joda-time/${joda.version}</bundle>
+    <bundle dependency="true">mvn:org.mapdb/mapdb/${mapdb.version}</bundle>
+    <bundle dependency="true">mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
+    <bundle dependency="true">mvn:org.jboss.logging/jboss-logging/${jboss-logging.version}</bundle>
     <!-- end of fcrepo-audit transitive dependencies -->
 
     <feature version="${camel.version}">camel</feature>
     <feature version="${camel.version}">camel-http4</feature>
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
+
   <feature name="fcrepo-serialization" version="${project.version}" start-level="50">
     <details>Installs the fcrepo serialization tool</details>
 
@@ -154,8 +153,18 @@
     <feature version="${camel.version}">camel-http4</feature>
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${activemq.version}">activemq-camel</feature>
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.serialization.cfg">mvn:org.fcrepo.camel/fcrepo-serialization/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-service-activemq" version="${project.version}" start-level="50">
+    <details>Installs the fcrepo activemq service</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-service-activemq/${project.version}</bundle>
+
+    <feature version="${camel.version}">camel</feature>
+    <feature version="${activemq.version}">activemq-camel</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.service.activemq.cfg">mvn:org.fcrepo.camel/fcrepo-service-activemq/${project.version}/cfg/configuration</configfile>
   </feature>
 </features>

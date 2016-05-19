@@ -12,12 +12,6 @@ To build this project use
 
     MAVEN_OPTS="-Xmx1024m" mvn install
 
-##Running from the command line
-
-To run the project you can execute the following Maven goal
-
-    mvn camel:run
-
 ##Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
@@ -25,15 +19,9 @@ This project can be deployed in an OSGi container. For example using
 [Apache Karaf](http://karaf.apache.org), you can run the following
 command from its shell:
 
-    feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
+    feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-indexing-triplestore
-
-##Deploying in Tomcat/Jetty
-
-If you intend to deploy this application in a web container such as Tomcat or Jetty,
-please refer to the documentation in the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-webapp)
-project.
+    feature:install fcrepo-service-activemq
 
 ##Configuration
 
@@ -74,17 +62,13 @@ added to the triplestore.
     prefer.omit=http://www.w3.org/ns/ldp#PreferContainment
     prefer.include=
 
-The JMS connection URI, used for connecting to a local or remote ActiveMQ broker.
-
-    jms.brokerUrl=tcp://localhost:61616
-
 The camel URI for the incoming message stream.
 
-    input.stream=activemq:topic:fedora
+    input.stream=broker:topic:fedora
 
 The camel URI for handling reindexing events.
 
-    triplestore.reindex.stream=activemq:queue:triplestore.reindex
+    triplestore.reindex.stream=broker:queue:triplestore.reindex
 
 The base URL of the triplestore being used.
 

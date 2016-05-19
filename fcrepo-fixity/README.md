@@ -13,7 +13,7 @@ This service is typically used in conjunction with the
 module. For example:
 
     curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
-        -d '["activemq:queue:fixity"]'
+        -d '["broker:queue:fixity"]'
 
 ##Building
 
@@ -21,28 +21,16 @@ To build this project use
 
     MAVEN_OPTS="-Xmx1024m" mvn install
 
-##Running from the command line
-
-To run the project you can execute the following Maven goal
-
-    mvn camel:run
-
 ##Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
-[Apache ServiceMix](http://servicemix.apache.org/) or 
+[Apache ServiceMix](http://servicemix.apache.org/) or
 [Apache Karaf](http://karaf.apache.org), you can run the following
 command from its shell:
 
-    feature:repo-add mvn:org.fcrepo.camel/fcrepo-camel-toolbox/LATEST/xml/features
+    feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
     feature:install fcrepo-fixity
-
-##Deploying in Tomcat/Jetty
-
-If you intend to deploy this application in a web container such as Tomcat or Jetty,
-please refer to the documentation in the
-[fcrepo-camel-webapp](https://github.com/fcrepo4-labs/fcrepo-camel-webapp)
-project.
+    feature:install fcrepo-service-activemq
 
 ##Configuration
 
@@ -65,13 +53,9 @@ The baseUrl for the fedora repository.
 
     fcrepo.baseUrl=localhost:8080/fcrepo/rest
 
-The JMS connection URI, used as a default input stream (queue).
-
-    jms.brokerUrl=tcp://localhost:61616
-
 The camel URI for the incoming message stream.
 
-    fixity.stream=activemq:queue:fixity
+    fixity.stream=broker:queue:fixity
 
 Because fixity checking can put a significant load on a server, it can be convenient
 to introduce a delay between each fixity check. That delay is measured in milliseconds.

@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 DuraSpace, Inc.
+/*
+ * Copyright 2016 DuraSpace, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,13 +42,15 @@ public class ReindexingRouter extends RouteBuilder {
     @PropertyInject(value = "rest.port", defaultValue = "9080")
     private String port;
 
+    @PropertyInject(value = "rest.host", defaultValue = "localhost")
+    private String host;
+
     /**
      * Configure the message route workflow.
      */
     public void configure() throws Exception {
 
-        restConfiguration().component("restlet").port(
-                System.getProperty("fcrepo.dynamic.reindexing.port", port));
+        final String hostname = host.startsWith("http") ? host : "http://" + host;
 
         final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
         ns.add("ldp", RdfNamespaces.LDP);
@@ -63,14 +65,19 @@ public class ReindexingRouter extends RouteBuilder {
         /**
          * Expose a RESTful endpoint for re-indexing
          */
-        rest("{{rest.prefix}}")
-            .get().to("direct:usage")
-            .post().consumes("application/json").to("direct:reindex");
+        from("jetty:" + hostname + ":" + port + "{{rest.prefix}}?matchOnUriPrefix=true&httpMethodRestrict=GET,POST")
+            .routeId("FcrepoReindexingRest")
+            .routeDescription("Expose the reindexing endpoint over HTTP")
+            .choice()
+                .when(header(Exchange.HTTP_METHOD).isEqualTo("GET"))
+                    .to("direct:usage")
+                .otherwise()
+                    .to("direct:reindex");
 
         from("direct:usage")
             .routeId("FcrepoReindexingUsage")
             .setHeader(ReindexingHeaders.REST_PREFIX).simple("{{rest.prefix}}")
-            .setHeader(ReindexingHeaders.REST_PORT).simple("{{rest.port}}")
+            .setHeader(ReindexingHeaders.REST_PORT).simple(port)
             .setHeader(FCREPO_BASE_URL).simple("{{fcrepo.baseUrl}}")
             .process(new UsageProcessor());
 
@@ -104,7 +111,8 @@ public class ReindexingRouter extends RouteBuilder {
             .inOnly("direct:recipients")
             .removeHeaders("CamelHttp*")
             .setHeader(Exchange.HTTP_METHOD).constant(HttpMethods.GET)
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferContainment&preferOmit=ServerManaged")
+            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferContainment" +
+                    "&preferOmit=ServerManaged&accept=application/rdf+xml")
             .convertBodyTo(StreamSource.class)
             .split().xtokenize("/rdf:RDF/rdf:Description/ldp:contains", 'i', ns).streaming()
                 .transform().xpath("/ldp:contains/@rdf:resource", String.class, ns)
