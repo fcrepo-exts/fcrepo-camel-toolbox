@@ -15,10 +15,8 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.audit.AuditNamespaces.AUDIT;
-import static org.fcrepo.audit.AuditNamespaces.PREMIS;
-import static org.fcrepo.audit.AuditNamespaces.PROV;
 import static org.fcrepo.camel.RdfNamespaces.RDF;
+import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
 import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDdateTime;
 import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDstring;
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
@@ -33,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.fcrepo.audit.AuditUtils;
 import org.fcrepo.camel.JmsHeaders;
 import org.fcrepo.camel.processor.ProcessorUtils;
 
@@ -54,6 +51,26 @@ import com.hp.hpl.jena.rdf.model.Resource;
  */
 
 public class AuditSparqlProcessor implements Processor {
+
+    static final String AUDIT = "http://fedora.info/definitions/v4/audit#";
+    static final String PREMIS = "http://www.loc.gov/premis/rdf/v1#";
+    static final String PROV = "http://www.w3.org/ns/prov#";
+    static final String XSD = "http://www.w3.org/2001/XMLSchema#";
+    static final String EVENT_TYPE = "http://id.loc.gov/vocabulary/preservation/eventType/";
+
+    static final String CONTENT_MOD = AUDIT + "contentModification";
+    static final String CONTENT_REM = AUDIT + "contentRemoval";
+    static final String METADATA_MOD = AUDIT + "metadataModification";
+
+    static final String CONTENT_ADD = EVENT_TYPE + "ing";
+    static final String OBJECT_ADD = EVENT_TYPE + "cre";
+    static final String OBJECT_REM = EVENT_TYPE + "del";
+
+    static final String HAS_CONTENT = REPOSITORY + "hasContent";
+
+    static final String NODE_ADDED = REPOSITORY + "NODE_ADDED";
+    static final String NODE_REMOVED = REPOSITORY + "NODE_REMOVED";
+    static final String PROPERTY_CHANGED = REPOSITORY + "PROPERTY_CHANGED";
 
     /**
      * Define how a message should be processed.
@@ -111,7 +128,7 @@ public class AuditSparqlProcessor implements Processor {
         final String agent = (String) message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING);
         final String properties = (String) message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING);
         final String identifier = ProcessorUtils.getSubjectUri(message);
-        final String premisType = AuditUtils.getAuditEventType(eventType, properties);
+        final String premisType = getAuditEventType(eventType, properties);
 
         model.add( model.createStatement(subject, RDF_TYPE, INTERNAL_EVENT) );
         model.add( model.createStatement(subject, RDF_TYPE, PREMIS_EVENT) );
@@ -129,4 +146,37 @@ public class AuditSparqlProcessor implements Processor {
         model.write(serializedGraph, "N-TRIPLE");
         return serializedGraph.toString("UTF-8");
     }
+
+    /**
+     * Returns the Audit event type based on fedora event type and properties.
+     *
+     * @param eventType from Fedora
+     * @param properties associated with the Fedora event
+     * @return Audit event
+     */
+    private static String getAuditEventType(final String eventType, final String properties) {
+        // mapping event type/properties to audit event type
+        if (eventType.contains(NODE_ADDED)) {
+            if (properties != null && properties.contains(HAS_CONTENT)) {
+                return CONTENT_ADD;
+            } else {
+                return OBJECT_ADD;
+            }
+        } else if (eventType.contains(NODE_REMOVED)) {
+            if (properties != null && properties.contains(HAS_CONTENT)) {
+                return CONTENT_REM;
+            } else {
+                return OBJECT_REM;
+            }
+        } else if (eventType.contains(PROPERTY_CHANGED)) {
+            if (properties != null && properties.contains(HAS_CONTENT)) {
+                return CONTENT_MOD;
+            } else {
+                return METADATA_MOD;
+            }
+        }
+        return null;
+    }
+
+
 }

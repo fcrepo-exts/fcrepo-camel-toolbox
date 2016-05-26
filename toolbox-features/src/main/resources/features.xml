@@ -71,69 +71,7 @@
     <details>Installs the fcrepo audit service with a triplestore backend</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}</bundle>
 
-    <bundle dependency="true">mvn:org.apache.jena/jena-osgi/${jena.version}</bundle>
-
-    <!-- The following bundles are defined in a self-contained feature in the fcrepo-karaf project.
-         Once fcrepo-karaf is published to maven the following can be replaced with
-         <feature version="${fcrepo.version}">fcrepo-audit</feature>
-         -->
     <feature prerequisite="true">wrap</feature>
-
-    <feature version="${infinispan.version}">infinispan-core</feature>
-    <feature version="${infinispan.version}">infinispan-commons</feature>
-    <feature version="${infinispan.version}">infinispan-cachestore-leveldb-jni</feature>
-
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-audit/${fcrepo.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-metrics/${fcrepo.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-api/${fcrepo.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-kernel-modeshape/${fcrepo.version}</bundle>
-    <bundle dependency="true">mvn:org.fcrepo/fcrepo-mint/${fcrepo.version}</bundle>
-    <bundle dependency="true">mvn:javax.jcr/jcr/${jcr.version}</bundle>
-    <bundle dependency="true">mvn:org.apache.jena/jena-osgi/${jena.version}</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2.external/javax.inject/${hk2.version}</bundle>
-    <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/${servlet-api.version}</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-jvm/${dropwizard.version}</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-json/${dropwizard.version}</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-servlets/${dropwizard.version}</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-healthchecks/${dropwizard.version}</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-graphite/${dropwizard.version}</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-core/${dropwizard.version}</bundle>
-    <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-annotation/${dropwizard.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:commons-lang/commons-lang/${commons.lang.version}</bundle>
-    <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
-    <bundle dependency="true">mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
-    <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
-    <bundle dependency="true">mvn:commons-codec/commons-codec/${commons.codec.version}</bundle>
-    <bundle dependency="true">mvn:javax.annotation/javax.annotation-api/${javax.annotation-api.version}</bundle>
-    <bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/${javax.ws.rs.version}</bundle>
-    <bundle dependency="true">mvn:javax.security.jacc/javax.security.jacc-api/${jacc-api.version}</bundle>
-    <bundle dependency="true">mvn:commons-io/commons-io/${commons.io.version}</bundle>
-    <bundle dependency="true">mvn:org.glassfish.jersey.core/jersey-common/${jersey.version}</bundle>
-    <bundle dependency="true">mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/${jersey.version}</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-api/${hk2.version}</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-utils/${hk2.version}</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2.external/aopalliance-repackaged/${hk2.version}</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/osgi-resource-locator/${resource-locator.version}</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr-api/${modeshape.version}</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-jcr/${modeshape.version}</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-schematic/${modeshape.version}</bundle>
-    <bundle dependency="true">mvn:org.modeshape/modeshape-common/${modeshape.version}</bundle>
-    <bundle dependency="true">mvn:com.datastax.cassandra/cassandra-driver-core/${cassandra.driver.version}</bundle>
-    <bundle dependency="true">mvn:org.mongodb/mongo-java-driver/${mongo.driver.version}</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-handler/${netty.version}</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-codec/${netty.version}</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-transport/${netty.version}</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-buffer/${netty.version}</bundle>
-    <bundle dependency="true">mvn:io.netty/netty-common/${netty.version}</bundle>
-    <bundle dependency="true">mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-    <bundle dependency="true">mvn:joda-time/joda-time/${joda.version}</bundle>
-    <bundle dependency="true">mvn:org.mapdb/mapdb/${mapdb.version}</bundle>
-    <bundle dependency="true">mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
-    <bundle dependency="true">mvn:org.jboss.logging/jboss-logging/${jboss-logging.version}</bundle>
-    <!-- end of fcrepo-audit transitive dependencies -->
 
     <feature version="${camel.version}">camel</feature>
     <feature version="${camel.version}">camel-http4</feature>
