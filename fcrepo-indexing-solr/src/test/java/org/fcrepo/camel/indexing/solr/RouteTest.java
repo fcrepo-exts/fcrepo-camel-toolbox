@@ -80,6 +80,7 @@ public class RouteTest extends CamelTestSupport {
          props.put("fcrepo.baseUrl", baseURL);
          props.put("fcrepo.defaultTransform", "default");
          props.put("solr.baseUrl", solrURL);
+         props.put("solr.scheme", "http");
          props.put("solr.commitWithin", "100");
          props.put("solr.reindex.stream", "seda:reindex");
          return props;
