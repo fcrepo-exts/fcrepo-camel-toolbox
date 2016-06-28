@@ -34,6 +34,9 @@
     <property name="authHost" value="${fcrepo.authHost}"/>
   </bean>
 
+  <bean id="http" class="org.apache.camel.component.http4.HttpComponent"/>
+  <bean id="https" class="org.apache.camel.component.http4.HttpComponent"/>
+
   <camelContext id="FcrepoSolrIndexer" xmlns="http://camel.apache.org/schema/blueprint">
     <package>org.fcrepo.camel.indexing.solr</package>
   </camelContext>
