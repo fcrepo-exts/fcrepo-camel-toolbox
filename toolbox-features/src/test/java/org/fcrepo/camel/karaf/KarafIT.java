@@ -93,6 +93,7 @@ public class KarafIT {
         final String fcrepoBaseUrl = "localhost:" + fcrepoPort + "/fcrepo/rest";
 
         final String version = cm.getProperty("project.version");
+        final String fcrepoAudit = getBundleUri("fcrepo-audit-triplestore", version);
         final String fcrepoFixity = getBundleUri("fcrepo-fixity", version);
         final String fcrepoReindexing = getBundleUri("fcrepo-reindexing", version);
         final String fcrepoSerialization = getBundleUri("fcrepo-serialization", version);
@@ -124,10 +125,12 @@ public class KarafIT {
             CoreOptions.systemProperty("o.f.c.serialization-bundle").value(fcrepoSerialization),
             CoreOptions.systemProperty("o.f.c.fixity-bundle").value(fcrepoFixity),
             CoreOptions.systemProperty("o.f.c.reindexing-bundle").value(fcrepoReindexing),
+            CoreOptions.systemProperty("o.f.c.a.triplestore-bundle").value(fcrepoAudit),
             CoreOptions.systemProperty("o.f.c.i.triplestore-bundle").value(fcrepoIndexingTriplestore),
             CoreOptions.systemProperty("o.f.c.i.solr-bundle").value(fcrepoIndexingSolr),
             CoreOptions.systemProperty("o.f.c.s.activemq-bundle").value(fcrepoServiceAmq),
 
+            bundle(fcrepoAudit).start(),
             bundle(fcrepoIndexingSolr).start(),
             bundle(fcrepoIndexingTriplestore).start(),
             bundle(fcrepoFixity).start(),
@@ -140,6 +143,7 @@ public class KarafIT {
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
             editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.audit.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.serialization.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),

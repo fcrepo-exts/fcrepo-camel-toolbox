@@ -37,10 +37,6 @@
         <artifactId>fcrepo-camel</artifactId>
       </dependency>
       <dependency>
-        <groupId>org.fcrepo</groupId>
-        <artifactId>fcrepo-audit</artifactId>
-      </dependency>
-      <dependency>
         <groupId>org.apache.jena</groupId>
         <artifactId>jena-core</artifactId>
       </dependency>

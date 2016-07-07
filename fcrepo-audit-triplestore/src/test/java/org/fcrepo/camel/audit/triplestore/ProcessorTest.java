@@ -16,10 +16,10 @@
 package org.fcrepo.camel.audit.triplestore;
 
 import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
-import static org.fcrepo.audit.AuditNamespaces.AUDIT;
-import static org.fcrepo.audit.AuditNamespaces.EVENT_TYPE;
-import static org.fcrepo.audit.AuditNamespaces.PREMIS;
-import static org.fcrepo.audit.AuditNamespaces.XSD;
+import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
+import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.EVENT_TYPE;
+import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.PREMIS;
+import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.XSD;
 
 import java.io.IOException;
 import java.util.HashMap;
