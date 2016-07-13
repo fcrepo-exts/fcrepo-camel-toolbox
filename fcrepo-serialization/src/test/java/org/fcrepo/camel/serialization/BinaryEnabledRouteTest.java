@@ -16,15 +16,16 @@
 package org.fcrepo.camel.serialization;
 
 import static org.fcrepo.camel.JmsHeaders.BASE_URL;
-import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 
 import org.junit.Test;
 import java.util.Map;
 import java.util.Properties;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.camel.Exchange;
+
 import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.Exchange;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
 
@@ -35,7 +36,7 @@ import org.apache.commons.io.IOUtils;
  * @since 2015-11-24
  */
 
-public class RouteTestBinaryEnabled extends AbstractRouteTest {
+public class BinaryEnabledRouteTest extends AbstractRouteTest {
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
@@ -44,8 +45,8 @@ public class RouteTestBinaryEnabled extends AbstractRouteTest {
         props.put("serialization.stream", "seda:foo");
         props.put("input.stream", "seda:bar");
         props.put("serialization.format", "RDF_XML");
-        props.put("serialization.descriptions", "mock:direct:metadata_file");
-        props.put("serialization.binaries", "mock:direct:binary_file");
+        props.put("serialization.descriptions", "metadata_file");
+        props.put("serialization.binaries", "binary_file");
         props.put("serialization.includeBinaries", "true");
         props.put("audit.container", auditContainer);
 
@@ -64,14 +65,14 @@ public class RouteTestBinaryEnabled extends AbstractRouteTest {
         });
         context.start();
 
-        getMockEndpoint("mock:direct:binary_file").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:binary_file").expectedHeaderReceived(Exchange.FILE_NAME, "foo");
+        getMockEndpoint("mock:file:binary_file").expectedMessageCount(1);
+        getMockEndpoint("mock:file:binary_file").expectedHeaderReceived(Exchange.FILE_NAME, "foo");
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
         final Map<String, Object> headers = ImmutableMap.of(
             BASE_URL, baseURL,
-            IDENTIFIER, "foo");
+            FCREPO_IDENTIFIER, "foo");
 
         template.sendBodyAndHeaders(body, headers);
 
