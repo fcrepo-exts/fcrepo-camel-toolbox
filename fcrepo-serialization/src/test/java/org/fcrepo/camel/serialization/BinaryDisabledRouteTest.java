@@ -35,7 +35,7 @@ import org.apache.commons.io.IOUtils;
  * @since 2015-09-28
  */
 
-public class RouteTestBinaryDisabled extends AbstractRouteTest {
+public class BinaryDisabledRouteTest extends AbstractRouteTest {
 
     @Test
     public void testMetatdataSerialization() throws Exception {
@@ -47,21 +47,22 @@ public class RouteTestBinaryDisabled extends AbstractRouteTest {
             }
         });
         context.start();
+
         getMockEndpoint("mock:direct:metadata").expectedMessageCount(1);
         getMockEndpoint("mock:direct:binary").expectedMessageCount(1);
         getMockEndpoint("mock:direct:delete").expectedMessageCount(0);
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-
         final Map<String, Object> headers = ImmutableMap.of(BASE_URL, baseURL);
 
         template.sendBodyAndHeaders(body, headers);
+
         assertMockEndpointsSatisfied();
     }
 
     @Test
-       public void testMetatdataSerializationRemoveNode() throws Exception {
+       public void testMetadataSerializationRemoveNode() throws Exception {
         context.getRouteDefinition("FcrepoSerialization").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -80,7 +81,7 @@ public class RouteTestBinaryDisabled extends AbstractRouteTest {
         final Map<String, Object> headers = ImmutableMap.of(
             BASE_URL, baseURL,
             IDENTIFIER, identifier,
-            EVENT_TYPE, REPOSITORY + "NODE_REMOVE");
+            EVENT_TYPE, REPOSITORY + "NODE_REMOVED");
 
         template.sendBodyAndHeaders(body, headers);
 
@@ -146,7 +147,7 @@ public class RouteTestBinaryDisabled extends AbstractRouteTest {
         });
         context.start();
         // this should be zero because writing binaries is disabled by default.
-        getMockEndpoint("mock:direct:binary_file").expectedMessageCount(0);
+        getMockEndpoint("mock:file:binary_file").expectedMessageCount(0);
 
         // send a file!
         final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");

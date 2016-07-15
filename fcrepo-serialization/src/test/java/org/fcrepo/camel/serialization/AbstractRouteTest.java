@@ -54,7 +54,7 @@ public abstract class AbstractRouteTest extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override
@@ -64,8 +64,8 @@ public abstract class AbstractRouteTest extends CamelBlueprintTestSupport {
         props.put("serialization.stream", "seda:foo");
         props.put("input.stream", "seda:bar");
         props.put("serialization.format", "RDF_XML");
-        props.put("serialization.descriptions", "mock:direct:metadata_file");
-        props.put("serialization.binaries", "mock:direct:binary_file");
+        props.put("serialization.descriptions", "metadata_file");
+        props.put("serialization.binaries", "binary_file");
         // in here to clearly show that we won't include binaries by default
         props.put("serialization.includeBinaries", "false");
         props.put("audit.container", auditContainer);
