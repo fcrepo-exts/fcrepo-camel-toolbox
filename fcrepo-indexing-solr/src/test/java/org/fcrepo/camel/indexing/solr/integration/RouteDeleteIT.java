@@ -100,7 +100,7 @@ public class RouteDeleteIT extends CamelTestSupport {
         props.put("indexing.predicate", "true");
         props.put("fcrepo.baseUrl", "localhost:" + webPort + "/rest");
         props.put("fcrepo.defaultTransform", "default");
-        props.put("solr.baseUrl", "localhost:" + jettyPort + "/solr/testCore");
+        props.put("solr.baseUrl", "http4:localhost:" + jettyPort + "/solr/testCore");
         props.put("solr.commitWithin", "100");
         props.put("input.stream", "direct:start");
         props.put("solr.reindex.stream", "seda:reindex");

@@ -51,7 +51,7 @@ public class RouteTest extends CamelTestSupport {
     protected ProducerTemplate template;
 
     private static final String baseURL = "http://localhost/rest";
-    private static final String solrURL = "localhost:8983/solr/collection1";
+    private static final String solrURL = "http4:localhost:8983/solr/collection1";
     private static final String fileID = "/file1";
     private static final long timestamp = 1428360320168L;
     private static final String eventDate = "2015-04-06T22:45:20Z";
@@ -266,10 +266,10 @@ public class RouteTest extends CamelTestSupport {
         });
         context.start();
 
-        getMockEndpoint("mock:http4:" + solrURL + "/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:" + solrURL + "/update")
+        getMockEndpoint("mock:" + solrURL + "/update").expectedMessageCount(1);
+        getMockEndpoint("mock:" + solrURL + "/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-        getMockEndpoint("mock:http4:" + solrURL + "/update").expectedBodiesReceived(body);
+        getMockEndpoint("mock:" + solrURL + "/update").expectedBodiesReceived(body);
 
         template.sendBodyAndHeaders("direct:update.solr", body,
                 createEvent(fileID, eventTypes, eventProps));
@@ -292,10 +292,10 @@ public class RouteTest extends CamelTestSupport {
         });
         context.start();
 
-        getMockEndpoint("mock:http4:" + solrURL + "/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:" + solrURL + "/update")
+        getMockEndpoint("mock:" + solrURL + "/update").expectedMessageCount(1);
+        getMockEndpoint("mock:" + solrURL + "/update")
             .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/json");
-        getMockEndpoint("mock:http4:" + solrURL + "/update")
+        getMockEndpoint("mock:" + solrURL + "/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:delete.solr", "",

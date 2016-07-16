@@ -78,9 +78,10 @@ The camel URI for handling reindexing events.
     solr.reindex.stream=broker:queue:solr.reindex
 
 The baseUrl for the Solr server. If using Solr 4.x or better, the URL should include
-the core name.
+the core name. (Use `https` scheme if your solr server requires https and/or ssl client certificate authentication.)
 
-    solr.baseUrl=localhost:8983/solr/collection1
+    solr.baseUrl=http://localhost:8983/solr/collection1
+
 
 The timeframe (in milliseconds) within which new items should be committed to the solr index.
 

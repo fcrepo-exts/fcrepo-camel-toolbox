@@ -112,7 +112,7 @@ public class SolrRouter extends RouteBuilder {
             .log(LoggingLevel.INFO, logger,
                     "Deleting Solr Object ${headers[CamelFcrepoIdentifier]}")
             .setHeader(Exchange.HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
-            .to("http4://{{solr.baseUrl}}/update");
+            .to("{{solr.baseUrl}}/update?useSystemProperties=true");
 
         /**
          * Perform the solr update.
@@ -125,7 +125,7 @@ public class SolrRouter extends RouteBuilder {
             .to("fcrepo:{{fcrepo.baseUrl}}?transform={{fcrepo.defaultTransform}}")
             .setHeader(Exchange.HTTP_METHOD).constant(HttpMethods.POST)
             .setHeader(Exchange.HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
-            .to("http4://{{solr.baseUrl}}/update");
+            .to("{{solr.baseUrl}}/update?useSystemProperties=true");
 
     }
 }
