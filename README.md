@@ -26,13 +26,13 @@ end up with incorrect and/or duplicate data in downstream applications. It is fa
 force clients to connect to Fedora over a non-`localhost` network interface.
 Depending on your deployment needs, you may also consider setting a static `Host` header in a proxy.
 For instance, with `nginx`, to proxy Fedora over a standard web port, this configuration may suffice:
-
+```
     location /fcrepo {
         proxy_pass http://localhost:8080;
         proxy_http_version 1.1;
         proxy_set_header Host repository.example.edu;
     }
-
+```
 Any such reverse proxy will work. Then, if port 8080 is inaccessible from outside the
 deployment server, and all clients (including these messaging toolbox applications) access Fedora
 with the `baseUrl` set to something like: `http://repository.example.edu/fcrepo/rest`,
