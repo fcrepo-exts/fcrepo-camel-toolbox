@@ -14,6 +14,30 @@ Additional background information is available on the Fedora Wiki on the
 Each of these applications are available as OSGi bundles and can be deployed
 directly into an OSGi container such as Karaf. 
 
+## Note
+
+Please note: the RDF representation of Fedora Resources is sensitive to the `Host` header
+supplied by any client. This can lead to potentially surprising effects from the perspective
+of the applications in this Messaging Toolbox.
+
+For example, if the `fcrepo-indexing-triplestore` connects to Fedora at `http://localhost:8080`
+but another client modifies Fedora resources at `http://repository.example.edu`, you may
+end up with incorrect and/or duplicate data in downstream applications. It is far better to
+force clients to connect to Fedora over a non-`localhost` network interface.
+Depending on your deployment needs, you may also consider setting a static `Host` header in a proxy.
+For instance, with `nginx`, to proxy Fedora over a standard web port, this configuration may suffice:
+
+    location /fcrepo {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host repository.example.edu;
+    }
+
+Any such reverse proxy will work. Then, if port 8080 is inaccessible from outside the
+deployment server, and all clients (including these messaging toolbox applications) access Fedora
+with the `baseUrl` set to something like: `http://repository.example.edu/fcrepo/rest`,
+then the asynchonous integrations will be less prone to configuration errors.
+
 ### Repository Audit Service (Triplestore)
 
 This application listens to Fedora's event stream, and stores
