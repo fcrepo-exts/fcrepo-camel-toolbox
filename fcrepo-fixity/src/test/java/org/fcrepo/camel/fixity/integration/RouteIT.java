@@ -34,10 +34,11 @@ import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.fcrepo.client.FcrepoClient;
+import org.fcrepo.camel.FcrepoComponent;
 import org.fcrepo.camel.FcrepoHeaders;
-import org.fcrepo.client.FcrepoResponse;
 import org.fcrepo.camel.RdfNamespaces;
+import org.fcrepo.client.FcrepoClient;
+import org.fcrepo.client.FcrepoResponse;
 import org.junit.Test;
 
 /**
@@ -87,10 +88,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
-        final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-
         final Properties props = new Properties();
-        props.put("fcrepo.baseUrl", "localhost:" + webPort + "/fcrepo/rest");
         props.put("fixity.stream", "direct:start");
         props.put("fixity.failure", "mock:failure");
         props.put("fixity.success", "mock:success");
@@ -100,12 +98,17 @@ public class RouteIT extends CamelBlueprintTestSupport {
     @Override
     protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
+        final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
         final ActiveMQComponent component = new ActiveMQComponent();
 
         component.setBrokerURL("tcp://localhost:" + jmsPort);
         component.setExposeAllQueues(true);
 
-        services.put("broker", asService(component, "osgi.jndi.service.name", "fcrepoqueue"));
+        final FcrepoComponent fcrepo = new FcrepoComponent();
+        fcrepo.setBaseUrl("http://localhost:" + webPort + "/fcrepo/rest");
+
+        services.put("broker", asService(component, "osgi.jndi.service.name", "fcrepo/Broker"));
+        services.put("fcrepo", asService(fcrepo, "osgi.jndi.service.name", "fcrepo/Camel"));
     }
 
     @Test
@@ -113,7 +116,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
-        final String fcrepoEndpoint = "mock:fcrepo:localhost:" + webPort + "/fcrepo/rest";
+        final String fcrepoEndpoint = "mock:fcrepo:http://localhost:8080/fcrepo/rest";
         final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
         ns.add("fedora", RdfNamespaces.REPOSITORY);
         ns.add("premis", RdfNamespaces.PREMIS);

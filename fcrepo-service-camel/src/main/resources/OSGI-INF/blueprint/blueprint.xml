@@ -8,22 +8,27 @@
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
    <!-- OSGI blueprint property placeholder -->
-   <cm:property-placeholder id="properties" persistent-id="org.fcrepo.camel.fixity" update-strategy="reload">
+   <cm:property-placeholder id="properties" persistent-id="org.fcrepo.camel.service" update-strategy="reload">
      <cm:default-properties>
-       <cm:property name="error.maxRedeliveries" value="10"/>
        <cm:property name="fcrepo.baseUrl" value="http://localhost:8080/fcrepo/rest"/>
-       <cm:property name="fixity.failure" value="file:/tmp/?fileName=fixityErrors.log&amp;fileExist=Append"/>
-       <cm:property name="fixity.success" value="mock:fixity.success"/>
-       <cm:property name="fixity.delay" value="0"/>
-       <cm:property name="fixity.stream" value="broker:queue:fixity"/>
+       <cm:property name="fcrepo.authUsername" value=""/>
+       <cm:property name="fcrepo.authPassword" value=""/>
+       <cm:property name="fcrepo.authHost" value=""/>
      </cm:default-properties>
    </cm:property-placeholder>
 
-   <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Broker)"/>
-   <reference id="fcrepo" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Camel)"/>
+  <!-- configuration of fcrepo component -->
+  <bean id="fcrepo" class="org.fcrepo.camel.FcrepoComponent">
+    <property name="authUsername" value="${fcrepo.authUsername}"/>
+    <property name="authPassword" value="${fcrepo.authPassword}"/>
+    <property name="authHost" value="${fcrepo.authHost}"/>
+    <property name="baseUrl" value="${fcrepo.baseUrl}"/>
+  </bean>
 
-  <camelContext id="FcrepoFixity" xmlns="http://camel.apache.org/schema/blueprint">
-    <package>org.fcrepo.camel.fixity</package>
-  </camelContext>
+  <service ref="fcrepo" interface="org.apache.camel.Component">
+    <service-properties>
+      <entry key="osgi.jndi.service.name" value="fcrepo/Camel"/>
+    </service-properties>
+  </service>
 
 </blueprint>

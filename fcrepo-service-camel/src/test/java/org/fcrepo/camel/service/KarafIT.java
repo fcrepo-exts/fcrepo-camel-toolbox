@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel.service.activemq;
+package org.fcrepo.camel.service;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.impl.client.HttpClientBuilder.create;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -37,9 +39,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -55,6 +60,8 @@ import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.util.tracker.ServiceTracker;
@@ -62,9 +69,10 @@ import org.slf4j.Logger;
 
 /**
  * @author Aaron Coburn
- * @since May 4, 2016
+ * @since July 21, 2016
  */
 @RunWith(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class KarafIT {
 
     private static Logger LOGGER = getLogger(KarafIT.class);
@@ -98,16 +106,16 @@ public class KarafIT {
                         .type("xml").classifier("features").versionAsInProject(), "scr"),
             features(maven().groupId("org.apache.camel.karaf").artifactId("apache-camel")
                         .type("xml").classifier("features").versionAsInProject(), "camel",
-                        "camel-blueprint", "camel-http4"),
-            features(maven().groupId("org.apache.activemq").artifactId("activemq-karaf")
-                        .type("xml").classifier("features").versionAsInProject(), "activemq-camel"),
+                        "camel-blueprint"),
+            features(maven().groupId("org.fcrepo.camel").artifactId("fcrepo-camel")
+                        .type("xml").classifier("features").versionAsInProject(), "fcrepo-camel"),
 
             CoreOptions.systemProperty("fcrepo.port").value(fcrepoPort),
             CoreOptions.systemProperty("jms.port").value(jmsPort),
-            CoreOptions.systemProperty("fcrepo.service.activemq.bundle").value(fcrepoServiceBundle),
+            CoreOptions.systemProperty("fcrepo.service.bundle").value(fcrepoServiceBundle),
 
-            editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.brokerUrl",
-                    "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.baseUrl",
+                    "http://localhost:" + fcrepoPort + "/fcrepo/rest"),
 
             bundle(fcrepoServiceBundle).start(),
 
@@ -120,16 +128,18 @@ public class KarafIT {
     @Test
     public void testInstallation() throws Exception {
         assertTrue(featuresService.isInstalled(featuresService.getFeature("camel-core")));
+        assertTrue(featuresService.isInstalled(featuresService.getFeature("fcrepo-camel")));
         assertNotNull(bundleContext);
-        assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("fcrepo.service.activemq.bundle")).getState());
+        assertEquals(ACTIVE,
+                bundleContext.getBundle(System.getProperty("fcrepo.service.bundle")).getState());
     }
 
     @Test
-    public void testQueuingService() throws Exception {
+    public void testService() throws Exception {
         final CloseableHttpClient client = create().build();
         final String baseUrl = "http://localhost:" + System.getProperty("fcrepo.port") + "/fcrepo/rest";
         final CamelContext ctx = getOsgiService(CamelContext.class,
-                "(camel.context.name=FcrepoQueuingService)", 10000);
+                "(camel.context.name=FcrepoService)", 10000);
 
         assertNotNull(ctx);
 
@@ -137,10 +147,17 @@ public class KarafIT {
 
         final String url1 = post(baseUrl).replace(baseUrl, "");
         final String url2 = post(baseUrl).replace(baseUrl, "");
-        final HttpPost post = new HttpPost(baseUrl);
+
+        final ProducerTemplate template = ctx.createProducerTemplate();
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put(FCREPO_BASE_URL, baseUrl);
+        headers.put(FCREPO_IDENTIFIER, url1);
+        template.sendBodyAndHeaders(ctx.getEndpoint("direct:start"), null, headers);
+
+        headers.put(FCREPO_IDENTIFIER, url2);
+        template.sendBodyAndHeaders(ctx.getEndpoint("direct:start"), null, headers);
 
         resultEndpoint.expectedMinimumMessageCount(2);
-        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("org.fcrepo.jms.identifier", url1, url2);
         assertIsSatisfied(resultEndpoint);
     }
 

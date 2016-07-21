@@ -112,8 +112,8 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final Properties props = new Properties();
         props.put("indexing.predicate", "true");
-        props.put("fcrepo.baseUrl", "localhost:" + FCREPO_PORT + "/fcrepo/rest");
         props.put("triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
+        props.put("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
         props.put("jms.brokerUrl", "tcp://localhost:" + jmsPort);
         props.put("input.stream", "direct:start");
         return props;
@@ -123,7 +123,7 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
     public void testAddedEventRouter() throws Exception {
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
         final String fusekiEndpoint = "mock:http:localhost:" + FUSEKI_PORT + "/fuseki/test/update";
-        final String fcrepoEndpoint = "mock:fcrepo:localhost:" + FCREPO_PORT + "/fcrepo/rest";
+        final String fcrepoEndpoint = "mock:fcrepo:http://localhost:" + FCREPO_PORT + "/fcrepo/rest";
         final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/fuseki/test";
 
         context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {

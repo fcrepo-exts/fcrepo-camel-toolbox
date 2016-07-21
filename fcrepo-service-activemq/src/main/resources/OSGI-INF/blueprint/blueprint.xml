@@ -25,7 +25,7 @@
 
   <service ref="activemq" interface="org.apache.camel.Component">
     <service-properties>
-      <entry key="osgi.jndi.service.name" value="fcrepoqueue"/>
+      <entry key="osgi.jndi.service.name" value="fcrepo/Broker"/>
     </service-properties>
   </service>
 

@@ -19,7 +19,7 @@
      </cm:default-properties>
    </cm:property-placeholder>
 
-   <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepoqueue)"/>
+   <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Broker)"/>
 
   <bean id="http" class="org.apache.camel.component.http4.HttpComponent"/>
   <bean id="https" class="org.apache.camel.component.http4.HttpComponent"/>

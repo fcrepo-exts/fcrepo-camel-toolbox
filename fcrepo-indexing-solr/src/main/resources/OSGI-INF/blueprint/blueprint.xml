@@ -11,28 +11,19 @@
    <cm:property-placeholder id="properties" persistent-id="org.fcrepo.camel.indexing.solr" update-strategy="reload">
      <cm:default-properties>
        <cm:property name="error.maxRedeliveries" value="10"/>
-       <cm:property name="fcrepo.authUsername" value=""/>
-       <cm:property name="fcrepo.authPassword" value=""/>
-       <cm:property name="fcrepo.authHost" value=""/>
-       <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo/rest"/>
+       <cm:property name="fcrepo.baseUrl" value="http://localhost:8080/fcrepo/rest"/>
        <cm:property name="fcrepo.defaultTransform" value="default"/>
        <cm:property name="indexing.predicate" value="false"/>
        <cm:property name="input.stream" value="broker:topic:fedora"/>
        <cm:property name="solr.reindex.stream" value="broker:queue:solr.reindex"/>
-       <cm:property name="solr.baseUrl" value="localhost:8983/solr/collection1"/>
+       <cm:property name="solr.baseUrl" value="http://localhost:8983/solr/collection1"/>
        <cm:property name="solr.commitWithin" value="10000"/>
        <cm:property name="audit.container" value="/audit"/>
      </cm:default-properties>
    </cm:property-placeholder>
 
-   <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepoqueue)"/>
-
-  <!-- component-wide configuration of fcrepo -->
-  <bean id="fcrepo" class="org.fcrepo.camel.FcrepoComponent">
-    <property name="authUsername" value="${fcrepo.authUsername}"/>
-    <property name="authPassword" value="${fcrepo.authPassword}"/>
-    <property name="authHost" value="${fcrepo.authHost}"/>
-  </bean>
+   <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Broker)"/>
+   <reference id="fcrepo" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Camel)"/>
 
   <bean id="http" class="org.apache.camel.component.http4.HttpComponent"/>
   <bean id="https" class="org.apache.camel.component.http4.HttpComponent"/>

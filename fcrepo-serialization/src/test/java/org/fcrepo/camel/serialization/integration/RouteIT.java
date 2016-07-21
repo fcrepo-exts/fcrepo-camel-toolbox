@@ -92,7 +92,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final Properties props = new Properties();
-        props.put("fcrepo.baseUrl", "localhost:" + FCREPO_PORT + "/fcrepo/rest");
+        props.put("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
         props.put("serialization.descriptions", "target/serialization/descriptions");
         props.put("serialization.binaries", "target/serialization/binaries");
         props.put("serialization.stream", "direct:foo");
@@ -104,7 +104,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
     @Test
     public void testAddedEventRouter() throws Exception {
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
-        final String fcrepoEndpoint = "mock:fcrepo:localhost:" + FCREPO_PORT + "/fcrepo/rest";
+        final String fcrepoEndpoint = "mock:fcrepo:http://localhost:" + FCREPO_PORT + "/fcrepo/rest";
 
         context.getRouteDefinition("FcrepoSerialization").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
