@@ -305,13 +305,13 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("http4*");
+                mockEndpointsAndSkip("http*");
             }
         });
 
         context.start();
 
-        final MockEndpoint endpoint = getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update");
+        final MockEndpoint endpoint = getMockEndpoint("mock:http:localhost:8080/fuseki/test/update");
 
         endpoint.expectedMessageCount(1);
         endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
@@ -341,16 +341,16 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.getRouteDefinition("FcrepoTriplestoreDeleter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
-                mockEndpointsAndSkip("http4*");
+                mockEndpointsAndSkip("http*");
             }
         });
 
         context.start();
 
-        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update")
+        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update").expectedMessageCount(1);
+        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update")
             .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
-        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update")
+        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:delete.triplestore", "",

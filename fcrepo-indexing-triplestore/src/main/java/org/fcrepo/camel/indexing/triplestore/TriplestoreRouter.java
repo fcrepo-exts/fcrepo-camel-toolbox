@@ -104,7 +104,7 @@ public class TriplestoreRouter extends RouteBuilder {
             .log(LoggingLevel.INFO, logger,
                     "Deleting Triplestore Object ${headers[CamelFcrepoIdentifier]} " +
                     "${headers[org.fcrepo.jms.identifier]}")
-            .to("http4://{{triplestore.baseUrl}}");
+            .to("{{triplestore.baseUrl}}");
 
         /**
          * Perform the sparql update.
@@ -119,6 +119,6 @@ public class TriplestoreRouter extends RouteBuilder {
             .log(LoggingLevel.INFO, logger,
                     "Indexing Triplestore Object ${headers[CamelFcrepoIdentifier]} " +
                     "${headers[org.fcrepo.jms.identifier]}")
-            .to("http4://{{triplestore.baseUrl}}");
+            .to("{{triplestore.baseUrl}}");
     }
 }

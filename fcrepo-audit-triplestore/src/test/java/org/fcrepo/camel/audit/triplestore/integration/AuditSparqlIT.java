@@ -264,16 +264,16 @@ public class AuditSparqlIT extends CamelTestSupport {
 
         return new RouteBuilder() {
             public void configure() throws IOException {
-                final String fuseki_url = "localhost:" + Integer.toString(FUSEKI_PORT);
+                final String fuseki_url = "http4://localhost:" + Integer.toString(FUSEKI_PORT);
 
                 from("direct:start")
                     .setHeader(AuditHeaders.EVENT_BASE_URI, constant(EVENT_BASE_URI))
                     .process(new AuditSparqlProcessor())
-                    .to("http4:" + fuseki_url + "/fuseki/test/update")
+                    .to(fuseki_url + "/fuseki/test/update")
                     .to("mock:sparql.update");
 
                 from("direct:query")
-                    .to("http4:" + fuseki_url + "/fuseki/test/query")
+                    .to(fuseki_url + "/fuseki/test/query")
                     .split(xpath)
                         .choice()
                             .when().xpath("/sparql:binding/sparql:uri", String.class, ns)
@@ -287,7 +287,7 @@ public class AuditSparqlIT extends CamelTestSupport {
                     .transform().constant("update=DELETE WHERE { ?s ?o ?p }")
                     .setHeader(Exchange.CONTENT_TYPE).constant("application/x-www-form-urlencoded")
                     .setHeader(Exchange.HTTP_METHOD).constant("POST")
-                    .to("http4:" + fuseki_url + "/fuseki/test/update")
+                    .to(fuseki_url + "/fuseki/test/update")
                     .to("mock:sparql.update");
 
             }

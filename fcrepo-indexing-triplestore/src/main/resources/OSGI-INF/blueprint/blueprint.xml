@@ -18,7 +18,7 @@
        <cm:property name="indexing.predicate" value="false"/>
        <cm:property name="input.stream" value="broker:topic:fedora"/>
        <cm:property name="triplestore.reindex.stream" value="broker:queue:triplestore.reindex"/>
-       <cm:property name="triplestore.baseUrl" value="localhost:8080/fuseki/test/update"/>
+       <cm:property name="triplestore.baseUrl" value="http://localhost:8080/fuseki/test/update"/>
        <cm:property name="triplestore.namedGraph" value=""/>
        <cm:property name="audit.container" value="/audit"/>
        <cm:property name="prefer.omit" value="http://www.w3.org/ns/ldp#PreferContainment"/>
@@ -34,6 +34,9 @@
     <property name="authPassword" value="${fcrepo.authPassword}"/>
     <property name="authHost" value="${fcrepo.authHost}"/>
   </bean>
+
+  <bean id="http" class="org.apache.camel.component.http4.HttpComponent"/>
+  <bean id="https" class="org.apache.camel.component.http4.HttpComponent"/>
 
   <camelContext id="FcrepoTriplestoreIndexer" xmlns="http://camel.apache.org/schema/blueprint">
     <package>org.fcrepo.camel.indexing.triplestore</package>

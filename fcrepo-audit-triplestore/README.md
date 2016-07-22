@@ -48,7 +48,7 @@ The camel URI for the incoming message stream (e.g. with the ActiveMQ service).
 
 The base URL of the triplestore being used.
 
-    triplestore.baseUrl=localhost:8080/fuseki/test/update
+    triplestore.baseUrl=http://localhost:8080/fuseki/test/update
 
 
 By editing this file, any currently running routes will be immediately redeployed
