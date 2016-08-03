@@ -108,6 +108,7 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-fixity
     $> feature:install fcrepo-serialization
     $> feature:install fcrepo-service-activemq
+    $> feature:install fcrepo-ldpath
 
 
 ##Maintainers
