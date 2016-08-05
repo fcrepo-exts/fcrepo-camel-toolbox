@@ -19,15 +19,15 @@ import static java.util.Collections.emptyList;
 
 import java.util.List;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.endpoint.rdf.LinkedDataEndpoint;
+import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.apache.marmotta.ldclient.provider.rdf.CacheProvider;
 import org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider;
 import org.apache.marmotta.ldclient.provider.rdf.RegexUriProvider;

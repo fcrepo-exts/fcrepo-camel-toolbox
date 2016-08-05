@@ -25,7 +25,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 
-
 /**
  * A content router for an LDPath service.
  *
@@ -81,6 +80,5 @@ public class LDPathRouter extends RouteBuilder {
             .marshal().json(Jackson)
             .removeHeaders("*")
             .setHeader(CONTENT_TYPE).constant("application/json");
-
     }
 }

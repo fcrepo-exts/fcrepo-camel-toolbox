@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.jsonldjava.sesame.SesameJSONLDParserFactory;
-import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.apache.marmotta.ldpath.LDPath;
 import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
-import org.openrdf.model.impl.URIImpl;
+import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.resultio.BooleanQueryResultParserRegistry;
 import org.openrdf.query.resultio.TupleQueryResultParserRegistry;
 import org.openrdf.query.resultio.sparqlxml.SPARQLBooleanXMLParserFactory;
@@ -41,7 +41,6 @@ import org.openrdf.rio.rdfxml.RDFXMLParserFactory;
 import org.openrdf.rio.trig.TriGParserFactory;
 import org.openrdf.rio.turtle.TurtleParserFactory;
 import org.semarglproject.sesame.rdf.rdfa.SesameRDFaParserFactory;
-
 
 /**
  * A convenience factory for creating an LDPath object with an LDCacheBackend.

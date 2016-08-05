@@ -76,7 +76,7 @@ The location of the cached triples
 
 The global timeout for cache entries (in seconds)
 
-    cace.timeout=86400
+    cache.timeout=86400
 
 The host to which to bind the HTTP endpoint
 
