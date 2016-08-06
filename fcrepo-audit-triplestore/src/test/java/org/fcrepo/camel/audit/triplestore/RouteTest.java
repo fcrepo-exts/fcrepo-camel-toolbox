@@ -86,7 +86,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.getRouteDefinition("AuditEventRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
-                mockEndpointsAndSkip("http4*");
+                mockEndpointsAndSkip("http*");
                 weaveAddLast().to("mock:result");
             }
         });

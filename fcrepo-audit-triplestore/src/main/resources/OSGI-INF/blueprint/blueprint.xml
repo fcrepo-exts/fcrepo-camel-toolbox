@@ -12,7 +12,7 @@
      <cm:default-properties>
        <cm:property name="error.maxRedeliveries" value="10"/>
        <cm:property name="input.stream" value="broker:topic:fedora"/>
-       <cm:property name="triplestore.baseUrl" value="localhost:8080/fuseki/test/update"/>
+       <cm:property name="triplestore.baseUrl" value="http://localhost:8080/fuseki/test/update"/>
        <!-- Base URI to be used in contructing the URI for the JMS event -->
        <cm:property name="event.baseUri" value="http://example.com/event"/>
        <cm:property name="audit.container" value="/audit"/>
@@ -20,6 +20,9 @@
    </cm:property-placeholder>
 
    <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepoqueue)"/>
+
+  <bean id="http" class="org.apache.camel.component.http4.HttpComponent"/>
+  <bean id="https" class="org.apache.camel.component.http4.HttpComponent"/>
 
   <camelContext xmlns="http://camel.apache.org/schema/blueprint">
     <package>org.fcrepo.camel.audit.triplestore</package>

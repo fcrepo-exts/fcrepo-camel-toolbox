@@ -72,7 +72,7 @@ The camel URI for handling reindexing events.
 
 The base URL of the triplestore being used.
 
-    triplestore.baseUrl=localhost:8080/fuseki/test/update
+    triplestore.baseUrl=http://localhost:8080/fuseki/test/update
 
 A named graph for any objects being indexed in the triplestore. This value, if
 not left blank, should be a valid URI.

@@ -57,6 +57,6 @@ public class EventRouter extends RouteBuilder {
             .process(new AuditSparqlProcessor())
             .log(LoggingLevel.INFO, "org.fcrepo.camel.audit",
                     "Audit Event: ${headers[org.fcrepo.jms.identifier]} :: ${headers[CamelAuditEventUri]}")
-            .to("http4:{{triplestore.baseUrl}}");
+            .to("{{triplestore.baseUrl}}?useSystemProperties=true");
     }
 }
