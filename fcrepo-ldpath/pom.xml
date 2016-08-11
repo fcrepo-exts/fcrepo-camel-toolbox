@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>fcrepo-camel-toolbox</artifactId>
+    <groupId>org.fcrepo.camel</groupId>
+    <version>4.5.3-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>fcrepo-ldpath</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>Fedora LDPath Service</name>
+  <description>Camel-based LDPath service</description>
+
+  <properties>
+    <osgi.export.packages>org.fcrepo.camel.ldpath;version=${project.version}</osgi.export.packages>
+    <marmotta.version>3.3.0</marmotta.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-blueprint</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http4</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jetty9</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jackson</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldpath-core</artifactId>
+      <version>${marmotta.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldpath-backend-linkeddata</artifactId>
+      <version>${marmotta.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldcache-backend-file</artifactId>
+      <version>${marmotta.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldcache-api</artifactId>
+      <version>${marmotta.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldclient-provider-xml</artifactId>
+      <version>${marmotta.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldclient-provider-rdf</artifactId>
+      <version>${marmotta.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient-osgi</artifactId>
+      <version>${httpclient.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.semarglproject</groupId>
+      <artifactId>semargl-sesame</artifactId>
+      <version>0.6.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openrdf.sesame</groupId>
+      <artifactId>sesame-rio-api</artifactId>
+      <version>2.7.13</version>
+    </dependency>
+
+    <!-- logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Testing & Camel Plugin -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-blueprint</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-spring</artifactId>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+      </plugin>
+
+      <!-- to generate the MANIFEST-FILE of the bundle -->
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <!-- many of the marmotta bundles are not properly formatted and so must be embedded -->
+            <Import-Package>
+              org.apache.marmotta.ldcache.backend.infinispan;resolution:=optional,
+              org.openrdf.rio.turtle,
+              org.openrdf.rio.rdfxml,
+              org.openrdf.rio.ntriples,
+              org.openrdf.rio.n3,
+              org.openrdf.rio.datatypes,
+              org.openrdf.rio.helpers,
+              com.github.jsonldjava.sesame,
+              *
+            </Import-Package>
+            <Export-Package>
+              org.apache.marmotta.ldclient.api.*;version=3.3.0,
+              org.apache.marmotta.ldclient.model;version=3.3.0,
+              org.apache.marmotta.ldclient.exception;version=3.3.0,
+              org.apache.marmotta.ldpath.backend.linkeddata;version=3.3.0,
+              org.apache.marmotta.ldclient.endpoint.rdf;version=3.3.0,
+              org.apache.marmotta.ldclient.provider.rdf;version=3.3.0,
+              javax.realtime,
+              javolution.*,
+              org.apache.marmotta.commons.*;version=3.3.0,
+              org.apache.marmotta.commons.vocabulary;version=3.3.0,
+              org.apache.marmotta.ldpath.*;version=3.3.0,
+              org.fcrepo.camel.ldpath;version=${project.version}
+            </Export-Package>
+            <Embed-Dependency>
+              ldclient-api,ldpath-backend-linkeddata,ldclient-provider-rdf,marmotta-commons,marmotta-model-vocabs,ldpath-core-bundle
+            </Embed-Dependency>
+            <SPI-Provider>*</SPI-Provider>
+          </instructions>
+        </configuration>
+      </plugin>
+
+      <!-- enable checkstyle plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemProperties>
+            <property>
+              <name>fcrepo.dynamic.ldpath.port</name>
+              <value>${fcrepo.dynamic.ldpath.port}</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+
+        <!-- reserve network ports for integration testing -->
+        <!-- add configuration file to artifact set for OSGi deployment -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <configuration>
+            <portNames>
+              <portName>fcrepo.dynamic.test.port</portName>
+              <portName>fcrepo.dynamic.jms.port</portName>
+              <portName>fcrepo.dynamic.stomp.port</portName>
+              <portName>fcrepo.dynamic.ldpath.port</portName>
+              <portName>jetty.dynamic.stop.port</portName>
+            </portNames>
+          </configuration>
+          <executions>
+            <execution>
+              <id>attach-artifacts</id>
+              <phase>package</phase>
+              <goals>
+                <goal>attach-artifact</goal>
+              </goals>
+              <configuration>
+                <artifacts>
+                  <artifact>
+                    <file>src/main/cfg/org.fcrepo.camel.ldpath.cfg</file>
+                    <type>cfg</type>
+                    <classifier>configuration</classifier>
+                  </artifact>
+                </artifacts>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- integration testing -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <configuration>
+            <argLine>${jacoco.agent.it.arg}</argLine>
+            <systemPropertyVariables>
+              <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
+              <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
+              <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
+              <fcrepo.dynamic.ldpath.port>${fcrepo.dynamic.ldpath.port}</fcrepo.dynamic.ldpath.port>
+              <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
+              <project.build.directory>${project.build.directory}</project.build.directory>
+              <karaf.data>${project.build.directory}/karaf-data</karaf.data>
+            </systemPropertyVariables>
+          </configuration>
+        </plugin>
+
+
+        <!-- Launch jetty for integration testing with fedora -->
+        <plugin>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-maven-plugin</artifactId>
+          <configuration>
+            <systemProperties>
+              <force>true</force>
+              <systemProperty>
+                <name>fcrepo.home</name>
+                <value>${project.build.directory}/fcrepo-data</value>
+              </systemProperty>
+              <systemProperty>
+                <name>fcrepo.dynamic.ldpath.port</name>
+                <value>${fcrepo.dynamic.ldpath.port}</value>
+              </systemProperty>
+              <systemProperty>
+                <name>fcrepo.dynamic.test.port</name>
+                <value>${fcrepo.dynamic.test.port}</value>
+              </systemProperty>
+              <systemProperty>
+                <name>fcrepo.dynamic.jms.port</name>
+                <value>${fcrepo.dynamic.jms.port}</value>
+              </systemProperty>
+              <systemProperty>
+                <name>fcrepo.dynamic.stomp.port</name>
+                <value>${fcrepo.dynamic.stomp.port}</value>
+              </systemProperty>
+            </systemProperties>
+            <scanIntervalSeconds>10</scanIntervalSeconds>
+            <stopKey>STOP</stopKey>
+            <stopPort>${jetty.dynamic.stop.port}</stopPort>
+            <daemon>true</daemon>
+          </configuration>
+          <executions>
+            <execution>
+              <id>start-jetty</id>
+              <phase>pre-integration-test</phase>
+              <goals>
+                <goal>stop</goal>
+                <goal>start</goal>
+              </goals>
+              <configuration>
+                <httpConnector>
+                  <port>${fcrepo.dynamic.test.port}</port>
+                </httpConnector>
+                <scanIntervalSeconds>0</scanIntervalSeconds>
+                <daemon>true</daemon>
+                <contextHandlers>
+                    <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
+                      <war>${project.build.directory}/fcrepo.war</war>
+                      <contextPath>/fcrepo</contextPath>
+                    </contextHandler>
+                </contextHandlers>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>stop-jetty</id>
+              <phase>post-integration-test</phase>
+               <goals>
+                 <goal>stop</goal>
+               </goals>
+             </execution>
+          </executions>
+        </plugin>
+
+        <!--Bring in fcrepo webapp for integration testing-->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>copy</id>
+              <phase>package</phase>
+              <goals>
+                <goal>copy</goal>
+              </goals>
+              <configuration>
+                <artifactItems>
+                  <artifactItem>
+                    <groupId>org.fcrepo</groupId>
+                    <artifactId>fcrepo-webapp</artifactId>
+                    <version>${fcrepo.version}</version>
+                    <type>war</type>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <destFileName>fcrepo.war</destFileName>
+                  </artifactItem>
+                </artifactItems>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+    </plugins>
+  </build>
+
+</project>

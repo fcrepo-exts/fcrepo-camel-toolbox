@@ -71,6 +71,7 @@
     <module>fcrepo-fixity</module>
     <module>fcrepo-indexing-solr</module>
     <module>fcrepo-indexing-triplestore</module>
+    <module>fcrepo-ldpath</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-serialization</module>
     <module>fcrepo-service-activemq</module>

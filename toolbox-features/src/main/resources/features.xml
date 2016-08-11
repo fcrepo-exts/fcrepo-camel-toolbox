@@ -81,6 +81,84 @@
     <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
 
+  <feature name="fcrepo-ldpath" version="${project.version}" start-level="50">
+    <details>Installs the LDPath service</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-ldpath/${project.version}</bundle>
+
+    <feature version="${camel.version}">camel</feature>
+    <feature version="${camel.version}">camel-blueprint</feature>
+    <feature version="${camel.version}">camel-jackson</feature>
+    <feature version="${camel.version}">camel-http4</feature>
+    <feature version="${camel.version}">camel-jetty9</feature>
+
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
+    <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
+    <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
+    <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+    <bundle dependency="true">mvn:commons-io/commons-io/${commons-io.version}</bundle>
+    <bundle dependency="true">mvn:commons-validator/commons-validator/${commons-validator.version}</bundle>
+    <bundle dependency="true">wrap:mvn:commons-digester/commons-digester/${commons-digester.version}</bundle>
+
+    <bundle dependency="true">mvn:org.apache.marmotta/ldpath-api/${marmotta.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.marmotta/ldcache-api/${marmotta.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-core/${marmotta.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldclient-core/${marmotta.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-backend-file/${marmotta.version}</bundle>
+
+    <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+    <bundle dependency="true">mvn:org.jsoup/jsoup/${jsoup.version}</bundle>
+    <bundle dependency="true">mvn:joda-time/joda-time/${joda-time.version}</bundle>
+    <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/${cal10n.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.jdom/jdom2/${jdom2.version}</bundle>
+    <bundle dependency="true">mvn:jaxen/jaxen/${jaxen.version}</bundle>
+
+    <bundle dependency="true">mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/fluent-hc/${fluent-hc.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpclient-cache/${httpclient-cache.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpcore-nio/${httpcore-nio.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpmime/${httpmime.version}</bundle>
+
+    <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-rdfa/${semargl.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-core/${semargl.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-rdf/${semargl.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-sesame/${semargl.version}</bundle>
+
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-repository-event/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-sail-memory/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-model/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-util/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-repository-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-query/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryresultio-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-rdfjson/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-rdfxml/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-turtle/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-datatypes/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-n3/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-repository-sail/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryparser-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryalgebra-model/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-trig/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-sail-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-sail-nativerdf/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-sail-inferencer/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryalgebra-evaluation/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-repository-sparql/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryparser-sparql/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryresultio-sparqlxml/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-http-client/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-http-protocol/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-ntriples/${sesame.version}</bundle>
+    <bundle dependency="true">mvn:com.github.jsonld-java/jsonld-java-sesame/${jsonld-sesame.version}</bundle>
+    <bundle dependency="true">mvn:com.github.jsonld-java/jsonld-java/${jsonld-sesame.version}</bundle>
+
+    <configfile finalname="/etc/org.fcrepo.camel.ldpath.cfg">mvn:org.fcrepo.camel/fcrepo-ldpath/${project.version}/cfg/configuration</configfile>
+
+  </feature>
+
   <feature name="fcrepo-serialization" version="${project.version}" start-level="50">
     <details>Installs the fcrepo serialization tool</details>
 
