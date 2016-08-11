@@ -45,6 +45,7 @@ import org.semarglproject.sesame.rdf.rdfa.SesameRDFaParserFactory;
 /**
  * A convenience factory for creating an LDPath object with an LDCacheBackend.
  * @author acoburn
+ * @since Aug 5, 2016
  */
 public class LDPathWrapper {
 
@@ -78,6 +79,7 @@ public class LDPathWrapper {
      * @param uri the URI to query
      * @param program the LDPath program
      * @return a result object wrapped in a List
+     * @throws LDPathParseException if the LDPath program was malformed
      */
     public List<Map<String, Collection<?>>> programQuery(final String uri, final InputStream program)
             throws LDPathParseException {

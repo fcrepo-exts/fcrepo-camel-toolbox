@@ -25,10 +25,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Produce;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -47,7 +43,7 @@ import org.slf4j.Logger;
  * Test the route workflow.
  *
  * @author Aaron Coburn
- * @since 2015-04-10
+ * @since Aug 5, 2016
  */
 public class RouteIT extends CamelBlueprintTestSupport {
 
@@ -56,14 +52,6 @@ public class RouteIT extends CamelBlueprintTestSupport {
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     private final CloseableHttpClient httpclient = HttpClients.createDefault();
-
-    @EndpointInject(uri = "mock:result")
-    protected MockEndpoint resultEndpoint;
-
-    @Produce(uri = "direct:reindex")
-    protected ProducerTemplate template;
-
-    private String fullPath = "";
 
     @Override
     protected String getBlueprintDescriptor() {
@@ -81,6 +69,11 @@ public class RouteIT extends CamelBlueprintTestSupport {
     }
 
     @Override
+    public boolean isUseAdviceWith() {
+        return true;
+    }
+
+    @Override
     public boolean isUseRouteBuilder() {
         return false;
     }
@@ -89,7 +82,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
         final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9082");
-        final String cacheDir = System.getProperty("project.build.directory", "target") + "/ldcache2";
+        final String cacheDir = System.getProperty("project.build.directory", "target") + "/ldcache-itest";
 
         final Properties props = new Properties();
         props.put("fcrepo.baseUrl", "http://localhost:" + webPort + "/fcrepo/rest");
@@ -103,6 +96,8 @@ public class RouteIT extends CamelBlueprintTestSupport {
     public void testDefaultGet() throws Exception {
         final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
+
+        context.start();
 
         String response = get("http://localhost:" + ldpathPort + "/ldpath/testing");
 
@@ -131,12 +126,17 @@ public class RouteIT extends CamelBlueprintTestSupport {
         assertTrue(data2.get(0).get("type").contains("http://www.w3.org/ns/ldp#Container"));
         assertTrue(data2.get(0).get("id").contains("http://localhost:" + webPort +
                     "/fcrepo/rest/testing/child"));
+
+        context.stop();
     }
 
     @Test
     public void testPost() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "9085");
         final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
+
+        context.start();
+
         String response = post("http://localhost:" + ldpathPort + "/ldpath/testing",
                 loadResourceAsStream("test.ldpath"), "application/ldpath");
 
@@ -167,14 +167,19 @@ public class RouteIT extends CamelBlueprintTestSupport {
         assertTrue(data2.get(0).get("label").isEmpty());
         assertTrue(data2.get(0).get("type").contains("Fedora Container"));
 
+        context.stop();
     }
 
     @Test
     public void testOptions() throws Exception {
-       final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
-       final String response = options("http://localhost:" + ldpathPort + "/ldpath/testing");
+        final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
+        final String response = options("http://localhost:" + ldpathPort + "/ldpath/testing");
 
-       assertTrue(response.contains("rdfs:label \"LDPath Service\" ;"));
+        context.start();
+
+        assertTrue(response.contains("rdfs:label \"LDPath Service\" ;"));
+
+        context.stop();
     }
 
     private String get(final String url) {
@@ -185,10 +190,6 @@ public class RouteIT extends CamelBlueprintTestSupport {
             LOGGER.debug("Unable to extract HttpEntity response into an InputStream: ", ex);
             return "";
         }
-    }
-
-    private String post(final String url) {
-        return post(url, null, null);
     }
 
     private String post(final String url, final InputStream entity, final String contentType) {

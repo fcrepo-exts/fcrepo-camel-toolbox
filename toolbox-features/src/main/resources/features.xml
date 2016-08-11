@@ -92,41 +92,33 @@
     <feature version="${camel.version}">camel-http4</feature>
     <feature version="${camel.version}">camel-jetty9</feature>
 
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
+    <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
     <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
+    <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
     <bundle dependency="true">mvn:commons-io/commons-io/${commons-io.version}</bundle>
+    <bundle dependency="true">mvn:commons-validator/commons-validator/${commons-validator.version}</bundle>
+    <bundle dependency="true">wrap:mvn:commons-digester/commons-digester/${commons-digester.version}</bundle>
 
     <bundle dependency="true">mvn:org.apache.marmotta/ldpath-api/${marmotta.version}</bundle>
-    <!--<bundle dependency="true">mvn:org.apache.marmotta/ldpath-core-bundle/${marmotta.version}</bundle>-->
-
+    <bundle dependency="true">mvn:org.apache.marmotta/ldcache-api/${marmotta.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-core/${marmotta.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldclient-core/${marmotta.version}</bundle>
-    <bundle dependency="true">mvn:org.apache.marmotta/ldcache-api/${marmotta.version}</bundle>
-    <!--<bundle dependency="true">mvn:org.apache.marmotta/marmotta-commons/${marmotta.version}</bundle>-->
-
-    <bundle dependency="true">mvn:org.jsoup/jsoup/${jsoup.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-backend-file/${marmotta.version}</bundle>
-    <!--<bundle dependency="true">wrap:mvn:org.apache.marmotta/ldclient-provider-rdf/${marmotta.version}</bundle>-->
-    <!--<bundle dependency="true">wrap:mvn:org.apache.marmotta/ldclient-provider-rdfa/${marmotta.version}</bundle>-->
-    <!--<bundle dependency="true">wrap:mvn:org.apache.marmotta/ldclient-provider-xml/${marmotta.version}</bundle>-->
-    <!--<bundle dependency="true">wrap:mvn:org.apache.marmotta/ldclient-provider-xml/${marmotta.version}</bundle>-->
-    <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+
     <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+    <bundle dependency="true">mvn:org.jsoup/jsoup/${jsoup.version}</bundle>
     <bundle dependency="true">mvn:joda-time/joda-time/${joda-time.version}</bundle>
-    <bundle dependency="true">mvn:commons-validator/commons-validator/${commons-validator.version}</bundle>
-    <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
-    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
     <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/${cal10n.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.jdom/jdom2/${jdom2.version}</bundle>
+    <bundle dependency="true">mvn:jaxen/jaxen/${jaxen.version}</bundle>
 
     <bundle dependency="true">mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
     <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
-    <bundle dependency="true">mvn:jaxen/jaxen/${jaxen.version}</bundle>
-
-    <bundle dependency="true">wrap:mvn:commons-digester/commons-digester/${commons-digester.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/fluent-hc/${fluent-hc.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpclient-cache/${httpclient-cache.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpcore-nio/${httpcore-nio.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpmime/${httpmime.version}</bundle>
-    <bundle dependency="true">wrap:mvn:org.jdom/jdom2/${jdom2.version}</bundle>
 
     <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-rdfa/${semargl.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-core/${semargl.version}</bundle>

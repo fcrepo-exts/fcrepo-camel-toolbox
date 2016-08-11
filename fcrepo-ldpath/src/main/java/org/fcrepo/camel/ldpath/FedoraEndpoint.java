@@ -20,6 +20,7 @@ import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 
 /**
  * @author acoburn
+ * @since Aug 5, 2016
  */
 public class FedoraEndpoint extends Endpoint {
 

@@ -41,7 +41,7 @@ import org.junit.Test;
  * Test the route workflow.
  *
  * @author acoburn
- * @since 2015-05-22
+ * @since Aug 6, 2016
  */
 public class RouteTest extends CamelBlueprintTestSupport {
 
@@ -71,7 +71,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         final String restPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
-        final String cacheDir = System.getProperty("project.build.directory", "target") + "/ldcache";
+        final String cacheDir = System.getProperty("project.build.directory", "target") + "/ldcache-unittest";
 
         final Properties props = new Properties();
         props.put("rest.port", restPort);

@@ -10,7 +10,7 @@
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
    <!-- system environment property placeholders -->
-   <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]" />
+   <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
 
    <!-- OSGI blueprint property placeholder -->
    <cm:property-placeholder id="properties" persistent-id="org.fcrepo.camel.ldpath" update-strategy="reload">

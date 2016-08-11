@@ -241,6 +241,7 @@
               <fcrepo.dynamic.ldpath.port>${fcrepo.dynamic.ldpath.port}</fcrepo.dynamic.ldpath.port>
               <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
               <project.build.directory>${project.build.directory}</project.build.directory>
+              <karaf.data>${project.build.directory}/karaf-data</karaf.data>
             </systemPropertyVariables>
           </configuration>
         </plugin>

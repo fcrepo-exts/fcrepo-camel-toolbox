@@ -36,6 +36,7 @@ import org.apache.marmotta.ldclient.provider.rdf.SPARQLProvider;
 /**
  * A convenience factory for creating a ClientConfiguration object
  * @author acoburn
+ * @since Aug 5, 2016
  */
 public class ClientFactory {
 
@@ -52,6 +53,7 @@ public class ClientFactory {
      * Configure a linked data client suitable for use with a Fedora Repository.
      * @param fedoraEndpoint a FedoraEndpoint configuration
      * @param endpoints additional endpoints to enable on the client
+     * @param providers additional providers to enable on the client
      * @return a configuration for use with an LDClient
      */
     public static ClientConfiguration createClient(final Endpoint fedoraEndpoint, final List<Endpoint> endpoints,

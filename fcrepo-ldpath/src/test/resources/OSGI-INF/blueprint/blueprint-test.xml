@@ -19,7 +19,7 @@
        <cm:property name="rest.prefix" value="/ldpath"/>
        <cm:property name="rest.host" value="localhost"/>
        <cm:property name="rest.port" value="9085"/>
-       <cm:property name="cache.dir" value="target/ldcache"/>
+       <cm:property name="cache.dir" value="target/ldcache-test"/>
        <cm:property name="cache.timeout" value="86400"/>
      </cm:default-properties>
    </cm:property-placeholder>

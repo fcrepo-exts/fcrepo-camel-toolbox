@@ -29,6 +29,7 @@ import org.slf4j.Logger;
  * A content router for an LDPath service.
  *
  * @author Aaron Coburn
+ * @since Aug 5, 2016
  */
 public class LDPathRouter extends RouteBuilder {
 
@@ -42,7 +43,7 @@ public class LDPathRouter extends RouteBuilder {
     public void configure() throws Exception {
 
         /**
-         * Expose a RESTful endpoint for re-indexing
+         * Expose a RESTful endpoint for LDPath processing
          */
         from("jetty:http://{{rest.host}}:{{rest.port}}{{rest.prefix}}" +
                 "?matchOnUriPrefix=true" +
