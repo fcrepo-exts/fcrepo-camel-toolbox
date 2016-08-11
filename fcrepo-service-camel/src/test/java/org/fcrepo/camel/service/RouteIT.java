@@ -90,7 +90,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
         headers.put(FCREPO_IDENTIFIER, url1);
         template.sendBodyAndHeaders(null, headers);
 
-        headers.put(FCREPO_IDENTIFIER, url1);
+        headers.put(FCREPO_IDENTIFIER, url2);
         template.sendBodyAndHeaders(null, headers);
 
         resultEndpoint.expectedMessageCount(2);

@@ -17,7 +17,7 @@ package org.fcrepo.camel.service;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
-import static org.apache.http.impl.client.HttpClientBuilder.create;
+import static org.apache.http.impl.client.HttpClients.createDefault;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.junit.Assert.assertEquals;
@@ -49,7 +49,6 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Test;
@@ -75,6 +74,7 @@ import org.slf4j.Logger;
 @ExamReactorStrategy(PerClass.class)
 public class KarafIT {
 
+    private final CloseableHttpClient httpclient = createDefault();
     private static Logger LOGGER = getLogger(KarafIT.class);
 
     @Inject
@@ -136,7 +136,6 @@ public class KarafIT {
 
     @Test
     public void testService() throws Exception {
-        final CloseableHttpClient client = create().build();
         final String baseUrl = "http://localhost:" + System.getProperty("fcrepo.port") + "/fcrepo/rest";
         final CamelContext ctx = getOsgiService(CamelContext.class,
                 "(camel.context.name=FcrepoService)", 10000);
@@ -162,7 +161,6 @@ public class KarafIT {
     }
 
     private String post(final String url) {
-        final CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
             final HttpPost httppost = new HttpPost(url);
             final HttpResponse response = httpclient.execute(httppost);
