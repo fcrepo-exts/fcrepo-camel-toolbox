@@ -234,6 +234,15 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <configuration>
             <argLine>${jacoco.agent.it.arg}</argLine>
+            <!-- we are doing "simple" integration testing of the aries blueprint code via
+                 maven-failsafe and Camel's BlueprintTestSupport. This is fine for simple tests
+                 but because it isn't in a real OSGi runtime, it doesn't accurately reflect the
+                 lifecycle of an OSGi service. This can lead to problems with the fcrepo-ldpath
+                 tests, because multiple threads may be starting and stopping the filesystme-based
+                 ldcache backend. By setting forkCount=1 and reuseForks=false, we avoid the situation
+                 where one thread is trying to initialize the ldcache-backend before another thread
+                 has fully shut it down. More sophisticated integration testing is handled with
+                 pax-exam in the fcrepo-camel-tests module -->
             <forkCount>1</forkCount>
             <reuseForks>false</reuseForks>
             <systemPropertyVariables>
