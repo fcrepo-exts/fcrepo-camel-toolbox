@@ -19,18 +19,11 @@
        <cm:property name="rest.prefix" value="/ldpath"/>
        <cm:property name="rest.host" value="localhost"/>
        <cm:property name="rest.port" value="9085"/>
-       <cm:property name="cache.dir" value="target/ldcache-test"/>
        <cm:property name="cache.timeout" value="86400"/>
      </cm:default-properties>
    </cm:property-placeholder>
 
-   <bean id="cacheDir" class="java.io.File">
-     <argument value="${cache.dir}"/>
-   </bean>
-
-   <bean id="backend" class="org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend" init-method="initialize" destroy-method="shutdown">
-     <argument ref="cacheDir"/>
-   </bean>
+   <reference id="backend" interface="org.apache.marmotta.ldcache.api.LDCachingBackend" filter="(osgi.jndi.service.name=fcrepo/LDCacheBackend)"/>
 
    <bean id="credentials" class="org.apache.http.auth.UsernamePasswordCredentials">
      <argument index="0" value="${fcrepo.authUsername}"/>

@@ -37,6 +37,7 @@
     <jackson2.version>2.7.3</jackson2.version>
     <jena.version>2.13.0</jena.version>
     <logback.version>1.1.7</logback.version>
+    <marmotta.version>3.3.0</marmotta.version>
     <mustache.version>0.9.1</mustache.version>
     <slf4j.version>1.7.20</slf4j.version>
     <spring.version>4.2.5.RELEASE</spring.version>
@@ -76,6 +77,7 @@
     <module>fcrepo-serialization</module>
     <module>fcrepo-service-activemq</module>
     <module>fcrepo-service-camel</module>
+    <module>fcrepo-service-ldcache-file</module>
     <module>toolbox-features</module>
   </modules>
 
@@ -190,6 +192,41 @@
         <version>${hk2.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldpath-core</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldpath-backend-linkeddata</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldcache-backend-file</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldcache-api</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldclient-provider-xml</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldclient-provider-rdf</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
 
       <!-- Spring -->
       <dependency>
