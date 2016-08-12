@@ -10,6 +10,8 @@ More information about LDPath can be found at the [Marmotta website](http://marm
 Additional background information on this service is available on the Fedora Wiki on the
 [Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
 
+Note: The LDPath service requires an LDCache backend, such as `fcrepo-service-ldcache-file`.
+
 ## Usage
 
 The LDPath service responds to `GET` and `POST` requests at URL locations that map to Fedora resources.
@@ -46,6 +48,7 @@ This project can be deployed in an OSGi container. For example using
 command from its shell:
 
     feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
+    feature:install fcrepo-service-ldcache-file
     feature:install fcrepo-ldpath
 
 ## Configuration
@@ -69,10 +72,6 @@ The baseUrl for the fedora repository.
 The time Fedora triples are cached (in seconds)
 
     fcrepo.cache.timeout=0
-
-The location of the cached triples
-
-    cache.dir=ldcache
 
 The global timeout for cache entries (in seconds)
 

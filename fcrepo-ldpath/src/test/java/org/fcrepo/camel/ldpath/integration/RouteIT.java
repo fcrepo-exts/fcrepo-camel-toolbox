@@ -16,16 +16,20 @@
 package org.fcrepo.camel.ldpath.integration;
 
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
+import org.apache.camel.util.KeyValueHolder;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpOptions;
@@ -35,6 +39,9 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.marmotta.ldcache.api.LDCachingBackend;
+import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
+import org.openrdf.repository.RepositoryException;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -69,8 +76,20 @@ public class RouteIT extends CamelBlueprintTestSupport {
     }
 
     @Override
-    public boolean isUseAdviceWith() {
-        return true;
+    protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
+
+        final String cacheDir = System.getProperty("project.build.directory", "target") +
+                "/ldcache-" + randomAlphabetic(5);
+
+        final LDCachingBackend backend;
+        try {
+            backend = new LDCachingFileBackend(new File(cacheDir));
+            backend.initialize();
+        } catch (final RepositoryException ex) {
+            throw new RuntimeException("Could not initialize LDCache backend at " + cacheDir, ex);
+        }
+        services.put(LDCachingBackend.class.getName(),
+                asService(backend, "osgi.jndi.service.name", "fcrepo/LDCacheBackend"));
     }
 
     @Override
@@ -82,11 +101,9 @@ public class RouteIT extends CamelBlueprintTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
         final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9082");
-        final String cacheDir = System.getProperty("project.build.directory", "target") + "/ldcache-itest";
 
         final Properties props = new Properties();
         props.put("fcrepo.baseUrl", "http://localhost:" + webPort + "/fcrepo/rest");
-        props.put("cache.dir", cacheDir);
         props.put("rest.port", ldpathPort);
 
         return props;
@@ -96,8 +113,6 @@ public class RouteIT extends CamelBlueprintTestSupport {
     public void testDefaultGet() throws Exception {
         final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-
-        context.start();
 
         String response = get("http://localhost:" + ldpathPort + "/ldpath/testing");
 
@@ -126,16 +141,12 @@ public class RouteIT extends CamelBlueprintTestSupport {
         assertTrue(data2.get(0).get("type").contains("http://www.w3.org/ns/ldp#Container"));
         assertTrue(data2.get(0).get("id").contains("http://localhost:" + webPort +
                     "/fcrepo/rest/testing/child"));
-
-        context.stop();
     }
 
     @Test
     public void testPost() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "9085");
         final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
-
-        context.start();
 
         String response = post("http://localhost:" + ldpathPort + "/ldpath/testing",
                 loadResourceAsStream("test.ldpath"), "application/ldpath");
@@ -166,8 +177,6 @@ public class RouteIT extends CamelBlueprintTestSupport {
         assertTrue(data2.get(0).get("id").contains("http://localhost:" + webPort + "/fcrepo/rest/testing/child"));
         assertTrue(data2.get(0).get("label").isEmpty());
         assertTrue(data2.get(0).get("type").contains("Fedora Container"));
-
-        context.stop();
     }
 
     @Test
@@ -175,11 +184,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
         final String ldpathPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
         final String response = options("http://localhost:" + ldpathPort + "/ldpath/testing");
 
-        context.start();
-
         assertTrue(response.contains("rdfs:label \"LDPath Service\" ;"));
-
-        context.stop();
     }
 
     private String get(final String url) {

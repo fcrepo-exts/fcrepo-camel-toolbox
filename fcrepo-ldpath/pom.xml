@@ -17,7 +17,6 @@
 
   <properties>
     <osgi.export.packages>org.fcrepo.camel.ldpath;version=${project.version}</osgi.export.packages>
-    <marmotta.version>3.3.0</marmotta.version>
   </properties>
 
   <dependencies>
@@ -46,37 +45,26 @@
     <dependency>
       <groupId>org.apache.marmotta</groupId>
       <artifactId>ldpath-core</artifactId>
-      <version>${marmotta.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.marmotta</groupId>
       <artifactId>ldpath-backend-linkeddata</artifactId>
-      <version>${marmotta.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.marmotta</groupId>
-      <artifactId>ldcache-backend-file</artifactId>
-      <version>${marmotta.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.marmotta</groupId>
       <artifactId>ldcache-api</artifactId>
-      <version>${marmotta.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.marmotta</groupId>
       <artifactId>ldclient-provider-xml</artifactId>
-      <version>${marmotta.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.marmotta</groupId>
       <artifactId>ldclient-provider-rdf</artifactId>
-      <version>${marmotta.version}</version>
     </dependency>
 
     <dependency>
@@ -118,6 +106,13 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldcache-backend-file</artifactId>
+      <scope>test</scope>
+    </dependency>
+
 
   </dependencies>
 

@@ -9,9 +9,6 @@
        http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0 http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.2.xsd
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-   <!-- system environment property placeholders -->
-   <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
-
    <!-- OSGI blueprint property placeholder -->
    <cm:property-placeholder id="properties" persistent-id="org.fcrepo.camel.ldpath" update-strategy="reload">
      <cm:default-properties>
@@ -24,7 +21,6 @@
        <cm:property name="rest.prefix" value="/ldpath"/>
        <cm:property name="rest.host" value="localhost"/>
        <cm:property name="rest.port" value="9086"/>
-       <cm:property name="cache.dir" value="$[karaf.data]/ldcache"/>
        <cm:property name="cache.timeout" value="86400"/>
      </cm:default-properties>
    </cm:property-placeholder>
@@ -33,13 +29,7 @@
 
   <reference-list id="providers" availability="optional" interface="org.apache.marmotta.ldclient.api.provider.DataProvider"/>
 
-  <bean id="cacheDir" class="java.io.File">
-    <argument value="${cache.dir}"/>
-   </bean>
-
-   <bean id="backend" class="org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend" init-method="initialize" destroy-method="shutdown">
-     <argument ref="cacheDir"/>
-   </bean>
+  <reference id="backend" interface="org.apache.marmotta.ldcache.api.LDCachingBackend" filter="(osgi.jndi.service.name=fcrepo/LDCacheBackend)"/>
 
   <bean id="credentials" class="org.apache.http.auth.UsernamePasswordCredentials">
     <argument index="0" value="${fcrepo.authUsername}"/>

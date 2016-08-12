@@ -15,13 +15,16 @@
  */
 package org.fcrepo.camel.ldpath;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_URI;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.fcrepo.camel.ldpath.LDPathRouter.FEDORA_URI;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +37,11 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-
+import org.apache.camel.util.KeyValueHolder;
+import org.apache.marmotta.ldcache.api.LDCachingBackend;
+import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
 import org.junit.Test;
+import org.openrdf.repository.RepositoryException;
 
 /**
  * Test the route workflow.
@@ -69,13 +75,28 @@ public class RouteTest extends CamelBlueprintTestSupport {
     }
 
     @Override
+    protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
+
+        final String cacheDir = System.getProperty("project.build.directory", "target") +
+                "/ldcache-" + randomAlphabetic(5);
+
+        final LDCachingBackend backend;
+        try {
+            backend = new LDCachingFileBackend(new File(cacheDir));
+            backend.initialize();
+        } catch (final RepositoryException ex) {
+            throw new RuntimeException("Could not initialize LDCache backend at " + cacheDir, ex);
+        }
+        services.put(LDCachingBackend.class.getName(),
+                asService(backend, "osgi.jndi.service.name", "fcrepo/LDCacheBackend"));
+    }
+
+    @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         final String restPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
-        final String cacheDir = System.getProperty("project.build.directory", "target") + "/ldcache-unittest";
 
         final Properties props = new Properties();
         props.put("rest.port", restPort);
-        props.put("cache.dir", cacheDir);
         return props;
     }
 

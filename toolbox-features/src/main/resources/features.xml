@@ -89,6 +89,29 @@
     <feature version="${camel.version}">camel-jackson</feature>
     <feature version="${camel.version}">camel-http4</feature>
     <feature version="${camel.version}">camel-jetty9</feature>
+    <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.ldpath.cfg">mvn:org.fcrepo.camel/fcrepo-ldpath/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-service-ldcache-file" version="${project.version}" start-level="50">
+    <details>Installs the file-based LDCache backend</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-service-ldcache-file/${project.version}</bundle>
+
+    <feature prerequisite="true">wrap</feature>
+    <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
+
+    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-backend-file/${marmotta.version}</bundle>
+
+    <configfile finalname="/etc/org.fcrepo.camel.ldcache.file.cfg">mvn:org.fcrepo.camel/fcrepo-service-ldcache-file/${project.version}/cfg/configuration</configfile>
+
+  </feature>
+
+  <feature name="fcrepo-marmotta-osgi" version="${project.version}" start-level="50">
+    <details>Installs the marmotta dependencies</details>
+
+    <feature prerequisite="true">wrap</feature>
 
     <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
     <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
@@ -102,7 +125,6 @@
     <bundle dependency="true">mvn:org.apache.marmotta/ldcache-api/${marmotta.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-core/${marmotta.version}</bundle>
     <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldclient-core/${marmotta.version}</bundle>
-    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-backend-file/${marmotta.version}</bundle>
 
     <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
     <bundle dependency="true">mvn:org.jsoup/jsoup/${jsoup.version}</bundle>
@@ -152,9 +174,6 @@
     <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-ntriples/${sesame.version}</bundle>
     <bundle dependency="true">mvn:com.github.jsonld-java/jsonld-java-sesame/${jsonld.version}</bundle>
     <bundle dependency="true">mvn:com.github.jsonld-java/jsonld-java/${jsonld.version}</bundle>
-
-    <configfile finalname="/etc/org.fcrepo.camel.ldpath.cfg">mvn:org.fcrepo.camel/fcrepo-ldpath/${project.version}/cfg/configuration</configfile>
-
   </feature>
 
   <feature name="fcrepo-serialization" version="${project.version}" start-level="50">

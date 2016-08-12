@@ -5,6 +5,7 @@ with [Fedora4](http://fcrepo.org). These applications use
 [Apache Camel](https://camel.apache.org).
 
 [![Build Status](https://travis-ci.org/fcrepo4-exts/fcrepo-camel-toolbox.png?branch=master)](https://travis-ci.org/fcrepo4-exts/fcrepo-camel-toolbox)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.fcrepo.camel/toolbox-features/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.fcrepo.camel/toolbox-features/)
 
 Additional background information is available on the Fedora Wiki on the
 [Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
@@ -101,15 +102,15 @@ directly from the karaf console. First, add the `toolbox-features` repository:
 
 Then, you can add any combination of the following applications:
 
+    $> feature:install fcrepo-audit-triplestore
+    $> feature:install fcrepo-fixity
     $> feature:install fcrepo-indexing-solr
     $> feature:install fcrepo-indexing-triplestore
-    $> feature:install fcrepo-audit-triplestore
+    $> feature:install fcrepo-ldpath
     $> feature:install fcrepo-reindexing
-    $> feature:install fcrepo-fixity
     $> feature:install fcrepo-serialization
     $> feature:install fcrepo-service-activemq
-    $> feature:install fcrepo-ldpath
-
+    $> feature:install fcrepo-service-ldcache-file
 
 ##Maintainers
 
