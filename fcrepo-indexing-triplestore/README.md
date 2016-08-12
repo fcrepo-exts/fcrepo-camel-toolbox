@@ -33,17 +33,6 @@ In the event of failure, the maximum number of times a redelivery will be attemp
 
     error.maxRedeliveries=10
 
-If the fedora repository requires authentication, the following values
-can be set:
-
-    fcrepo.authUsername=<username>
-    fcrepo.authPassword=<password>
-    fcrepo.authHost=<host realm>
-
-The baseUrl for the fedora repository.
-
-    fcrepo.baseUrl=localhost:8080/fcrepo/rest
-
 If you would like to index only those objects with a type `indexing:Indexable`,
 set this property to `true`
 

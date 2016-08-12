@@ -36,8 +36,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.fcrepo.camel.reindexing.ReindexingHeaders;
+import org.fcrepo.camel.FcrepoComponent;
 import org.fcrepo.camel.FcrepoHeaders;
+import org.fcrepo.camel.reindexing.ReindexingHeaders;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -82,12 +83,17 @@ public class RouteIT extends CamelBlueprintTestSupport {
     @Override
     protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
-        final ActiveMQComponent component = new ActiveMQComponent();
+        final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
+        final ActiveMQComponent amq = new ActiveMQComponent();
 
-        component.setBrokerURL("tcp://localhost:" + jmsPort);
-        component.setExposeAllQueues(true);
+        amq.setBrokerURL("tcp://localhost:" + jmsPort);
+        amq.setExposeAllQueues(true);
 
-        services.put("broker", asService(component, null));
+        final FcrepoComponent fcrepo = new FcrepoComponent();
+        fcrepo.setBaseUrl("http://localhost:" + webPort + "/fcrepo/rest");
+
+        services.put("broker", asService(amq, "osgi.jndi.service.name", "fcrepo/Broker"));
+        services.put("fcrepo", asService(fcrepo, "osgi.jndi.service.name", "fcrepo/Camel"));
     }
 
     @Override
@@ -97,11 +103,9 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
-        final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
         final String restPort = System.getProperty("fcrepo.dynamic.reindexing.port", "9080");
 
         final Properties props = new Properties();
-        props.put("fcrepo.baseUrl", "localhost:" + webPort + "/fcrepo/rest");
         props.put("reindexing.stream", "broker:queue:reindexing");
         props.put("rest.prefix", "/reindexing");
         props.put("rest.port", restPort);

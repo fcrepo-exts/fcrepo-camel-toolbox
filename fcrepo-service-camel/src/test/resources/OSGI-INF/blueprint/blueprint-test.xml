@@ -5,11 +5,12 @@
        http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-  <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Broker)"/>
+  <reference id="fcrepo" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Camel)"/>
 
-  <camelContext id="FcrepoQueuingService" xmlns="http://camel.apache.org/schema/blueprint">
+  <camelContext id="FcrepoService" xmlns="http://camel.apache.org/schema/blueprint">
     <route id="testRoute">
-      <from uri="broker:topic:fedora"/>
+      <from uri="direct:start"/>
+      <to uri="fcrepo:localhost/rest"/>
       <to uri="mock:result"/>
     </route>
   </camelContext>

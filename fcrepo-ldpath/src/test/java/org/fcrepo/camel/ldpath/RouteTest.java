@@ -81,7 +81,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Test
     public void testGetDefault() throws Exception {
-        final String uri = "http://purl.org/dc/terms/contributor";
+        final String uri = "http://fedora.info/definitions/v4/event#ResourceCreation";
         resultEndpoint.expectedMessageCount(1);
         resultEndpoint.expectedHeaderReceived(CONTENT_TYPE, "application/json");
 
@@ -104,8 +104,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         assertFalse(data.isEmpty());
         assertTrue(data.get(0).containsKey("label"));
         assertTrue(data.get(0).containsKey("type"));
-        assertTrue(data.get(0).get("label").contains("Contributor"));
-        assertTrue(data.get(0).get("type").contains("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
+        assertTrue(data.get(0).get("label").contains("resource creation"));
+        assertTrue(data.get(0).get("type").contains("http://www.w3.org/2000/01/rdf-schema#Class"));
         assertTrue(data.get(0).get("id").contains(uri));
     }
 

@@ -100,6 +100,7 @@ public class KarafIT {
         final String fcrepoIndexingSolr = getBundleUri("fcrepo-indexing-solr", version);
         final String fcrepoIndexingTriplestore = getBundleUri("fcrepo-indexing-triplestore", version);
         final String fcrepoServiceAmq = getBundleUri("fcrepo-service-activemq", version);
+        final String fcrepoService = getBundleUri("fcrepo-service-camel", version);
 
         return new Option[] {
             karafDistributionConfiguration()
@@ -129,6 +130,7 @@ public class KarafIT {
             CoreOptions.systemProperty("o.f.c.i.triplestore-bundle").value(fcrepoIndexingTriplestore),
             CoreOptions.systemProperty("o.f.c.i.solr-bundle").value(fcrepoIndexingSolr),
             CoreOptions.systemProperty("o.f.c.s.activemq-bundle").value(fcrepoServiceAmq),
+            CoreOptions.systemProperty("o.f.c.s.camel-bundle").value(fcrepoService),
 
             bundle(fcrepoAudit).start(),
             bundle(fcrepoIndexingSolr).start(),
@@ -137,20 +139,17 @@ public class KarafIT {
             bundle(fcrepoSerialization).start(),
             bundle(fcrepoReindexing).start(),
             bundle(fcrepoServiceAmq).start(),
+            bundle(fcrepoService).start(),
 
             CoreOptions.systemProperty("fcrepo.port").value(fcrepoPort),
             CoreOptions.systemProperty("karaf.reindexing.port").value(reindexingPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
             editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort),
-            editConfigurationFilePut("etc/org.fcrepo.camel.audit.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
-            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
-            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
-            editConfigurationFilePut("etc/org.fcrepo.camel.serialization.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.serialization.cfg", "serialization.descriptions",
                     "data/tmp/descriptions"),
-            editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "rest.port", reindexingPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.brokerUrl",
                     "tcp://localhost:" + jmsPort)
        };
@@ -174,6 +173,7 @@ public class KarafIT {
         assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.i.solr-bundle")).getState());
         assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.i.triplestore-bundle")).getState());
         assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.s.activemq-bundle")).getState());
+        assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.s.camel-bundle")).getState());
     }
 
     @Test
@@ -185,6 +185,7 @@ public class KarafIT {
         // unnecessary errors.
         bundleContext.getBundle(System.getProperty("o.f.c.i.solr-bundle")).stop();
         bundleContext.getBundle(System.getProperty("o.f.c.i.triplestore-bundle")).stop();
+        bundleContext.getBundle(System.getProperty("o.f.c.a.triplestore-bundle")).stop();
 
         final FcrepoClient fcrepoClient = new FcrepoClient(null, null, null, true);
         final URI baseUrl = create("http://localhost:" + System.getProperty("fcrepo.port") + "/fcrepo/rest");
