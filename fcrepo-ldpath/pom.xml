@@ -234,6 +234,8 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <configuration>
             <argLine>${jacoco.agent.it.arg}</argLine>
+            <forkCount>1</forkCount>
+            <reuseForks>false</reuseForks>
             <systemPropertyVariables>
               <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
               <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
