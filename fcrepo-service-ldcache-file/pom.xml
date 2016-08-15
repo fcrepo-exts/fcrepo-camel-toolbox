@@ -12,12 +12,8 @@
     <artifactId>fcrepo-service-ldcache-file</artifactId>
     <packaging>bundle</packaging>
 
-    <name>File backend for the Linked Data Caching Service</name>
-    <description>A file backend for the Linked Data Caching Service</description>
-
-    <properties>
-      <!--<osgi.export.packages>org.fcrepo.camel.service.ldcache.file;version=${project.version}</osgi.export.packages>-->
-    </properties>
+    <name>File-based backend for the Linked Data Caching Service</name>
+    <description>A file-based backend for the Linked Data Caching Service</description>
 
     <dependencies>
       <dependency>
@@ -29,7 +25,6 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>ldcache-backend-file</artifactId>
       </dependency>
-
     </dependencies>
 
   <build>
@@ -53,7 +48,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
-      <!-- reserve network ports for integration testing -->
       <!-- add configuration file to artifact set for OSGi deployment -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -80,21 +74,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.karaf.tooling</groupId>
-        <artifactId>karaf-maven-plugin</artifactId>
       </plugin>
 
     </plugins>
