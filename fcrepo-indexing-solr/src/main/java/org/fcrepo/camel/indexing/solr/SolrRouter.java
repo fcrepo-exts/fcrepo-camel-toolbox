@@ -43,6 +43,8 @@ public class SolrRouter extends RouteBuilder {
     private static final String hasIndexingTransformation =
         "/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/text()";
 
+    private static final String RESOURCE_DELETION = "http://fedora.info/definitions/v4/event#ResourceDeletion";
+
     /**
      * Configure the message route workflow.
      */
@@ -74,7 +76,10 @@ public class SolrRouter extends RouteBuilder {
         from("{{input.stream}}")
             .routeId("FcrepoSolrRouter")
             .choice()
+                // this clause supports Fedora 4.5.1 and earlier but may be removed in a future release
                 .when(header(EVENT_TYPE).isEqualTo(RdfNamespaces.REPOSITORY + "NODE_REMOVED"))
+                    .to("direct:delete.solr")
+                .when(header(EVENT_TYPE).isEqualTo(RESOURCE_DELETION))
                     .to("direct:delete.solr")
                 .otherwise()
                     .to("direct:index.solr");
