@@ -44,6 +44,8 @@ public class SerializationRouter extends RouteBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SerializationRouter.class);
 
+    private static final String RESOURCE_DELETION = "http://fedora.info/definitions/v4/event#ResourceDeletion";
+
     private static final String isBinaryResourceXPath =
         "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource=\"" + REPOSITORY + "Binary\"]";
     /**
@@ -71,8 +73,11 @@ public class SerializationRouter extends RouteBuilder {
             .filter(not(or(header(FCREPO_IDENTIFIER).startsWith(simple("{{audit.container}}/")),
                     header(FCREPO_IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
             .choice()
+                // this clause supports Fedora 4.5.1 and earlier but may be removed in a future release
                 .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
-                      .to("direct:delete").endChoice()
+                    .to("direct:delete")
+                .when(header(EVENT_TYPE).isEqualTo(RESOURCE_DELETION))
+                    .to("direct:delete")
                 .otherwise()
                     .multicast().to("direct:metadata", "direct:binary");
 

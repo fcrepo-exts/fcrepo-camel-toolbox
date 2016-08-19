@@ -57,6 +57,7 @@ public class AuditSparqlProcessor implements Processor {
     static final String PROV = "http://www.w3.org/ns/prov#";
     static final String XSD = "http://www.w3.org/2001/XMLSchema#";
     static final String EVENT_TYPE = "http://id.loc.gov/vocabulary/preservation/eventType/";
+    static final String EVENT_NAMESPACE = "http://fedora.info/definitions/v4/event#";
 
     static final String CONTENT_MOD = AUDIT + "contentModification";
     static final String CONTENT_REM = AUDIT + "contentRemoval";
@@ -106,6 +107,7 @@ public class AuditSparqlProcessor implements Processor {
     private static final Property RDF_TYPE = createProperty(RDF + "type");
 
     private static final String EMPTY_STRING = "";
+    private static final String RESOURCE_TYPES = "org.fcrepo.jms.resourceType";
 
     /**
      * Convert a Camel message to audit event description.
@@ -119,16 +121,17 @@ public class AuditSparqlProcessor implements Processor {
         final Model model = createDefaultModel();
 
         // get info from jms message headers
-        final String eventType = (String) message.getHeader(JmsHeaders.EVENT_TYPE, EMPTY_STRING);
-        final Long timestamp =  (Long) message.getHeader(JmsHeaders.TIMESTAMP, 0);
+        final String eventType = message.getHeader(JmsHeaders.EVENT_TYPE, EMPTY_STRING, String.class);
+        final Long timestamp =  message.getHeader(JmsHeaders.TIMESTAMP, 0, Long.class);
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String date = df.format(new Date(timestamp));
-        final String user = (String) message.getHeader(JmsHeaders.USER, EMPTY_STRING);
-        final String agent = (String) message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING);
-        final String properties = (String) message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING);
+        final String user = message.getHeader(JmsHeaders.USER, EMPTY_STRING, String.class);
+        final String agent = message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING, String.class);
+        final String properties = message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING, String.class);
+        final String resourceTypes = message.getHeader(RESOURCE_TYPES, EMPTY_STRING, String.class);
         final String identifier = ProcessorUtils.getSubjectUri(message);
-        final String premisType = getAuditEventType(eventType, properties);
+        final String premisType = getAuditEventType(eventType, properties, resourceTypes);
 
         model.add( model.createStatement(subject, RDF_TYPE, INTERNAL_EVENT) );
         model.add( model.createStatement(subject, RDF_TYPE, PREMIS_EVENT) );
@@ -154,22 +157,30 @@ public class AuditSparqlProcessor implements Processor {
      * @param properties associated with the Fedora event
      * @return Audit event
      */
-    private static String getAuditEventType(final String eventType, final String properties) {
+    private static String getAuditEventType(final String eventType, final String properties,
+            final String resourceType) {
         // mapping event type/properties to audit event type
-        if (eventType.contains(NODE_ADDED)) {
+        if (eventType.contains(NODE_ADDED) || eventType.contains(EVENT_NAMESPACE + "ResourceCreation")) {
             if (properties != null && properties.contains(HAS_CONTENT)) {
+                return CONTENT_ADD;
+            } else if (resourceType != null && resourceType.contains(REPOSITORY + "Binary")) {
                 return CONTENT_ADD;
             } else {
                 return OBJECT_ADD;
             }
-        } else if (eventType.contains(NODE_REMOVED)) {
+        } else if (eventType.contains(NODE_REMOVED) || eventType.contains(EVENT_NAMESPACE + "ResourceDeletion")) {
             if (properties != null && properties.contains(HAS_CONTENT)) {
+                return CONTENT_REM;
+            } else if (resourceType != null && resourceType.contains(REPOSITORY + "Binary")) {
                 return CONTENT_REM;
             } else {
                 return OBJECT_REM;
             }
-        } else if (eventType.contains(PROPERTY_CHANGED)) {
+        } else if (eventType.contains(PROPERTY_CHANGED) ||
+                eventType.contains(EVENT_NAMESPACE + "ResourceModification")) {
             if (properties != null && properties.contains(HAS_CONTENT)) {
+                return CONTENT_MOD;
+            } else if (resourceType != null && resourceType.contains(REPOSITORY + "Binary")) {
                 return CONTENT_MOD;
             } else {
                 return METADATA_MOD;

@@ -42,6 +42,8 @@ public class TriplestoreRouter extends RouteBuilder {
 
     private static final Logger logger = getLogger(TriplestoreRouter.class);
 
+    private static final String RESOURCE_DELETION = "http://fedora.info/definitions/v4/event#ResourceDeletion";
+
     /**
      * Configure the message route workflow.
      */
@@ -68,7 +70,10 @@ public class TriplestoreRouter extends RouteBuilder {
         from("{{input.stream}}")
             .routeId("FcrepoTriplestoreRouter")
             .choice()
+                // this clause supports Fedora 4.5.1 and earlier but may be removed in a future release
                 .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
+                    .to("direct:delete.triplestore")
+                .when(header(EVENT_TYPE).isEqualTo(RESOURCE_DELETION))
                     .to("direct:delete.triplestore")
                 .otherwise()
                     .to("direct:index.triplestore");
