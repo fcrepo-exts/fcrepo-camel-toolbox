@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SolrDeleteProcessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fedora Indexing Service with a Solr backend</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.indexing.solr</a> &gt; <span class="el_source">SolrDeleteProcessor.java</span></div><h1>SolrDeleteProcessor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 DuraSpace, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.indexing.solr;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.Processor;
+import org.fcrepo.camel.FcrepoHeaders;
+import org.fcrepo.camel.JmsHeaders;
+
+/**
+ * A processor that converts an fcrepo message into
+ * a delete command for Solr.
+ *
+ * @author acoburn
+ * @since 2015-04-17
+ */
+<span class="fc" id="L36">public class SolrDeleteProcessor implements Processor {</span>
+
+    /**
+     *  Format a message so that a record can be deleted in Solr.
+     *
+     *  The output format should be:
+     *
+     *  {
+     *    &quot;delete&quot; : {
+     *      &quot;id&quot; : &quot;/foo&quot;
+     *    },
+     *    &quot;commitWithin&quot; : 500
+     *  }
+     *
+     *  @param exchange The incoming message exchange.
+     */
+    public void process(final Exchange exchange) throws Exception {
+
+<span class="fc" id="L54">        final Message in = exchange.getIn();</span>
+<span class="fc" id="L55">        final ObjectMapper mapper = new ObjectMapper();</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (isBlank(in.getHeader(FcrepoHeaders.FCREPO_IDENTIFIER, String.class))) {</span>
+<span class="fc" id="L58">            in.setHeader(FcrepoHeaders.FCREPO_IDENTIFIER,</span>
+<span class="fc" id="L59">                    in.getHeader(JmsHeaders.IDENTIFIER, String.class));</span>
+        }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (isBlank(in.getHeader(FcrepoHeaders.FCREPO_BASE_URL, String.class))) {</span>
+<span class="fc" id="L62">            in.setHeader(FcrepoHeaders.FCREPO_BASE_URL,</span>
+<span class="fc" id="L63">                    in.getHeader(JmsHeaders.BASE_URL, String.class));</span>
+        }
+
+
+<span class="fc" id="L67">        final ObjectNode root = mapper.createObjectNode();</span>
+
+<span class="fc" id="L69">        root.putObject(&quot;delete&quot;)</span>
+<span class="fc" id="L70">                    .put(&quot;id&quot;,</span>
+<span class="fc" id="L71">                            in.getHeader(FcrepoHeaders.FCREPO_BASE_URL, String.class) +</span>
+<span class="fc" id="L72">                            in.getHeader(FcrepoHeaders.FCREPO_IDENTIFIER, String.class));</span>
+
+<span class="fc" id="L74">        in.setBody(mapper.writeValueAsString(root));</span>
+<span class="fc" id="L75">        in.setHeader(Exchange.CONTENT_TYPE, &quot;application/json&quot;);</span>
+<span class="fc" id="L76">        in.setHeader(Exchange.HTTP_METHOD, &quot;POST&quot;);</span>
+<span class="fc" id="L77">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
