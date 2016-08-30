@@ -239,6 +239,10 @@
                 <name>fcrepo.dynamic.stomp.port</name>
                 <value>${fcrepo.dynamic.stomp.port}</value>
               </systemProperty>
+              <systemProperty>
+                <name>fcrepo.modeshape.configuration</name>
+                <value>classpath:/config/minimal-default/repository.json</value>
+              </systemProperty>
             </systemProperties>
             <scanIntervalSeconds>10</scanIntervalSeconds>
             <stopKey>STOP</stopKey>
