@@ -102,6 +102,7 @@ directly from the karaf console. First, add the `toolbox-features` repository:
 
 Then, you can add any combination of the following applications:
 
+    $> feature:install fcrepo-service-activemq
     $> feature:install fcrepo-audit-triplestore
     $> feature:install fcrepo-fixity
     $> feature:install fcrepo-indexing-solr
@@ -109,7 +110,6 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-ldpath
     $> feature:install fcrepo-reindexing
     $> feature:install fcrepo-serialization
-    $> feature:install fcrepo-service-activemq
     $> feature:install fcrepo-service-ldcache-file
 
 ##Maintainers
