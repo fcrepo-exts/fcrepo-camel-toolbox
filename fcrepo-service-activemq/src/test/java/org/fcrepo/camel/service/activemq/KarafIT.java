@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -55,6 +57,8 @@ import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.util.tracker.ServiceTracker;
@@ -65,6 +69,7 @@ import org.slf4j.Logger;
  * @since May 4, 2016
  */
 @RunWith(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class KarafIT {
 
     private static Logger LOGGER = getLogger(KarafIT.class);
@@ -134,13 +139,14 @@ public class KarafIT {
         assertNotNull(ctx);
 
         final MockEndpoint resultEndpoint = (MockEndpoint) ctx.getEndpoint("mock:result");
+        resultEndpoint.reset();
 
         final String url1 = post(baseUrl).replace(baseUrl, "");
         final String url2 = post(baseUrl).replace(baseUrl, "");
         final HttpPost post = new HttpPost(baseUrl);
 
-        resultEndpoint.expectedMinimumMessageCount(2);
-        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("org.fcrepo.jms.identifier", url1, url2);
+        resultEndpoint.expectedMessageCount(4);
+        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("org.fcrepo.jms.identifier", url1, url2, "", "");
         assertIsSatisfied(resultEndpoint);
     }
 

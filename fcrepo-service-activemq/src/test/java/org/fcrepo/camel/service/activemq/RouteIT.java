@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -72,18 +74,17 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Test
     public void testQueuingService() throws Exception {
+        resultEndpoint.reset();
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
 
         final String baseUrl = "http://localhost:" + webPort + "/fcrepo/rest";
         final String url1 = post(baseUrl).replace(baseUrl, "");
         final String url2 = post(baseUrl).replace(baseUrl, "");
 
-        resultEndpoint.expectedMinimumMessageCount(2);
-        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("org.fcrepo.jms.identifier", url1, url2);
+        resultEndpoint.expectedMessageCount(4);
+        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("org.fcrepo.jms.identifier", url1, url2, "", "");
 
         assertMockEndpointsSatisfied();
-        final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
-        final String stompPort = System.getProperty("fcrepo.dynamic.stomp.port", "61613");
     }
 
     private String post(final String url) {

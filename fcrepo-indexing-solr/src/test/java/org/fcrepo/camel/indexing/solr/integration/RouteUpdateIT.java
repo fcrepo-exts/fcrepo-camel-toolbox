@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -137,9 +139,8 @@ public class RouteUpdateIT extends CamelTestSupport {
         final Map<String, Object> headers = new HashMap<>();
         headers.put(JmsHeaders.IDENTIFIER, path);
         headers.put(JmsHeaders.BASE_URL, "http://localhost:" + webPort + "/rest");
-        headers.put(JmsHeaders.EVENT_TYPE, REPOSITORY + "NODE_ADDED");
+        headers.put(JmsHeaders.EVENT_TYPE, REPOSITORY + "ResourceCreation");
         headers.put(JmsHeaders.TIMESTAMP, 1428360320168L);
-        headers.put(JmsHeaders.PROPERTIES, "");
 
         getMockEndpoint(solrEndpoint).expectedMessageCount(1);
         getMockEndpoint(solrEndpoint).expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
