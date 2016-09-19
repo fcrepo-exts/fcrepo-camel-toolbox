@@ -11,6 +11,6 @@
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Container"/>
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Resource"/>
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/indexing#Indexable"/>
-    <indexing:hasIndexingTransformation>default</indexing:hasIndexingTransformation>
+    <indexing:hasIndexingTransformation rdf:about="http://localhost/ldpath/default"/>
 </rdf:Description>
 </rdf:RDF>

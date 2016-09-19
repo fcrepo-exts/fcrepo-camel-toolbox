@@ -17,7 +17,10 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
+import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_METHOD;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,8 +28,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.fcrepo.camel.FcrepoHeaders;
-import org.fcrepo.camel.JmsHeaders;
 
 /**
  * A processor that converts an fcrepo message into
@@ -55,26 +56,15 @@ public class SolrDeleteProcessor implements Processor {
 
         final Message in = exchange.getIn();
         final ObjectMapper mapper = new ObjectMapper();
-
-        if (isBlank(in.getHeader(FcrepoHeaders.FCREPO_IDENTIFIER, String.class))) {
-            in.setHeader(FcrepoHeaders.FCREPO_IDENTIFIER,
-                    in.getHeader(JmsHeaders.IDENTIFIER, String.class));
-        }
-        if (isBlank(in.getHeader(FcrepoHeaders.FCREPO_BASE_URL, String.class))) {
-            in.setHeader(FcrepoHeaders.FCREPO_BASE_URL,
-                    in.getHeader(JmsHeaders.BASE_URL, String.class));
-        }
-
-
         final ObjectNode root = mapper.createObjectNode();
 
         root.putObject("delete")
                     .put("id",
-                            in.getHeader(FcrepoHeaders.FCREPO_BASE_URL, String.class) +
-                            in.getHeader(FcrepoHeaders.FCREPO_IDENTIFIER, String.class));
+                            in.getHeader(FCREPO_BASE_URL, String.class) +
+                            in.getHeader(FCREPO_IDENTIFIER, String.class));
 
         in.setBody(mapper.writeValueAsString(root));
-        in.setHeader(Exchange.CONTENT_TYPE, "application/json");
-        in.setHeader(Exchange.HTTP_METHOD, "POST");
+        in.setHeader(CONTENT_TYPE, "application/json");
+        in.setHeader(HTTP_METHOD, "POST");
     }
 }

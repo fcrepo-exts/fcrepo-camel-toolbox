@@ -23,14 +23,13 @@
      </cm:default-properties>
    </cm:property-placeholder>
 
-   <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Broker)"/>
-   <reference id="fcrepo" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Camel)"/>
+   <bean id="broker" class="org.apache.camel.component.seda.SedaComponent"/>
+   <bean id="fcrepo" class="org.fcrepo.camel.FcrepoComponent"/>
 
   <bean id="http" class="org.apache.camel.component.http4.HttpComponent"/>
   <bean id="https" class="org.apache.camel.component.http4.HttpComponent"/>
 
-  <camelContext id="FcrepoSolrIndexer" xmlns="http://camel.apache.org/schema/blueprint">
+  <camelContext id="FcrepoSolrIndexerTest" xmlns="http://camel.apache.org/schema/blueprint">
     <package>org.fcrepo.camel.indexing.solr</package>
   </camelContext>
-
 </blueprint>

@@ -17,6 +17,10 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
+import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -34,8 +38,6 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.fcrepo.camel.JmsHeaders;
-import org.fcrepo.camel.FcrepoHeaders;
 
 import org.junit.Test;
 
@@ -59,21 +61,16 @@ public class DeleteProcessorTest extends CamelTestSupport {
         final String id = "/foo";
         final String baseUrl = "http://localhost/rest";
 
-        resultEndpoint.expectedMessageCount(2);
-        resultEndpoint.expectedHeaderReceived(FcrepoHeaders.FCREPO_IDENTIFIER, id);
-        resultEndpoint.expectedHeaderReceived(FcrepoHeaders.FCREPO_BASE_URL, baseUrl);
-        resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-        resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/json");
+        resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedHeaderReceived(FCREPO_IDENTIFIER, id);
+        resultEndpoint.expectedHeaderReceived(FCREPO_BASE_URL, baseUrl);
+        resultEndpoint.expectedHeaderReceived(HTTP_METHOD, "POST");
+        resultEndpoint.expectedHeaderReceived(CONTENT_TYPE, "application/json");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(FcrepoHeaders.FCREPO_IDENTIFIER, id);
-        headers.put(FcrepoHeaders.FCREPO_BASE_URL, baseUrl);
+        headers.put(FCREPO_IDENTIFIER, id);
+        headers.put(FCREPO_BASE_URL, baseUrl);
 
-        template.sendBodyAndHeaders("", headers);
-
-        headers.clear();
-        headers.put(JmsHeaders.IDENTIFIER, id);
-        headers.put(JmsHeaders.BASE_URL, baseUrl);
         template.sendBodyAndHeaders("", headers);
 
         final ObjectMapper mapper = new ObjectMapper();

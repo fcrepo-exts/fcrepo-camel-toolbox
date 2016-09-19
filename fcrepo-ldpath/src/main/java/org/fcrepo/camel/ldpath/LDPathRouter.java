@@ -68,6 +68,7 @@ public class LDPathRouter extends RouteBuilder {
             .routeId("FcrepoLDPathGet")
             .choice()
                 .when(and(header("ldpath").isNotNull(), header("ldpath").regex("^https?://.*")))
+                    .removeHeaders("CamelHttp*")
                     .setHeader(HTTP_URI).header("ldpath")
                     .to("http4://localhost?useSystemProperties=true")
                     .to("direct:ldpathPrepare")
