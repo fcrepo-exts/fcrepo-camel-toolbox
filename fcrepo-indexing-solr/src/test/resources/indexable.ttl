@@ -4,5 +4,4 @@ PREFIX indexing: <http://fedora.info/definitions/v4/indexing#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 
 <> a indexing:Indexable ;
-    dc:title "Indexable Object" ;
-    indexing:hasIndexingTransformation "default" .
+    dc:title "Indexable Object" .

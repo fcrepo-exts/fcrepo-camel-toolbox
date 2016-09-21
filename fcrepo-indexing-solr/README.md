@@ -49,9 +49,14 @@ In the event of failure, the maximum number of times a redelivery will be attemp
     error.maxRedeliveries=10
 
 The default `LDPath` transformation to use. This is overridden on a per-object
-basis with the `indexing:hasIndexingTransformation` predicate.
+basis with the `indexing:hasIndexingTransformation` predicate. The default value is empty,
+but it may be overridden with a public URL as shown below.
 
-    fcrepo.defaultTransform=default
+    fcrepo.defaultTransform=http://example.com/ldpath/program.txt
+
+The location of the LDPath service.
+
+    ldpath.service.baseUrl=http://localhost:9086/ldpath
 
 If you would like to index only those objects with a type `indexing:Indexable`,
 set this property to `true`

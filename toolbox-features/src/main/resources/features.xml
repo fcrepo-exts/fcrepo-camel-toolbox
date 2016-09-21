@@ -8,7 +8,6 @@
     <details>Installs the fcrepo solr indexer</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}</bundle>
 
-    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
@@ -18,6 +17,7 @@
     <feature version="${camel.version}">camel-blueprint</feature>
     <feature version="${camel.version}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
+    <feature version="${project.version}">fcrepo-ldpath</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>
   </feature>
 
@@ -90,6 +90,7 @@
     <feature version="${camel.version}">camel-http4</feature>
     <feature version="${camel.version}">camel-jetty9</feature>
     <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
+    <feature version="${project.version}">fcrepo-service-ldcache-file</feature>
 
     <configfile finalname="/etc/org.fcrepo.camel.ldpath.cfg">mvn:org.fcrepo.camel/fcrepo-ldpath/${project.version}/cfg/configuration</configfile>
   </feature>
