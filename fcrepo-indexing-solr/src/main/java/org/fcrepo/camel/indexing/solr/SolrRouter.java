@@ -46,7 +46,8 @@ public class SolrRouter extends RouteBuilder {
     private static final Logger logger = getLogger(SolrRouter.class);
 
     private static final String hasIndexingTransformation =
-        "/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/@rdf:about";
+        "(/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/@rdf:resource | " +
+        "/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/@rdf:about)[1]";
 
     private static final String RESOURCE_DELETION = "http://fedora.info/definitions/v4/event#ResourceDeletion";
     private static final String INDEXING_TRANSFORMATION = "CamelIndexingTransformation";
@@ -111,7 +112,7 @@ public class SolrRouter extends RouteBuilder {
             .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
             .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
             .choice()
-                .when(header(INDEXING_TRANSFORMATION).isNull())
+                .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
                     .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}").end()
             .removeHeaders("CamelHttp*")
             .choice()
@@ -152,6 +153,8 @@ public class SolrRouter extends RouteBuilder {
             .filter().simple("${header.CamelIndexingTransformation} != ${header.CamelIndexingUri}")
                 .choice()
                     .when(header(INDEXING_TRANSFORMATION).startsWith("http"))
+                        .log(LoggingLevel.INFO, logger,
+                                "Fetching external LDPath program from ${header.CamelIndexingTransformation}")
                         .to("direct:external.ldpath")
                         .setHeader(HTTP_METHOD).constant("POST")
                         .to("direct:transform.ldpath")
