@@ -249,7 +249,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
         getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:delete.solr").expectedHeaderReceived("CamelIndexingTransformation", "");
+        getMockEndpoint("mock:direct:delete.solr").expectedHeaderReceived("CamelIndexingTransformation",
+                "http://localhost/ldpath/program");
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
