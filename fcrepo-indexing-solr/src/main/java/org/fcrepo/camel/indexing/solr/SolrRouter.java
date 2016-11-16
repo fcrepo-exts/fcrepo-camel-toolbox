@@ -111,7 +111,7 @@ public class SolrRouter extends RouteBuilder {
             .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
             .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
             .choice()
-                .when(header(INDEXING_TRANSFORMATION).isNull())
+                .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
                     .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}").end()
             .removeHeaders("CamelHttp*")
             .choice()
