@@ -63,6 +63,7 @@
     <karaf.version>4.0.6</karaf.version>
     <pax-exam.version>4.8.0</pax-exam.version>
     <solr.version>4.10.2</solr.version>
+    <xerces.version>2.11.0</xerces.version>
     <!-- osgi -->
     <osgi.import.packages>*</osgi.import.packages>
     <!-- plugins -->
@@ -229,6 +230,12 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>ldclient-provider-rdf</artifactId>
         <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>${xerces.version}</version>
       </dependency>
 
       <!-- Spring -->

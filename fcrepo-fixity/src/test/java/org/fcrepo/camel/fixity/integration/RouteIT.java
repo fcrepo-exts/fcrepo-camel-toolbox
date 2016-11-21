@@ -17,11 +17,13 @@
  */
 package org.fcrepo.camel.fixity.integration;
 
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.client.FcrepoClient.client;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -34,11 +36,9 @@ import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
-import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.jena.vocabulary.RDF;
 import org.fcrepo.camel.FcrepoComponent;
-import org.fcrepo.camel.FcrepoHeaders;
-import org.fcrepo.camel.RdfNamespaces;
 import org.fcrepo.client.FcrepoClient;
 import org.fcrepo.client.FcrepoResponse;
 import org.junit.Test;
@@ -50,6 +50,8 @@ import org.junit.Test;
  * @since 2015-06-18
  */
 public class RouteIT extends CamelBlueprintTestSupport {
+
+    private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -64,13 +66,12 @@ public class RouteIT extends CamelBlueprintTestSupport {
     @Override
     protected void doPreSetup() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-        final FcrepoClient client = new FcrepoClient(null, null, null, true);
-        final FcrepoResponse res = client.post(
-                URI.create("http://localhost:" + webPort + "/fcrepo/rest"),
-                ObjectHelper.loadResourceAsStream(binary), "text/plain");
+        final FcrepoClient client = client().throwExceptionOnFailure().build();
+        final FcrepoResponse res = client.post(URI.create("http://localhost:" + webPort + "/fcrepo/rest"))
+                                .body(loadResourceAsStream(binary), "text/plain").perform();
         fullPath = res.getLocation().toString();
 
-        digest = DigestUtils.sha1Hex(ObjectHelper.loadResourceAsStream(binary));
+        digest = DigestUtils.sha1Hex(loadResourceAsStream(binary));
     }
 
     @Override
@@ -119,9 +120,9 @@ public class RouteIT extends CamelBlueprintTestSupport {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
         final String fcrepoEndpoint = "mock:fcrepo:http://localhost:8080/fcrepo/rest";
-        final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
-        ns.add("fedora", RdfNamespaces.REPOSITORY);
-        ns.add("premis", RdfNamespaces.PREMIS);
+        final Namespaces ns = new Namespaces("rdf", RDF.uri);
+        ns.add("fedora", REPOSITORY);
+        ns.add("premis", "http://www.loc.gov/premis/rdf/v1#");
 
         context.getRouteDefinition("FcrepoFixity").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -131,14 +132,11 @@ public class RouteIT extends CamelBlueprintTestSupport {
         });
         context.start();
 
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put(FcrepoHeaders.FCREPO_IDENTIFIER, path);
-        headers.put(FcrepoHeaders.FCREPO_BASE_URL, "http://localhost:" + webPort + "/fcrepo/rest");
-
         getMockEndpoint(fcrepoEndpoint).expectedMessageCount(2);
         getMockEndpoint("mock:success").expectedMessageCount(1);
 
-        template.sendBodyAndHeaders("direct:start", "", headers);
+        template.sendBodyAndHeader("direct:start", "", FCREPO_URI,
+                "http://localhost:" + webPort + "/fcrepo/rest" + path);
 
         assertMockEndpointsSatisfied();
 
