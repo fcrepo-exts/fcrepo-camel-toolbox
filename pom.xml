@@ -30,20 +30,24 @@
     <project_organization>fcrepo4-exts</project_organization>
     <project.copyrightYear>2016</project.copyrightYear>
 
+    <!-- version ranges -->
+    <activemq.version.range>[5.14,6)</activemq.version.range>
+    <camel.version.range>[2.18,3)</camel.version.range>
+
     <!-- dependencies -->
     <activemq.version>5.14.0</activemq.version>
-    <camel.version>2.17.3</camel.version>
+    <camel.version>2.18.0</camel.version>
     <commons.lang3.version>3.4</commons.lang3.version>
     <jackson2.version>2.7.3</jackson2.version>
-    <jena.version>2.13.0</jena.version>
+    <jena.version>3.1.1</jena.version>
     <logback.version>1.1.7</logback.version>
     <marmotta.version>3.3.0</marmotta.version>
     <mustache.version>0.9.1</mustache.version>
     <slf4j.version>1.7.20</slf4j.version>
     <spring.version>4.2.5.RELEASE</spring.version>
-    <fcrepo.version>4.6.0</fcrepo.version>
-    <fcrepo-java-client.version>0.1.3</fcrepo-java-client.version>
-    <fcrepo-camel.version>4.4.3</fcrepo-camel.version>
+    <fcrepo.version>4.7.0</fcrepo.version>
+    <fcrepo-java-client.version>0.2.1</fcrepo-java-client.version>
+    <fcrepo-camel.version>4.5.0-SNAPSHOT</fcrepo-camel.version>
     <woodstox.version>4.4.1</woodstox.version>
     <!-- testing -->
     <awaitility.version>1.7.0</awaitility.version>
@@ -54,7 +58,7 @@
     <hamcrest.version>1.3</hamcrest.version>
     <httpclient.version>4.3.6</httpclient.version>
     <hk2.version>2.3.0</hk2.version>
-    <jena.fuseki.version>1.1.1</jena.fuseki.version>
+    <jena.fuseki.version>2.4.1</jena.fuseki.version>
     <jersey.version>2.22.2</jersey.version>
     <karaf.version>4.0.6</karaf.version>
     <pax-exam.version>4.8.0</pax-exam.version>
@@ -395,7 +399,7 @@
 
       <dependency>
         <groupId>org.apache.jena</groupId>
-        <artifactId>jena-fuseki</artifactId>
+        <artifactId>jena-fuseki-embedded</artifactId>
         <version>${jena.fuseki.version}</version>
         <scope>test</scope>
         <exclusions>

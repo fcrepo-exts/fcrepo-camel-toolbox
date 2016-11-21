@@ -17,8 +17,14 @@
  */
 package org.fcrepo.camel.audit.triplestore.integration;
 
-import static org.fcrepo.camel.RdfNamespaces.RDF;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static java.util.Arrays.asList;
+import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
+import static org.apache.jena.vocabulary.RDF.type;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_ID;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
@@ -34,9 +40,9 @@ import org.apache.camel.builder.xml.XPathBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.fuseki.EmbeddedFusekiServer;
-import org.fcrepo.camel.JmsHeaders;
+import org.apache.jena.fuseki.embedded.FusekiEmbeddedServer;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.sparql.core.DatasetImpl;
 import org.fcrepo.camel.audit.triplestore.AuditHeaders;
 import org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor;
 import org.junit.After;
@@ -57,7 +63,7 @@ public class AuditSparqlIT extends CamelTestSupport {
     private static final int FUSEKI_PORT = Integer.parseInt(System.getProperty(
             "fuseki.dynamic.test.port", "8080"));
 
-    private static EmbeddedFusekiServer server = null;
+    private static FusekiEmbeddedServer server = null;
 
     private static final String PREMIS = "http://www.loc.gov/premis/rdf/v1#";
 
@@ -71,6 +77,8 @@ public class AuditSparqlIT extends CamelTestSupport {
 
     private static final String EVENT_URI = EVENT_BASE_URI + "/" + EVENT_ID;
 
+    private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
+
     @EndpointInject(uri = "mock:sparql.update")
     protected MockEndpoint sparqlUpdateEndpoint;
 
@@ -82,7 +90,8 @@ public class AuditSparqlIT extends CamelTestSupport {
 
     @Before
     public void setup() throws Exception {
-        server = EmbeddedFusekiServer.mem(FUSEKI_PORT, "/fuseki/test") ;
+        final Dataset ds = new DatasetImpl(createDefaultModel());
+        server = FusekiEmbeddedServer.create().setPort(FUSEKI_PORT).setContextPath("/fuseki").add("/test", ds).build() ;
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
         server.start();
     }
@@ -94,30 +103,13 @@ public class AuditSparqlIT extends CamelTestSupport {
     }
 
     private Map<String, Object> getEventHeaders() {
-        final String[] events = new String[] {
-                REPOSITORY + "NODE_ADDED",
-                REPOSITORY + "PROPERTY_ADDED"
-        };
-
-        final String[] properties = new String[] {
-                REPOSITORY + "lastModified",
-                REPOSITORY + "createdBy",
-                REPOSITORY + "primaryType",
-                REPOSITORY + "lastModifiedBy",
-                REPOSITORY + "created",
-                REPOSITORY + "mixinTypes"
-        };
-
         // send an audit event to an external triplestore
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(JmsHeaders.BASE_URL, "http://localhost/rest");
-        headers.put(JmsHeaders.EVENT_TYPE, StringUtils.join(events, ","));
-        headers.put(JmsHeaders.IDENTIFIER, "/foo");
-        headers.put(JmsHeaders.PROPERTIES, StringUtils.join(properties, ","));
-        headers.put(JmsHeaders.TIMESTAMP, 1428676236521L);
-        headers.put(JmsHeaders.USER, USER);
-        headers.put(JmsHeaders.USER_AGENT, USER_AGENT);
-        headers.put(JmsHeaders.EVENT_ID, EVENT_ID);
+        headers.put(FCREPO_URI, "http://localhost/rest/foo");
+        headers.put(FCREPO_EVENT_TYPE, asList(AS_NS + "Create", AS_NS + "Update"));
+        headers.put(FCREPO_DATE_TIME, "2015-04-10T14:30:36Z");
+        headers.put(FCREPO_AGENT, asList(USER, USER_AGENT));
+        headers.put(FCREPO_EVENT_ID, EVENT_ID);
 
         return headers;
     }
@@ -241,7 +233,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         template.sendBodyAndHeaders(null, getEventHeaders());
 
         template.sendBodyAndHeader("direct:query", null, Exchange.HTTP_QUERY,
-                "query=SELECT ?o WHERE { <" + EVENT_URI + "> <" + RDF + "type> ?o }");
+                "query=SELECT ?o WHERE { <" + EVENT_URI + "> <" + type.toString() + "> ?o }");
 
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();

@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" name="toolbox-features-${project.version}">
   <repository>mvn:org.fcrepo.camel/fcrepo-camel/${fcrepo-camel.version}/xml/features</repository>
-  <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
-  <repository>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</repository>
 
   <feature name="fcrepo-indexing-solr" version="${project.version}" start-level="50">
     <details>Installs the fcrepo solr indexer</details>
@@ -12,10 +10,10 @@
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <feature version="${project.version}">fcrepo-ldpath</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>
@@ -25,9 +23,9 @@
     <details>Installs the fcrepo fixity service</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -38,10 +36,10 @@
 
     <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -57,10 +55,10 @@
     <bundle dependency="true">wrap:mvn:com.github.spullara.mustache.java/compiler/${mustache.version}</bundle>
     <bundle dependency="true">mvn:org.codehaus.woodstox/woodstox-core-asl/${woodstox.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-jetty9</feature>
-    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-jetty9</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -71,10 +69,10 @@
 
     <feature prerequisite="true">wrap</feature>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -84,11 +82,11 @@
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-ldpath/${project.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-jackson</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-jetty9</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-jackson</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-jetty9</feature>
     <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
     <feature version="${project.version}">fcrepo-service-ldcache-file</feature>
 
@@ -182,11 +180,11 @@
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-serialization/${project.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-exec</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-exec</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.serialization.cfg">mvn:org.fcrepo.camel/fcrepo-serialization/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -196,8 +194,8 @@
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-service-activemq/${project.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${activemq.version}">activemq-camel</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${activemq.version.range}">activemq-camel</feature>
 
     <configfile finalname="/etc/org.fcrepo.camel.service.activemq.cfg">mvn:org.fcrepo.camel/fcrepo-service-activemq/${project.version}/cfg/configuration</configfile>
   </feature>
@@ -207,7 +205,7 @@
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-service-camel/${project.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
+    <feature version="${camel.version.range}">camel</feature>
     <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
 
     <configfile finalname="/etc/org.fcrepo.camel.service.cfg">mvn:org.fcrepo.camel/fcrepo-service-camel/${project.version}/cfg/configuration</configfile>

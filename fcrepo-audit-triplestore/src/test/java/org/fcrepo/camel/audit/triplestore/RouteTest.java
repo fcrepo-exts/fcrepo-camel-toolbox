@@ -17,11 +17,17 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static java.util.Arrays.asList;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.PREMIS;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,7 +38,6 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.fcrepo.camel.JmsHeaders;
 
 import org.junit.Test;
 
@@ -52,15 +57,12 @@ public class RouteTest extends CamelBlueprintTestSupport {
     protected ProducerTemplate template;
 
     private static final String baseURL = "http://localhost/rest";
-    private static final String nodeID = "/foo";
     private static final String fileID = "/file1";
     private static final String auditContainer = "/audit";
-    private static final String auditNode = auditContainer + "/1234";
-    private static final String similarNode = auditContainer + "ions/1234";
-    private static final long timestamp = 1428360320168L;
     private static final String eventDate = "2015-04-06T22:45:20Z";
-    private static final String userID = "bypassAdmin";
-    private static final String userAgent = "curl/7.37.1";
+    private static final String userID = "fedo raAdmin";
+    private static final String userAgent = "CLAW client/1.0";
+    private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
 
     @Override
     protected String getBlueprintDescriptor() {
@@ -70,7 +72,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
          final Properties props = new Properties();
-         props.put("audit.container", auditContainer);
+         props.put("audit.container", baseURL + auditContainer);
          props.put("input.stream", "seda:foo");
          return props;
     }
@@ -98,13 +100,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
         resultEndpoint.expectedHeaderReceived(AuditHeaders.EVENT_BASE_URI, "http://example.com/event");
 
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
-        final String eventProps = REPOSITORY + "hasContent";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps));
-        template.sendBodyAndHeaders("", createEvent(similarNode, eventTypes, eventProps));
-        template.sendBodyAndHeaders("", createEvent(auditNode, REPOSITORY + "NODE_ADDED", REPOSITORY + "lastModified"));
-        template.sendBodyAndHeaders("", createEvent(auditContainer, REPOSITORY + "PROPERTY_CHANGED",
-                REPOSITORY + "lastModified"));
+        template.sendBody(loadResourceAsStream("event_delete_binary.json"));
+        template.sendBody(loadResourceAsStream("event_delete_resource.json"));
+        template.sendBody(loadResourceAsStream("event_audit_resource.json"));
+        template.sendBody(loadResourceAsStream("event_audit_update.json"));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
@@ -114,17 +113,12 @@ public class RouteTest extends CamelBlueprintTestSupport {
             body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
     }
 
-    private static Map<String,Object> createEvent(final String identifier, final String eventTypes,
-            final String eventProperties) {
-
+    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes) {
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(JmsHeaders.BASE_URL, baseURL);
-        headers.put(JmsHeaders.IDENTIFIER, identifier);
-        headers.put(JmsHeaders.TIMESTAMP, timestamp);
-        headers.put(JmsHeaders.USER, userID);
-        headers.put(JmsHeaders.USER_AGENT, userAgent);
-        headers.put(JmsHeaders.EVENT_TYPE, eventTypes);
-        headers.put(JmsHeaders.PROPERTIES, eventProperties);
+        headers.put(FCREPO_URI, baseURL + identifier);
+        headers.put(FCREPO_DATE_TIME, eventDate);
+        headers.put(FCREPO_AGENT, asList(userID, userAgent));
+        headers.put(FCREPO_EVENT_TYPE, eventTypes);
         return headers;
     }
 }
