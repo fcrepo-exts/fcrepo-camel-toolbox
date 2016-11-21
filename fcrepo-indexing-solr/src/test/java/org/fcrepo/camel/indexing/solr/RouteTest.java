@@ -17,7 +17,17 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,10 +40,7 @@ import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
-import org.fcrepo.camel.FcrepoHeaders;
-import org.fcrepo.camel.JmsHeaders;
 
 import org.junit.Test;
 
@@ -46,6 +53,7 @@ import org.junit.Test;
 public class RouteTest extends CamelBlueprintTestSupport {
 
     private final String EVENT_NS = "http://fedora.info/definitions/v4/event#";
+    private final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -61,7 +69,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String baseURL = "http://localhost/rest";
     private static final String solrURL = "http4:localhost:8983/solr/collection1";
     private static final String fileID = "/file1";
-    private static final long timestamp = 1428360320168L;
     private static final String eventDate = "2015-04-06T22:45:20Z";
     private static final String userID = "bypassAdmin";
     private static final String userAgent = "curl/7.37.1";
@@ -89,7 +96,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
          final Properties props = new Properties();
          props.put("indexing.predicate", "true");
-         props.put("audit.container", auditContainer);
+         props.put("audit.container", baseURL + auditContainer);
          props.put("input.stream", "seda:foo");
          props.put("reindex.stream", "seda:bar");
          props.put("error.maxRedeliveries", "10");
@@ -103,7 +110,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testEventTypeRouter() throws Exception {
 
-        final String eventTypes = EVENT_NS + "ResourceDeletion";
+        final List<String> eventTypes = asList(EVENT_NS + "ResourceDeletion");
 
         context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -118,7 +125,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(1);
         getMockEndpoint("mock:direct:index.solr").expectedMessageCount(0);
 
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes));
+        template.sendBodyAndHeaders(loadResourceAsStream("event_delete_resource.json"),
+                createEvent(baseURL + fileID, eventTypes));
 
         assertMockEndpointsSatisfied();
     }
@@ -127,7 +135,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testFilterAuditEvents() throws Exception {
 
-        final String eventTypes = EVENT_NS + "ResourceCreation";
+        final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
 
         context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -144,8 +152,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
-                createEvent(auditContainer + fileID, eventTypes));
+                IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
+                createEvent(baseURL + auditContainer + fileID, eventTypes));
 
         assertMockEndpointsSatisfied();
     }
@@ -153,7 +161,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testFilterAuditExactMatch() throws Exception {
 
-        final String eventTypes = EVENT_NS + "ResourceModification";
+        final List<String> eventTypes = asList(EVENT_NS + "ResourceModification");
 
         context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -170,8 +178,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:update.solr").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
-                createEvent(auditContainer, eventTypes));
+                IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
+                createEvent(baseURL + auditContainer, eventTypes));
 
         assertMockEndpointsSatisfied();
     }
@@ -179,7 +187,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testFilterAuditNearMatch() throws Exception {
 
-        final String eventTypes = EVENT_NS + "ResourceCreation";
+        final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
 
         context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -196,8 +204,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:update.solr").expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
-                createEvent(auditContainer + "orium" + fileID, eventTypes));
+                IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
+                createEvent(baseURL + auditContainer + "orium" + fileID, eventTypes, asList(INDEXABLE)));
 
         assertMockEndpointsSatisfied();
     }
@@ -206,7 +214,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testPrepareRouterIndexable() throws Exception {
 
-        final String eventTypes = EVENT_NS + "ResourceCreation";
+        final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
 
         context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -225,8 +233,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:delete.solr").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
-                createEvent(fileID, eventTypes));
+                IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
+                createEvent(baseURL + fileID, eventTypes, asList(INDEXABLE)));
 
         assertMockEndpointsSatisfied();
     }
@@ -234,7 +242,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testPrepareRouterContainer() throws Exception {
 
-        final String eventTypes = EVENT_NS + "ResourceCreation";
+        final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
 
         context.getRouteDefinition("FcrepoSolrIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -253,8 +261,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
                 "http://localhost/ldpath/program");
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
-                createEvent(fileID, eventTypes));
+                IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
+                createEvent(baseURL + fileID, eventTypes));
 
         assertMockEndpointsSatisfied();
     }
@@ -262,7 +270,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testUpdateRouter() throws Exception {
 
-        final String eventTypes = EVENT_NS + "ResourceCreation";
+        final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
 
         context.getRouteDefinition("FcrepoSolrUpdater").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -292,7 +300,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:update.solr", "",
-                createEvent(fileID, eventTypes));
+                createEvent(baseURL + fileID, eventTypes));
 
         assertMockEndpointsSatisfied();
     }
@@ -300,7 +308,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testDeleteRouter() throws Exception {
 
-        final String eventTypes = EVENT_NS + "ResourceDeletion";
+        final List<String> eventTypes = asList(EVENT_NS + "ResourceDeletion");
 
         context.getRouteDefinition("FcrepoSolrDeleter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -317,22 +325,23 @@ public class RouteTest extends CamelBlueprintTestSupport {
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:delete.solr", "",
-                createEvent(fileID, eventTypes));
+                createEvent(baseURL + fileID, eventTypes));
 
         assertMockEndpointsSatisfied();
     }
 
-    private static Map<String,Object> createEvent(final String identifier, final String eventTypes) {
+    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes) {
+        return createEvent(identifier, eventTypes, emptyList());
+    }
 
+    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes,
+            final List<String> resourceTypes) {
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(JmsHeaders.BASE_URL, baseURL);
-        headers.put(JmsHeaders.IDENTIFIER, identifier);
-        headers.put(JmsHeaders.TIMESTAMP, timestamp);
-        headers.put(JmsHeaders.USER, userID);
-        headers.put(JmsHeaders.USER_AGENT, userAgent);
-        headers.put(JmsHeaders.EVENT_TYPE, eventTypes);
-        headers.put(FcrepoHeaders.FCREPO_IDENTIFIER, identifier);
-        headers.put(FcrepoHeaders.FCREPO_BASE_URL, baseURL);
+        headers.put(FCREPO_URI, identifier);
+        headers.put(FCREPO_DATE_TIME, eventDate);
+        headers.put(FCREPO_AGENT, asList(userID, userAgent));
+        headers.put(FCREPO_EVENT_TYPE, eventTypes);
+        headers.put(FCREPO_RESOURCE_TYPE, resourceTypes);
         return headers;
     }
 }
