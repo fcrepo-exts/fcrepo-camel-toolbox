@@ -20,23 +20,21 @@ package org.fcrepo.camel.indexing.triplestore;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_NAMED_GRAPH;
-import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
-import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
-import static org.fcrepo.camel.RdfNamespaces.INDEXING;
-import static org.fcrepo.camel.RdfNamespaces.RDF;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.builder.xml.XPathBuilder;
+import org.fcrepo.camel.processor.EventProcessor;
 import org.fcrepo.camel.processor.SparqlDeleteProcessor;
 import org.fcrepo.camel.processor.SparqlUpdateProcessor;
 import org.slf4j.Logger;
 
 /**
- * A content router for handling JMS events.
+ * A content router for handling Fedora events.
  *
  * @author Aaron Coburn
  */
@@ -45,17 +43,19 @@ public class TriplestoreRouter extends RouteBuilder {
     private static final Logger logger = getLogger(TriplestoreRouter.class);
 
     private static final String RESOURCE_DELETION = "http://fedora.info/definitions/v4/event#ResourceDeletion";
+    private static final String DELETE = "https://www.w3.org/ns/activitystreams#Delete";
 
     /**
      * Configure the message route workflow.
      */
     public void configure() throws Exception {
 
-        final Namespaces ns = new Namespaces("rdf", RDF);
-        ns.add("indexing", INDEXING);
+        final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
 
         final XPathBuilder indexable = new XPathBuilder(
-                String.format("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']", INDEXING + "Indexable"));
+                String.format("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']",
+                    "http://fedora.info/definitions/v4/indexing#Indexable"));
         indexable.namespaces(ns);
 
         /**
@@ -71,11 +71,10 @@ public class TriplestoreRouter extends RouteBuilder {
          */
         from("{{input.stream}}")
             .routeId("FcrepoTriplestoreRouter")
+            .process(new EventProcessor())
             .choice()
-                // this clause supports Fedora 4.5.1 and earlier but may be removed in a future release
-                .when(header(EVENT_TYPE).isEqualTo(REPOSITORY + "NODE_REMOVED"))
-                    .to("direct:delete.triplestore")
-                .when(header(EVENT_TYPE).isEqualTo(RESOURCE_DELETION))
+                .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
+                            header(FCREPO_EVENT_TYPE).contains(DELETE)))
                     .to("direct:delete.triplestore")
                 .otherwise()
                     .to("direct:index.triplestore");
@@ -92,8 +91,8 @@ public class TriplestoreRouter extends RouteBuilder {
          */
         from("direct:index.triplestore")
             .routeId("FcrepoTriplestoreIndexer")
-            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
-                    header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
+            .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
+                    header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
             .removeHeaders("CamelHttp*")
             .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
             .choice()
@@ -109,8 +108,7 @@ public class TriplestoreRouter extends RouteBuilder {
             .routeId("FcrepoTriplestoreDeleter")
             .process(new SparqlDeleteProcessor())
             .log(LoggingLevel.INFO, logger,
-                    "Deleting Triplestore Object ${headers[CamelFcrepoIdentifier]} " +
-                    "${headers[org.fcrepo.jms.identifier]}")
+                    "Deleting Triplestore Object ${headers[CamelFcrepoUri]}")
             .to("{{triplestore.baseUrl}}?useSystemProperties=true");
 
         /**
@@ -124,8 +122,7 @@ public class TriplestoreRouter extends RouteBuilder {
                     "&preferOmit={{prefer.omit}}&preferInclude={{prefer.include}}")
             .process(new SparqlUpdateProcessor())
             .log(LoggingLevel.INFO, logger,
-                    "Indexing Triplestore Object ${headers[CamelFcrepoIdentifier]} " +
-                    "${headers[org.fcrepo.jms.identifier]}")
+                    "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
             .to("{{triplestore.baseUrl}}?useSystemProperties=true");
     }
 }

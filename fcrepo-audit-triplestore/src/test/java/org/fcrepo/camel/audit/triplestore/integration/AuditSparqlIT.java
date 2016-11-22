@@ -17,6 +17,7 @@
  */
 package org.fcrepo.camel.audit.triplestore.integration;
 
+import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
 import static org.apache.jena.vocabulary.RDF.type;
@@ -60,7 +61,7 @@ public class AuditSparqlIT extends CamelTestSupport {
 
     final private Logger logger = getLogger(AuditSparqlIT.class);
 
-    private static final int FUSEKI_PORT = Integer.parseInt(System.getProperty(
+    private static final int FUSEKI_PORT = parseInt(System.getProperty(
             "fuseki.dynamic.test.port", "8080"));
 
     private static FusekiEmbeddedServer server = null;
@@ -91,7 +92,7 @@ public class AuditSparqlIT extends CamelTestSupport {
     @Before
     public void setup() throws Exception {
         final Dataset ds = new DatasetImpl(createDefaultModel());
-        server = FusekiEmbeddedServer.create().setPort(FUSEKI_PORT).setContextPath("/fuseki").add("/test", ds).build() ;
+        server = FusekiEmbeddedServer.create().setPort(FUSEKI_PORT).setContextPath("/fuseki").add("/test", ds).build();
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
         server.start();
     }
