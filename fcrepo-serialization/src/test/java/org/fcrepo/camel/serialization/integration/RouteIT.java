@@ -18,7 +18,8 @@
 package org.fcrepo.camel.serialization.integration;
 
 import static com.jayway.awaitility.Awaitility.await;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.client.FcrepoClient.client;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
@@ -34,8 +35,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.apache.camel.util.ObjectHelper;
-import org.fcrepo.camel.JmsHeaders;
+import org.apache.commons.io.IOUtils;
 import org.fcrepo.client.FcrepoClient;
 import org.fcrepo.client.FcrepoResponse;
 
@@ -68,10 +68,9 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Override
     protected void doPreSetup() throws Exception {
-        final FcrepoClient client = new FcrepoClient(null, null, null, true);
-        final FcrepoResponse res = client.post(
-                URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"),
-                ObjectHelper.loadResourceAsStream("indexable.ttl"), "text/turtle");
+        final FcrepoClient client = client().throwExceptionOnFailure().build();
+        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
+                .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
         fullPath = res.getLocation().toString();
     }
 
@@ -132,11 +131,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
         context.start();
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(JmsHeaders.IDENTIFIER, path);
-        headers.put(JmsHeaders.BASE_URL, "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
-        headers.put(JmsHeaders.EVENT_TYPE, REPOSITORY + "NODE_ADDED");
-        headers.put(JmsHeaders.TIMESTAMP, 1428360320168L);
-        headers.put(JmsHeaders.PROPERTIES, "");
+        headers.put("org.fcrepo.jms.identifier", path);
 
         getMockEndpoint("mock://direct:metadata").expectedMessageCount(1);
         getMockEndpoint("mock://direct:binary").expectedMessageCount(1);
@@ -146,8 +141,11 @@ public class RouteIT extends CamelBlueprintTestSupport {
         final File f = new File("target/serialization/descriptions/" + path  + ".ttl");
 
         assertFalse(f.exists());
+        final String event = IOUtils.toString(loadResourceAsStream("event.json"), "UTF-8");
+        event.replaceAll("http://localhost/rest/path/to/resource", fullPath);
 
-        template.sendBodyAndHeaders("direct:start", "", headers);
+        template.sendBodyAndHeaders("direct:start",
+                event.replaceAll("http://localhost/rest/path/to/resource", fullPath), headers);
 
         await().until(() -> f.exists());
 

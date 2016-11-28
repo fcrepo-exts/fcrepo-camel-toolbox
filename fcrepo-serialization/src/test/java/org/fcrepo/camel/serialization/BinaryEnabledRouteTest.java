@@ -17,18 +17,14 @@
  */
 package org.fcrepo.camel.serialization;
 
-import static org.fcrepo.camel.JmsHeaders.BASE_URL;
+import static org.apache.camel.Exchange.FILE_NAME;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 
 import org.junit.Test;
-import java.util.Map;
 import java.util.Properties;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.Exchange;
-import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -68,15 +64,12 @@ public class BinaryEnabledRouteTest extends AbstractRouteTest {
         context.start();
 
         getMockEndpoint("mock:file:binary_file").expectedMessageCount(1);
-        getMockEndpoint("mock:file:binary_file").expectedHeaderReceived(Exchange.FILE_NAME, "foo");
+        getMockEndpoint("mock:file:binary_file").expectedHeaderReceived(FILE_NAME, "/foo");
 
         // send a file!
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        final Map<String, Object> headers = ImmutableMap.of(
-            BASE_URL, baseURL,
-            FCREPO_IDENTIFIER, "foo");
+        final String body = IOUtils.toString(loadResourceAsStream("binary.rdf"), "UTF-8");
 
-        template.sendBodyAndHeaders(body, headers);
+        template.sendBodyAndHeader(body, FCREPO_IDENTIFIER, "/foo");
 
         assertMockEndpointsSatisfied();
     }
