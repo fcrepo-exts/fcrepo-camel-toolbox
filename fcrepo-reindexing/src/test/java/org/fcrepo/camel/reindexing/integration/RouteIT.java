@@ -17,6 +17,10 @@
  */
 package org.fcrepo.camel.reindexing.integration;
 
+import static org.apache.camel.Exchange.HTTP_URI;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENTS;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_PREFIX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -39,8 +43,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.fcrepo.camel.FcrepoComponent;
-import org.fcrepo.camel.FcrepoHeaders;
-import org.fcrepo.camel.reindexing.ReindexingHeaders;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -123,12 +125,10 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
         template.send("direct:reindex", new Processor() {
             public void process(final Exchange exchange) throws Exception {
-                exchange.getIn().setHeader(ReindexingHeaders.RECIPIENTS, "mock:result");
-                exchange.getIn().setHeader(FcrepoHeaders.FCREPO_BASE_URL,
-                    "http://localhost:" + webPort + "/fcrepo/rest");
-                exchange.getIn().setHeader(FcrepoHeaders.FCREPO_IDENTIFIER, "/");
-                exchange.getIn().setHeader(Exchange.HTTP_URI, "http://localhost:9080/reindexing/");
-                exchange.getIn().setHeader(ReindexingHeaders.REST_PREFIX, "/reindexing");
+                exchange.getIn().setHeader(REINDEXING_RECIPIENTS, "mock:result");
+                exchange.getIn().setHeader(FCREPO_URI, "http://localhost:" + webPort + "/fcrepo/rest/");
+                exchange.getIn().setHeader(HTTP_URI, "http://localhost:9080/reindexing/");
+                exchange.getIn().setHeader(REINDEXING_PREFIX, "/reindexing");
             }
         });
 

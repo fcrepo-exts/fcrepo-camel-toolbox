@@ -42,7 +42,6 @@
     <jena.version>3.1.1</jena.version>
     <logback.version>1.1.7</logback.version>
     <marmotta.version>3.3.0</marmotta.version>
-    <mustache.version>0.9.1</mustache.version>
     <slf4j.version>1.7.20</slf4j.version>
     <spring.version>4.2.5.RELEASE</spring.version>
     <fcrepo.version>4.7.0</fcrepo.version>
@@ -131,6 +130,11 @@
         <version>${camel.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-mustache</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-camel</artifactId>
         <version>${activemq.version}</version>
@@ -186,11 +190,6 @@
         <version>${jackson2.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.github.spullara.mustache.java</groupId>
-        <artifactId>compiler</artifactId>
-        <version>${mustache.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.glassfish.hk2.external</groupId>
         <artifactId>javax.inject</artifactId>
         <version>${hk2.version}</version>
@@ -230,12 +229,6 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>ldclient-provider-rdf</artifactId>
         <version>${marmotta.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xercesImpl</artifactId>
-        <version>${xerces.version}</version>
       </dependency>
 
       <!-- Spring -->
@@ -303,6 +296,13 @@
         <groupId>com.jayway.awaitility</groupId>
         <artifactId>awaitility</artifactId>
         <version>${awaitility.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>${xerces.version}</version>
         <scope>test</scope>
       </dependency>
 
