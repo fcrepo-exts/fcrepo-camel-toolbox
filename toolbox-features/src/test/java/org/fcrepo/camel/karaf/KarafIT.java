@@ -21,6 +21,7 @@ import static java.net.URI.create;
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.impl.client.HttpClients.createDefault;
+import static org.fcrepo.client.FcrepoClient.client;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -189,12 +190,12 @@ public class KarafIT {
         bundleContext.getBundle(System.getProperty("o.f.c.i.triplestore-bundle")).stop();
         bundleContext.getBundle(System.getProperty("o.f.c.a.triplestore-bundle")).stop();
 
-        final FcrepoClient fcrepoClient = new FcrepoClient(null, null, null, true);
+        final FcrepoClient fcrepoClient = client().throwExceptionOnFailure().build();
         final URI baseUrl = create("http://localhost:" + System.getProperty("fcrepo.port") + "/fcrepo/rest");
-        final URI url1 = fcrepoClient.post(baseUrl, null, null).getLocation();
-        final URI url2 = fcrepoClient.post(baseUrl, null, null).getLocation();
-        fcrepoClient.post(url1, null, null);
-        fcrepoClient.post(url2, null, null);
+        final URI url1 = fcrepoClient.post(baseUrl).perform().getLocation();
+        final URI url2 = fcrepoClient.post(baseUrl).perform().getLocation();
+        final URI url3 = fcrepoClient.post(url1).perform().getLocation();
+        final URI url4 = fcrepoClient.post(url2).perform().getLocation();
 
         final MockEndpoint resultEndpoint = (MockEndpoint) ctx.getEndpoint("mock:results");
         resultEndpoint.expectedMessageCount(5);

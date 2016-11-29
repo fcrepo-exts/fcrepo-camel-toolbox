@@ -6,14 +6,11 @@
     <details>Installs the fcrepo solr indexer</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}</bundle>
 
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
-
     <feature version="${camel.version.range}">camel</feature>
     <feature version="${camel.version.range}">camel-http4</feature>
     <feature version="${camel.version.range}">camel-blueprint</feature>
     <feature version="${camel.version.range}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel-jackson</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <feature version="${project.version}">fcrepo-ldpath</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>
@@ -48,17 +45,12 @@
     <details>Installs a re-indexing application</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}</bundle>
 
-    <feature prerequisite="true">wrap</feature>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
-    <bundle dependency="true">wrap:mvn:com.github.spullara.mustache.java/compiler/${mustache.version}</bundle>
-    <bundle dependency="true">mvn:org.codehaus.woodstox/woodstox-core-asl/${woodstox.version}</bundle>
-
     <feature version="${camel.version.range}">camel</feature>
     <feature version="${camel.version.range}">camel-blueprint</feature>
     <feature version="${camel.version.range}">camel-jetty9</feature>
     <feature version="${camel.version.range}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel-mustache</feature>
+    <feature version="${camel.version.range}">camel-jackson</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}/cfg/configuration</configfile>
   </feature>
