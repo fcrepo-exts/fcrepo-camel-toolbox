@@ -17,11 +17,8 @@
  */
 package org.fcrepo.camel.karaf;
 
-import static java.net.URI.create;
-import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.impl.client.HttpClients.createDefault;
-import static org.fcrepo.client.FcrepoClient.client;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -41,18 +38,13 @@ import static org.osgi.framework.FrameworkUtil.createFilter;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
-import java.net.URI;
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.karaf.features.FeaturesService;
-import org.fcrepo.client.FcrepoClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -184,36 +176,11 @@ public class KarafIT {
         final CamelContext ctx = getOsgiService(CamelContext.class, "(camel.context.name=FcrepoIndexer)", 10000);
         assertNotNull(ctx);
 
-        // We aren't running solr or a triplestore, so stop these to prevent
-        // unnecessary errors.
-        bundleContext.getBundle(System.getProperty("o.f.c.i.solr-bundle")).stop();
-        bundleContext.getBundle(System.getProperty("o.f.c.i.triplestore-bundle")).stop();
-        bundleContext.getBundle(System.getProperty("o.f.c.a.triplestore-bundle")).stop();
-
-        final FcrepoClient fcrepoClient = client().throwExceptionOnFailure().build();
-        final URI baseUrl = create("http://localhost:" + System.getProperty("fcrepo.port") + "/fcrepo/rest");
-        final URI url1 = fcrepoClient.post(baseUrl).perform().getLocation();
-        final URI url2 = fcrepoClient.post(baseUrl).perform().getLocation();
-        final URI url3 = fcrepoClient.post(url1).perform().getLocation();
-        final URI url4 = fcrepoClient.post(url2).perform().getLocation();
-
-        final MockEndpoint resultEndpoint = (MockEndpoint) ctx.getEndpoint("mock:results");
-        resultEndpoint.expectedMessageCount(5);
-
         final CloseableHttpClient client = createDefault();
         final String reindexingUrl = "http://localhost:" + System.getProperty("karaf.reindexing.port") + "/reindexing/";
         try (final CloseableHttpResponse response = client.execute(new HttpGet(reindexingUrl))) {
             assertEquals(SC_OK, response.getStatusLine().getStatusCode());
         }
-
-        final HttpPost post = new HttpPost(reindexingUrl);
-        post.addHeader("Content-Type", "application/json");
-        post.setEntity(new StringEntity("[\"mock:results\"]"));
-        try (final CloseableHttpResponse response = client.execute(post)) {
-            assertEquals(SC_OK, response.getStatusLine().getStatusCode());
-        }
-
-        assertIsSatisfied(resultEndpoint);
     }
 
     private <T> T getOsgiService(final Class<T> type, final String filter, final long timeout) {
