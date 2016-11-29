@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.streamBundle;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
@@ -59,7 +60,9 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.tinybundles.core.TinyBundles;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -103,7 +106,7 @@ public class KarafIT {
                         .type("xml").classifier("features").versionAsInProject(), "scr"),
             features(maven().groupId("org.apache.camel.karaf").artifactId("apache-camel")
                         .type("xml").classifier("features").versionAsInProject(), "camel",
-                        "camel-blueprint", "camel-http4"),
+                        "camel-blueprint", "camel-http4", "camel-jms"),
             features(maven().groupId("org.apache.activemq").artifactId("activemq-karaf")
                         .type("xml").classifier("features").versionAsInProject(), "activemq-camel"),
 
@@ -115,7 +118,17 @@ public class KarafIT {
                     "tcp://localhost:" + jmsPort),
 
             bundle(fcrepoServiceBundle).start(),
+            streamBundle(
+                    TinyBundles.bundle().add("OSGI-INF/blueprint/blueprint-test.xml",
+                    new File("src/test/resources/OSGI-INF/blueprint/blueprint-test.xml").toURL())
+                    .set(Constants.BUNDLE_SYMBOLICNAME, "org.fcrepo.camel.service.activemq.test")
+                    .set(Constants.BUNDLE_MANIFESTVERSION, "2")
+                    .set(Constants.DYNAMICIMPORT_PACKAGE, "*")
+                    .build()
+                ).start(),
 
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.consumers", "1"),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.connections", "1"),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
             editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort)
