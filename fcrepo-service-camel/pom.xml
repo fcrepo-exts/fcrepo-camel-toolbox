@@ -61,6 +61,11 @@
     </dependency>
 
     <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
     </dependency>
@@ -194,7 +199,6 @@
               <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
               <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
               <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
-              <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
               <project.artifactId>${project.artifactId}</project.artifactId>
               <project.version>${project.version}</project.version>
               <karaf.ssh.port>${karaf.ssh.port}</karaf.ssh.port>
@@ -234,7 +238,7 @@
               </systemProperty>
               <systemProperty>
                 <name>fcrepo.modeshape.configuration</name>
-                <value>classpath:/config/minimal-default/repository.json</value>
+                <value>classpath:/config/file-simple/repository.json</value>
               </systemProperty>
             </systemProperties>
             <scanIntervalSeconds>10</scanIntervalSeconds>

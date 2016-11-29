@@ -22,6 +22,7 @@ import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.impl.client.HttpClients.createDefault;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -108,7 +109,7 @@ public class KarafIT {
                         .type("xml").classifier("features").versionAsInProject(), "scr"),
             features(maven().groupId("org.apache.camel.karaf").artifactId("apache-camel")
                         .type("xml").classifier("features").versionAsInProject(), "camel",
-                        "camel-blueprint"),
+                        "camel-blueprint", "camel-jackson"),
             features(maven().groupId("org.fcrepo.camel").artifactId("fcrepo-camel")
                         .type("xml").classifier("features").versionAsInProject(), "fcrepo-camel"),
 
@@ -155,8 +156,7 @@ public class KarafIT {
         headers.put(FCREPO_IDENTIFIER, url1);
         template.sendBodyAndHeaders(ctx.getEndpoint("direct:start"), null, headers);
 
-        headers.put(FCREPO_IDENTIFIER, url2);
-        template.sendBodyAndHeaders(ctx.getEndpoint("direct:start"), null, headers);
+        template.sendBodyAndHeader(ctx.getEndpoint("direct:start"), null, FCREPO_URI, baseUrl + url2);
 
         resultEndpoint.expectedMinimumMessageCount(2);
         assertIsSatisfied(resultEndpoint);
