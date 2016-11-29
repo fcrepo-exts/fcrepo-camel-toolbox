@@ -10,7 +10,7 @@
     <feature version="${camel.version.range}">camel-http4</feature>
     <feature version="${camel.version.range}">camel-blueprint</feature>
     <feature version="${camel.version.range}">camel-spring</feature>
-    <feature version="${camel.version.range}">camel-jackson</feature>
+    <feature version="${camel.version.range}">camel-mustache</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
     <feature version="${project.version}">fcrepo-ldpath</feature>
     <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>

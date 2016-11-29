@@ -17,12 +17,15 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
+import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.HTTP_QUERY;
 import static org.apache.camel.Exchange.HTTP_URI;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -75,6 +78,8 @@ public class SolrRouter extends RouteBuilder {
         from("{{input.stream}}")
             .routeId("FcrepoSolrRouter")
             .process(new EventProcessor())
+            // this is a hard dependency on the JMS module and should be re-worked
+            .setHeader(FCREPO_BASE_URL).header("org.fcrepo.jms.baseUrl")
             .choice()
                 .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
                             header(FCREPO_EVENT_TYPE).contains(DELETE)))
@@ -97,6 +102,11 @@ public class SolrRouter extends RouteBuilder {
             .removeHeaders("CamelHttp*")
             .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
                     header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
+            .process(exchange -> {
+                final String baseUrl = exchange.getIn().getHeader(FCREPO_BASE_URL, "", String.class);
+                final String uri = exchange.getIn().getHeader(FCREPO_URI, "", String.class);
+                exchange.getIn().setHeader(FCREPO_IDENTIFIER, uri.replaceAll(baseUrl, ""));
+            })
             .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
             .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
             .choice()
@@ -114,8 +124,10 @@ public class SolrRouter extends RouteBuilder {
          */
         from("direct:delete.solr").routeId("FcrepoSolrDeleter")
             .removeHeaders("CamelHttp*")
-            .process(new SolrDeleteProcessor())
-            .log(LoggingLevel.INFO, logger, "Deleting Solr Object ${headers[CamelFcrepoIdentifier]}")
+            .to("mustache:delete.mustache")
+            .log(LoggingLevel.INFO, logger, "Deleting Solr Object ${headers[CamelFcrepoUri]}")
+            .setHeader(HTTP_METHOD).constant("POST")
+            .setHeader(CONTENT_TYPE).constant("application/json")
             .setHeader(HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
             .to("{{solr.baseUrl}}/update?useSystemProperties=true");
 
@@ -134,9 +146,9 @@ public class SolrRouter extends RouteBuilder {
          * Handle update operations
          */
         from("direct:update.solr").routeId("FcrepoSolrUpdater")
-            .log(LoggingLevel.INFO, logger, "Indexing Solr Object ${header.CamelFcrepoIdentifier}")
+            .log(LoggingLevel.INFO, logger, "Indexing Solr Object ${header.CamelFcrepoUri}")
             .setBody(constant(null))
-            .setHeader(INDEXING_URI).simple("${header.CamelFcrepoBaseUrl}${header.CamelFcrepoIdentifier}")
+            .setHeader(INDEXING_URI).simple("${header.CamelFcrepoUri}")
             // Don't index the transformation itself
             .filter().simple("${header.CamelIndexingTransformation} != ${header.CamelIndexingUri}")
                 .choice()
@@ -152,7 +164,7 @@ public class SolrRouter extends RouteBuilder {
                         .to("direct:transform.ldpath")
                         .to("direct:send.to.solr")
                     .otherwise()
-                        .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoIdentifier}");
+                        .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");
 
         /*
          * Send the transformed resource to Solr
