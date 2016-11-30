@@ -31,7 +31,7 @@ The name of the container where internal audit events are created (if using
 [fcrepo-audit](http://github.com/fcrepo4-exts/fcrepo-audit)).  Events about
 resources in this container are ignored.
 
-    audit.container=/audit
+    audit.container=http://localhost:8080/fcrepo/rest/audit
 
 In the event of failure, the maximum number of times a redelivery will be attempted.
 

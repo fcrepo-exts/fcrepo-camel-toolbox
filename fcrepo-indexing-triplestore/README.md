@@ -71,7 +71,7 @@ not left blank, should be a valid URI.
 The location of the internal Audit trail, if using the `fcrepo-audit` extension module.
 Nodes at this location will not be indexed.
 
-    audit.container=/audit
+    audit.container=http://localhost:8080/fcrepo/rest/audit
 
 By editing this file, any currently running routes will be immediately redeployed
 with the new values.
