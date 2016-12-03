@@ -17,18 +17,10 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static java.util.Arrays.asList;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.PREMIS;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.camel.EndpointInject;
@@ -62,7 +54,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String eventDate = "2015-04-06T22:45:20Z";
     private static final String userID = "fedo raAdmin";
     private static final String userAgent = "CLAW client/1.0";
-    private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
 
     @Override
     protected String getBlueprintDescriptor() {
@@ -111,14 +102,5 @@ public class RouteTest extends CamelBlueprintTestSupport {
             body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentRemoval>"));
         assertTrue("Object link not found!",
             body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
-    }
-
-    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes) {
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put(FCREPO_URI, baseURL + identifier);
-        headers.put(FCREPO_DATE_TIME, eventDate);
-        headers.put(FCREPO_AGENT, asList(userID, userAgent));
-        headers.put(FCREPO_EVENT_TYPE, eventTypes);
-        return headers;
     }
 }

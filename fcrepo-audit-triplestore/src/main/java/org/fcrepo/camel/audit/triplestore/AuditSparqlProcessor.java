@@ -78,12 +78,6 @@ public class AuditSparqlProcessor implements Processor {
     static final String OBJECT_ADD = EVENT_TYPE + "cre";
     static final String OBJECT_REM = EVENT_TYPE + "del";
 
-    static final String HAS_CONTENT = REPOSITORY + "hasContent";
-
-    static final String NODE_ADDED = REPOSITORY + "NODE_ADDED";
-    static final String NODE_REMOVED = REPOSITORY + "NODE_REMOVED";
-    static final String PROPERTY_CHANGED = REPOSITORY + "PROPERTY_CHANGED";
-
     /**
      * Define how a message should be processed.
      *
@@ -117,7 +111,6 @@ public class AuditSparqlProcessor implements Processor {
     private static final Property PREMIS_TYPE = createProperty(PREMIS + "hasEventType");
 
     private static final String EMPTY_STRING = "";
-    private static final String RESOURCE_TYPES = "org.fcrepo.jms.resourceType";
 
     /**
      * Convert a Camel message to audit event description.

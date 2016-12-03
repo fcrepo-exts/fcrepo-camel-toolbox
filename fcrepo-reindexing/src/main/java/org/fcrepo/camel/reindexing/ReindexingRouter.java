@@ -44,6 +44,7 @@ public class ReindexingRouter extends RouteBuilder {
 
     private static final Logger LOGGER = getLogger(ReindexingRouter.class);
     private static final int BAD_REQUEST = 400;
+    private static final String LDP_CONTAINS = "<http://www.w3.org/ns/ldp#contains>";
 
     @PropertyInject(value = "rest.port", defaultValue = "9080")
     private String port;
@@ -116,22 +117,27 @@ public class ReindexingRouter extends RouteBuilder {
             .setHeader(HTTP_METHOD).constant(GET)
             .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferContainment" +
                     "&preferOmit=ServerManaged&accept=application/n-triples")
+            // split the n-triples stream on line breaks so that each triple is split into a separate message
             .split(body().tokenize("\\n")).streaming()
-                .filter(body().contains("<http://www.w3.org/ns/ldp#contains>"))
-                    .removeHeader(FCREPO_URI)
-                    .removeHeader("JMSCorrelationID")
-                    .process(exchange -> {
-                        final String body = exchange.getIn().getBody(String.class);
-                        if (body != null) {
-                            final String parts[] = body.split("\\s+");
-                            if (parts.length > 2 && parts[2].startsWith("<")) {
-                                exchange.getIn().setHeader(FCREPO_URI, parts[2].substring(1, parts[2].length() - 1));
-                            }
-                            exchange.getIn().setBody(null);
+                .removeHeader(FCREPO_URI)
+                .removeHeader("JMSCorrelationID")
+                .process(exchange -> {
+                    // This is a simple n-triples parser, spliting nodes on whitespace according to
+                    // https://www.w3.org/TR/n-triples/#n-triples-grammar
+                    // If the body is not null and the predicate is ldp:contains and the object is a URI,
+                    // then set the CamelFcrepoUri header (if that header is not set, the processing stops
+                    // at the filter() line below.
+                    final String body = exchange.getIn().getBody(String.class);
+                    if (body != null) {
+                        final String parts[] = body.split("\\s+");
+                        if (parts.length > 2 && parts[1].equals(LDP_CONTAINS) && parts[2].startsWith("<")) {
+                            exchange.getIn().setHeader(FCREPO_URI, parts[2].substring(1, parts[2].length() - 1));
                         }
-                    })
-                    .filter(header(FCREPO_URI).isNotNull())
-                        .inOnly("{{reindexing.stream}}?disableTimeToLive=true");
+                        exchange.getIn().setBody(null);
+                    }
+                })
+                .filter(header(FCREPO_URI).isNotNull())
+                    .inOnly("{{reindexing.stream}}?disableTimeToLive=true");
 
         /**
          *  Send the message to all of the pre-determined endpoints
