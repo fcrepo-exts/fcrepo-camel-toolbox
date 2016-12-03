@@ -17,7 +17,13 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static java.util.Arrays.asList;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_ID;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.EVENT_TYPE;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.PREMIS;
@@ -25,6 +31,7 @@ import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.XSD;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.EndpointInject;
@@ -33,7 +40,6 @@ import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.fcrepo.camel.JmsHeaders;
 import org.apache.camel.test.junit4.CamelTestSupport;
 
 import org.junit.Test;
@@ -57,12 +63,14 @@ public class ProcessorTest extends CamelTestSupport {
     private static final String eventBaseURI = "http://example.com/event";
     private static final String nodeID = "/foo";
     private static final String fileID = "/file1";
-    private static final long timestamp = 1428360320168L;
     private static final String eventDate = "2015-04-06T22:45:20Z";
     private static final String userID = "bypassAdmin";
     private static final String userAgent = "curl/7.37.1";
     private static final String eventID = "ab/cd/ef/gh/abcdefgh12345678";
     private static final String eventURI = eventBaseURI + "/" + eventID;
+    private static final String EVENT_NS = "http://fedora.info/definitions/v4/event#";
+    private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
+    private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
 
     @Test
     public void testNodeAdded() throws Exception {
@@ -71,11 +79,8 @@ public class ProcessorTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        final String eventTypes = REPOSITORY + "NODE_ADDED," + REPOSITORY + "PROPERTY_ADDED";
-        final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "primaryType," +
-                REPOSITORY + "lastModifiedBy," + REPOSITORY + "created," + REPOSITORY + "mixinTypes," +
-                REPOSITORY + "createdBy";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, eventProps, eventID));
+        template.sendBodyAndHeaders("",
+                createEvent(nodeID, asList(EVENT_NS + "ResourceCreation"), asList(REPOSITORY + "Resource"), eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
@@ -87,11 +92,9 @@ public class ProcessorTest extends CamelTestSupport {
             body.contains("<" + eventURI + "> <" + PREMIS + "hasEventDateTime> \"" + eventDate + "\"^^<"
                     + XSD + "dateTime>"));
         assertTrue("Event user not found!",
-            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedAgent> \"" + userID + "\"^^<"
-                    + XSD + "string>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedAgent> \"" + userID + "\" ."));
         assertTrue("Event agent not found!",
-            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedAgent> \"" + userAgent + "\"^^<"
-                    + XSD + "string>"));
+            body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedAgent> \"" + userAgent + "\" ."));
     }
 
     @Test
@@ -101,8 +104,8 @@ public class ProcessorTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, null, eventID));
+        template.sendBodyAndHeaders("",
+                createEvent(nodeID, asList(EVENT_NS + "ResourceDeletion"), asList(REPOSITORY + "Resource"), eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
@@ -119,9 +122,8 @@ public class ProcessorTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        final String eventTypes = REPOSITORY + "PROPERTY_CHANGED," + REPOSITORY + "PROPERTY_ADDED";
-        final String eventProps = REPOSITORY + "lastModified,http://purl.org/dc/elements/1.1/title";
-        template.sendBodyAndHeaders("", createEvent(nodeID, eventTypes, eventProps, eventID));
+        template.sendBodyAndHeaders("",
+                createEvent(nodeID, asList(AS_NS + "Update"), asList(REPOSITORY + "Resource"), eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
@@ -138,12 +140,8 @@ public class ProcessorTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        final String eventTypes = REPOSITORY + "NODE_ADDED," + REPOSITORY + "PROPERTY_ADDED";
-        final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "primaryType," +
-                REPOSITORY + "lastModifiedBy," + REPOSITORY + "created," + REPOSITORY + "mixinTypes," +
-                REPOSITORY + "createdBy," + REPOSITORY + "hasContent," +
-                PREMIS + "hasSize," + PREMIS + "hasOriginalName," + REPOSITORY + "digest";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps, eventID));
+        template.sendBodyAndHeaders("",
+                createEvent(fileID, asList(AS_NS + "Create"), asList(REPOSITORY + "Binary"), eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
@@ -160,10 +158,8 @@ public class ProcessorTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        final String eventTypes = REPOSITORY + "PROPERTY_CHANGED";
-        final String eventProps = REPOSITORY + "lastModified," + REPOSITORY + "hasContent," +
-                PREMIS + "hasSize," + PREMIS + "hasOriginalName," + REPOSITORY + "digest";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps, eventID));
+        template.sendBodyAndHeaders("",
+                createEvent(fileID, asList(AS_NS + "Update"), asList(REPOSITORY + "Binary"), eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
@@ -180,9 +176,8 @@ public class ProcessorTest extends CamelTestSupport {
         resultEndpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded");
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
-        final String eventProps = REPOSITORY + "hasContent";
-        template.sendBodyAndHeaders("", createEvent(fileID, eventTypes, eventProps, eventID));
+        template.sendBodyAndHeaders("",
+                createEvent(fileID, asList(AS_NS + "Delete"), asList(REPOSITORY + "Binary"), eventID));
 
         assertMockEndpointsSatisfied();
         final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
@@ -192,18 +187,16 @@ public class ProcessorTest extends CamelTestSupport {
             body.contains("<" + eventURI + "> <" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
     }
 
-    private static Map<String,Object> createEvent(final String identifier, final String eventTypes,
-            final String eventProperties, final String eventID) {
+    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes,
+            final List<String> resourceTypes, final String eventID) {
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(JmsHeaders.BASE_URL, baseURL);
-        headers.put(JmsHeaders.IDENTIFIER, identifier);
-        headers.put(JmsHeaders.TIMESTAMP, timestamp);
-        headers.put(JmsHeaders.USER, userID);
-        headers.put(JmsHeaders.USER_AGENT, userAgent);
-        headers.put(JmsHeaders.EVENT_TYPE, eventTypes);
-        headers.put(JmsHeaders.PROPERTIES, eventProperties);
-        headers.put(JmsHeaders.EVENT_ID, eventID);
+        headers.put(FCREPO_URI, baseURL + identifier);
+        headers.put(FCREPO_DATE_TIME, eventDate);
+        headers.put(FCREPO_AGENT, asList(userID, userAgent));
+        headers.put(FCREPO_RESOURCE_TYPE, resourceTypes);
+        headers.put(FCREPO_EVENT_TYPE, eventTypes);
+        headers.put(FCREPO_EVENT_ID, eventID);
         return headers;
     }
 

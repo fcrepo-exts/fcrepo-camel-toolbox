@@ -70,7 +70,7 @@ public abstract class AbstractRouteTest extends CamelBlueprintTestSupport {
         props.put("serialization.binaries", "binary_file");
         // in here to clearly show that we won't include binaries by default
         props.put("serialization.includeBinaries", "false");
-        props.put("audit.container", auditContainer);
+        props.put("audit.container", baseURL + auditContainer);
 
         return props;
     }

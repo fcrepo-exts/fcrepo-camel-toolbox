@@ -17,12 +17,13 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.fcrepo.camel.processor.EventProcessor;
 
 /**
  * A content router for handling JMS events.
@@ -49,8 +50,9 @@ public class EventRouter extends RouteBuilder {
          */
         from("{{input.stream}}")
             .routeId("AuditFcrepoRouter")
-            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
-                           header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
+            .process(new EventProcessor())
+            .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
+                           header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
                 .to("direct:event");
 
         from("direct:event")

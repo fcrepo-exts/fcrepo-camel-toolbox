@@ -19,7 +19,7 @@
        <cm:property name="solr.reindex.stream" value="broker:queue:solr.reindex"/>
        <cm:property name="solr.baseUrl" value="http://localhost:8983/solr/collection1"/>
        <cm:property name="solr.commitWithin" value="10000"/>
-       <cm:property name="audit.container" value="/audit"/>
+       <cm:property name="audit.container" value="http://localhost:8080/fcrepo/rest/audit"/>
      </cm:default-properties>
    </cm:property-placeholder>
 

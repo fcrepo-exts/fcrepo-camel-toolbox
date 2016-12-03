@@ -100,8 +100,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.jena</groupId>
-      <artifactId>jena-fuseki</artifactId>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
     </dependency>
 
     <dependency>
@@ -213,7 +213,7 @@
             </systemProperty>
             <systemProperty>
               <name>fcrepo.modeshape.configuration</name>
-              <value>classpath:/config/minimal-default/repository.json</value>
+              <value>classpath:/config/file-simple/repository.json</value>
             </systemProperty>
           </systemProperties>
           <scanIntervalSeconds>10</scanIntervalSeconds>

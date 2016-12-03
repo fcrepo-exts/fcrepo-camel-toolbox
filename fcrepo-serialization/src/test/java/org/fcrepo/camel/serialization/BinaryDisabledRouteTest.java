@@ -17,18 +17,13 @@
  */
 package org.fcrepo.camel.serialization;
 
-import static org.fcrepo.camel.JmsHeaders.BASE_URL;
-import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
-import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 
 import org.junit.Test;
-import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.util.ObjectHelper;
-import org.apache.commons.io.IOUtils;
 
 /**
  * Test the route workflow (property 'includeBinaries' is false).
@@ -55,10 +50,7 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
         getMockEndpoint("mock:direct:delete").expectedMessageCount(0);
 
         // send a file!
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        final Map<String, Object> headers = ImmutableMap.of(BASE_URL, baseURL);
-
-        template.sendBodyAndHeaders(body, headers);
+        template.sendBodyAndHeader(loadResourceAsStream("event.json"), "org.fcrepo.jms.identifier", identifier);
 
         assertMockEndpointsSatisfied();
     }
@@ -78,14 +70,8 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
         getMockEndpoint("mock:direct:binary").expectedMessageCount(0);
         getMockEndpoint("mock:direct:delete").expectedMessageCount(1);
 
-        // send a file!
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        final Map<String, Object> headers = ImmutableMap.of(
-            BASE_URL, baseURL,
-            IDENTIFIER, identifier,
-            EVENT_TYPE, REPOSITORY + "NODE_REMOVED");
-
-        template.sendBodyAndHeaders(body, headers);
+        template.sendBodyAndHeader(loadResourceAsStream("event_delete_resource.json"),
+                "org.fcrepo.jms.identifier", identifier);
 
         assertMockEndpointsSatisfied();
     }
@@ -104,11 +90,7 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
         getMockEndpoint("mock:direct:metadata").expectedMessageCount(1);
         getMockEndpoint("mock:direct:binary").expectedMessageCount(1);
 
-        // send a file!
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        final Map<String, Object> headers = ImmutableMap.of(BASE_URL, baseURL);
-
-        template.sendBodyAndHeaders(body, headers);
+        template.sendBodyAndHeader(loadResourceAsStream("binary.rdf"), FCREPO_URI, baseURL);
 
         assertMockEndpointsSatisfied();
     }
@@ -129,10 +111,7 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
         resultEndpoint.expectedMessageCount(1);
 
         // send a file!
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8");
-        final Map<String, Object> headers = ImmutableMap.of(BASE_URL, baseURL);
-
-        template.sendBodyAndHeaders(body, headers);
+        template.sendBody(loadResourceAsStream("indexable.rdf"));
 
         assertMockEndpointsSatisfied();
     }
@@ -151,13 +130,7 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
         // this should be zero because writing binaries is disabled by default.
         getMockEndpoint("mock:file:binary_file").expectedMessageCount(0);
 
-        // send a file!
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("binary.rdf"), "UTF-8");
-        final Map<String, Object> headers = ImmutableMap.of(
-            BASE_URL, baseURL,
-            IDENTIFIER, "foo");
-
-        template.sendBodyAndHeaders(body, headers);
+        template.sendBodyAndHeader(loadResourceAsStream("binary.rdf"), FCREPO_IDENTIFIER, "/foo");
 
         assertMockEndpointsSatisfied();
     }

@@ -17,31 +17,38 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.camel.RdfNamespaces.RDF;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
-import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDdateTime;
-import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDstring;
-import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
-import static com.hp.hpl.jena.rdf.model.ResourceFactory.createProperty;
-import static com.hp.hpl.jena.rdf.model.ResourceFactory.createResource;
-import static com.hp.hpl.jena.rdf.model.ResourceFactory.createTypedLiteral;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static org.apache.jena.riot.RDFDataMgr.write;
+import static org.apache.jena.riot.RDFFormat.NTRIPLES;
+import static org.apache.jena.vocabulary.RDF.type;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_ID;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.apache.jena.datatypes.xsd.XSDDatatype.XSDdateTime;
+import static org.apache.jena.datatypes.xsd.XSDDatatype.XSDstring;
+import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
+import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
+import static org.apache.jena.rdf.model.ResourceFactory.createResource;
+import static org.apache.jena.rdf.model.ResourceFactory.createTypedLiteral;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.List;
+import java.util.Optional;
 
-import org.fcrepo.camel.JmsHeaders;
 import org.fcrepo.camel.processor.ProcessorUtils;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
 
 /**
  * A processor that converts an audit message into a sparql-update
@@ -60,6 +67,8 @@ public class AuditSparqlProcessor implements Processor {
     static final String XSD = "http://www.w3.org/2001/XMLSchema#";
     static final String EVENT_TYPE = "http://id.loc.gov/vocabulary/preservation/eventType/";
     static final String EVENT_NAMESPACE = "http://fedora.info/definitions/v4/event#";
+    static final String AS_NAMESPACE = "https://www.w3.org/ns/activitystreams#";
+    static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
 
     static final String CONTENT_MOD = AUDIT + "contentModification";
     static final String CONTENT_REM = AUDIT + "contentRemoval";
@@ -69,12 +78,6 @@ public class AuditSparqlProcessor implements Processor {
     static final String OBJECT_ADD = EVENT_TYPE + "cre";
     static final String OBJECT_REM = EVENT_TYPE + "del";
 
-    static final String HAS_CONTENT = REPOSITORY + "hasContent";
-
-    static final String NODE_ADDED = REPOSITORY + "NODE_ADDED";
-    static final String NODE_REMOVED = REPOSITORY + "NODE_REMOVED";
-    static final String PROPERTY_CHANGED = REPOSITORY + "PROPERTY_CHANGED";
-
     /**
      * Define how a message should be processed.
      *
@@ -83,12 +86,12 @@ public class AuditSparqlProcessor implements Processor {
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
         final String eventURIBase = in.getHeader(AuditHeaders.EVENT_BASE_URI, String.class);
-        final String eventID = in.getHeader(JmsHeaders.EVENT_ID, String.class);
+        final String eventID = in.getHeader(FCREPO_EVENT_ID, String.class);
         final Resource eventURI = createResource(eventURIBase + "/" + eventID);
 
         // generate SPARQL Update
         final StringBuilder query = new StringBuilder("update=");
-        query.append(ProcessorUtils.insertData(serializedGraphForMessage(in, eventURI), null));
+        query.append(ProcessorUtils.insertData(serializedGraphForMessage(in, eventURI), ""));
 
         // update exchange
         in.setBody(query.toString());
@@ -106,10 +109,8 @@ public class AuditSparqlProcessor implements Processor {
     private static final Property PREMIS_OBJ = createProperty(PREMIS + "hasEventRelatedObject");
     private static final Property PREMIS_AGENT = createProperty(PREMIS + "hasEventRelatedAgent");
     private static final Property PREMIS_TYPE = createProperty(PREMIS + "hasEventType");
-    private static final Property RDF_TYPE = createProperty(RDF + "type");
 
     private static final String EMPTY_STRING = "";
-    private static final String RESOURCE_TYPES = "org.fcrepo.jms.resourceType";
 
     /**
      * Convert a Camel message to audit event description.
@@ -123,32 +124,33 @@ public class AuditSparqlProcessor implements Processor {
         final Model model = createDefaultModel();
 
         // get info from jms message headers
-        final String eventType = message.getHeader(JmsHeaders.EVENT_TYPE, EMPTY_STRING, String.class);
-        final Long timestamp =  message.getHeader(JmsHeaders.TIMESTAMP, 0, Long.class);
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final String date = df.format(new Date(timestamp));
-        final String user = message.getHeader(JmsHeaders.USER, EMPTY_STRING, String.class);
-        final String agent = message.getHeader(JmsHeaders.USER_AGENT, EMPTY_STRING, String.class);
-        final String properties = message.getHeader(JmsHeaders.PROPERTIES, EMPTY_STRING, String.class);
-        final String resourceTypes = message.getHeader(RESOURCE_TYPES, EMPTY_STRING, String.class);
-        final String identifier = ProcessorUtils.getSubjectUri(message);
-        final String premisType = getAuditEventType(eventType, properties, resourceTypes);
+        @SuppressWarnings("unchecked")
+        final List<String> eventType = message.getHeader(FCREPO_EVENT_TYPE, emptyList(), List.class);
+        final String dateTime = message.getHeader(FCREPO_DATE_TIME, EMPTY_STRING, String.class);
+        @SuppressWarnings("unchecked")
+        final List<String> agents = message.getHeader(FCREPO_AGENT, emptyList(), List.class);
+        @SuppressWarnings("unchecked")
+        final List<String> resourceTypes = message.getHeader(FCREPO_RESOURCE_TYPE, emptyList(), List.class);
+        final String identifier = message.getHeader(FCREPO_URI, EMPTY_STRING, String.class);
+        final Optional<String> premisType = getAuditEventType(eventType, resourceTypes);
 
-        model.add( model.createStatement(subject, RDF_TYPE, INTERNAL_EVENT) );
-        model.add( model.createStatement(subject, RDF_TYPE, PREMIS_EVENT) );
-        model.add( model.createStatement(subject, RDF_TYPE, PROV_EVENT) );
+        model.add( model.createStatement(subject, type, INTERNAL_EVENT) );
+        model.add( model.createStatement(subject, type, PREMIS_EVENT) );
+        model.add( model.createStatement(subject, type, PROV_EVENT) );
 
         // basic event info
-        model.add( model.createStatement(subject, PREMIS_TIME, createTypedLiteral(date, XSDdateTime)) );
+        model.add( model.createStatement(subject, PREMIS_TIME, createTypedLiteral(dateTime, XSDdateTime)) );
         model.add( model.createStatement(subject, PREMIS_OBJ, createResource(identifier)) );
-        model.add( model.createStatement(subject, PREMIS_AGENT, createTypedLiteral(user, XSDstring)) );
-        model.add( model.createStatement(subject, PREMIS_AGENT, createTypedLiteral(agent, XSDstring)) );
-        if (premisType != null) {
-            model.add(model.createStatement(subject, PREMIS_TYPE, createResource(premisType)));
-        }
 
-        model.write(serializedGraph, "N-TRIPLE");
+        agents.forEach(agent -> {
+            model.add( model.createStatement(subject, PREMIS_AGENT, createTypedLiteral(agent, XSDstring)) );
+        });
+
+        premisType.ifPresent(rdfType -> {
+            model.add(model.createStatement(subject, PREMIS_TYPE, createResource(rdfType)));
+        });
+
+        write(serializedGraph, model, NTRIPLES);
         return serializedGraph.toString("UTF-8");
     }
 
@@ -159,36 +161,30 @@ public class AuditSparqlProcessor implements Processor {
      * @param properties associated with the Fedora event
      * @return Audit event
      */
-    private static String getAuditEventType(final String eventType, final String properties,
-            final String resourceType) {
+    private static Optional<String> getAuditEventType(final List<String> eventType, final List<String> resourceType) {
         // mapping event type/properties to audit event type
-        if (eventType.contains(NODE_ADDED) || eventType.contains(EVENT_NAMESPACE + "ResourceCreation")) {
-            if (properties != null && properties.contains(HAS_CONTENT)) {
-                return CONTENT_ADD;
-            } else if (resourceType != null && resourceType.contains(REPOSITORY + "Binary")) {
-                return CONTENT_ADD;
+        if (eventType.contains(EVENT_NAMESPACE + "ResourceCreation") || eventType.contains(AS_NAMESPACE + "Create")) {
+            if (resourceType.contains(REPOSITORY + "Binary")) {
+                return of(CONTENT_ADD);
             } else {
-                return OBJECT_ADD;
+                return of(OBJECT_ADD);
             }
-        } else if (eventType.contains(NODE_REMOVED) || eventType.contains(EVENT_NAMESPACE + "ResourceDeletion")) {
-            if (properties != null && properties.contains(HAS_CONTENT)) {
-                return CONTENT_REM;
-            } else if (resourceType != null && resourceType.contains(REPOSITORY + "Binary")) {
-                return CONTENT_REM;
+        } else if (eventType.contains(EVENT_NAMESPACE + "ResourceDeletion") ||
+                eventType.contains(AS_NAMESPACE + "Delete")) {
+            if (resourceType.contains(REPOSITORY + "Binary")) {
+                return of(CONTENT_REM);
             } else {
-                return OBJECT_REM;
+                return of(OBJECT_REM);
             }
-        } else if (eventType.contains(PROPERTY_CHANGED) ||
-                eventType.contains(EVENT_NAMESPACE + "ResourceModification")) {
-            if (properties != null && properties.contains(HAS_CONTENT)) {
-                return CONTENT_MOD;
-            } else if (resourceType != null && resourceType.contains(REPOSITORY + "Binary")) {
-                return CONTENT_MOD;
+        } else if (eventType.contains(EVENT_NAMESPACE + "ResourceModification") ||
+                eventType.contains(AS_NAMESPACE + "Update")) {
+            if (resourceType.contains(REPOSITORY + "Binary")) {
+                return of(CONTENT_MOD);
             } else {
-                return METADATA_MOD;
+                return of(METADATA_MOD);
             }
         }
-        return null;
+        return empty();
     }
 
 

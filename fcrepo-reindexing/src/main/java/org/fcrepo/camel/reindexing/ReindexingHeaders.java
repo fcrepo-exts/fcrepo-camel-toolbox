@@ -19,14 +19,15 @@ package org.fcrepo.camel.reindexing;
 
 /**
  * A class defining header values for the indexing routes
- * 
+ *
  * @author acoburn
  * @since May 22, 2015
  */
 public final class ReindexingHeaders {
-    public static final String REST_PORT = "CamelFcrepoReindexingRestPort";
-    public static final String REST_PREFIX = "CamelFcrepoReindexingRestPrefix";
-    public static final String RECIPIENTS = "CamelFcrepoReindexingRecipients";
+    public static final String REINDEXING_PORT = "CamelReindexingPort";
+    public static final String REINDEXING_PREFIX = "CamelReindexingPrefix";
+    public static final String REINDEXING_RECIPIENTS = "CamelReindexingRecipients";
+    public static final String REINDEXING_HOST = "CamelReindexingHost";
 
     private ReindexingHeaders() {
         // prevent instantiation

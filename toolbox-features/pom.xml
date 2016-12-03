@@ -239,7 +239,7 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <forkCount>3</forkCount>
-          <reuseForks>true</reuseForks>
+          <reuseForks>false</reuseForks>
           <argLine>-Xmx1024m</argLine>
           <systemPropertyVariables>
             <fcrepo.dynamic.reindexing.port>${fcrepo.dynamic.reindexing.port}</fcrepo.dynamic.reindexing.port>
@@ -288,8 +288,12 @@
               <value>${fcrepo.dynamic.stomp.port}</value>
             </systemProperty>
             <systemProperty>
+              <name>fcrepo.dynamic.test.port</name>
+              <value>${fcrepo.dynamic.test.port}</value>
+            </systemProperty>
+            <systemProperty>
               <name>fcrepo.modeshape.configuration</name>
-              <value>classpath:/config/minimal-default/repository.json</value>
+              <value>classpath:/config/file-simple/repository.json</value>
             </systemProperty>
           </systemProperties>
           <scanIntervalSeconds>10</scanIntervalSeconds>
