@@ -23,9 +23,7 @@ import static org.apache.camel.Exchange.HTTP_QUERY;
 import static org.apache.camel.Exchange.HTTP_URI;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -78,8 +76,6 @@ public class SolrRouter extends RouteBuilder {
         from("{{input.stream}}")
             .routeId("FcrepoSolrRouter")
             .process(new EventProcessor())
-            // this is a hard dependency on the JMS module and should be re-worked
-            .setHeader(FCREPO_BASE_URL).header("org.fcrepo.jms.baseUrl")
             .choice()
                 .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
                             header(FCREPO_EVENT_TYPE).contains(DELETE)))
@@ -102,11 +98,6 @@ public class SolrRouter extends RouteBuilder {
             .removeHeaders("CamelHttp*")
             .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
                     header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
-            .process(exchange -> {
-                final String baseUrl = exchange.getIn().getHeader(FCREPO_BASE_URL, "", String.class);
-                final String uri = exchange.getIn().getHeader(FCREPO_URI, "", String.class);
-                exchange.getIn().setHeader(FCREPO_IDENTIFIER, uri.replaceAll(baseUrl, ""));
-            })
             .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
             .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
             .choice()
@@ -139,7 +130,8 @@ public class SolrRouter extends RouteBuilder {
 
         from("direct:transform.ldpath").routeId("FcrepoSolrTransform")
             .removeHeaders("CamelHttp*")
-            .setHeader(HTTP_URI).simple("{{ldpath.service.baseUrl}}${header.CamelFcrepoIdentifier}")
+            .setHeader(HTTP_URI).simple("{{ldpath.service.baseUrl}}")
+            .setHeader(HTTP_QUERY).simple("context=${headers.CamelFcrepoUri}")
             .to("http4://localhost/ldpath");
 
         /*

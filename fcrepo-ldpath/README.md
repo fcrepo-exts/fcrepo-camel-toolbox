@@ -14,15 +14,16 @@ Note: The LDPath service requires an LDCache backend, such as `fcrepo-service-ld
 
 ## Usage
 
-The LDPath service responds to `GET` and `POST` requests at URL locations that map to Fedora resources.
+The LDPath service responds to `GET` and `POST` requests using any accessible resources as a context.
 
-For example, if the `fcrepo.baseUrl` is set as `http://localhost:8080/fcrepo/rest`, then a request to
-`http://localhost:9086/ldpath/path/to/fedora/object` will be applied to the Fedora resource at
-`http://localhost:8080/fcrepo/rest/path/to/fedora/object`.
+For example, a request to
+`http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object`
+will apply the appropriate ldpath program to the specified resource. Note: it is possible to
+identify non-Fedora resources in the context parameter.
 
 A `GET` request can include a `ldpath` parameter, pointing to the URL location of an LDPath program:
 
-    `curl http://localhost:9086/ldpath/path/to/fedora/object?ldpath=http://example.org/ldpath`
+    `curl http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object?ldpath=http://example.org/ldpath`
 
 Otherwise, it will use a simple default ldpath program.
 
@@ -30,8 +31,7 @@ A `POST` request can also be accepted by this endpoint. The body of a `POST` req
 the entire `LDPath` program. The `Content-Type` of the request should be either `text/plain` or
 `application/ldpath`.
 
-    `curl -XPOST -H"Content-Type: application/ldpath" -d @program.txt http://localhost:9086/ldpath/path/to/fedora/object
-
+    `curl -XPOST -H"Content-Type: application/ldpath" -d @program.txt http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object
 
 
 ## Building

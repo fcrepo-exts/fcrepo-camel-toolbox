@@ -11,7 +11,6 @@
   <cm:property-placeholder id="properties" persistent-id="org.fcrepo.camel.serialization" update-strategy="reload">
     <cm:default-properties>
         <cm:property name="error.maxRedeliveries" value="10"/>
-        <cm:property name="fcrepo.baseUrl" value="localhost:8080/fcrepo/rest"/>
         <cm:property name="input.stream" value="broker:topic:fedora"/>
         <cm:property name="serialization.stream" value="broker:queue:serialization"/>
         <cm:property name="serialization.descriptions" value="/tmp/descriptions"/>

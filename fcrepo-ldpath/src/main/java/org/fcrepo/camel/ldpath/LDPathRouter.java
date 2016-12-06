@@ -18,9 +18,11 @@
 package org.fcrepo.camel.ldpath;
 
 import static org.apache.camel.builder.PredicateBuilder.and;
+import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.model.dataformat.JsonLibrary.Jackson;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.apache.camel.Exchange.HTTP_RESPONSE_CODE;
 import static org.apache.camel.Exchange.HTTP_URI;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -37,8 +39,6 @@ public class LDPathRouter extends RouteBuilder {
 
     private static final Logger LOGGER = getLogger(LDPathRouter.class);
 
-    public static final String FEDORA_URI = "CamelFedoraUri";
-
     /**
      * Configure the message route workflow.
      */
@@ -47,14 +47,17 @@ public class LDPathRouter extends RouteBuilder {
         /**
          * Expose a RESTful endpoint for LDPath processing
          */
-        from("jetty:http://{{rest.host}}:{{rest.port}}{{rest.prefix}}" +
-                "?matchOnUriPrefix=true" +
+        from("jetty:http://{{rest.host}}:{{rest.port}}{{rest.prefix}}?" +
                 "&httpMethodRestrict=GET,POST,OPTIONS" +
                 "&sendServerVersion=false")
             .routeId("FcrepoLDPathRest")
             .routeDescription("Expose the ldpath endpoint over HTTP")
-            .setHeader(FEDORA_URI).simple("{{fcrepo.baseUrl}}${headers.CamelHttpPath}")
             .choice()
+                // make sure the required context parameter is present
+                .when(not(and(header("context").isNotNull(), header("context").regex("^https?://.+"))))
+                    .setHeader(HTTP_RESPONSE_CODE).constant(400)
+                    .setHeader(CONTENT_TYPE).constant("text/plain")
+                    .transform(constant("Missing context paramter"))
                 .when(header(HTTP_METHOD).isEqualTo("GET"))
                     .to("direct:get")
                 .when(header(HTTP_METHOD).isEqualTo("POST"))

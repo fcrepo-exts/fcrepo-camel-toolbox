@@ -50,7 +50,7 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
         getMockEndpoint("mock:direct:delete").expectedMessageCount(0);
 
         // send a file!
-        template.sendBodyAndHeader(loadResourceAsStream("event.json"), "org.fcrepo.jms.identifier", identifier);
+        template.sendBody(loadResourceAsStream("event.json"));
 
         assertMockEndpointsSatisfied();
     }
@@ -70,8 +70,7 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
         getMockEndpoint("mock:direct:binary").expectedMessageCount(0);
         getMockEndpoint("mock:direct:delete").expectedMessageCount(1);
 
-        template.sendBodyAndHeader(loadResourceAsStream("event_delete_resource.json"),
-                "org.fcrepo.jms.identifier", identifier);
+        template.sendBody(loadResourceAsStream("event_delete_resource.json"));
 
         assertMockEndpointsSatisfied();
     }

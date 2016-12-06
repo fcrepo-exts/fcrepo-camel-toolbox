@@ -25,8 +25,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.File;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.camel.EndpointInject;
@@ -93,7 +91,6 @@ public class RouteIT extends CamelBlueprintTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final Properties props = new Properties();
-        props.put("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
         props.put("serialization.descriptions", "target/serialization/descriptions");
         props.put("serialization.binaries", "target/serialization/binaries");
         props.put("serialization.stream", "direct:foo");
@@ -104,8 +101,8 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Test
     public void testAddedEventRouter() throws Exception {
-        final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
-        final String fcrepoEndpoint = "mock:fcrepo:http://localhost:" + FCREPO_PORT + "/fcrepo/rest";
+        final String path = fullPath.replaceFirst("http://localhost:[0-9]+", "");
+        final String fcrepoEndpoint = "mock:fcrepo:localhost";
 
         context.getRouteDefinition("FcrepoSerialization").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -130,9 +127,6 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
         context.start();
 
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put("org.fcrepo.jms.identifier", path);
-
         getMockEndpoint("mock://direct:metadata").expectedMessageCount(1);
         getMockEndpoint("mock://direct:binary").expectedMessageCount(1);
         // Binary request should not go through, so only 1 message to the fcrepoEndpoint
@@ -144,8 +138,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
         final String event = IOUtils.toString(loadResourceAsStream("event.json"), "UTF-8");
         event.replaceAll("http://localhost/rest/path/to/resource", fullPath);
 
-        template.sendBodyAndHeaders("direct:start",
-                event.replaceAll("http://localhost/rest/path/to/resource", fullPath), headers);
+        template.sendBody("direct:start", event.replaceAll("http://localhost/rest/path/to/resource", fullPath));
 
         await().until(() -> f.exists());
 

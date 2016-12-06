@@ -20,6 +20,7 @@ package org.fcrepo.camel.service.activemq;
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.impl.client.HttpClientBuilder.create;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -109,6 +110,8 @@ public class KarafIT {
                         "camel-blueprint", "camel-http4", "camel-jms"),
             features(maven().groupId("org.apache.activemq").artifactId("activemq-karaf")
                         .type("xml").classifier("features").versionAsInProject(), "activemq-camel"),
+            features(maven().groupId("org.fcrepo.camel").artifactId("fcrepo-camel")
+                        .type("xml").classifier("features").versionAsInProject(), "fcrepo-camel"),
 
             CoreOptions.systemProperty("fcrepo.port").value(fcrepoPort),
             CoreOptions.systemProperty("jms.port").value(jmsPort),
@@ -154,12 +157,11 @@ public class KarafIT {
         final MockEndpoint resultEndpoint = (MockEndpoint) ctx.getEndpoint("mock:result");
         resultEndpoint.reset();
 
-        final String url1 = post(baseUrl).replace(baseUrl, "");
-        final String url2 = post(baseUrl).replace(baseUrl, "");
-        final HttpPost post = new HttpPost(baseUrl);
+        final String url1 = post(baseUrl);
+        final String url2 = post(baseUrl);
 
         resultEndpoint.expectedMessageCount(4);
-        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("org.fcrepo.jms.identifier", url1, url2, "", "");
+        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(FCREPO_URI, url1, url2, baseUrl, baseUrl);
         assertIsSatisfied(resultEndpoint);
     }
 
