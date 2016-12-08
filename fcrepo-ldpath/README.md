@@ -23,7 +23,7 @@ identify non-Fedora resources in the context parameter.
 
 A `GET` request can include a `ldpath` parameter, pointing to the URL location of an LDPath program:
 
-    `curl http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object?ldpath=http://example.org/ldpath`
+    `curl http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object&ldpath=http://example.org/ldpath`
 
 Otherwise, it will use a simple default ldpath program.
 

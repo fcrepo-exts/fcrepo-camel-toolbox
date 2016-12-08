@@ -57,7 +57,7 @@ public class LDPathRouter extends RouteBuilder {
                 .when(not(and(header("context").isNotNull(), header("context").regex("^https?://.+"))))
                     .setHeader(HTTP_RESPONSE_CODE).constant(400)
                     .setHeader(CONTENT_TYPE).constant("text/plain")
-                    .transform(constant("Missing context paramter"))
+                    .transform(constant("Missing context parameter"))
                 .when(header(HTTP_METHOD).isEqualTo("GET"))
                     .to("direct:get")
                 .when(header(HTTP_METHOD).isEqualTo("POST"))
