@@ -18,8 +18,8 @@
 package org.fcrepo.camel.serialization;
 
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.serialization.SerializationRouter.SERIALIZATION_PATH;
 
 import org.junit.Test;
 
@@ -129,7 +129,7 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
         // this should be zero because writing binaries is disabled by default.
         getMockEndpoint("mock:file:binary_file").expectedMessageCount(0);
 
-        template.sendBodyAndHeader(loadResourceAsStream("binary.rdf"), FCREPO_IDENTIFIER, "/foo");
+        template.sendBodyAndHeader(loadResourceAsStream("binary.rdf"), SERIALIZATION_PATH, "/foo");
 
         assertMockEndpointsSatisfied();
     }

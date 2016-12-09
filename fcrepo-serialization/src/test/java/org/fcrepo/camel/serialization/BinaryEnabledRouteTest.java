@@ -19,7 +19,7 @@ package org.fcrepo.camel.serialization;
 
 import static org.apache.camel.Exchange.FILE_NAME;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
+import static org.fcrepo.camel.serialization.SerializationRouter.SERIALIZATION_PATH;
 
 import org.junit.Test;
 import java.util.Properties;
@@ -69,7 +69,7 @@ public class BinaryEnabledRouteTest extends AbstractRouteTest {
         // send a file!
         final String body = IOUtils.toString(loadResourceAsStream("binary.rdf"), "UTF-8");
 
-        template.sendBodyAndHeader(body, FCREPO_IDENTIFIER, "/foo");
+        template.sendBodyAndHeader(body, SERIALIZATION_PATH, "/foo");
 
         assertMockEndpointsSatisfied();
     }
