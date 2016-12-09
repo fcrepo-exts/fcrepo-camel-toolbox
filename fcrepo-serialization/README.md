@@ -60,10 +60,11 @@ The file extension that will be used for the metadata files.
 
     serialization.extension=ttl
 
-The location of the internal Audit trail if using the `fcrepo-audit` extension module.
-Nodes at this location will not be serialized.
+A comma-delimited list of URIs to filter. That is, any Fedora resource that either
+matches or is contained in one of the URIs listed will not be processed by the
+fcrepo-serialization application.
 
-    audit.container=http://localhost:8080/fcrepo/rest/audit
+    filter.containers=http://localhost:8080/fcrepo/rest/audit
 
 By editing this file, any currently running routes will be immediately redeployed
 with the new values.

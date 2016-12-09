@@ -46,7 +46,7 @@ public class BinaryEnabledRouteTest extends AbstractRouteTest {
         props.put("serialization.descriptions", "metadata_file");
         props.put("serialization.binaries", "binary_file");
         props.put("serialization.includeBinaries", "true");
-        props.put("audit.container", baseURL + auditContainer);
+        props.put("filter.containers", baseURL + auditContainer);
 
         return props;
     }

@@ -96,7 +96,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
          final Properties props = new Properties();
          props.put("indexing.predicate", "true");
-         props.put("audit.container", baseURL + auditContainer);
+         props.put("filter.containers", baseURL + auditContainer);
          props.put("input.stream", "seda:foo");
          props.put("reindex.stream", "seda:bar");
          props.put("error.maxRedeliveries", "10");

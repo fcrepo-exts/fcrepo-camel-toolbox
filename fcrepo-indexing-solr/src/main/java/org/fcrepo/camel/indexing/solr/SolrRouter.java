@@ -17,10 +17,14 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
+import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.HTTP_QUERY;
 import static org.apache.camel.Exchange.HTTP_URI;
+import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
@@ -28,7 +32,10 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.List;
+
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.fcrepo.camel.processor.EventProcessor;
@@ -61,6 +68,7 @@ public class SolrRouter extends RouteBuilder {
         final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
         ns.add("ldp", "http://www.w3.org/ns/ldp#");
+
 
         /*
          * A generic error handler (specific to this RouteBuilder)
@@ -96,8 +104,7 @@ public class SolrRouter extends RouteBuilder {
         from("direct:index.solr")
             .routeId("FcrepoSolrIndexer")
             .removeHeaders("CamelHttp*")
-            .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
-                    header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
+            .filter(not(in(getUriFilter())))
             .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
             .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
             .choice()
@@ -166,5 +173,18 @@ public class SolrRouter extends RouteBuilder {
             .setHeader(HTTP_METHOD).constant("POST")
             .setHeader(HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
             .to("{{solr.baseUrl}}/update?useSystemProperties=true");
+    }
+
+    private List<Predicate> getUriFilter() {
+        try {
+            return stream(getContext().resolvePropertyPlaceholders("{{filter.containers}}").split("\\s*,\\s*"))
+                    .map(uri -> or(
+                            header(FCREPO_URI).startsWith(constant(uri + "/")),
+                            header(FCREPO_URI).isEqualTo(constant(uri))))
+                    .collect(toList());
+        } catch (final Exception ex) {
+            logger.debug("No filter containers were defined");
+            return emptyList();
+        }
     }
 }

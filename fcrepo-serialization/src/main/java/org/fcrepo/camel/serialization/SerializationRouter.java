@@ -18,15 +18,22 @@
 package org.fcrepo.camel.serialization;
 
 import static java.net.URI.create;
+import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 import static org.apache.camel.LoggingLevel.INFO;
 import static org.apache.camel.LoggingLevel.DEBUG;
 import static org.apache.camel.Exchange.FILE_NAME;
+import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.apache.camel.component.exec.ExecBinding.EXEC_COMMAND_ARGS;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 
+import java.util.List;
+
+import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.fcrepo.camel.processor.EventProcessor;
@@ -53,6 +60,8 @@ public class SerializationRouter extends RouteBuilder {
         "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource=\"" + REPOSITORY + "Binary\"]";
 
     public static final String SERIALIZATION_PATH = "CamelSerializationPath";
+
+    public final List<Predicate> uriFilter = getUriFilter();
 
     /**
      * Configure the message route workflow
@@ -81,9 +90,7 @@ public class SerializationRouter extends RouteBuilder {
                 final String uri = exchange.getIn().getHeader(FCREPO_URI, "", String.class);
                 exchange.getIn().setHeader(SERIALIZATION_PATH, create(uri).getPath());
             })
-
-            .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
-                    header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
+            .filter(not(in(uriFilter)))
             .choice()
                 .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
                             header(FCREPO_EVENT_TYPE).contains(DELETE)))
@@ -93,8 +100,7 @@ public class SerializationRouter extends RouteBuilder {
 
         from("{{serialization.stream}}")
             .routeId("FcrepoReSerialization")
-            .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
-                    header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
+            .filter(not(in(uriFilter)))
             .process(exchange -> {
                 final String uri = exchange.getIn().getHeader(FCREPO_URI, "", String.class);
                 exchange.getIn().setHeader(SERIALIZATION_PATH, create(uri).getPath());
@@ -128,5 +134,18 @@ public class SerializationRouter extends RouteBuilder {
                 "{{serialization.descriptions}}${headers[CamelSerializationPath]} " +
                 "{{serialization.binaries}}${headers[CamelSerializationPath]}")
             .to("exec:rm");
+    }
+
+    private List<Predicate> getUriFilter() {
+        try {
+            return stream(getContext().resolvePropertyPlaceholders("{{filter.containers}}").split("\\s*,\\s*"))
+                    .map(uri -> or(
+                            header(FCREPO_URI).startsWith(constant(uri + "/")),
+                            header(FCREPO_URI).isEqualTo(constant(uri))))
+                    .collect(toList());
+        } catch (final Exception ex) {
+            LOGGER.debug("No filter containers were defined");
+            return emptyList();
+        }
     }
 }

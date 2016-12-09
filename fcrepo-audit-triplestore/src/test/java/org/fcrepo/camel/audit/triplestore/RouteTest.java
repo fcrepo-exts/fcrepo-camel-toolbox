@@ -63,7 +63,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
          final Properties props = new Properties();
-         props.put("audit.container", baseURL + auditContainer);
+         props.put("filter.containers", baseURL + auditContainer);
          props.put("input.stream", "seda:foo");
          return props;
     }

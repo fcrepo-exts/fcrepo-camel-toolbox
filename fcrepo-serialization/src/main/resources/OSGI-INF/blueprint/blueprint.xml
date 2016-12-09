@@ -18,7 +18,7 @@
         <cm:property name="serialization.includeBinaries" value="false"/>
         <cm:property name="serialization.mimeType" value="text/turtle"/>
         <cm:property name="serialization.extension" value="ttl"/>
-        <cm:property name="audit.container" value="http://localhost:8080/fcrepo/rest/audit"/>
+        <cm:property name="filter.containers" value="http://localhost:8080/fcrepo/rest/audit"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
