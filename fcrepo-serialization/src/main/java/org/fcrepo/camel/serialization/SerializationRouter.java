@@ -17,15 +17,14 @@
  */
 package org.fcrepo.camel.serialization;
 
+import static java.net.URI.create;
 import static org.apache.camel.LoggingLevel.INFO;
 import static org.apache.camel.LoggingLevel.DEBUG;
 import static org.apache.camel.Exchange.FILE_NAME;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.apache.camel.component.exec.ExecBinding.EXEC_COMMAND_ARGS;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 
 import org.apache.camel.builder.RouteBuilder;
@@ -52,6 +51,9 @@ public class SerializationRouter extends RouteBuilder {
 
     private static final String isBinaryResourceXPath =
         "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource=\"" + REPOSITORY + "Binary\"]";
+
+    public static final String SERIALIZATION_PATH = "CamelSerializationPath";
+
     /**
      * Configure the message route workflow
      *
@@ -75,8 +77,11 @@ public class SerializationRouter extends RouteBuilder {
         from("{{input.stream}}")
             .routeId("FcrepoSerialization")
             .process(new EventProcessor())
-            // this is a hard dependency on the jms module and should be reworked
-            .setHeader(FCREPO_IDENTIFIER).header("org.fcrepo.jms.identifier")
+            .process(exchange -> {
+                final String uri = exchange.getIn().getHeader(FCREPO_URI, "", String.class);
+                exchange.getIn().setHeader(SERIALIZATION_PATH, create(uri).getPath());
+            })
+
             .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
                     header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
             .choice()
@@ -91,40 +96,37 @@ public class SerializationRouter extends RouteBuilder {
             .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
                     header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
             .process(exchange -> {
-                final String baseUrl = exchange.getIn().getHeader(FCREPO_BASE_URL, "", String.class);
                 final String uri = exchange.getIn().getHeader(FCREPO_URI, "", String.class);
-                exchange.getIn().setHeader(FCREPO_IDENTIFIER, uri.replaceAll(baseUrl, ""));
+                exchange.getIn().setHeader(SERIALIZATION_PATH, create(uri).getPath());
             })
             .multicast().to("direct:metadata", "direct:binary");
 
         from("direct:metadata")
             .routeId("FcrepoSerializationMetadataUpdater")
-            .to("fcrepo:{{fcrepo.baseUrl}}?accept={{serialization.mimeType}}")
-            .log(INFO, LOGGER,
-                    "Serializing object ${headers[CamelFcrepoIdentifier]}")
-            .setHeader(FILE_NAME)
-                .simple("${headers[CamelFcrepoIdentifier]}.{{serialization.extension}}")
+            .to("fcrepo:localhost?accept={{serialization.mimeType}}")
+            .log(INFO, LOGGER, "Serializing object ${headers[CamelFcrepoUri]}")
+            .setHeader(FILE_NAME).simple("${headers[CamelSerializationPath]}.{{serialization.extension}}")
             .log(DEBUG, LOGGER, "filename is ${headers[CamelFileName]}")
             .to("file://{{serialization.descriptions}}");
 
         from("direct:binary")
             .routeId("FcrepoSerializationBinaryUpdater")
             .filter().simple("{{serialization.includeBinaries}} == 'true'")
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer" +
+            .to("fcrepo:localhost?preferInclude=PreferMinimalContainer" +
                     "&accept=application/rdf+xml")
             .filter().xpath(isBinaryResourceXPath, ns)
-            .log(INFO, LOGGER, "Writing binary ${headers[CamelFcrepoIdentifier]}")
-            .to("fcrepo:{{fcrepo.baseUrl}}?metadata=false")
-            .setHeader(FILE_NAME).header(FCREPO_IDENTIFIER)
+            .log(INFO, LOGGER, "Writing binary ${headers[CamelSerializationPath]}")
+            .to("fcrepo:localhost?metadata=false")
+            .setHeader(FILE_NAME).header(SERIALIZATION_PATH)
             .log(DEBUG, LOGGER, "header filename is: ${headers[CamelFileName]}")
             .to("file://{{serialization.binaries}}");
 
         from("direct:delete")
             .routeId("FcrepoSerializationDeleter")
             .setHeader(EXEC_COMMAND_ARGS).simple(
-                    "-rf {{serialization.descriptions}}${headers[CamelFcrepoIdentifier]}.{{serialization.extension}} " +
-                    "{{serialization.descriptions}}${headers[CamelFcrepoIdentifier]} " +
-                    "{{serialization.binaries}}${headers[CamelFcrepoIdentifier]}")
+                "-rf {{serialization.descriptions}}${headers[CamelSerializationPath]}.{{serialization.extension}} " +
+                "{{serialization.descriptions}}${headers[CamelSerializationPath]} " +
+                "{{serialization.binaries}}${headers[CamelSerializationPath]}")
             .to("exec:rm");
     }
 }

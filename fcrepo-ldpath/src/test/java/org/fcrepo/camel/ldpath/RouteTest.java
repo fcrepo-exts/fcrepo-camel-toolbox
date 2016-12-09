@@ -21,7 +21,6 @@ import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_URI;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.fcrepo.camel.ldpath.LDPathRouter.FEDORA_URI;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -116,7 +115,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         });
         context.start();
 
-        template.sendBodyAndHeader("direct:get", null, FEDORA_URI, uri);
+        template.sendBodyAndHeader("direct:get", null, "context", uri);
 
         assertMockEndpointsSatisfied();
         final String result = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
@@ -152,7 +151,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         final Map<String, Object> headers = new HashMap<>();
         headers.put("ldpath", "http://example.org/ldpath");
-        headers.put(FEDORA_URI, uri);
+        headers.put("context", uri);
         template.sendBodyAndHeaders("direct:get", loadResourceAsStream("test.ldpath"), headers);
 
         assertMockEndpointsSatisfied();
@@ -183,7 +182,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
         });
         context.start();
 
-        template.sendBodyAndHeader("direct:ldpathPrepare", loadResourceAsStream("test.ldpath"), FEDORA_URI, uri);
+        template.sendBodyAndHeader("direct:ldpathPrepare", loadResourceAsStream("test.ldpath"), "context", uri);
 
         assertMockEndpointsSatisfied();
         final String result = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);

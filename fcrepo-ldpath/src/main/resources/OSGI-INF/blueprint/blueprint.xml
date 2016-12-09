@@ -78,7 +78,7 @@
     <route id="FcrepoLDPath">
       <from uri="direct:ldpath"/>
       <setBody>
-        <method ref="ldpath" method="programQuery(${headers.CamelFedoraUri}, ${body})"/>
+        <method ref="ldpath" method="programQuery(${headers.context}, ${body})"/>
       </setBody>
     </route>
 

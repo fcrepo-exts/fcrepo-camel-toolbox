@@ -18,6 +18,7 @@
 package org.fcrepo.camel.service.activemq;
 
 import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -78,11 +79,11 @@ public class RouteIT extends CamelBlueprintTestSupport {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
 
         final String baseUrl = "http://localhost:" + webPort + "/fcrepo/rest";
-        final String url1 = post(baseUrl).replace(baseUrl, "");
-        final String url2 = post(baseUrl).replace(baseUrl, "");
+        final String url1 = post(baseUrl);
+        final String url2 = post(baseUrl);
 
         resultEndpoint.expectedMessageCount(4);
-        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("org.fcrepo.jms.identifier", url1, url2, "", "");
+        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(FCREPO_URI, url1, url2, baseUrl, baseUrl);
 
         assertMockEndpointsSatisfied();
     }

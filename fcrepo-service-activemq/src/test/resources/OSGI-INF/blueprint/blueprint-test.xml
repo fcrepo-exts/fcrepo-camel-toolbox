@@ -7,9 +7,12 @@
 
   <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Broker)"/>
 
+  <bean id="fcrepoEvent" class="org.fcrepo.camel.processor.EventProcessor"/>
+
   <camelContext id="FcrepoQueuingService" xmlns="http://camel.apache.org/schema/blueprint">
     <route id="testRoute">
       <from uri="broker:topic:fedora"/>
+      <process ref="fcrepoEvent"/>
       <to uri="mock:result"/>
     </route>
   </camelContext>
