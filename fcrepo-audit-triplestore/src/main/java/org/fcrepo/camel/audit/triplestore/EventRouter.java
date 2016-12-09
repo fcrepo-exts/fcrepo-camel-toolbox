@@ -17,13 +17,22 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
+import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.util.List;
 
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
 import org.fcrepo.camel.processor.EventProcessor;
+import org.slf4j.Logger;
 
 /**
  * A content router for handling JMS events.
@@ -32,6 +41,8 @@ import org.fcrepo.camel.processor.EventProcessor;
  * @author escowles
  */
 public class EventRouter extends RouteBuilder {
+
+    private static final Logger LOGGER = getLogger(EventRouter.class);
 
     /**
      * Configure the message route workflow.
@@ -51,8 +62,7 @@ public class EventRouter extends RouteBuilder {
         from("{{input.stream}}")
             .routeId("AuditFcrepoRouter")
             .process(new EventProcessor())
-            .filter(not(or(header(FCREPO_URI).startsWith(simple("{{audit.container}}/")),
-                           header(FCREPO_URI).isEqualTo(simple("{{audit.container}}")))))
+            .filter(not(in(getUriFilter())))
                 .to("direct:event");
 
         from("direct:event")
@@ -62,5 +72,18 @@ public class EventRouter extends RouteBuilder {
             .log(LoggingLevel.INFO, "org.fcrepo.camel.audit",
                     "Audit Event: ${headers.CamelFcrepoUri} :: ${headers[CamelAuditEventUri]}")
             .to("{{triplestore.baseUrl}}?useSystemProperties=true");
+    }
+
+    private List<Predicate> getUriFilter() {
+        try {
+            return stream(getContext().resolvePropertyPlaceholders("{{filter.containers}}").split("\\s*,\\s*"))
+                    .map(uri -> or(
+                            header(FCREPO_URI).startsWith(constant(uri + "/")),
+                            header(FCREPO_URI).isEqualTo(constant(uri))))
+                    .collect(toList());
+        } catch (final Exception ex) {
+            LOGGER.debug("No filter containers were defined");
+            return emptyList();
+        }
     }
 }
