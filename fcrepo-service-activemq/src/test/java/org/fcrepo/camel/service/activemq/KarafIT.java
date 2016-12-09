@@ -119,6 +119,8 @@ public class KarafIT {
 
             editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.brokerUrl",
                     "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.ops4j.pax.logging.cfg",
+                    "log4j.logger.org.apache.camel.impl.converter", "ERROR, stdout"),
 
             bundle(fcrepoServiceBundle).start(),
             streamBundle(

@@ -146,7 +146,9 @@ public class KarafIT {
             editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "rest.port", reindexingPort),
             editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.brokerUrl",
-                    "tcp://localhost:" + jmsPort)
+                    "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.ops4j.pax.logging.cfg",
+                    "log4j.logger.org.apache.camel.impl.converter", "ERROR, stdout")
        };
     }
 
