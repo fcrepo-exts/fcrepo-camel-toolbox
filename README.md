@@ -95,10 +95,71 @@ To build these projects use this command
 
 ## OSGi deployment (Karaf 4.x)
 
-These applications are distributed as OSGi features, meaning they can be installed
-directly from the karaf console. First, add the `toolbox-features` repository:
+These applications are distributed as OSGi features, making it easy to deploy these
+applications in a Karaf container. There are several ways to install these features, and
+it may be useful to refer to the Karaf documentation related to
+[provisioning](https://karaf.apache.org/manual/latest/#_provisioning).
 
-    $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/LATEST/xml/features
+### Production deployment
+
+For production use, it is recommended to make use of Karaf's [boot features](https://karaf.apache.org/manual/latest/#_boot_features).
+This involves editing the `$KARAF_HOME/etc/org.apache.karaf.features.cfg` configuration file. The two relevant
+configuration options are:
+
+  * `featuresRepositories`, which contains a comma-separated list of features repository URLs.
+  * `featuresBoot`, which contains a comma-separated list of feature names.
+
+To install `fcrepo-camel-toolbox/4.6.2`, one would add the following:
+
+      featuresRepositories = \
+          ..., \
+          mvn:org.fcrepo.camel/toolbox-features/4.6.2/xml/features
+
+To install version 4.7.0 of the `fcrepo-camel-toolbox`, one will also need to specify the version of Camel and ActiveMQ like so:
+
+      featuresRepositories = \
+          ..., \
+          mvn:org.apache.activemq/activemq-karaf/5.14.0/xml/features, \
+          mvn:org.apache.camel.karaf/apache-camel/2.18.0/xml/features, \
+          mvn:org.fcrepo.camel/toolbox-features/4.7.0/xml/features
+
+Users are not resticted to particular versions of Camel and ActiveMQ, so long as Camel is
+at least version 2.18.0 and ActiveMQ is at least version 5.14.0.
+
+In order to add particular features into a Karaf container at boot time, the `featuresBoot`
+configuration value should be edited to include the desired features. For instance, to install
+`fcrepo-indexing-triplestore`, one would add the following to `featuresBoot`:
+
+    featuresBoot = \
+        ..., \
+        fcrepo-service-activemq, \
+        fcrepo-service-camel, \
+        fcrepo-indexing-triplestore
+
+For most features, it is necessary to explicitly specify the `fcrepo-service-activemq` feature.
+
+With this configuration in place, it is possible to upgrade the version of `fcrepo-camel-toolbox` by
+simply shutting down Karaf, deleting the `$KARAF_HOME/data` directory, updating the version number(s)
+in the `featuresRepositories` configuration and restarting Karaf. The updated features
+will automatically re-deploy in a fresh Karaf environment.
+
+**Note**: When installing a fcrepo-camel-toolbox feature repository, it is recommended to use a released version
+rather than specifying `LATEST`. The latest released version can be found by inspecting the Maven Central badge at
+top of this README file.
+
+### Deployment for development or testing
+
+When testing karaf features, it can be more convenient to install/uninstall them directly from the Karaf console.
+
+To do this, first, add the `toolbox-features` repository:
+
+    $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/4.6.2/xml/features
+
+Or, if you are using version 4.7.0 or later, also add the Camel and ActiveMQ repositories:
+
+    $> feature:repo-add camel 2.18.0
+    $> feature:repo-add activemq 5.14.0
+    $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/4.7.0/xml/features
 
 Then, you can add any combination of the following applications:
 
