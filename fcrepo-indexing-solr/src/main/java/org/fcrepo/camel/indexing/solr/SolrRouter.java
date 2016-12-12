@@ -17,8 +17,6 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
-import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
@@ -30,12 +28,10 @@ import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.List;
-
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.fcrepo.camel.processor.EventProcessor;
@@ -104,7 +100,11 @@ public class SolrRouter extends RouteBuilder {
         from("direct:index.solr")
             .routeId("FcrepoSolrIndexer")
             .removeHeaders("CamelHttp*")
-            .filter(not(in(getUriFilter())))
+            .filter(not(in(tokenizePropertyPlaceholder(getContext(), "{{filter.containers}}", ",").stream()
+                        .map(uri -> or(
+                            header(FCREPO_URI).startsWith(constant(uri + "/")),
+                            header(FCREPO_URI).isEqualTo(constant(uri))))
+                        .collect(toList()))))
             .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
             .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
             .choice()
@@ -173,18 +173,5 @@ public class SolrRouter extends RouteBuilder {
             .setHeader(HTTP_METHOD).constant("POST")
             .setHeader(HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
             .to("{{solr.baseUrl}}/update?useSystemProperties=true");
-    }
-
-    private List<Predicate> getUriFilter() {
-        try {
-            return stream(getContext().resolvePropertyPlaceholders("{{filter.containers}}").split("\\s*,\\s*"))
-                    .map(uri -> or(
-                            header(FCREPO_URI).startsWith(constant(uri + "/")),
-                            header(FCREPO_URI).isEqualTo(constant(uri))))
-                    .collect(toList());
-        } catch (final Exception ex) {
-            logger.debug("No filter containers were defined");
-            return emptyList();
-        }
     }
 }
