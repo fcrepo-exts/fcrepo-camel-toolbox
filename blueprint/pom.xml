@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>fcrepo-camel-toolbox</artifactId>
+    <groupId>org.fcrepo.camel</groupId>
+    <version>4.7.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>fcrepo-camel-toolbox-blueprint</artifactId>
+  <packaging>pom</packaging>
+  <name>Fedora Messaging Toolbox :: Blueprint components</name>
+
+  <modules>
+    <module>fcrepo-audit-triplestore-blueprint</module>
+    <module>fcrepo-fixity-blueprint</module>
+    <module>fcrepo-indexing-solr-blueprint</module>
+    <module>fcrepo-indexing-triplestore-blueprint</module>
+    <module>fcrepo-ldpath-blueprint</module>
+    <module>fcrepo-reindexing-blueprint</module>
+    <module>fcrepo-serialization-blueprint</module>
+  </modules>
+</project>

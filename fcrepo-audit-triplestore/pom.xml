@@ -83,7 +83,6 @@
       </plugin>
 
       <!-- reserve network ports for integration testing -->
-      <!-- add configuration file to artifact set for OSGi deployment -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -92,24 +91,6 @@
             <portName>fuseki.dynamic.test.port</portName>
           </portNames>
         </configuration>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>src/main/cfg/org.fcrepo.camel.audit.cfg</file>
-                  <type>cfg</type>
-                  <classifier>configuration</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>

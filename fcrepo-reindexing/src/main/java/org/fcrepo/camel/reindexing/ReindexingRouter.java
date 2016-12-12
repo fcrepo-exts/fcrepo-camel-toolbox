@@ -84,7 +84,7 @@ public class ReindexingRouter extends RouteBuilder {
             .process(exchange -> {
                 exchange.getIn().setHeader(REINDEXING_HOST, getLocalHost().getHostName());
             })
-            .to("mustache:usage.mustache");
+            .to("mustache:org/fcrepo/camel/reindexing/usage.mustache");
 
         /**
          * A Re-indexing endpoint, setting where in the fcrepo hierarchy

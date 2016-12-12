@@ -105,11 +105,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-      </plugin>
-
       <!-- to generate the MANIFEST-FILE of the bundle -->
       <plugin>
         <groupId>org.apache.felix</groupId>
@@ -136,24 +131,6 @@
               <portName>jetty.dynamic.stop.port</portName>
             </portNames>
           </configuration>
-          <executions>
-            <execution>
-              <id>attach-artifacts</id>
-              <phase>package</phase>
-              <goals>
-                <goal>attach-artifact</goal>
-              </goals>
-              <configuration>
-                <artifacts>
-                  <artifact>
-                    <file>src/main/cfg/org.fcrepo.camel.indexing.triplestore.cfg</file>
-                    <type>cfg</type>
-                    <classifier>configuration</classifier>
-                  </artifact>
-                </artifacts>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
 
         <!-- integration testing -->

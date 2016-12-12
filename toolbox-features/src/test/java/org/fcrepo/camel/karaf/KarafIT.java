@@ -97,6 +97,8 @@ public class KarafIT {
         final String fcrepoServiceAmq = getBundleUri("fcrepo-service-activemq", version);
         final String fcrepoService = getBundleUri("fcrepo-service-camel", version);
 
+        final String fcrepoReindexingBlueprint = getBlueprintUri("fcrepo-reindexing-blueprint", version);
+
         return new Option[] {
             karafDistributionConfiguration()
                 .frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf")
@@ -135,6 +137,7 @@ public class KarafIT {
             bundle(fcrepoReindexing).start(),
             bundle(fcrepoServiceAmq).start(),
             bundle(fcrepoService).start(),
+            bundle(fcrepoReindexingBlueprint).start(),
 
             CoreOptions.systemProperty("fcrepo.port").value(fcrepoPort),
             CoreOptions.systemProperty("karaf.reindexing.port").value(reindexingPort),
@@ -200,6 +203,15 @@ public class KarafIT {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String getBlueprintUri(final String artifactId, final String version) {
+        final File artifact = new File(getBaseDir() + "/../blueprint/" + artifactId + "/target/" +
+                artifactId + "-" + version + ".jar");
+        if (artifact.exists()) {
+            return artifact.toURI().toString();
+        }
+        return "mvn:org.fcrepo.camel/" + artifactId + "/" + version;
     }
 
     private static String getBundleUri(final String artifactId, final String version) {
