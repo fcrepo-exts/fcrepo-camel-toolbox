@@ -18,8 +18,6 @@
 package org.fcrepo.camel.serialization;
 
 import static java.net.URI.create;
-import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.camel.LoggingLevel.INFO;
 import static org.apache.camel.LoggingLevel.DEBUG;
@@ -30,6 +28,7 @@ import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.apache.camel.component.exec.ExecBinding.EXEC_COMMAND_ARGS;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
 
 import java.util.List;
 
@@ -61,7 +60,11 @@ public class SerializationRouter extends RouteBuilder {
 
     public static final String SERIALIZATION_PATH = "CamelSerializationPath";
 
-    public final List<Predicate> uriFilter = getUriFilter();
+    public final List<Predicate> uriFilter = tokenizePropertyPlaceholder(getContext(), "{{filter.containers}}", ",")
+                        .stream().map(uri -> or(
+                            header(FCREPO_URI).startsWith(constant(uri + "/")),
+                            header(FCREPO_URI).isEqualTo(constant(uri))))
+                        .collect(toList());
 
     /**
      * Configure the message route workflow
@@ -134,18 +137,5 @@ public class SerializationRouter extends RouteBuilder {
                 "{{serialization.descriptions}}${headers[CamelSerializationPath]} " +
                 "{{serialization.binaries}}${headers[CamelSerializationPath]}")
             .to("exec:rm");
-    }
-
-    private List<Predicate> getUriFilter() {
-        try {
-            return stream(getContext().resolvePropertyPlaceholders("{{filter.containers}}").split("\\s*,\\s*"))
-                    .map(uri -> or(
-                            header(FCREPO_URI).startsWith(constant(uri + "/")),
-                            header(FCREPO_URI).isEqualTo(constant(uri))))
-                    .collect(toList());
-        } catch (final Exception ex) {
-            LOGGER.debug("No filter containers were defined");
-            return emptyList();
-        }
     }
 }

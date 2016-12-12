@@ -17,8 +17,6 @@
  */
 package org.fcrepo.camel.indexing.triplestore;
 
-import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
@@ -26,12 +24,10 @@ import static org.apache.camel.builder.PredicateBuilder.or;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_NAMED_GRAPH;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.List;
-
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.builder.xml.XPathBuilder;
@@ -98,7 +94,11 @@ public class TriplestoreRouter extends RouteBuilder {
          */
         from("direct:index.triplestore")
             .routeId("FcrepoTriplestoreIndexer")
-            .filter(not(in(getURIFilter())))
+            .filter(not(in(tokenizePropertyPlaceholder(getContext(), "{{filter.containers}}", ",").stream()
+                        .map(uri -> or(
+                            header(FCREPO_URI).startsWith(constant(uri + "/")),
+                            header(FCREPO_URI).isEqualTo(constant(uri))))
+                        .collect(toList()))))
             .removeHeaders("CamelHttp*")
             .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
             .choice()
@@ -130,18 +130,5 @@ public class TriplestoreRouter extends RouteBuilder {
             .log(LoggingLevel.INFO, LOGGER,
                     "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
             .to("{{triplestore.baseUrl}}?useSystemProperties=true");
-    }
-
-    private List<Predicate> getURIFilter() {
-        try {
-            return stream(getContext().resolvePropertyPlaceholders("{{filter.containers}}").split("\\s*,\\s*"))
-                    .map(uri -> or(
-                            header(FCREPO_URI).startsWith(constant(uri + "/")),
-                            header(FCREPO_URI).isEqualTo(constant(uri))))
-                    .collect(toList());
-        } catch (final Exception ex) {
-            LOGGER.debug("No filter containers were defined");
-            return emptyList();
-        }
     }
 }
