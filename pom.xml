@@ -605,6 +605,43 @@
     </plugins>
   </build>
 
+  <developers>
+    <developer>
+      <id>acoburn</id>
+      <name>Aaron Coburn</name>
+      <email>acoburn@amherst.edu</email>
+      <organization>Amherst College</organization>
+      <organizationUrl>http://www.amherst.edu</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+
+    <developer>
+      <id>dlamb</id>
+      <name>Danny Lamb</name>
+      <email>dlamb@islandora.ca</email>
+      <organization>Islandora Foundation</organization>
+      <organizationUrl>http://islandora.ca</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-4</timezone>
+    </developer>
+
+    <developer>
+      <id>bseeger</id>
+      <name>Bethany Seeger</name>
+      <email>bseeger@amherst.edu</email>
+      <organization>Amherst College</organization>
+      <organizationUrl>http://www.amherst.edu</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+  </developers>
   <issueManagement>
     <system>GitHub</system>
     <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox/issues</url>
