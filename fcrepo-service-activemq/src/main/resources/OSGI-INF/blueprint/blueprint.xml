@@ -12,8 +12,13 @@
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
        <cm:property name="jms.username" value=""/>
        <cm:property name="jms.password" value=""/>
+       <!-- before overriding these values, reading these articles is advised:
+            http://blog.christianposta.com/lesson-learned/lessons-learned-activemq-apache-camel-and-connection-pooling/
+            http://camel.apache.org/activemq.html#ActiveMQ-Usingconnectionpooling
+            In particular, the jms.consumers value should only be > 1 if the camel routes are all reading from queues.
+        -->
        <cm:property name="jms.connections" value="10"/>
-       <cm:property name="jms.consumers" value="10"/>
+       <cm:property name="jms.consumers" value="1"/>
      </cm:default-properties>
    </cm:property-placeholder>
 
