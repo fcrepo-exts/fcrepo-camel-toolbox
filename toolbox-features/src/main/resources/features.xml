@@ -1,11 +1,74 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" name="toolbox-features-${project.version}">
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0" name="toolbox-features-${project.version}">
   <repository>mvn:org.fcrepo.camel/fcrepo-camel/${fcrepo-camel.version}/xml/features</repository>
 
-  <feature name="fcrepo-indexing-solr" version="${project.version}" start-level="50">
+  <feature name="fcrepo-audit-triplestore" version="${project.version}">
+    <details>Installs the fcrepo audit service with a triplestore backend</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-audit-triplestore-core</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-fixity" version="${project.version}">
+    <details>Installs the fcrepo fixity service</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-fixity-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-fixity-core</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-indexing-solr" version="${project.version}">
     <details>Installs the fcrepo solr indexer</details>
-    <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}</bundle>
+
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-indexing-solr-core</feature>
+    <feature version="${project.version}">fcrepo-ldpath</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-indexing-triplestore" version="${project.version}">
+    <details>Installs the core fcrepo triplestore indexer</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-triplestore-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-indexing-triplestore-core</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-ldpath" version="${project.version}">
+    <details>Installs the LDPath service</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-ldpath-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-ldpath-core</feature>
+    <feature version="${project.version}">fcrepo-service-ldcache-file</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.ldpath.cfg">mvn:org.fcrepo.camel/fcrepo-ldpath-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-reindexing" version="${project.version}">
+    <details>Installs a re-indexing application</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-reindexing-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-reindexing-core</feature>
+    <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-serialization" version="${project.version}">
+    <details>Installs the fcrepo serialization tool</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-serialization-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-serialization-core</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.serialization.cfg">mvn:org.fcrepo.camel/fcrepo-serialization-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-indexing-solr-core" version="${project.version}">
+    <details>Installs the core fcrepo solr indexer</details>
+    <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}</bundle>
 
     <feature version="${camel.version.range}">camel</feature>
     <feature version="${camel.version.range}">camel-http4</feature>
@@ -13,26 +76,21 @@
     <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${camel.version.range}">camel-mustache</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
-    <feature version="${project.version}">fcrepo-ldpath</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr-blueprint/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-fixity" version="${project.version}" start-level="50">
-    <details>Installs the fcrepo fixity service</details>
+  <feature name="fcrepo-fixity-core" version="${project.version}">
+    <details>Installs the core fcrepo fixity service</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}</bundle>
-    <bundle>mvn:org.fcrepo.camel/fcrepo-fixity-blueprint/${project.version}</bundle>
 
     <feature version="${camel.version.range}">camel</feature>
     <feature version="${camel.version.range}">camel-blueprint</feature>
     <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity-blueprint/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-indexing-triplestore" version="${project.version}" start-level="50">
-    <details>Installs the fcrepo triplestore indexer</details>
+  <feature name="fcrepo-indexing-triplestore-core" version="${project.version}">
+    <details>Installs the core fcrepo triplestore indexer</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}</bundle>
-    <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-triplestore-blueprint/${project.version}</bundle>
 
     <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
 
@@ -41,13 +99,11 @@
     <feature version="${camel.version.range}">camel-blueprint</feature>
     <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore-blueprint/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-reindexing" version="${project.version}" start-level="50">
-    <details>Installs a re-indexing application</details>
+  <feature name="fcrepo-reindexing-core" version="${project.version}">
+    <details>Installs the core of a re-indexing application</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}</bundle>
-    <bundle>mvn:org.fcrepo.camel/fcrepo-reindexing-blueprint/${project.version}</bundle>
 
     <feature version="${camel.version.range}">camel</feature>
     <feature version="${camel.version.range}">camel-blueprint</feature>
@@ -56,13 +112,11 @@
     <feature version="${camel.version.range}">camel-mustache</feature>
     <feature version="${camel.version.range}">camel-jackson</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing-blueprint/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-audit-triplestore" version="${project.version}" start-level="50">
-    <details>Installs the fcrepo audit service with a triplestore backend</details>
+  <feature name="fcrepo-audit-triplestore-core" version="${project.version}">
+    <details>Installs the core fcrepo audit service with a triplestore backend</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}</bundle>
-    <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore-blueprint/${project.version}</bundle>
 
     <feature prerequisite="true">wrap</feature>
 
@@ -71,14 +125,12 @@
     <feature version="${camel.version.range}">camel-blueprint</feature>
     <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore-blueprint/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-ldpath" version="${project.version}" start-level="50">
-    <details>Installs the LDPath service</details>
+  <feature name="fcrepo-ldpath-core" version="${project.version}">
+    <details>Installs the core LDPath implementation</details>
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-ldpath/${project.version}</bundle>
-    <bundle>mvn:org.fcrepo.camel/fcrepo-ldpath-blueprint/${project.version}</bundle>
 
     <feature version="${camel.version.range}">camel</feature>
     <feature version="${camel.version.range}">camel-blueprint</feature>
@@ -86,26 +138,9 @@
     <feature version="${camel.version.range}">camel-http4</feature>
     <feature version="${camel.version.range}">camel-jetty9</feature>
     <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
-    <feature version="${project.version}">fcrepo-service-ldcache-file</feature>
-
-    <configfile finalname="/etc/org.fcrepo.camel.ldpath.cfg">mvn:org.fcrepo.camel/fcrepo-ldpath-blueprint/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-service-ldcache-file" version="${project.version}" start-level="50">
-    <details>Installs the file-based LDCache backend</details>
-
-    <bundle>mvn:org.fcrepo.camel/fcrepo-service-ldcache-file/${project.version}</bundle>
-
-    <feature prerequisite="true">wrap</feature>
-    <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
-
-    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-backend-file/${marmotta.version}</bundle>
-
-    <configfile finalname="/etc/org.fcrepo.camel.ldcache.file.cfg">mvn:org.fcrepo.camel/fcrepo-service-ldcache-file/${project.version}/cfg/configuration</configfile>
-
-  </feature>
-
-  <feature name="fcrepo-marmotta-osgi" version="${project.version}" start-level="50">
+  <feature name="fcrepo-marmotta-osgi" version="${project.version}">
     <details>Installs the marmotta dependencies</details>
 
     <feature prerequisite="true">wrap</feature>
@@ -173,11 +208,10 @@
     <bundle dependency="true">mvn:com.github.jsonld-java/jsonld-java/${jsonld.version}</bundle>
   </feature>
 
-  <feature name="fcrepo-serialization" version="${project.version}" start-level="50">
+  <feature name="fcrepo-serialization-core" version="${project.version}">
     <details>Installs the fcrepo serialization tool</details>
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-serialization/${project.version}</bundle>
-    <bundle>mvn:org.fcrepo.camel/fcrepo-serialization-blueprint/${project.version}</bundle>
 
     <feature version="${camel.version.range}">camel</feature>
     <feature version="${camel.version.range}">camel-exec</feature>
@@ -185,10 +219,22 @@
     <feature version="${camel.version.range}">camel-blueprint</feature>
     <feature version="${camel.version.range}">camel-spring</feature>
     <feature version="${project.version}">fcrepo-service-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.serialization.cfg">mvn:org.fcrepo.camel/fcrepo-serialization-blueprint/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-service-activemq" version="${project.version}" start-level="50">
+  <feature name="fcrepo-service-ldcache-file" version="${project.version}">
+    <details>Installs the file-based LDCache backend</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-service-ldcache-file/${project.version}</bundle>
+
+    <feature prerequisite="true">wrap</feature>
+    <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
+
+    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-backend-file/${marmotta.version}</bundle>
+
+    <configfile finalname="/etc/org.fcrepo.camel.ldcache.file.cfg">mvn:org.fcrepo.camel/fcrepo-service-ldcache-file/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-service-activemq" version="${project.version}">
     <details>Installs the fcrepo activemq service</details>
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-service-activemq/${project.version}</bundle>
@@ -199,7 +245,7 @@
     <configfile finalname="/etc/org.fcrepo.camel.service.activemq.cfg">mvn:org.fcrepo.camel/fcrepo-service-activemq/${project.version}/cfg/configuration</configfile>
   </feature>
 
-  <feature name="fcrepo-service-camel" version="${project.version}" start-level="50">
+  <feature name="fcrepo-service-camel" version="${project.version}">
     <details>Installs fcrepo-camel as a shared service</details>
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-service-camel/${project.version}</bundle>
