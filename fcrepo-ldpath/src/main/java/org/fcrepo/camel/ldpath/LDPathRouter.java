@@ -53,6 +53,10 @@ public class LDPathRouter extends RouteBuilder {
             .routeId("FcrepoLDPathRest")
             .routeDescription("Expose the ldpath endpoint over HTTP")
             .choice()
+                .when(header(HTTP_METHOD).isEqualTo("OPTIONS"))
+                    .setHeader(CONTENT_TYPE).constant("text/turtle")
+                    .setHeader("Allow").constant("GET,POST,OPTIONS")
+                    .to("language:simple:resource:classpath:org/fcrepo/camel/ldpath/options.ttl")
                 // make sure the required context parameter is present
                 .when(not(and(header("context").isNotNull(), header("context").regex("^https?://.+"))))
                     .setHeader(HTTP_RESPONSE_CODE).constant(400)
@@ -61,11 +65,7 @@ public class LDPathRouter extends RouteBuilder {
                 .when(header(HTTP_METHOD).isEqualTo("GET"))
                     .to("direct:get")
                 .when(header(HTTP_METHOD).isEqualTo("POST"))
-                    .to("direct:ldpathPrepare")
-                .when(header(HTTP_METHOD).isEqualTo("OPTIONS"))
-                    .setHeader(CONTENT_TYPE).constant("text/turtle")
-                    .setHeader("Allow").constant("GET,POST,OPTIONS")
-                    .to("language:simple:resource:classpath:org/fcrepo/camel/ldpath/options.ttl");
+                    .to("direct:ldpathPrepare");
 
         from("direct:get")
             .routeId("FcrepoLDPathGet")
