@@ -87,43 +87,18 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
+        <artifactId>maven-resources-plugin</artifactId>
       </plugin>
 
       <!-- to generate the MANIFEST-FILE of the bundle -->
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
-
-      <!-- reserve network ports for integration testing -->
-      <!-- add configuration file to artifact set for OSGi deployment -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>src/main/cfg/org.fcrepo.camel.indexing.solr.cfg</file>
-                  <type>cfg</type>
-                  <classifier>configuration</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

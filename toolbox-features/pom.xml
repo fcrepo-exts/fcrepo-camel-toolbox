@@ -55,7 +55,21 @@
 
     <dependency>
       <groupId>org.fcrepo.camel</groupId>
+      <artifactId>fcrepo-indexing-triplestore-blueprint</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.camel</groupId>
       <artifactId>fcrepo-indexing-solr</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.camel</groupId>
+      <artifactId>fcrepo-indexing-solr-blueprint</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -69,7 +83,21 @@
 
     <dependency>
       <groupId>org.fcrepo.camel</groupId>
+      <artifactId>fcrepo-reindexing-blueprint</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.camel</groupId>
       <artifactId>fcrepo-fixity</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.camel</groupId>
+      <artifactId>fcrepo-fixity-blueprint</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -83,7 +111,21 @@
 
     <dependency>
       <groupId>org.fcrepo.camel</groupId>
+      <artifactId>fcrepo-audit-triplestore-blueprint</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.camel</groupId>
       <artifactId>fcrepo-serialization</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.camel</groupId>
+      <artifactId>fcrepo-serialization-blueprint</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

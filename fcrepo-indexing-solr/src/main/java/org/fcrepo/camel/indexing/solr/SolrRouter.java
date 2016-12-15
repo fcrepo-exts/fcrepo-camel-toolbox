@@ -122,7 +122,7 @@ public class SolrRouter extends RouteBuilder {
          */
         from("direct:delete.solr").routeId("FcrepoSolrDeleter")
             .removeHeaders("CamelHttp*")
-            .to("mustache:delete.mustache")
+            .to("mustache:org/fcrepo/camel/indexing/solr/delete.mustache")
             .log(LoggingLevel.INFO, logger, "Deleting Solr Object ${headers[CamelFcrepoUri]}")
             .setHeader(HTTP_METHOD).constant("POST")
             .setHeader(CONTENT_TYPE).constant("application/json")
