@@ -18,6 +18,7 @@
 package org.fcrepo.camel.ldpath;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.HTTP_URI;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -129,6 +130,24 @@ public class RouteTest extends CamelBlueprintTestSupport {
         assertTrue(data.get(0).get("label").contains("resource creation"));
         assertTrue(data.get(0).get("type").contains("http://www.w3.org/2000/01/rdf-schema#Class"));
         assertTrue(data.get(0).get("id").contains(uri));
+    }
+
+    @Test
+    public void testOptions() throws Exception {
+        getMockEndpoint("mock:language:simple:resource:classpath:org/fcrepo/camel/ldpath/options.ttl")
+            .expectedMessageCount(1);
+
+        context.getRouteDefinition("FcrepoLDPathRest").adviceWith(context, new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                replaceFromWith("direct:start");
+                mockEndpointsAndSkip("*");
+            }
+        });
+        context.start();
+
+        template.sendBodyAndHeader(null, HTTP_METHOD, "OPTIONS");
+        assertMockEndpointsSatisfied();
     }
 
     @Test
