@@ -74,6 +74,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>${httpcore.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.semarglproject</groupId>
       <artifactId>semargl-sesame</artifactId>
       <version>0.6.1</version>
@@ -83,6 +89,12 @@
       <groupId>org.openrdf.sesame</groupId>
       <artifactId>sesame-rio-api</artifactId>
       <version>2.7.13</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.client</groupId>
+      <artifactId>fcrepo-java-client</artifactId>
+      <version>${fcrepo-java-client.version}</version>
     </dependency>
 
     <!-- logging -->
