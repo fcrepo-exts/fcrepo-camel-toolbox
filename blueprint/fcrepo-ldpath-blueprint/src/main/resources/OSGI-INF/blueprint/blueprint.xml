@@ -41,36 +41,50 @@
     <argument index="1" type="int" value="${fcrepo.authPort}"/>
   </bean>
 
-   <bean id="fedoraEndpoint" class="org.fcrepo.camel.ldpath.FedoraEndpoint">
-     <argument index="0" type="java.lang.String" value="${fcrepo.baseUrl}"/>
-     <argument index="1" type="java.lang.Long" value="${fcrepo.cache.timeout}"/>
-   </bean>
+  <bean id="fcrepoHttpClientBuilder" class="org.fcrepo.client.FcrepoHttpClientBuilder">
+    <argument index="0" type="java.lang.String" value="${fcrepo.authUsername}"/>
+    <argument index="1" type="java.lang.String" value="${fcrepo.authPassword}"/>
+    <argument index="2" type="java.lang.String" value="${fcrepo.authHostname}"/>
+  </bean>
 
-   <bean id="client" class="org.fcrepo.camel.ldpath.ClientFactory" factory-method="createClient">
-     <argument ref="authScope"/>
-     <argument ref="credentials"/>
-     <argument ref="fedoraEndpoint"/>
-     <!--<argument ref="endpoints"/>-->
-     <!--<argument ref="providers"/>-->
-   </bean>
+  <bean id="client" class="org.fcrepo.camel.ldpath.ClientFactory" factory-method="createClient">
+    <argument ref="authScope"/>
+    <argument ref="credentials"/>
+    <!-- List of optional endpoints -->
+    <argument>
+      <list>
+        <bean class="org.fcrepo.camel.ldpath.FedoraEndpoint">
+          <argument index="0" type="java.lang.String" value="${fcrepo.baseUrl}"/>
+          <argument index="1" type="java.lang.Long" value="${fcrepo.cache.timeout}"/>
+        </bean>
+      </list>
+    </argument>
+    <!-- List of optional providers -->
+    <argument>
+      <list>
+        <bean class="org.fcrepo.camel.ldpath.FedoraProvider">
+          <argument ref="fcrepoHttpClientBuilder"/>
+        </bean>
+      </list>
+    </argument>
+  </bean>
 
-   <bean id="config" class="org.apache.marmotta.ldcache.model.CacheConfiguration">
-     <argument ref="client"/>
-     <property name="defaultExpiry" value="${cache.timeout}"/>
-   </bean>
+  <bean id="config" class="org.apache.marmotta.ldcache.model.CacheConfiguration">
+    <argument ref="client"/>
+    <property name="defaultExpiry" value="${cache.timeout}"/>
+  </bean>
 
-   <bean id="ldcache" class="org.apache.marmotta.ldcache.services.LDCache">
-     <argument ref="config"/>
-     <argument ref="backend"/>
-   </bean>
+  <bean id="ldcache" class="org.apache.marmotta.ldcache.services.LDCache">
+    <argument ref="config"/>
+    <argument ref="backend"/>
+  </bean>
+  <bean id="ldcachebackend" class="org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend">
+    <argument ref="ldcache"/>
+  </bean>
 
-   <bean id="ldcachebackend" class="org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend">
-     <argument ref="ldcache"/>
-   </bean>
-
-   <bean id="ldpath" class="org.fcrepo.camel.ldpath.LDPathWrapper">
-     <argument ref="ldcachebackend"/>
-   </bean>
+  <bean id="ldpath" class="org.fcrepo.camel.ldpath.LDPathWrapper">
+    <argument ref="ldcachebackend"/>
+  </bean>
 
   <camelContext id="FcrepoLDPathContext" depends-on="ldpath" xmlns="http://camel.apache.org/schema/blueprint">
     <package>org.fcrepo.camel.ldpath</package>

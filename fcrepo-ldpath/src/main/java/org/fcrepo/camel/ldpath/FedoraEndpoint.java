@@ -48,7 +48,7 @@ public class FedoraEndpoint extends Endpoint {
      * @param timeout the length of time (in seconds) to cache the data
      */
     public FedoraEndpoint(final String namespace, final Long timeout) {
-        super("Fedora Repository", "Linked Data", namespace + ".*", null, timeout);
+        super("Fedora Repository", FedoraProvider.PROVIDER_NAME, namespace + ".*", null, timeout);
         setPriority(PRIORITY_HIGH);
         addContentType(new ContentType("application", "rdf+xml", 0.8));
         addContentType(new ContentType("text", "turtle", 1.0));

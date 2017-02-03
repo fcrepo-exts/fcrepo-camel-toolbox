@@ -43,6 +43,7 @@
     <details>Installs the LDPath service</details>
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-ldpath-blueprint/${project.version}</bundle>
+    <bundle>mvn:org.fcrepo.client/fcrepo-java-client/${fcrepo-java-client.version}</bundle>
     <feature version="${project.version}">fcrepo-ldpath-core</feature>
     <feature version="${project.version}">fcrepo-service-ldcache-file</feature>
 

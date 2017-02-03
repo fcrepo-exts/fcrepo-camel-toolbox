@@ -18,6 +18,7 @@
 package org.fcrepo.camel.ldpath;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 import java.util.List;
 
@@ -42,50 +43,66 @@ import org.apache.marmotta.ldclient.provider.rdf.SPARQLProvider;
  */
 public class ClientFactory {
 
+
     /**
      * Configure a linked data client suitable for use with a Fedora Repository.
-     * @param fedoraEndpoint a FedoraEndpoint configuration
+     * @param endpoint  Endpoint to enable on the client
      * @return a configuration for use with an LDClient
      */
-    public static ClientConfiguration createClient(final Endpoint fedoraEndpoint) {
-        return createClient(null, null, fedoraEndpoint, emptyList(), emptyList());
+    public static ClientConfiguration createClient(final Endpoint endpoint) {
+        return createClient(singletonList(endpoint), emptyList());
     }
 
     /**
      * Configure a linked data client suitable for use with a Fedora Repository.
-     * @param fedoraEndpoint a FedoraEndpoint configuration
+     * @param provider Provider to enable on the client
+     * @return a configuration for use with an LDClient
+     */
+    public static ClientConfiguration createClient(final DataProvider provider) {
+        return createClient(null, null, emptyList(), singletonList(provider));
+    }
+
+
+    /**
+     * Configure a linked data client suitable for use with a Fedora Repository.
+     * @param endpoint  Endpoint to enable on the client
+     * @param provider Provider to enable on the client
+     * @return a configuration for use with an LDClient
+     */
+    public static ClientConfiguration createClient(final Endpoint endpoint, final DataProvider provider) {
+        return createClient(singletonList(endpoint), singletonList(provider));
+    }
+
+    /**
+     * Configure a linked data client suitable for use with a Fedora Repository.
      * @param endpoints additional endpoints to enable on the client
      * @param providers additional providers to enable on the client
      * @return a configuration for use with an LDClient
      */
-    public static ClientConfiguration createClient(final Endpoint fedoraEndpoint, final List<Endpoint> endpoints,
-            final List<DataProvider> providers) {
-        return createClient(null, null, fedoraEndpoint, endpoints, providers);
+    public static ClientConfiguration createClient(final List<Endpoint> endpoints, final List<DataProvider> providers) {
+        return createClient(null, null, endpoints, providers);
     }
 
     /**
      * Configure a linked data client suitable for use with a Fedora Repository.
      * @param authScope the authentication scope
      * @param credentials the credentials
-     * @param fedoraEndpoint a FedoraEndpoint configuration
      * @return a configuration for use with an LDClient
      */
-    public static ClientConfiguration createClient(final AuthScope authScope, final Credentials credentials,
-            final Endpoint fedoraEndpoint) {
-        return createClient(authScope, credentials, fedoraEndpoint, emptyList(), emptyList());
+    public static ClientConfiguration createClient(final AuthScope authScope, final Credentials credentials) {
+        return createClient(authScope, credentials, emptyList(), emptyList());
     }
 
     /**
      * Create a linked data client suitable for use with a Fedora Repository.
      * @param authScope the authentication scope
      * @param credentials the credentials
-     * @param fedoraEndpoint a FedoraEndpoint configuration
      * @param endpoints additional endpoints to enable on the client
      * @param providers additional providers to enable on the client
      * @return a configuration for use with an LDClient
      */
     public static ClientConfiguration createClient(final AuthScope authScope, final Credentials credentials,
-            final Endpoint fedoraEndpoint, final List<Endpoint> endpoints, final List<DataProvider> providers) {
+            final List<Endpoint> endpoints, final List<DataProvider> providers) {
 
         final ClientConfiguration client = new ClientConfiguration();
 
@@ -96,7 +113,6 @@ public class ClientFactory {
                     .setDefaultCredentialsProvider(credsProvider)
                     .useSystemProperties().build());
         }
-        client.addEndpoint(fedoraEndpoint);
 
         // manually add default Providers and Endpoints
         client.addProvider(new LinkedDataProvider());
