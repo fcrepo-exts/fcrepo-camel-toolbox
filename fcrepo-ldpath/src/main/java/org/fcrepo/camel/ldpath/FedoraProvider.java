@@ -62,21 +62,16 @@ public class FedoraProvider extends LinkedDataProvider {
         httpClient = builder.build();
     }
 
-    /**
+    /*
      * Return the name of this data provider. To be used e.g. in the configuration and in log messages.
-     *
-     * @return
      */
     @Override
     public String getName() {
         return PROVIDER_NAME;
     }
 
-    /**
+    /*
      * Return the describedBy URL for NonRdfSource resources. Return the resourseUri otherwise.
-     *
-     * @param resourceUri
-     * @param endpoint
      */
     @Override
     public List<String> buildRequestUrl(final String resourceUri, final Endpoint endpoint) {
@@ -94,10 +89,8 @@ public class FedoraProvider extends LinkedDataProvider {
         return Collections.singletonList(resourceUri);
     }
 
-    /**
+    /*
     * Get the describedBy Uri if the resource has a NON_RDF_SOURCE_URI link header.
-    *
-    * @param resourceUri
     */
     private Optional<String> getNonRDFSourceDescribedByUri(final String resourceUri) throws IOException {
         Optional<String> nonRdfSourceDescUri = Optional.empty();
@@ -121,10 +114,8 @@ public class FedoraProvider extends LinkedDataProvider {
         return nonRdfSourceDescUri;
     }
 
-    /**
+    /*
     * Get the link headers for the resource at the given Uri.
-    *
-    * @param resourceUri
     */
     private Header[] getLinkHeaders(final String resourceUri) throws IOException {
         final HttpHead request = new HttpHead(resourceUri);
