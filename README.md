@@ -115,13 +115,13 @@ To install `fcrepo-camel-toolbox/4.6.2`, one would add the following:
           ..., \
           mvn:org.fcrepo.camel/toolbox-features/4.6.2/xml/features
 
-To install version 4.7.0 of the `fcrepo-camel-toolbox`, one will also need to specify the version of Camel and ActiveMQ like so:
+To install version 4.7.1 of the `fcrepo-camel-toolbox`, one will also need to specify the version of Camel and ActiveMQ like so:
 
       featuresRepositories = \
           ..., \
           mvn:org.apache.activemq/activemq-karaf/5.14.0/xml/features, \
           mvn:org.apache.camel.karaf/apache-camel/2.18.0/xml/features, \
-          mvn:org.fcrepo.camel/toolbox-features/4.7.0/xml/features
+          mvn:org.fcrepo.camel/toolbox-features/4.7.1/xml/features
 
 Users are not resticted to particular versions of Camel and ActiveMQ, so long as Camel is
 at least version 2.18.0 and ActiveMQ is at least version 5.14.0.
@@ -155,11 +155,11 @@ To do this, first, add the `toolbox-features` repository:
 
     $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/4.6.2/xml/features
 
-Or, if you are using version 4.7.0 or later, also add the Camel and ActiveMQ repositories:
+Or, if you are using version 4.7.1 or later, also add the Camel and ActiveMQ repositories:
 
     $> feature:repo-add camel 2.18.0
     $> feature:repo-add activemq 5.14.0
-    $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/4.7.0/xml/features
+    $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/4.7.1/xml/features
 
 Then, you can add any combination of the following applications:
 
