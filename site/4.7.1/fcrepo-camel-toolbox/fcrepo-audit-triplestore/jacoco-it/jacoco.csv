@@ -1,0 +1,4 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Fedora Audit System with a Triplestore backend,org.fcrepo.camel.audit.triplestore,AuditHeaders,3,0,0,0,2,0,1,0,1,0
+Fedora Audit System with a Triplestore backend,org.fcrepo.camel.audit.triplestore,EventRouter,91,0,0,0,21,0,4,0,4,0
+Fedora Audit System with a Triplestore backend,org.fcrepo.camel.audit.triplestore,AuditSparqlProcessor,41,225,15,3,12,43,9,7,0,7
