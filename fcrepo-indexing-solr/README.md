@@ -48,6 +48,13 @@ In the event of failure, the maximum number of times a redelivery will be attemp
 
     error.maxRedeliveries=10
 
+If would like the `indexing:hasIndexingTransformation` property to be checked 
+on a per-object basis, set this to true. Otherwise, the `fcrepo.defaultTransform` 
+is always used as transformation URL even if an object has the
+`indexing:hasIndexingTransformation` property set.
+
+    fcrepo.checkHasIndexingTransformation=true
+
 The default `LDPath` transformation to use. This is overridden on a per-object
 basis with the `indexing:hasIndexingTransformation` predicate. The default value is empty,
 but it may be overridden with a public URL as shown below.
