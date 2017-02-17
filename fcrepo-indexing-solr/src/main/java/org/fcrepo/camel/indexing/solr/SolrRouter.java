@@ -107,18 +107,21 @@ public class SolrRouter extends RouteBuilder {
                             header(FCREPO_URI).isEqualTo(constant(uri))))
                         .collect(toList()))))
             .choice()
-                .when(and(simple("{{indexing.predicate}} != 'true'"), simple("{{fcrepo.checkHasIndexingTransformation}} != 'true'")))
+                .when(and(simple("{{indexing.predicate}} != 'true'"),
+                          simple("{{fcrepo.checkHasIndexingTransformation}} != 'true'")))
                     .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}")
                     .to("direct:update.solr")
                 .otherwise()
                     .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
                     .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
                     .choice()
-                        .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
+                        .when(or(header(INDEXING_TRANSFORMATION).isNull(),
+                                 header(INDEXING_TRANSFORMATION).isEqualTo("")))
                             .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}").end()
                     .removeHeaders("CamelHttp*")
                     .choice()
-                        .when(or(simple("{{indexing.predicate}} != 'true'"), header(FCREPO_RESOURCE_TYPE).contains(INDEXABLE)))
+                        .when(or(simple("{{indexing.predicate}} != 'true'"),
+                                 header(FCREPO_RESOURCE_TYPE).contains(INDEXABLE)))
                             .to("direct:update.solr")
                         .otherwise()
                             .to("direct:delete.solr");
