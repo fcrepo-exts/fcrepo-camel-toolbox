@@ -22,6 +22,7 @@ import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.HTTP_QUERY;
 import static org.apache.camel.Exchange.HTTP_URI;
+import static org.apache.camel.builder.PredicateBuilder.and;
 import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
@@ -105,17 +106,26 @@ public class SolrRouter extends RouteBuilder {
                             header(FCREPO_URI).startsWith(constant(uri + "/")),
                             header(FCREPO_URI).isEqualTo(constant(uri))))
                         .collect(toList()))))
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
-            .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
             .choice()
-                .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
-                    .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}").end()
-            .removeHeaders("CamelHttp*")
-            .choice()
-                .when(or(simple("{{indexing.predicate}} != 'true'"), header(FCREPO_RESOURCE_TYPE).contains(INDEXABLE)))
+                .when(and(simple("{{indexing.predicate}} != 'true'"),
+                          simple("{{fcrepo.checkHasIndexingTransformation}} != 'true'")))
+                    .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}")
                     .to("direct:update.solr")
                 .otherwise()
-                    .to("direct:delete.solr");
+                    .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
+                    .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
+                    .choice()
+                        .when(or(header(INDEXING_TRANSFORMATION).isNull(),
+                                 header(INDEXING_TRANSFORMATION).isEqualTo("")))
+                            .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}").end()
+                    .removeHeaders("CamelHttp*")
+                    .choice()
+                        .when(or(simple("{{indexing.predicate}} != 'true'"),
+                                 header(FCREPO_RESOURCE_TYPE).contains(INDEXABLE)))
+                            .to("direct:update.solr")
+                        .otherwise()
+                            .to("direct:delete.solr");
+
 
         /*
          * Remove an item from the solr index.

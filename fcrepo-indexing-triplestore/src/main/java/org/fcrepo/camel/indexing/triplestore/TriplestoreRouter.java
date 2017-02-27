@@ -100,12 +100,16 @@ public class TriplestoreRouter extends RouteBuilder {
                             header(FCREPO_URI).isEqualTo(constant(uri))))
                         .collect(toList()))))
             .removeHeaders("CamelHttp*")
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
             .choice()
-                .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
+                .when(simple("{{indexing.predicate}} != 'true'"))
                     .to("direct:update.triplestore")
                 .otherwise()
-                    .to("direct:delete.triplestore");
+                    .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
+                    .choice()
+                        .when(indexable)
+                            .to("direct:update.triplestore")
+                        .otherwise()
+                            .to("direct:delete.triplestore");
 
         /**
          * Remove an item from the triplestore index.
