@@ -48,8 +48,8 @@ In the event of failure, the maximum number of times a redelivery will be attemp
 
     error.maxRedeliveries=10
 
-If would like the `indexing:hasIndexingTransformation` property to be checked 
-on a per-object basis, set this to true. Otherwise, the `fcrepo.defaultTransform` 
+If you would like the `indexing:hasIndexingTransformation` property to be checked
+on a per-object basis, set this to true. Otherwise, the `fcrepo.defaultTransform`
 is always used as transformation URL even if an object has the
 `indexing:hasIndexingTransformation` property set.
 
