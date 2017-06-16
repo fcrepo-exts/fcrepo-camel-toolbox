@@ -1,4 +1,4 @@
-#Fedora Fixity Service
+# Fedora Fixity Service
 
 This application implements a fixity checking service for
 [Fedora4](http://fcrepo.org) that can be used to send alerts about
@@ -15,13 +15,13 @@ module. For example:
     curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
         -d '["broker:queue:fixity"]'
 
-##Building
+## Building
 
 To build this project use
 
     MAVEN_OPTS="-Xmx1024m" mvn install
 
-##Deploying in OSGi
+## Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
 [Apache ServiceMix](http://servicemix.apache.org/) or
@@ -32,7 +32,7 @@ command from its shell:
     feature:install fcrepo-fixity
     feature:install fcrepo-service-activemq
 
-##Configuration
+## Configuration
 
 The application can be configured by creating a file in
 `$KARAF_HOME/etc/org.fcrepo.camel.fixity.cfg`. The following

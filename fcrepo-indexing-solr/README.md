@@ -1,4 +1,4 @@
-#Fedora Indexing Service (Solr)
+# Fedora Indexing Service (Solr)
 
 This application implements a bridge to an external, solr index
 for [Fedora4](http://fcrepo.org).
@@ -21,13 +21,13 @@ found in `$SOLR_HOME/<core name>/conf/` (for Solr 4.x). Starting with 5.2, Solr 
 which allows runtime (re-)configuration of Solr. Further information on using Solr
 can be found at the [Solr website](http://lucene.apache.org/solr/)
 
-##Building
+## Building
 
 To build this project use
 
     MAVEN_OPTS="-Xmx1024m" mvn install
 
-##Deploying in OSGi
+## Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
 [Apache ServiceMix](http://servicemix.apache.org/) or 
@@ -38,7 +38,7 @@ command from its shell:
     feature:install fcrepo-indexing-solr
     feature:install fcrepo-service-activemq
 
-##Configuration
+## Configuration
 
 The application can be configured by creating a file in
 `$KARAF_HOME/etc/org.fcrepo.camel.indexing.solr.cfg`. The following
