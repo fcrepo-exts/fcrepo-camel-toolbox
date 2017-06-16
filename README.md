@@ -173,7 +173,7 @@ Then, you can add any combination of the following applications:
     $> feature:install fcrepo-serialization
     $> feature:install fcrepo-service-ldcache-file
 
-##Maintainers
+## Maintainers
 
 Current maintainers:
 

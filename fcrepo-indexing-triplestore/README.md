@@ -1,4 +1,4 @@
-#Fedora Indexing Service (Triplestore)
+# Fedora Indexing Service (Triplestore)
 
 This application implements a bridge to an external triplestore,
 such as Sesame or Fuseki for [Fedora4](http://fcrepo.org).
@@ -6,13 +6,13 @@ such as Sesame or Fuseki for [Fedora4](http://fcrepo.org).
 Additional background information on this service is available on the Fedora Wiki on the
 [Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
 
-##Building
+## Building
 
 To build this project use
 
     MAVEN_OPTS="-Xmx1024m" mvn install
 
-##Deploying in OSGi
+## Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
 [Apache ServiceMix](http://servicemix.apache.org/) or 
@@ -23,7 +23,7 @@ command from its shell:
     feature:install fcrepo-indexing-triplestore
     feature:install fcrepo-service-activemq
 
-##Configuration
+## Configuration
 
 The application can be configured by creating a file in
 `$KARAF_HOME/etc/org.fcrepo.camel.indexing.triplestore.cfg`. The following

@@ -1,16 +1,16 @@
-#Fedora Serialization Service
+# Fedora Serialization Service
 
 This application implements serialization feature for fedora objects that
 can be used to serialize objects in a plain text format to disk.
 
 
-##Building
+## Building
 
 To build this project use
 
     MAVEN_OPTS="-Xmx1024m" mvn install
 
-##Deploying in OSGi
+## Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
 [Apache ServiceMix](http://servicemix.apache.org/) or
@@ -21,7 +21,7 @@ command from its shell:
     feature:install fcrepo-serialization
     feature:install fcrepo-service-activemq
 
-##Configuration
+## Configuration
 
 This application can be configured by creating a file in
 `$KARAF_HOME/etc/org.fcrepo.camel.serialization.cfg`. The following

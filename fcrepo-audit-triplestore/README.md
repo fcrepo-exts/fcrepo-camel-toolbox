@@ -1,16 +1,16 @@
-#Fedora Audit Service (Triplestore)
+# Fedora Audit Service (Triplestore)
 
 This application implements a bridge to an external, triplestore-based
 [Audit Service](https://wiki.duraspace.org/display/FF/Design+-+Audit+Service)
 for [Fedora4](http://fcrepo.org).
 
-##Building
+## Building
 
 To build this project use
 
     mvn install
 
-##Deploying in OSGi
+## Deploying in OSGi
 
 This project can be deployed in an OSGi container. For example using
 [Apache ServiceMix](http://servicemix.apache.org/) or
@@ -21,7 +21,7 @@ command from its shell:
     feature:install fcrepo-audit-triplestore
     feature:install fcrepo-service-activemq
 
-##Configuration
+## Configuration
 
 The application can be configured by creating the following configuration
 file `$KARAF_HOME/etc/org.fcrepo.camel.audit.cfg`. The following values
