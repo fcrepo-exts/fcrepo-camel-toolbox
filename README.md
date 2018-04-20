@@ -177,6 +177,6 @@ Then, you can add any combination of the following applications:
 
 Current maintainers:
 
-* [Aaron Coburn](https://github.com/acoburn)
+* [Peter Eichman](https://github.com/peichman-umd)
 * [Daniel Lamb](https://github.com/dannylamb)
 * [Bethany Seeger](https://github.com/bseeger)
