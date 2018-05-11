@@ -24,9 +24,11 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.github.jsonldjava.sesame.SesameJSONLDParserFactory;
 import org.apache.marmotta.ldpath.LDPath;
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.Value;
@@ -52,6 +54,20 @@ import org.semarglproject.sesame.rdf.rdfa.SesameRDFaParserFactory;
 public class LDPathWrapper {
 
     private final LDPath<Value> ldpath;
+
+    /**
+     * Create an LDPathWrapper and register a set of selector functions.
+     *
+     * @param backend the linkeddata backend
+     * @param functions selector functions
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public LDPathWrapper(final LDCacheBackend backend, final Set<SelectorFunction> functions) {
+        this(backend);
+        for (SelectorFunction<Value> function : functions) {
+            ldpath.registerFunction(function);
+        }
+    }
 
     /**
      * Create an LDPathWrapper Object

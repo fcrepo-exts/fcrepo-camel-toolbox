@@ -1,0 +1,6 @@
+id      = . :: xsd:string ;
+
+type = rdf:type / rdfs:label :: xsd:string ;
+label = rdfs:label :: xsd:string ;
+comment = rdfs:comment :: xsd:string ;
+description = fn:concat(rdf:type / rdfs:label, " : ", rdfs:label) :: xsd:string ;
