@@ -1,108 +1,259 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" name="toolbox-features-${project.version}">
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0" name="toolbox-features-${project.version}">
   <repository>mvn:org.fcrepo.camel/fcrepo-camel/${fcrepo-camel.version}/xml/features</repository>
-  <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
-  <repository>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</repository>
-  <repository>mvn:org.infinispan/infinispan-core/${infinispan.version}/xml/features</repository>
-  <repository>mvn:org.infinispan/infinispan-cachestore-leveldb/${infinispan.version}/xml/features</repository>
 
-  <feature name="fcrepo-indexing-solr" version="${project.version}" start-level="50">
+  <feature name="fcrepo-audit-triplestore" version="${project.version}">
+    <details>Installs the fcrepo audit service with a triplestore backend</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-audit-triplestore-core</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-fixity" version="${project.version}">
+    <details>Installs the fcrepo fixity service</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-fixity-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-fixity-core</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-indexing-solr" version="${project.version}">
     <details>Installs the fcrepo solr indexer</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-indexing-solr-core</feature>
+    <feature version="${project.version}">fcrepo-ldpath</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-indexing-triplestore" version="${project.version}">
+    <details>Installs the core fcrepo triplestore indexer</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-triplestore-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-indexing-triplestore-core</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-ldpath" version="${project.version}">
+    <details>Installs the LDPath service</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-ldpath-blueprint/${project.version}</bundle>
+    <bundle>mvn:org.fcrepo.client/fcrepo-java-client/${fcrepo-java-client.version}</bundle>
+    <feature version="${project.version}">fcrepo-ldpath-core</feature>
+    <feature version="${project.version}">fcrepo-service-ldcache-file</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.ldpath.cfg">mvn:org.fcrepo.camel/fcrepo-ldpath-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-reindexing" version="${project.version}">
+    <details>Installs a re-indexing application</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-reindexing-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-reindexing-core</feature>
+    <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-serialization" version="${project.version}">
+    <details>Installs the fcrepo serialization tool</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-serialization-blueprint/${project.version}</bundle>
+    <feature version="${project.version}">fcrepo-serialization-core</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.serialization.cfg">mvn:org.fcrepo.camel/fcrepo-serialization-blueprint/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-indexing-solr-core" version="${project.version}">
+    <details>Installs the core fcrepo solr indexer</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}</bundle>
 
-    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang3.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
-
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.indexing.solr.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-solr/${project.version}/cfg/configuration</configfile>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel-mustache</feature>
+    <feature version="${project.version}">fcrepo-service-camel</feature>
   </feature>
 
-  <feature name="fcrepo-fixity" version="${project.version}" start-level="50">
-    <details>Installs the fcrepo fixity service</details>
+  <feature name="fcrepo-fixity-core" version="${project.version}">
+    <details>Installs the core fcrepo fixity service</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.fixity.cfg">mvn:org.fcrepo.camel/fcrepo-fixity/${project.version}/cfg/configuration</configfile>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
+    <feature version="${project.version}">fcrepo-service-camel</feature>
   </feature>
 
-  <feature name="fcrepo-indexing-triplestore" version="${project.version}" start-level="50">
-    <details>Installs the fcrepo triplestore indexer</details>
+  <feature name="fcrepo-indexing-triplestore-core" version="${project.version}">
+    <details>Installs the core fcrepo triplestore indexer</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}</bundle>
 
-    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang3.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.indexing.triplestore.cfg">mvn:org.fcrepo.camel/fcrepo-indexing-triplestore/${project.version}/cfg/configuration</configfile>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
+    <feature version="${project.version}">fcrepo-service-camel</feature>
   </feature>
 
-  <feature name="fcrepo-reindexing" version="${project.version}" start-level="50">
-    <details>Installs a re-indexing application</details>
+  <feature name="fcrepo-reindexing-core" version="${project.version}">
+    <details>Installs the core of a re-indexing application</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}</bundle>
 
-    <feature prerequisite="true">wrap</feature>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}</bundle>
-    <bundle dependency="true">wrap:mvn:com.github.spullara.mustache.java/compiler/${mustache.version}</bundle>
-    <bundle dependency="true">mvn:org.codehaus.woodstox/woodstox-core-asl/${woodstox.version}</bundle>
-
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-jetty9</feature>
-    <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.reindexing.cfg">mvn:org.fcrepo.camel/fcrepo-reindexing/${project.version}/cfg/configuration</configfile>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-jetty9</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
+    <feature version="${camel.version.range}">camel-mustache</feature>
+    <feature version="${camel.version.range}">camel-jackson</feature>
+    <feature version="${project.version}">fcrepo-service-camel</feature>
   </feature>
 
-  <feature name="fcrepo-audit-triplestore" version="${project.version}" start-level="50">
-    <details>Installs the fcrepo audit service with a triplestore backend</details>
+  <feature name="fcrepo-audit-triplestore-core" version="${project.version}">
+    <details>Installs the core fcrepo audit service with a triplestore backend</details>
     <bundle>mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}</bundle>
 
     <feature prerequisite="true">wrap</feature>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.audit.cfg">mvn:org.fcrepo.camel/fcrepo-audit-triplestore/${project.version}/cfg/configuration</configfile>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
+    <feature version="${project.version}">fcrepo-service-camel</feature>
   </feature>
 
-  <feature name="fcrepo-serialization" version="${project.version}" start-level="50">
+  <feature name="fcrepo-ldpath-core" version="${project.version}">
+    <details>Installs the core LDPath implementation</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-ldpath/${project.version}</bundle>
+
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-jackson</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-jetty9</feature>
+    <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
+  </feature>
+
+  <feature name="fcrepo-marmotta-osgi" version="${project.version}">
+    <details>Installs the marmotta dependencies</details>
+
+    <feature prerequisite="true">wrap</feature>
+
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang.version}</bundle>
+    <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
+    <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
+    <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+    <bundle dependency="true">mvn:commons-io/commons-io/${commons-io.version}</bundle>
+    <bundle dependency="true">mvn:commons-validator/commons-validator/${commons-validator.version}</bundle>
+    <bundle dependency="true">wrap:mvn:commons-digester/commons-digester/${commons-digester.version}</bundle>
+
+    <bundle dependency="true">mvn:org.apache.marmotta/ldpath-api/${marmotta.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.marmotta/ldcache-api/${marmotta.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-core/${marmotta.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldclient-core/${marmotta.version}</bundle>
+
+    <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+    <bundle dependency="true">mvn:org.jsoup/jsoup/${jsoup.version}</bundle>
+    <bundle dependency="true">mvn:joda-time/joda-time/${joda-time.version}</bundle>
+    <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/${cal10n.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.jdom/jdom2/${jdom2.version}</bundle>
+    <bundle dependency="true">mvn:jaxen/jaxen/${jaxen.version}</bundle>
+
+    <bundle dependency="true">mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
+    <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/fluent-hc/${fluent-hc.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpclient-cache/${httpclient-cache.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpcore-nio/${httpcore-nio.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpmime/${httpmime.version}</bundle>
+
+    <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-rdfa/${semargl.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-core/${semargl.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-rdf/${semargl.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.semarglproject/semargl-sesame/${semargl.version}</bundle>
+
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-repository-event/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-sail-memory/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-model/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-util/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-repository-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-query/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryresultio-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-rdfjson/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-rdfxml/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-turtle/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-datatypes/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-n3/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-repository-sail/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryparser-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryalgebra-model/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-trig/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-sail-api/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-sail-nativerdf/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-sail-inferencer/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryalgebra-evaluation/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-repository-sparql/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryparser-sparql/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-queryresultio-sparqlxml/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-http-client/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-http-protocol/${sesame.version}</bundle>
+    <bundle dependency="true">wrap:mvn:org.openrdf.sesame/sesame-rio-ntriples/${sesame.version}</bundle>
+    <bundle dependency="true">mvn:com.github.jsonld-java/jsonld-java-sesame/${jsonld.version}</bundle>
+    <bundle dependency="true">mvn:com.github.jsonld-java/jsonld-java/${jsonld.version}</bundle>
+  </feature>
+
+  <feature name="fcrepo-serialization-core" version="${project.version}">
     <details>Installs the fcrepo serialization tool</details>
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-serialization/${project.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${camel.version}">camel-exec</feature>
-    <feature version="${camel.version}">camel-http4</feature>
-    <feature version="${camel.version}">camel-blueprint</feature>
-    <feature version="${camel.version}">camel-spring</feature>
-    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
-    <configfile finalname="/etc/org.fcrepo.camel.serialization.cfg">mvn:org.fcrepo.camel/fcrepo-serialization/${project.version}/cfg/configuration</configfile>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${camel.version.range}">camel-exec</feature>
+    <feature version="${camel.version.range}">camel-http4</feature>
+    <feature version="${camel.version.range}">camel-blueprint</feature>
+    <feature version="${camel.version.range}">camel-spring</feature>
+    <feature version="${project.version}">fcrepo-service-camel</feature>
   </feature>
 
-  <feature name="fcrepo-service-activemq" version="${project.version}" start-level="50">
+  <feature name="fcrepo-service-ldcache-file" version="${project.version}">
+    <details>Installs the file-based LDCache backend</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-service-ldcache-file/${project.version}</bundle>
+
+    <feature prerequisite="true">wrap</feature>
+    <feature version="${project.version}">fcrepo-marmotta-osgi</feature>
+
+    <bundle dependency="true">wrap:mvn:org.apache.marmotta/ldcache-backend-file/${marmotta.version}</bundle>
+
+    <configfile finalname="/etc/org.fcrepo.camel.ldcache.file.cfg">mvn:org.fcrepo.camel/fcrepo-service-ldcache-file/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-service-activemq" version="${project.version}">
     <details>Installs the fcrepo activemq service</details>
 
     <bundle>mvn:org.fcrepo.camel/fcrepo-service-activemq/${project.version}</bundle>
 
-    <feature version="${camel.version}">camel</feature>
-    <feature version="${activemq.version}">activemq-camel</feature>
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${activemq.version.range}">activemq-camel</feature>
 
     <configfile finalname="/etc/org.fcrepo.camel.service.activemq.cfg">mvn:org.fcrepo.camel/fcrepo-service-activemq/${project.version}/cfg/configuration</configfile>
+  </feature>
+
+  <feature name="fcrepo-service-camel" version="${project.version}">
+    <details>Installs fcrepo-camel as a shared service</details>
+
+    <bundle>mvn:org.fcrepo.camel/fcrepo-service-camel/${project.version}</bundle>
+
+    <feature version="${camel.version.range}">camel</feature>
+    <feature version="${fcrepo-camel.version}">fcrepo-camel</feature>
+
+    <configfile finalname="/etc/org.fcrepo.camel.service.cfg">mvn:org.fcrepo.camel/fcrepo-service-camel/${project.version}/cfg/configuration</configfile>
   </feature>
 </features>

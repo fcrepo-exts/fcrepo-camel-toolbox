@@ -33,17 +33,6 @@ In the event of failure, the maximum number of times a redelivery will be attemp
 
     error.maxRedeliveries=10
 
-If the fedora repository requires authentication, the following values
-can be set:
-
-    fcrepo.authUsername=<username>
-    fcrepo.authPassword=<password>
-    fcrepo.authHost=<host realm>
-
-The baseUrl for the fedora repository.
-
-    fcrepo.baseUrl=localhost:8080/fcrepo/rest
-
 If you would like to index only those objects with a type `indexing:Indexable`,
 set this property to `true`
 
@@ -72,17 +61,18 @@ The camel URI for handling reindexing events.
 
 The base URL of the triplestore being used.
 
-    triplestore.baseUrl=localhost:8080/fuseki/test/update
+    triplestore.baseUrl=http://localhost:8080/fuseki/test/update
 
 A named graph for any objects being indexed in the triplestore. This value, if
 not left blank, should be a valid URI.
 
     triplestore.namedGraph=
 
-The location of the internal Audit trail, if using the `fcrepo-audit` extension module.
-Nodes at this location will not be indexed.
+A comma-delimited list of URIs to filter. That is, any Fedora resource that either
+matches or is contained in one of the URIs listed will not be processed by the
+fcrepo-indexing-triplestore application.
 
-    audit.container=/audit
+    filter.containers=http://localhost:8080/fcrepo/rest/audit
 
 By editing this file, any currently running routes will be immediately redeployed
 with the new values.

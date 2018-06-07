@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,8 +17,6 @@
  */
 package org.fcrepo.camel.karaf;
 
-import static java.net.URI.create;
-import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.impl.client.HttpClients.createDefault;
 import static org.junit.Assert.assertEquals;
@@ -38,18 +38,13 @@ import static org.osgi.framework.FrameworkUtil.createFilter;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
-import java.net.URI;
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.karaf.features.FeaturesService;
-import org.fcrepo.client.FcrepoClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -100,6 +95,9 @@ public class KarafIT {
         final String fcrepoIndexingSolr = getBundleUri("fcrepo-indexing-solr", version);
         final String fcrepoIndexingTriplestore = getBundleUri("fcrepo-indexing-triplestore", version);
         final String fcrepoServiceAmq = getBundleUri("fcrepo-service-activemq", version);
+        final String fcrepoService = getBundleUri("fcrepo-service-camel", version);
+
+        final String fcrepoReindexingBlueprint = getBlueprintUri("fcrepo-reindexing-blueprint", version);
 
         return new Option[] {
             karafDistributionConfiguration()
@@ -129,6 +127,7 @@ public class KarafIT {
             CoreOptions.systemProperty("o.f.c.i.triplestore-bundle").value(fcrepoIndexingTriplestore),
             CoreOptions.systemProperty("o.f.c.i.solr-bundle").value(fcrepoIndexingSolr),
             CoreOptions.systemProperty("o.f.c.s.activemq-bundle").value(fcrepoServiceAmq),
+            CoreOptions.systemProperty("o.f.c.s.camel-bundle").value(fcrepoService),
 
             bundle(fcrepoAudit).start(),
             bundle(fcrepoIndexingSolr).start(),
@@ -137,22 +136,22 @@ public class KarafIT {
             bundle(fcrepoSerialization).start(),
             bundle(fcrepoReindexing).start(),
             bundle(fcrepoServiceAmq).start(),
+            bundle(fcrepoService).start(),
+            bundle(fcrepoReindexingBlueprint).start(),
 
             CoreOptions.systemProperty("fcrepo.port").value(fcrepoPort),
             CoreOptions.systemProperty("karaf.reindexing.port").value(reindexingPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
             editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort),
-            editConfigurationFilePut("etc/org.fcrepo.camel.audit.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
-            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.triplestore.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
-            editConfigurationFilePut("etc/org.fcrepo.camel.indexing.solr.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
-            editConfigurationFilePut("etc/org.fcrepo.camel.serialization.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.serialization.cfg", "serialization.descriptions",
                     "data/tmp/descriptions"),
-            editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.reindexing.cfg", "rest.port", reindexingPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.baseUrl", fcrepoBaseUrl),
             editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.brokerUrl",
-                    "tcp://localhost:" + jmsPort)
+                    "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.ops4j.pax.logging.cfg",
+                    "log4j.logger.org.apache.camel.impl.converter", "ERROR, stdout")
        };
     }
 
@@ -174,6 +173,7 @@ public class KarafIT {
         assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.i.solr-bundle")).getState());
         assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.i.triplestore-bundle")).getState());
         assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.s.activemq-bundle")).getState());
+        assertEquals(ACTIVE, bundleContext.getBundle(System.getProperty("o.f.c.s.camel-bundle")).getState());
     }
 
     @Test
@@ -181,35 +181,11 @@ public class KarafIT {
         final CamelContext ctx = getOsgiService(CamelContext.class, "(camel.context.name=FcrepoIndexer)", 10000);
         assertNotNull(ctx);
 
-        // We aren't running solr or a triplestore, so stop these to prevent
-        // unnecessary errors.
-        bundleContext.getBundle(System.getProperty("o.f.c.i.solr-bundle")).stop();
-        bundleContext.getBundle(System.getProperty("o.f.c.i.triplestore-bundle")).stop();
-
-        final FcrepoClient fcrepoClient = new FcrepoClient(null, null, null, true);
-        final URI baseUrl = create("http://localhost:" + System.getProperty("fcrepo.port") + "/fcrepo/rest");
-        final URI url1 = fcrepoClient.post(baseUrl, null, null).getLocation();
-        final URI url2 = fcrepoClient.post(baseUrl, null, null).getLocation();
-        fcrepoClient.post(url1, null, null);
-        fcrepoClient.post(url2, null, null);
-
-        final MockEndpoint resultEndpoint = (MockEndpoint) ctx.getEndpoint("mock:results");
-        resultEndpoint.expectedMessageCount(5);
-
         final CloseableHttpClient client = createDefault();
         final String reindexingUrl = "http://localhost:" + System.getProperty("karaf.reindexing.port") + "/reindexing/";
         try (final CloseableHttpResponse response = client.execute(new HttpGet(reindexingUrl))) {
             assertEquals(SC_OK, response.getStatusLine().getStatusCode());
         }
-
-        final HttpPost post = new HttpPost(reindexingUrl);
-        post.addHeader("Content-Type", "application/json");
-        post.setEntity(new StringEntity("[\"mock:results\"]"));
-        try (final CloseableHttpResponse response = client.execute(post)) {
-            assertEquals(SC_OK, response.getStatusLine().getStatusCode());
-        }
-
-        assertIsSatisfied(resultEndpoint);
     }
 
     private <T> T getOsgiService(final Class<T> type, final String filter, final long timeout) {
@@ -227,6 +203,15 @@ public class KarafIT {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String getBlueprintUri(final String artifactId, final String version) {
+        final File artifact = new File(getBaseDir() + "/../blueprint/" + artifactId + "/target/" +
+                artifactId + "-" + version + ".jar");
+        if (artifact.exists()) {
+            return artifact.toURI().toString();
+        }
+        return "mvn:org.fcrepo.camel/" + artifactId + "/" + version;
     }
 
     private static String getBundleUri(final String artifactId, final String version) {

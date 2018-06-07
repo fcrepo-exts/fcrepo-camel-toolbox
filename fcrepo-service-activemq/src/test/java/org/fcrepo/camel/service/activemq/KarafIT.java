@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -18,11 +20,13 @@ package org.fcrepo.camel.service.activemq;
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.impl.client.HttpClientBuilder.create;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.streamBundle;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
@@ -55,7 +59,11 @@ import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.tinybundles.core.TinyBundles;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -65,6 +73,7 @@ import org.slf4j.Logger;
  * @since May 4, 2016
  */
 @RunWith(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class KarafIT {
 
     private static Logger LOGGER = getLogger(KarafIT.class);
@@ -88,21 +97,21 @@ public class KarafIT {
         return new Option[] {
             karafDistributionConfiguration()
                 .frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf")
-                        .version("4.0.4").type("zip"))
+                        .versionAsInProject().type("zip"))
                 .unpackDirectory(new File("target", "exam"))
                 .useDeployFolder(false),
             logLevel(LogLevel.WARN),
             keepRuntimeFolder(),
             configureConsole().ignoreLocalConsole(),
             features(maven().groupId("org.apache.karaf.features").artifactId("standard")
-                        .type("xml").classifier("features").version("4.0.4"), "scr"),
+                        .type("xml").classifier("features").versionAsInProject(), "scr"),
             features(maven().groupId("org.apache.camel.karaf").artifactId("apache-camel")
-                        .type("xml").classifier("features").version("2.17.0"), "camel",
-                        "camel-blueprint"),
+                        .type("xml").classifier("features").versionAsInProject(), "camel",
+                        "camel-blueprint", "camel-http4", "camel-jms"),
             features(maven().groupId("org.apache.activemq").artifactId("activemq-karaf")
-                        .type("xml").classifier("features").version("5.13.2"), "activemq-camel"),
+                        .type("xml").classifier("features").versionAsInProject(), "activemq-camel"),
             features(maven().groupId("org.fcrepo.camel").artifactId("fcrepo-camel")
-                        .type("xml").classifier("features").version("4.4.2"), "fcrepo-camel"),
+                        .type("xml").classifier("features").versionAsInProject(), "fcrepo-camel"),
 
             CoreOptions.systemProperty("fcrepo.port").value(fcrepoPort),
             CoreOptions.systemProperty("jms.port").value(jmsPort),
@@ -110,9 +119,21 @@ public class KarafIT {
 
             editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.brokerUrl",
                     "tcp://localhost:" + jmsPort),
+            editConfigurationFilePut("etc/org.ops4j.pax.logging.cfg",
+                    "log4j.logger.org.apache.camel.impl.converter", "ERROR, stdout"),
 
             bundle(fcrepoServiceBundle).start(),
+            streamBundle(
+                    TinyBundles.bundle().add("OSGI-INF/blueprint/blueprint-test.xml",
+                    new File("src/test/resources/OSGI-INF/blueprint/blueprint-test.xml").toURL())
+                    .set(Constants.BUNDLE_SYMBOLICNAME, "org.fcrepo.camel.service.activemq.test")
+                    .set(Constants.BUNDLE_MANIFESTVERSION, "2")
+                    .set(Constants.DYNAMICIMPORT_PACKAGE, "*")
+                    .build()
+                ).start(),
 
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.consumers", "1"),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.connections", "1"),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
             editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort)
@@ -136,13 +157,13 @@ public class KarafIT {
         assertNotNull(ctx);
 
         final MockEndpoint resultEndpoint = (MockEndpoint) ctx.getEndpoint("mock:result");
+        resultEndpoint.reset();
 
-        final String url1 = post(baseUrl).replace(baseUrl, "");
-        final String url2 = post(baseUrl).replace(baseUrl, "");
-        final HttpPost post = new HttpPost(baseUrl);
+        final String url1 = post(baseUrl);
+        final String url2 = post(baseUrl);
 
-        resultEndpoint.expectedMinimumMessageCount(2);
-        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder("org.fcrepo.jms.identifier", url1, url2);
+        resultEndpoint.expectedMessageCount(4);
+        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(FCREPO_URI, url1, url2, baseUrl, baseUrl);
         assertIsSatisfied(resultEndpoint);
     }
 

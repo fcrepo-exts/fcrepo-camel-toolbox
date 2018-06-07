@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,6 +17,10 @@
  */
 package org.fcrepo.camel.reindexing.integration;
 
+import static org.apache.camel.Exchange.HTTP_URI;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENTS;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_PREFIX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -36,8 +42,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.fcrepo.camel.reindexing.ReindexingHeaders;
-import org.fcrepo.camel.FcrepoHeaders;
+import org.fcrepo.camel.FcrepoComponent;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -82,12 +87,17 @@ public class RouteIT extends CamelBlueprintTestSupport {
     @Override
     protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
-        final ActiveMQComponent component = new ActiveMQComponent();
+        final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
+        final ActiveMQComponent amq = new ActiveMQComponent();
 
-        component.setBrokerURL("tcp://localhost:" + jmsPort);
-        component.setExposeAllQueues(true);
+        amq.setBrokerURL("tcp://localhost:" + jmsPort);
+        amq.setExposeAllQueues(true);
 
-        services.put("broker", asService(component, null));
+        final FcrepoComponent fcrepo = new FcrepoComponent();
+        fcrepo.setBaseUrl("http://localhost:" + webPort + "/fcrepo/rest");
+
+        services.put("broker", asService(amq, "osgi.jndi.service.name", "fcrepo/Broker"));
+        services.put("fcrepo", asService(fcrepo, "osgi.jndi.service.name", "fcrepo/Camel"));
     }
 
     @Override
@@ -97,11 +107,9 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
-        final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
         final String restPort = System.getProperty("fcrepo.dynamic.reindexing.port", "9080");
 
         final Properties props = new Properties();
-        props.put("fcrepo.baseUrl", "localhost:" + webPort + "/fcrepo/rest");
         props.put("reindexing.stream", "broker:queue:reindexing");
         props.put("rest.prefix", "/reindexing");
         props.put("rest.port", restPort);
@@ -117,12 +125,10 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
         template.send("direct:reindex", new Processor() {
             public void process(final Exchange exchange) throws Exception {
-                exchange.getIn().setHeader(ReindexingHeaders.RECIPIENTS, "mock:result");
-                exchange.getIn().setHeader(FcrepoHeaders.FCREPO_BASE_URL,
-                    "http://localhost:" + webPort + "/fcrepo/rest");
-                exchange.getIn().setHeader(FcrepoHeaders.FCREPO_IDENTIFIER, "/");
-                exchange.getIn().setHeader(Exchange.HTTP_URI, "http://localhost:9080/reindexing/");
-                exchange.getIn().setHeader(ReindexingHeaders.REST_PREFIX, "/reindexing");
+                exchange.getIn().setHeader(REINDEXING_RECIPIENTS, "mock:result");
+                exchange.getIn().setHeader(FCREPO_URI, "http://localhost:" + webPort + "/fcrepo/rest/");
+                exchange.getIn().setHeader(HTTP_URI, "http://localhost:9080/reindexing/");
+                exchange.getIn().setHeader(REINDEXING_PREFIX, "/reindexing");
             }
         });
 

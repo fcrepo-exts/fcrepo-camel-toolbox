@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,12 +17,18 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
+import static java.util.stream.Collectors.toList;
+import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.fcrepo.camel.processor.EventProcessor;
+import org.slf4j.Logger;
 
 /**
  * A content router for handling JMS events.
@@ -29,6 +37,8 @@ import org.apache.camel.builder.RouteBuilder;
  * @author escowles
  */
 public class EventRouter extends RouteBuilder {
+
+    private static final Logger LOGGER = getLogger(EventRouter.class);
 
     /**
      * Configure the message route workflow.
@@ -47,8 +57,12 @@ public class EventRouter extends RouteBuilder {
          */
         from("{{input.stream}}")
             .routeId("AuditFcrepoRouter")
-            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
-                           header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
+            .process(new EventProcessor())
+            .filter(not(in(tokenizePropertyPlaceholder(getContext(), "{{filter.containers}}", ",").stream()
+                        .map(uri -> or(
+                            header(FCREPO_URI).startsWith(constant(uri + "/")),
+                            header(FCREPO_URI).isEqualTo(constant(uri))))
+                        .collect(toList()))))
                 .to("direct:event");
 
         from("direct:event")
@@ -56,7 +70,7 @@ public class EventRouter extends RouteBuilder {
             .setHeader(AuditHeaders.EVENT_BASE_URI, simple("{{event.baseUri}}"))
             .process(new AuditSparqlProcessor())
             .log(LoggingLevel.INFO, "org.fcrepo.camel.audit",
-                    "Audit Event: ${headers[org.fcrepo.jms.identifier]} :: ${headers[CamelAuditEventUri]}")
-            .to("http4:{{triplestore.baseUrl}}");
+                    "Audit Event: ${headers.CamelFcrepoUri} :: ${headers[CamelAuditEventUri]}")
+            .to("{{triplestore.baseUrl}}?useSystemProperties=true");
     }
 }

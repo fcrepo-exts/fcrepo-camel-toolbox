@@ -6,13 +6,13 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo-parent</artifactId>
-    <version>4.5.1</version>
+    <version>4.6.0</version>
   </parent>
 
   <groupId>org.fcrepo.camel</groupId>
   <artifactId>fcrepo-camel-toolbox</artifactId>
   <packaging>pom</packaging>
-  <version>4.5.3-SNAPSHOT</version>
+  <version>4.7.2-umd-1.0</version>
 
   <name>Fedora4 Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
@@ -30,35 +30,40 @@
     <project_organization>fcrepo4-exts</project_organization>
     <project.copyrightYear>2016</project.copyrightYear>
 
+    <!-- version ranges -->
+    <activemq.version.range>[5.14,6)</activemq.version.range>
+    <camel.version.range>[2.18,3)</camel.version.range>
+
     <!-- dependencies -->
-    <activemq.version>5.13.2</activemq.version>
-    <camel.version>2.17.1</camel.version>
+    <activemq.version>5.14.1</activemq.version>
+    <camel.version>2.18.0</camel.version>
     <commons.lang3.version>3.4</commons.lang3.version>
     <jackson2.version>2.7.3</jackson2.version>
-    <jena.version>2.13.0</jena.version>
+    <jena.version>3.1.1</jena.version>
     <logback.version>1.1.7</logback.version>
-    <mustache.version>0.9.1</mustache.version>
+    <marmotta.version>3.3.0</marmotta.version>
     <slf4j.version>1.7.20</slf4j.version>
     <spring.version>4.2.5.RELEASE</spring.version>
-    <fcrepo.version>4.5.1</fcrepo.version>
-    <fcrepo-java-client.version>0.1.3</fcrepo-java-client.version>
-    <fcrepo-camel.version>4.4.2</fcrepo-camel.version>
-    <fcrepo-build-tools.version>4.4.1</fcrepo-build-tools.version>
+    <fcrepo.version>4.7.0</fcrepo.version>
+    <fcrepo-java-client.version>0.2.1</fcrepo-java-client.version>
+    <fcrepo-camel.version>4.5.0</fcrepo-camel.version>
     <woodstox.version>4.4.1</woodstox.version>
     <!-- testing -->
     <awaitility.version>1.7.0</awaitility.version>
     <commons.codec.version>1.10</commons.codec.version>
     <commons.io.version>2.4</commons.io.version>
     <commons.logging.version>1.1.3</commons.logging.version>
-    <grizzly.version>2.3.24</grizzly.version>
+    <grizzly.version>2.3.16</grizzly.version>
     <hamcrest.version>1.3</hamcrest.version>
     <httpclient.version>4.3.6</httpclient.version>
+    <httpcore.version>4.4.6</httpcore.version>
     <hk2.version>2.3.0</hk2.version>
-    <jena.fuseki.version>1.1.1</jena.fuseki.version>
-    <jersey.version>2.15</jersey.version>
-    <karaf.version>4.0.4</karaf.version>
+    <jena.fuseki.version>2.4.1</jena.fuseki.version>
+    <jersey.version>2.22.2</jersey.version>
+    <karaf.version>4.0.6</karaf.version>
     <pax-exam.version>4.8.0</pax-exam.version>
     <solr.version>4.10.2</solr.version>
+    <xerces.version>2.11.0</xerces.version>
     <!-- osgi -->
     <osgi.import.packages>*</osgi.import.packages>
     <!-- plugins -->
@@ -71,9 +76,13 @@
     <module>fcrepo-fixity</module>
     <module>fcrepo-indexing-solr</module>
     <module>fcrepo-indexing-triplestore</module>
+    <module>fcrepo-ldpath</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-serialization</module>
     <module>fcrepo-service-activemq</module>
+    <module>fcrepo-service-camel</module>
+    <module>fcrepo-service-ldcache-file</module>
+    <module>blueprint</module>
     <module>toolbox-features</module>
   </modules>
 
@@ -109,6 +118,11 @@
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
+        <artifactId>camel-jms</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
         <artifactId>camel-exec</artifactId>
         <version>${camel.version}</version>
       </dependency>
@@ -119,12 +133,27 @@
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
+        <artifactId>camel-jackson</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
         <artifactId>camel-spring</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-mustache</artifactId>
         <version>${camel.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-camel</artifactId>
+        <version>${activemq.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-pool</artifactId>
         <version>${activemq.version}</version>
       </dependency>
       <dependency>
@@ -146,16 +175,6 @@
         <groupId>org.fcrepo.client</groupId>
         <artifactId>fcrepo-java-client</artifactId>
         <version>${fcrepo-java-client.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
@@ -188,16 +207,46 @@
         <version>${jackson2.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.github.spullara.mustache.java</groupId>
-        <artifactId>compiler</artifactId>
-        <version>${mustache.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.glassfish.hk2.external</groupId>
         <artifactId>javax.inject</artifactId>
         <version>${hk2.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldpath-core</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldpath-backend-linkeddata</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldcache-backend-file</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldcache-api</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldclient-provider-xml</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>ldclient-provider-rdf</artifactId>
+        <version>${marmotta.version}</version>
+      </dependency>
 
       <!-- Spring -->
       <dependency>
@@ -264,6 +313,13 @@
         <groupId>com.jayway.awaitility</groupId>
         <artifactId>awaitility</artifactId>
         <version>${awaitility.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>${xerces.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -367,7 +423,7 @@
 
       <dependency>
         <groupId>org.apache.jena</groupId>
-        <artifactId>jena-fuseki</artifactId>
+        <artifactId>jena-fuseki-embedded</artifactId>
         <version>${jena.fuseki.version}</version>
         <scope>test</scope>
         <exclusions>
@@ -551,6 +607,43 @@
     </plugins>
   </build>
 
+  <developers>
+    <developer>
+      <id>acoburn</id>
+      <name>Aaron Coburn</name>
+      <email>acoburn@amherst.edu</email>
+      <organization>Amherst College</organization>
+      <organizationUrl>http://www.amherst.edu</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+
+    <developer>
+      <id>dlamb</id>
+      <name>Danny Lamb</name>
+      <email>dlamb@islandora.ca</email>
+      <organization>Islandora Foundation</organization>
+      <organizationUrl>http://islandora.ca</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-4</timezone>
+    </developer>
+
+    <developer>
+      <id>bseeger</id>
+      <name>Bethany Seeger</name>
+      <email>bseeger@amherst.edu</email>
+      <organization>Amherst College</organization>
+      <organizationUrl>http://www.amherst.edu</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+  </developers>
   <issueManagement>
     <system>GitHub</system>
     <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox/issues</url>
@@ -565,6 +658,6 @@
     <connection>scm:git:git://github.com/fcrepo4-exts/fcrepo-camel-toolbox.git</connection>
     <developerConnection>scm:git:git@github.com:fcrepo4-exts/fcrepo-camel-toolbox.git</developerConnection>
     <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox</url>
-    <tag>HEAD</tag>
+    <tag>fcrepo-camel-toolbox-4.7.2</tag>
   </scm>
 </project>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+       xsi:schemaLocation="
+       http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+  <!-- OSGi blueprint property placeholder -->
+  <cm:property-placeholder id="properties" persistent-id="org.fcrepo.camel.serialization" update-strategy="reload">
+    <cm:default-properties>
+        <cm:property name="error.maxRedeliveries" value="10"/>
+        <cm:property name="input.stream" value="broker:topic:fedora"/>
+        <cm:property name="serialization.stream" value="broker:queue:serialization"/>
+        <cm:property name="serialization.descriptions" value="/tmp/descriptions"/>
+        <cm:property name="serialization.binaries" value="/tmp/binaries"/>
+        <cm:property name="serialization.includeBinaries" value="false"/>
+        <cm:property name="serialization.mimeType" value="text/turtle"/>
+        <cm:property name="serialization.extension" value="ttl"/>
+        <cm:property name="filter.containers" value="http://localhost:8080/fcrepo/rest/audit"/>
+    </cm:default-properties>
+  </cm:property-placeholder>
+
+  <reference id="broker" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Broker)"/>
+  <reference id="fcrepo" interface="org.apache.camel.Component" filter="(osgi.jndi.service.name=fcrepo/Camel)"/>
+
+  <camelContext id="FcrepoSerialization" xmlns="http://camel.apache.org/schema/blueprint">
+      <package>org.fcrepo.camel.serialization</package>
+  </camelContext>
+
+</blueprint>

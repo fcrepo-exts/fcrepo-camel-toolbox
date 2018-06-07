@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -54,7 +56,7 @@ public abstract class AbstractRouteTest extends CamelBlueprintTestSupport {
 
     @Override
     protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint.xml";
+        return "/OSGI-INF/blueprint/blueprint-test.xml";
     }
 
     @Override
@@ -64,11 +66,11 @@ public abstract class AbstractRouteTest extends CamelBlueprintTestSupport {
         props.put("serialization.stream", "seda:foo");
         props.put("input.stream", "seda:bar");
         props.put("serialization.format", "RDF_XML");
-        props.put("serialization.descriptions", "mock:direct:metadata_file");
-        props.put("serialization.binaries", "mock:direct:binary_file");
+        props.put("serialization.descriptions", "metadata_file");
+        props.put("serialization.binaries", "binary_file");
         // in here to clearly show that we won't include binaries by default
         props.put("serialization.includeBinaries", "false");
-        props.put("audit.container", auditContainer);
+        props.put("filter.containers", baseURL + auditContainer);
 
         return props;
     }

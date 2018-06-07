@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.fcrepo.camel</groupId>
     <artifactId>fcrepo-camel-toolbox</artifactId>
-    <version>4.5.3-SNAPSHOT</version>
+    <version>4.7.2-umd-1.0</version>
   </parent>
 
   <artifactId>fcrepo-audit-triplestore</artifactId>
@@ -59,8 +59,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.jena</groupId>
-        <artifactId>jena-fuseki</artifactId>
-        <scope>test</scope>
+        <artifactId>jena-fuseki-embedded</artifactId>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -84,7 +83,6 @@
       </plugin>
 
       <!-- reserve network ports for integration testing -->
-      <!-- add configuration file to artifact set for OSGi deployment -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -93,24 +91,6 @@
             <portName>fuseki.dynamic.test.port</portName>
           </portNames>
         </configuration>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>src/main/cfg/org.fcrepo.camel.audit.cfg</file>
-                  <type>cfg</type>
-                  <classifier>configuration</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>

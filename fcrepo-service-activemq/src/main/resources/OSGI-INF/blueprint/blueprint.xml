@@ -4,8 +4,7 @@
        xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
        xsi:schemaLocation="
        http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
-       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
    <!-- OSGI blueprint property placeholder -->
    <cm:property-placeholder id="properties" persistent-id="org.fcrepo.camel.service.activemq" update-strategy="reload">
@@ -13,19 +12,41 @@
        <cm:property name="jms.brokerUrl" value="tcp://localhost:61616"/>
        <cm:property name="jms.username" value=""/>
        <cm:property name="jms.password" value=""/>
+       <!-- before overriding these values, reading these articles is advised:
+            http://blog.christianposta.com/lesson-learned/lessons-learned-activemq-apache-camel-and-connection-pooling/
+            http://camel.apache.org/activemq.html#ActiveMQ-Usingconnectionpooling
+            In particular, the jms.consumers value should only be > 1 if the camel routes are all reading from queues.
+        -->
+       <cm:property name="jms.connections" value="10"/>
+       <cm:property name="jms.consumers" value="1"/>
      </cm:default-properties>
    </cm:property-placeholder>
 
   <!-- configuration of activemq component -->
-  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+  <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
     <property name="brokerURL" value="${jms.brokerUrl}"/>
     <property name="userName" value="${jms.username}"/>
     <property name="password" value="${jms.password}"/>
   </bean>
 
+  <bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory"
+        init-method="start" destroy-method="stop">
+    <property name="maxConnections" value="${jms.connections}"/>
+    <property name="connectionFactory" ref="connectionFactory"/>
+  </bean>
+
+  <bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+    <property name="connectionFactory" ref="pooledConnectionFactory"/>
+    <property name="concurrentConsumers" value="${jms.consumers}"/>
+  </bean>
+
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <property name="configuration" ref="jmsConfig"/>
+  </bean>
+
   <service ref="activemq" interface="org.apache.camel.Component">
     <service-properties>
-      <entry key="osgi.jndi.service.name" value="fcrepoqueue"/>
+      <entry key="osgi.jndi.service.name" value="fcrepo/Broker"/>
     </service-properties>
   </service>
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+  xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+  http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0 http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.2.xsd
+  http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd"
+  default-activation="lazy">
+
+  <!-- system environment property placeholders -->
+  <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
+
+  <!-- OSGi blueprint property placeholder -->
+  <cm:property-placeholder persistent-id="org.fcrepo.camel.ldcache.file" update-strategy="reload" >
+    <cm:default-properties>
+      <cm:property name="ldcache.directory" value="$[karaf.data]/ldcache"/>
+    </cm:default-properties>
+  </cm:property-placeholder>
+
+  <bean id="cacheDir" class="java.io.File">
+    <argument value="${ldcache.directory}"/>
+  </bean>
+
+  <bean id="backend" class="org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend" init-method="initialize" destroy-method="shutdown">
+    <argument ref="cacheDir"/>
+  </bean>
+
+  <service ref="backend" interface="org.apache.marmotta.ldcache.api.LDCachingBackend">
+    <service-properties>
+      <entry key="osgi.jndi.service.name" value="fcrepo/LDCacheBackend"/>
+    </service-properties>
+  </service>
+
+</blueprint>

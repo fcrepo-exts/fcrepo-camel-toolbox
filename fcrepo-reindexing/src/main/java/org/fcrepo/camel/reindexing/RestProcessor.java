@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,6 +17,10 @@
  */
 package org.fcrepo.camel.reindexing;
 
+import static java.lang.String.join;
+import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_RESPONSE_CODE;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENTS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.HashSet;
@@ -28,7 +34,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.fcrepo.camel.FcrepoHeaders;
 import org.slf4j.Logger;
 
 /**
@@ -46,6 +51,8 @@ public class RestProcessor implements Processor {
 
     private static final int BAD_REQUEST = 400;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     /**
      * Convert the incoming REST request into the correct
      * Fcrepo header fields.
@@ -55,23 +62,17 @@ public class RestProcessor implements Processor {
     public void process(final Exchange exchange) throws Exception {
         final Message in = exchange.getIn();
 
-        final String path = in.getHeader(Exchange.HTTP_PATH, "", String.class);
-        final String contentType = in.getHeader(Exchange.CONTENT_TYPE, "", String.class);
+        final String contentType = in.getHeader(CONTENT_TYPE, "", String.class);
         final String body = in.getBody(String.class);
         final Set<String> endpoints = new HashSet<>();
 
-        for (final String s : in.getHeader(ReindexingHeaders.RECIPIENTS, "", String.class).split(",")) {
+        for (final String s : in.getHeader(REINDEXING_RECIPIENTS, "", String.class).split(",")) {
             endpoints.add(s.trim());
         }
 
-        in.removeHeaders("CamelHttp*");
-        in.removeHeader("JMSCorrelationID");
-        in.setBody(null);
-
         if (contentType.equals("application/json") && body != null && !body.trim().isEmpty()) {
-            final ObjectMapper mapper = new ObjectMapper();
             try {
-                final JsonNode root = mapper.readTree(body);
+                final JsonNode root = MAPPER.readTree(body);
                 final Iterator<JsonNode> ite = root.elements();
                 while (ite.hasNext()) {
                     final JsonNode n = ite.next();
@@ -79,12 +80,10 @@ public class RestProcessor implements Processor {
                 }
             } catch (JsonProcessingException e) {
                 LOGGER.debug("Invalid JSON", e);
-                in.setHeader(Exchange.HTTP_RESPONSE_CODE, BAD_REQUEST);
+                in.setHeader(HTTP_RESPONSE_CODE, BAD_REQUEST);
                 in.setBody("Invalid JSON");
             }
         }
-
-        in.setHeader(FcrepoHeaders.FCREPO_IDENTIFIER, path);
-        in.setHeader(ReindexingHeaders.RECIPIENTS, String.join(",", endpoints));
+        in.setHeader(REINDEXING_RECIPIENTS, join(",", endpoints));
     }
 }

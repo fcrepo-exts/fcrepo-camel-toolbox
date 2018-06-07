@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -64,6 +66,47 @@ public class TestUtils {
         final CloseableHttpClient httpClient = HttpClients.createDefault();
         final HttpGet get = new HttpGet(url);
         return httpClient.execute(get).getEntity().getContent();
+    }
+
+    /**
+     * Get an event for a given URL
+     *
+     * @param subject the URL
+     * @param eventType the event type
+     * @return the event message as JSON
+     */
+    public static String getEvent(final String subject, final String eventType) {
+        return "{\"@context\" : {" +
+            "\"prov\" : \"http://www.w3.org/ns/prov#\" ," +
+            "\"foaf\" : \"http://xmlns.com/foaf/0.1/\" ," +
+            "\"dcterms\" : \"http://purl.org/dc/terms/\" ," +
+            "\"xsd\" : \"http://www.w3.org/2001/XMLSchema#\" ," +
+            "\"type\" : \"@type\" , " +
+            "\"id\" : \"@id\" ," +
+            "\"atTime\" : { \"@id\" : \"prov:atTime\", \"@type\" : \"xsd:dateTime\" } ," +
+            "\"identifier\" : { \"@id\" : \"dcterms:identifier\" , \"@type\" : \"@id\" } ," +
+            "\"isPartOf\" : { \"@id\" : \"dcterms:isPartOf\", \"@type\" : \"@id\" } ," +
+            "\"name\" : { \"@id\" : \"foaf:name\", \"@type\" : \"xsd:string\" } ," +
+            "\"wasAttributedTo\" : { \"@id\" : \"prov:wasAttributedTo\", \"@type\" : \"@id\" } ," +
+            "\"wasGeneratedBy\" : { \"@id\" : \"prov:wasGeneratedBy\", \"@type\" : \"@id\" }" +
+          "} ," +
+          "\"id\" : \"" + subject + "\" ," +
+          "\"type\" : [ " +
+            "\"http://www.w3.org/ns/prov#Entity\" ," +
+            "\"http://fedora.info/definitions/v4/repository#Resource\" ," +
+            "\"http://fedora.info/definitions/v4/repository#Container\" ] ," +
+          "\"wasGeneratedBy\" : {" +
+            "\"type\" : [" +
+              "\"http://www.w3.org/ns/prov#Activity\" ," +
+              "\"" + eventType + "\" ] ," +
+            "\"identifier\" : \"urn:uuid:3c834a8f-5638-4412-aa4b-35ea80416a18\" ," +
+            "\"atTime\" : \"2016-05-19T17:17:39-04:00Z\" } ," +
+          "\"wasAttributedTo\" : [" +
+            "{ \"type\" : \"http://www.w3.org/ns/prov#Person\" ," +
+              "\"name\" : \"fedo raAdmin\" }," +
+            "{ \"type\" : \"http://www.w3.org/ns/prov#SoftwareAgent\" ," +
+              "\"name\" : \"CLAW client/1.0\" } ]" +
+        "}";
     }
 
     /**

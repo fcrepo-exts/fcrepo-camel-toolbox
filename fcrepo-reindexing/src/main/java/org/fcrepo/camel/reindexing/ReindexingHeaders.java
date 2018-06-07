@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,14 +19,15 @@ package org.fcrepo.camel.reindexing;
 
 /**
  * A class defining header values for the indexing routes
- * 
+ *
  * @author acoburn
  * @since May 22, 2015
  */
 public final class ReindexingHeaders {
-    public static final String REST_PORT = "CamelFcrepoReindexingRestPort";
-    public static final String REST_PREFIX = "CamelFcrepoReindexingRestPrefix";
-    public static final String RECIPIENTS = "CamelFcrepoReindexingRecipients";
+    public static final String REINDEXING_PORT = "CamelReindexingPort";
+    public static final String REINDEXING_PREFIX = "CamelReindexingPrefix";
+    public static final String REINDEXING_RECIPIENTS = "CamelReindexingRecipients";
+    public static final String REINDEXING_HOST = "CamelReindexingHost";
 
     private ReindexingHeaders() {
         // prevent instantiation

@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,15 +17,17 @@
  */
 package org.fcrepo.camel.indexing.triplestore.integration;
 
+import static java.lang.Integer.parseInt;
 import static com.jayway.awaitility.Awaitility.await;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
+import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.getEvent;
+import static org.fcrepo.client.FcrepoClient.client;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.camel.EndpointInject;
@@ -33,9 +37,9 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.apache.camel.util.ObjectHelper;
-import org.apache.jena.fuseki.EmbeddedFusekiServer;
-import org.fcrepo.camel.JmsHeaders;
+import org.apache.jena.fuseki.embedded.FusekiEmbeddedServer;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.sparql.core.DatasetImpl;
 import org.fcrepo.client.FcrepoClient;
 import org.fcrepo.client.FcrepoResponse;
 
@@ -54,7 +58,9 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
 
     final private Logger logger = getLogger(RouteUpdateIT.class);
 
-    private static EmbeddedFusekiServer server = null;
+    private static FusekiEmbeddedServer server = null;
+
+    private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
 
     private String fullPath = "";
 
@@ -72,17 +78,18 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
 
     @Override
     protected void doPreSetup() throws Exception {
-        final FcrepoClient client = new FcrepoClient(null, null, null, true);
-        final FcrepoResponse res = client.post(
-                URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"),
-                ObjectHelper.loadResourceAsStream("indexable.ttl"), "text/turtle");
+        final FcrepoClient client = client().throwExceptionOnFailure().build();
+        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
+                  .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
         fullPath = res.getLocation().toString();
     }
 
     @Before
     public void setUpFuseki() throws Exception {
-        server = EmbeddedFusekiServer.mem(Integer.parseInt(FUSEKI_PORT, 10), "/fuseki/test") ;
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
+        final Dataset ds = new DatasetImpl(createDefaultModel());
+        server = FusekiEmbeddedServer.create().setPort(parseInt(FUSEKI_PORT))
+                    .setContextPath("/fuseki").add("/test", ds).build();
         server.start();
     }
 
@@ -112,8 +119,8 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final Properties props = new Properties();
         props.put("indexing.predicate", "true");
-        props.put("fcrepo.baseUrl", "localhost:" + FCREPO_PORT + "/fcrepo/rest");
-        props.put("triplestore.baseUrl", "localhost:" + FUSEKI_PORT + "/fuseki/test/update");
+        props.put("triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
+        props.put("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
         props.put("jms.brokerUrl", "tcp://localhost:" + jmsPort);
         props.put("input.stream", "direct:start");
         return props;
@@ -121,9 +128,8 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
 
     @Test
     public void testAddedEventRouter() throws Exception {
-        final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
-        final String fusekiEndpoint = "mock:http4:localhost:" + FUSEKI_PORT + "/fuseki/test/update";
-        final String fcrepoEndpoint = "mock:fcrepo:localhost:" + FCREPO_PORT + "/fcrepo/rest";
+        final String fusekiEndpoint = "mock:http:localhost:" + FUSEKI_PORT + "/fuseki/test/update";
+        final String fcrepoEndpoint = "mock:fcrepo:http://localhost:" + FCREPO_PORT + "/fcrepo/rest";
         final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/fuseki/test";
 
         context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
@@ -148,13 +154,6 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
 
         context.start();
 
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put(JmsHeaders.IDENTIFIER, path);
-        headers.put(JmsHeaders.BASE_URL, "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
-        headers.put(JmsHeaders.EVENT_TYPE, REPOSITORY + "NODE_ADDED");
-        headers.put(JmsHeaders.TIMESTAMP, 1428360320168L);
-        headers.put(JmsHeaders.PROPERTIES, "");
-
         getMockEndpoint(fusekiEndpoint).expectedMessageCount(1);
         getMockEndpoint(fusekiEndpoint).expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         getMockEndpoint("mock://direct:delete.triplestore").expectedMessageCount(0);
@@ -163,7 +162,7 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), equalTo(0));
 
-        template.sendBodyAndHeaders("direct:start", "", headers);
+        template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Create"));
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), greaterThanOrEqualTo(1));
 

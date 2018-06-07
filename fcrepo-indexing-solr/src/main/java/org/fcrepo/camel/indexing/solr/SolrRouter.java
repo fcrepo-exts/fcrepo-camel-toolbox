@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,20 +17,25 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
+import static java.util.stream.Collectors.toList;
+import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.apache.camel.Exchange.HTTP_QUERY;
+import static org.apache.camel.Exchange.HTTP_URI;
+import static org.apache.camel.builder.PredicateBuilder.and;
+import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_TRANSFORM;
-import static org.fcrepo.camel.JmsHeaders.EVENT_TYPE;
-import static org.fcrepo.camel.JmsHeaders.IDENTIFIER;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
-import org.apache.camel.builder.xml.XPathBuilder;
-import org.fcrepo.client.HttpMethods;
-import org.fcrepo.camel.RdfNamespaces;
+import org.fcrepo.camel.processor.EventProcessor;
 import org.slf4j.Logger;
 
 /**
@@ -41,91 +48,140 @@ public class SolrRouter extends RouteBuilder {
     private static final Logger logger = getLogger(SolrRouter.class);
 
     private static final String hasIndexingTransformation =
-        "/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/text()";
+        "(/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/@rdf:resource | " +
+        "/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/@rdf:about)[1]";
+
+    private static final String RESOURCE_DELETION = "http://fedora.info/definitions/v4/event#ResourceDeletion";
+    private static final String DELETE = "https://www.w3.org/ns/activitystreams#Delete";
+    private static final String INDEXING_TRANSFORMATION = "CamelIndexingTransformation";
+    private static final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
+    private static final String INDEXING_URI = "CamelIndexingUri";
 
     /**
      * Configure the message route workflow.
      */
     public void configure() throws Exception {
 
-        final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
-        ns.add("indexing", RdfNamespaces.INDEXING);
-        ns.add("ldp", RdfNamespaces.LDP);
+        final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
+        ns.add("ldp", "http://www.w3.org/ns/ldp#");
 
-        final XPathBuilder indexable = new XPathBuilder(
-                String.format(
-                    "/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']", RdfNamespaces.INDEXING + "Indexable"));
-        indexable.namespaces(ns);
 
-        final XPathBuilder children = new XPathBuilder("/rdf:RDF/rdf:Description/ldp:contains");
-        children.namespaces(ns);
-
-        /**
+        /*
          * A generic error handler (specific to this RouteBuilder)
          */
         onException(Exception.class)
             .maximumRedeliveries("{{error.maxRedeliveries}}")
             .log("Index Routing Error: ${routeId}");
 
-        /**
+        /*
          * route a message to the proper queue, based on whether
          * it is a DELETE or UPDATE operation.
          */
         from("{{input.stream}}")
             .routeId("FcrepoSolrRouter")
+            .process(new EventProcessor())
             .choice()
-                .when(header(EVENT_TYPE).isEqualTo(RdfNamespaces.REPOSITORY + "NODE_REMOVED"))
+                .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
+                            header(FCREPO_EVENT_TYPE).contains(DELETE)))
                     .to("direct:delete.solr")
                 .otherwise()
                     .to("direct:index.solr");
 
-        /**
+        /*
          * Handle re-index events
          */
         from("{{solr.reindex.stream}}")
             .routeId("FcrepoSolrReindex")
             .to("direct:index.solr");
 
-        /**
+        /*
          * Based on an item's metadata, determine if it is indexable.
          */
         from("direct:index.solr")
             .routeId("FcrepoSolrIndexer")
             .removeHeaders("CamelHttp*")
-            .filter(not(or(header(IDENTIFIER).startsWith(simple("{{audit.container}}/")),
-                    header(IDENTIFIER).isEqualTo(simple("{{audit.container}}")))))
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
-            .setHeader(FCREPO_TRANSFORM).xpath(hasIndexingTransformation, String.class, ns)
-            .removeHeaders("CamelHttp*")
+            .filter(not(in(tokenizePropertyPlaceholder(getContext(), "{{filter.containers}}", ",").stream()
+                        .map(uri -> or(
+                            header(FCREPO_URI).startsWith(constant(uri + "/")),
+                            header(FCREPO_URI).isEqualTo(constant(uri))))
+                        .collect(toList()))))
             .choice()
-                .when(or(simple("{{indexing.predicate}} != 'true'"), indexable))
+                .when(and(simple("{{indexing.predicate}} != 'true'"),
+                          simple("{{fcrepo.checkHasIndexingTransformation}} != 'true'")))
+                    .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}")
                     .to("direct:update.solr")
                 .otherwise()
-                    .to("direct:delete.solr");
+                    .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
+                    .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
+                    .choice()
+                        .when(or(header(INDEXING_TRANSFORMATION).isNull(),
+                                 header(INDEXING_TRANSFORMATION).isEqualTo("")))
+                            .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}").end()
+                    .removeHeaders("CamelHttp*")
+                    .choice()
+                        .when(or(simple("{{indexing.predicate}} != 'true'"),
+                                 header(FCREPO_RESOURCE_TYPE).contains(INDEXABLE)))
+                            .to("direct:update.solr")
+                        .otherwise()
+                            .to("direct:delete.solr");
 
-        /**
+
+        /*
          * Remove an item from the solr index.
          */
-        from("direct:delete.solr")
-            .routeId("FcrepoSolrDeleter")
-            .process(new SolrDeleteProcessor())
-            .log(LoggingLevel.INFO, logger,
-                    "Deleting Solr Object ${headers[CamelFcrepoIdentifier]}")
-            .setHeader(Exchange.HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
-            .to("http4://{{solr.baseUrl}}/update");
+        from("direct:delete.solr").routeId("FcrepoSolrDeleter")
+            .removeHeaders("CamelHttp*")
+            .to("mustache:org/fcrepo/camel/indexing/solr/delete.mustache")
+            .log(LoggingLevel.INFO, logger, "Deleting Solr Object ${headers[CamelFcrepoUri]}")
+            .setHeader(HTTP_METHOD).constant("POST")
+            .setHeader(CONTENT_TYPE).constant("application/json")
+            .setHeader(HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
+            .to("{{solr.baseUrl}}/update?useSystemProperties=true");
 
-        /**
-         * Perform the solr update.
+        from("direct:external.ldpath").routeId("FcrepoSolrLdpathFetch")
+            .removeHeaders("CamelHttp*")
+            .setHeader(HTTP_URI).header(INDEXING_TRANSFORMATION)
+            .setHeader(HTTP_METHOD).constant("GET")
+            .to("http4://localhost/ldpath");
+
+        from("direct:transform.ldpath").routeId("FcrepoSolrTransform")
+            .removeHeaders("CamelHttp*")
+            .setHeader(HTTP_URI).simple("{{ldpath.service.baseUrl}}")
+            .setHeader(HTTP_QUERY).simple("context=${headers.CamelFcrepoUri}")
+            .to("http4://localhost/ldpath");
+
+        /*
+         * Handle update operations
          */
-        from("direct:update.solr")
-            .routeId("FcrepoSolrUpdater")
-            .log(LoggingLevel.INFO, logger,
-                    "Indexing Solr Object ${headers[CamelFcrepoIdentifier]} " +
-                    "${headers[org.fcrepo.jms.identifier]}")
-            .to("fcrepo:{{fcrepo.baseUrl}}?transform={{fcrepo.defaultTransform}}")
-            .setHeader(Exchange.HTTP_METHOD).constant(HttpMethods.POST)
-            .setHeader(Exchange.HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
-            .to("http4://{{solr.baseUrl}}/update");
+        from("direct:update.solr").routeId("FcrepoSolrUpdater")
+            .log(LoggingLevel.INFO, logger, "Indexing Solr Object ${header.CamelFcrepoUri}")
+            .setBody(constant(null))
+            .setHeader(INDEXING_URI).simple("${header.CamelFcrepoUri}")
+            // Don't index the transformation itself
+            .filter().simple("${header.CamelIndexingTransformation} != ${header.CamelIndexingUri}")
+                .choice()
+                    .when(header(INDEXING_TRANSFORMATION).startsWith("http"))
+                        .log(LoggingLevel.INFO, logger,
+                                "Fetching external LDPath program from ${header.CamelIndexingTransformation}")
+                        .to("direct:external.ldpath")
+                        .setHeader(HTTP_METHOD).constant("POST")
+                        .to("direct:transform.ldpath")
+                        .to("direct:send.to.solr")
+                    .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
+                        .setHeader(HTTP_METHOD).constant("GET")
+                        .to("direct:transform.ldpath")
+                        .to("direct:send.to.solr")
+                    .otherwise()
+                        .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");
 
+        /*
+         * Send the transformed resource to Solr
+         */
+        from("direct:send.to.solr").routeId("FcrepoSolrSend")
+            .removeHeaders("CamelHttp*")
+            .setHeader(HTTP_METHOD).constant("POST")
+            .setHeader(HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")
+            .to("{{solr.baseUrl}}/update?useSystemProperties=true");
     }
 }

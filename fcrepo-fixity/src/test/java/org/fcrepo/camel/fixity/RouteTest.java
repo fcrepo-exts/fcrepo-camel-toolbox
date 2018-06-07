@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,8 +17,9 @@
  */
 package org.fcrepo.camel.fixity;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+
 import java.util.Properties;
 
 import org.apache.camel.EndpointInject;
@@ -25,9 +28,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
-import org.fcrepo.camel.FcrepoHeaders;
 
 import org.junit.Test;
 
@@ -87,8 +88,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:failure").expectedMessageCount(0);
         getMockEndpoint("mock:success").expectedMessageCount(1);
 
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("fixity.rdf"), "UTF-8");
-        template.sendBodyAndHeaders(body, createEvent());
+        final String body = IOUtils.toString(loadResourceAsStream("fixity.rdf"), "UTF-8");
+        template.sendBodyAndHeader(body, FCREPO_URI, baseURL + identifier);
 
         assertMockEndpointsSatisfied();
     }
@@ -108,8 +109,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:failure").expectedMessageCount(1);
         getMockEndpoint("mock:success").expectedMessageCount(0);
 
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("fixityFailure.rdf"), "UTF-8");
-        template.sendBodyAndHeaders(body, createEvent());
+        final String body = IOUtils.toString(loadResourceAsStream("fixityFailure.rdf"), "UTF-8");
+        template.sendBodyAndHeader(body, FCREPO_URI, baseURL + identifier);
 
         assertMockEndpointsSatisfied();
     }
@@ -129,17 +130,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:failure").expectedMessageCount(0);
         getMockEndpoint("mock:success").expectedMessageCount(0);
 
-        final String body = IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8");
-        template.sendBodyAndHeaders(body, createEvent());
+        final String body = IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8");
+        template.sendBodyAndHeader(body, FCREPO_URI, baseURL + identifier);
 
         assertMockEndpointsSatisfied();
-    }
-
-    private static Map<String,Object> createEvent() {
-
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put(FcrepoHeaders.FCREPO_BASE_URL, baseURL);
-        headers.put(FcrepoHeaders.FCREPO_IDENTIFIER, identifier);
-        return headers;
     }
 }

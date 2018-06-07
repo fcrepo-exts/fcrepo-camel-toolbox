@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,8 +17,8 @@
  */
 package org.fcrepo.camel.reindexing;
 
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENTS;
 
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -24,7 +26,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
@@ -45,6 +46,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     private static final String restPrefix = "/reindexing";
     private static final String reindexingStream = "broker:queue:foo";
+    private static final String baseUrl = "http://localhost/rest";
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -114,7 +116,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Test
     public void testReindexNoEndpointsRoute() throws Exception {
-        final String id = "/foo";
+        final String url = "http://localhost:8080/fcrepo/rest/foo";
 
         context.getRouteDefinition("FcrepoReindexingReindex").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -135,13 +137,13 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         getMockEndpoint("mock:" + reindexingStream).expectedMessageCount(0);
         getMockEndpoint("mock:result").expectedMessageCount(1);
-        getMockEndpoint("mock:result").expectedHeaderReceived(FCREPO_IDENTIFIER, id);
+        getMockEndpoint("mock:result").expectedHeaderReceived(FCREPO_URI, url);
         getMockEndpoint("mock:result").expectedBodiesReceived("No endpoints configured for indexing");
 
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_PATH, id);
-        headers.put(ReindexingHeaders.RECIPIENTS, "");
+        headers.put(FCREPO_URI, url);
+        headers.put(REINDEXING_RECIPIENTS, "");
 
         template.sendBodyAndHeaders("direct:reindex", null, headers);
 
@@ -150,7 +152,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Test
     public void testReindexWithEndpointsRoute() throws Exception {
-        final String id = "/foo";
+        final String url = "http://localhost:8080/fcrepo/rest/foo";
 
         context.getRouteDefinition("FcrepoReindexingReindex").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -171,12 +173,12 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
         getMockEndpoint("mock:" + reindexingStream).expectedMessageCount(1);
         getMockEndpoint("mock:result").expectedMessageCount(1);
-        getMockEndpoint("mock:result").expectedHeaderReceived(FCREPO_IDENTIFIER, id);
-        getMockEndpoint("mock:result").expectedBodiesReceived("Indexing started at " + id);
+        getMockEndpoint("mock:result").expectedHeaderReceived(FCREPO_URI, url);
+        getMockEndpoint("mock:result").expectedBodiesReceived("Indexing started at " + url);
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_PATH, id);
-        headers.put(ReindexingHeaders.RECIPIENTS, "mock:endpoint");
+        headers.put(FCREPO_URI, url);
+        headers.put(REINDEXING_RECIPIENTS, "mock:endpoint");
 
         template.sendBodyAndHeaders("direct:reindex", null, headers);
 
@@ -186,10 +188,13 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testTraversal() throws Exception {
 
+        final String baseUrl = "http://localhost:8080/fcrepo4/rest";
+
         getMockEndpoint("mock:direct:recipients").expectedMessageCount(1);
         getMockEndpoint("mock:" + reindexingStream).expectedMessageCount(7);
-        getMockEndpoint("mock:" + reindexingStream).expectedHeaderValuesReceivedInAnyOrder(FCREPO_IDENTIFIER,
-                "/foo/a", "/foo/b", "/foo/c", "/foo/d", "/foo/e", "/foo/f", "/foo/g");
+        getMockEndpoint("mock:" + reindexingStream).expectedHeaderValuesReceivedInAnyOrder(FCREPO_URI,
+                baseUrl + "/foo/a", baseUrl + "/foo/b", baseUrl + "/foo/c", baseUrl + "/foo/d", baseUrl + "/foo/e",
+                baseUrl + "/foo/f", baseUrl + "/foo/g");
 
         context.getRouteDefinition("FcrepoReindexingTraverse").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -202,8 +207,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         });
         context.start();
 
-        template.sendBodyAndHeader("direct:traverse", ObjectHelper.loadResourceAsStream("indexable.rdf"),
-                FCREPO_BASE_URL, "http://localhost:8080/fcrepo4/rest");
+        template.sendBodyAndHeader("direct:traverse", ObjectHelper.loadResourceAsStream("indexable.nt"),
+                FCREPO_URI, "http://localhost:8080/fcrepo4/rest/foo");
 
         assertMockEndpointsSatisfied();
     }
@@ -223,13 +228,13 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.start();
 
         getMockEndpoint("mock:foo").expectedMessageCount(1);
-        getMockEndpoint("mock:foo").expectedHeaderReceived(FCREPO_IDENTIFIER, id);
+        getMockEndpoint("mock:foo").expectedHeaderReceived(FCREPO_URI, baseUrl + id);
         getMockEndpoint("mock:bar").expectedMessageCount(1);
-        getMockEndpoint("mock:bar").expectedHeaderReceived(FCREPO_IDENTIFIER, id);
+        getMockEndpoint("mock:bar").expectedHeaderReceived(FCREPO_URI, baseUrl + id);
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(FCREPO_IDENTIFIER, id);
-        headers.put(ReindexingHeaders.RECIPIENTS, "mock:foo,mock:bar");
+        headers.put(FCREPO_URI, baseUrl + id);
+        headers.put(REINDEXING_RECIPIENTS, "mock:foo,mock:bar");
 
         template.sendBodyAndHeaders("direct:recipients", null, headers);
 

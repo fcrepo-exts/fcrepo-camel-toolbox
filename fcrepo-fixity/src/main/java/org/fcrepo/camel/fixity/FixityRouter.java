@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,7 +22,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
-import org.fcrepo.camel.RdfNamespaces;
+import org.apache.jena.vocabulary.RDF;
 import org.slf4j.Logger;
 
 /**
@@ -33,12 +35,14 @@ public class FixityRouter extends RouteBuilder {
 
     private static final Logger LOGGER = getLogger(FixityRouter.class);
 
+    private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
+
     /**
      * Configure the message route workflow.
      */
     public void configure() throws Exception {
 
-        final Namespaces ns = new Namespaces("rdf", RdfNamespaces.RDF);
+        final Namespaces ns = new Namespaces("rdf", RDF.uri);
         ns.add("premis", "http://www.loc.gov/premis/rdf/v1#");
 
         /**
@@ -56,9 +60,9 @@ public class FixityRouter extends RouteBuilder {
             .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=ServerManged&accept=application/rdf+xml")
             .filter().xpath(
                     "/rdf:RDF/rdf:Description/rdf:type" +
-                    "[@rdf:resource='" + RdfNamespaces.REPOSITORY + "Binary']", ns)
+                    "[@rdf:resource='" + REPOSITORY + "Binary']", ns)
             .log(LoggingLevel.INFO, LOGGER,
-                    "Checking Fixity for ${headers[CamelFcrepoIdentifier]}")
+                    "Checking Fixity for ${headers[CamelFcrepoUri]}")
             .delay(simple("{{fixity.delay}}"))
             .to("fcrepo:{{fcrepo.baseUrl}}?fixity=true&accept=application/rdf+xml")
             .choice()
@@ -68,7 +72,7 @@ public class FixityRouter extends RouteBuilder {
                     .to("{{fixity.success}}")
                 .otherwise()
                     .log(LoggingLevel.WARN, LOGGER,
-                        "Fixity error on ${headers[CamelFcrepoIdentifier]}")
+                        "Fixity error on ${headers[CamelFcrepoUri]}")
                     .to("{{fixity.failure}}");
     }
 }

@@ -6,7 +6,7 @@
   <parent>
     <artifactId>fcrepo-camel-toolbox</artifactId>
     <groupId>org.fcrepo.camel</groupId>
-    <version>4.5.3-SNAPSHOT</version>
+    <version>4.7.2-umd-1.0</version>
   </parent>
 
   <artifactId>fcrepo-indexing-triplestore</artifactId>
@@ -79,7 +79,7 @@
 
     <dependency>
       <groupId>org.apache.jena</groupId>
-      <artifactId>jena-fuseki</artifactId>
+      <artifactId>jena-fuseki-embedded</artifactId>
     </dependency>
 
     <dependency>
@@ -103,11 +103,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
       </plugin>
 
       <!-- to generate the MANIFEST-FILE of the bundle -->
@@ -136,24 +131,6 @@
               <portName>jetty.dynamic.stop.port</portName>
             </portNames>
           </configuration>
-          <executions>
-            <execution>
-              <id>attach-artifacts</id>
-              <phase>package</phase>
-              <goals>
-                <goal>attach-artifact</goal>
-              </goals>
-              <configuration>
-                <artifacts>
-                  <artifact>
-                    <file>src/main/cfg/org.fcrepo.camel.indexing.triplestore.cfg</file>
-                    <type>cfg</type>
-                    <classifier>configuration</classifier>
-                  </artifact>
-                </artifacts>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
 
         <!-- integration testing -->
@@ -191,6 +168,10 @@
               <systemProperty>
                 <name>fcrepo.dynamic.stomp.port</name>
                 <value>${fcrepo.dynamic.stomp.port}</value>
+              </systemProperty>
+              <systemProperty>
+                <name>fcrepo.modeshape.configuration</name>
+                <value>classpath:/config/file-simple/repository.json</value>
               </systemProperty>
             </systemProperties>
             <scanIntervalSeconds>10</scanIntervalSeconds>

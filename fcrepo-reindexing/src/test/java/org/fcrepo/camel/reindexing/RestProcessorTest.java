@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,18 +17,20 @@
  */
 package org.fcrepo.camel.reindexing;
 
+import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_PATH;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENTS;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.fcrepo.camel.FcrepoHeaders;
 
 import org.junit.Test;
 
@@ -48,26 +52,24 @@ public class RestProcessorTest extends CamelTestSupport {
     public void testRestProcessor() throws Exception {
 
         resultEndpoint.expectedMessageCount(3);
-        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(FcrepoHeaders.FCREPO_IDENTIFIER,
-                "/", "/foo/bar", "/foo/bar");
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("");
-        resultEndpoint.message(1).header(ReindexingHeaders.RECIPIENTS).contains("broker:queue:bar");
-        resultEndpoint.message(1).header(ReindexingHeaders.RECIPIENTS).contains("broker:queue:foo");
-        resultEndpoint.message(2).header(ReindexingHeaders.RECIPIENTS).isEqualTo("");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).isEqualTo("");
+        resultEndpoint.message(1).header(REINDEXING_RECIPIENTS).contains("broker:queue:bar");
+        resultEndpoint.message(1).header(REINDEXING_RECIPIENTS).contains("broker:queue:foo");
+        resultEndpoint.message(2).header(REINDEXING_RECIPIENTS).isEqualTo("");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_PATH, "/");
+        headers.put(HTTP_PATH, "/");
         template.sendBodyAndHeaders("", headers);
 
         headers.clear();
-        headers.put(Exchange.HTTP_PATH, "/foo/bar");
-        headers.put(ReindexingHeaders.RECIPIENTS,
+        headers.put(HTTP_PATH, "/foo/bar");
+        headers.put(REINDEXING_RECIPIENTS,
                 "broker:queue:foo, broker:queue:bar,\t\nbroker:queue:foo   ");
         template.sendBodyAndHeaders("", headers);
 
         headers.clear();
-        headers.put(Exchange.HTTP_PATH, "/foo/bar");
-        headers.put(ReindexingHeaders.RECIPIENTS, null);
+        headers.put(HTTP_PATH, "/foo/bar");
+        headers.put(REINDEXING_RECIPIENTS, null);
         template.sendBodyAndHeaders("", headers);
 
         assertMockEndpointsSatisfied();
@@ -78,12 +80,12 @@ public class RestProcessorTest extends CamelTestSupport {
         final String body = "[\"broker:queue:foo\",\"broker:queue:bar\"]";
 
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).contains("broker:queue:bar");
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).contains("broker:queue:foo");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).contains("broker:queue:bar");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).contains("broker:queue:foo");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.CONTENT_TYPE, "application/json");
-        headers.put(Exchange.HTTP_PATH, "/foo/bar");
+        headers.put(CONTENT_TYPE, "application/json");
+        headers.put(HTTP_PATH, "/foo/bar");
         template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
@@ -94,14 +96,14 @@ public class RestProcessorTest extends CamelTestSupport {
         final String body = "[\"broker:queue:foo\",\"broker:queue:bar\"]";
 
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).contains("broker:queue:bar");
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).contains("broker:queue:foo");
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).contains("broker:queue:baz");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).contains("broker:queue:bar");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).contains("broker:queue:foo");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).contains("broker:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_PATH, "/foo/bar");
-        headers.put(Exchange.CONTENT_TYPE, "application/json");
-        headers.put(ReindexingHeaders.RECIPIENTS, "broker:queue:baz");
+        headers.put(HTTP_PATH, "/foo/bar");
+        headers.put(CONTENT_TYPE, "application/json");
+        headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
@@ -111,12 +113,12 @@ public class RestProcessorTest extends CamelTestSupport {
     public void testRestProcessorWithNullBody() throws Exception {
 
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("broker:queue:baz");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).isEqualTo("broker:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.CONTENT_TYPE, "application/json");
-        headers.put(Exchange.HTTP_PATH, "/foo/bar");
-        headers.put(ReindexingHeaders.RECIPIENTS, "broker:queue:baz");
+        headers.put(CONTENT_TYPE, "application/json");
+        headers.put(HTTP_PATH, "/foo/bar");
+        headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders(null, headers);
 
         assertMockEndpointsSatisfied();
@@ -128,11 +130,11 @@ public class RestProcessorTest extends CamelTestSupport {
         final String body = "[\"broker:queue:foo\",\"broker:queue:bar\"]";
 
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("broker:queue:baz");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).isEqualTo("broker:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.HTTP_PATH, "/foo/bar");
-        headers.put(ReindexingHeaders.RECIPIENTS, "broker:queue:baz");
+        headers.put(HTTP_PATH, "/foo/bar");
+        headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
@@ -144,12 +146,12 @@ public class RestProcessorTest extends CamelTestSupport {
         final String body = "[\"broker:queue:foo\",\"broker:queue:bar\"]";
 
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("broker:queue:baz");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).isEqualTo("broker:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.CONTENT_TYPE, "application/foo");
-        headers.put(Exchange.HTTP_PATH, "/foo/bar");
-        headers.put(ReindexingHeaders.RECIPIENTS, "broker:queue:baz");
+        headers.put(CONTENT_TYPE, "application/foo");
+        headers.put(HTTP_PATH, "/foo/bar");
+        headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders(body, headers);
 
         assertMockEndpointsSatisfied();
@@ -160,12 +162,12 @@ public class RestProcessorTest extends CamelTestSupport {
     public void testRestProcessorWithEmptyBody() throws Exception {
 
         resultEndpoint.expectedMessageCount(1);
-        resultEndpoint.message(0).header(ReindexingHeaders.RECIPIENTS).isEqualTo("broker:queue:baz");
+        resultEndpoint.message(0).header(REINDEXING_RECIPIENTS).isEqualTo("broker:queue:baz");
 
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(Exchange.CONTENT_TYPE, "application/json");
-        headers.put(Exchange.HTTP_PATH, "/foo/bar");
-        headers.put(ReindexingHeaders.RECIPIENTS, "broker:queue:baz");
+        headers.put(CONTENT_TYPE, "application/json");
+        headers.put(HTTP_PATH, "/foo/bar");
+        headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders("    ", headers);
 
         assertMockEndpointsSatisfied();

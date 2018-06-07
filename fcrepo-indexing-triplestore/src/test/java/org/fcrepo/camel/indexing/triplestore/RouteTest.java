@@ -1,9 +1,11 @@
 /*
- * Copyright 2016 DuraSpace, Inc.
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,9 +18,17 @@
 package org.fcrepo.camel.indexing.triplestore;
 
 import static java.net.URLEncoder.encode;
-import static org.fcrepo.camel.RdfNamespaces.REPOSITORY;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,9 +39,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.io.IOUtils;
-import org.fcrepo.camel.JmsHeaders;
 
 import org.junit.Test;
 
@@ -42,6 +50,8 @@ import org.junit.Test;
  * @since 2015-04-22
  */
 public class RouteTest extends CamelBlueprintTestSupport {
+
+    private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -56,6 +66,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String userID = "bypassAdmin";
     private static final String userAgent = "curl/7.37.1";
     private static final String auditContainer = "/audit";
+    private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
+    private static final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
 
     @Override
     public boolean isUseAdviceWith() {
@@ -76,7 +88,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
          final Properties props = new Properties();
          props.put("indexing.predicate", "true");
-         props.put("audit.container", auditContainer);
+         props.put("filter.containers", auditContainer);
          props.put("input.stream", "seda:foo");
          props.put("reindex.stream", "seda:bar");
          return props;
@@ -84,9 +96,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Test
     public void testEventTypeRouter() throws Exception {
-
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
-        final String eventProps = REPOSITORY + "hasContent";
 
         context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -100,9 +109,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
         getMockEndpoint("mock:direct:index.triplestore").expectedMessageCount(0);
 
-        template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
-                createEvent(fileID, eventTypes, eventProps));
+        template.sendBody(
+                IOUtils.toString(loadResourceAsStream("event_delete_resource.json"), "UTF-8"));
 
         assertMockEndpointsSatisfied();
     }
@@ -110,9 +118,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testAuditFilter() throws Exception {
 
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
-        final String eventProps = REPOSITORY + "hasContent";
-
         context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -126,7 +131,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders("",
-                createEvent(auditContainer + fileID, eventTypes, eventProps));
+                createEvent(auditContainer + fileID, asList(AS_NS + "Update"), asList(REPOSITORY + "Binary")));
+        template.sendBodyAndHeaders("",
+                createEvent(auditContainer + fileID, asList(AS_NS + "Delete"), asList(REPOSITORY + "Binary")));
 
         assertMockEndpointsSatisfied();
     }
@@ -134,9 +141,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testAuditFilterExactMatch() throws Exception {
 
-        final String eventTypes = REPOSITORY + "NODE_REMOVED";
-        final String eventProps = REPOSITORY + "hasContent";
-
         context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -150,16 +154,15 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders("",
-                createEvent(auditContainer, eventTypes, eventProps));
+                createEvent(auditContainer, asList(AS_NS + "Update"), asList(REPOSITORY + "Binary")));
+        template.sendBodyAndHeaders("",
+                createEvent(auditContainer, asList(AS_NS + "Delete"), asList(REPOSITORY + "Binary")));
 
         assertMockEndpointsSatisfied();
     }
 
     @Test
     public void testAuditFilterNearMatch() throws Exception {
-
-        final String eventTypes = REPOSITORY + "NODE_ADDED";
-        final String eventProps = REPOSITORY + "hasContent";
 
         context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -174,17 +177,15 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
-                createEvent(auditContainer + "orium" + fileID, eventTypes, eventProps));
+                IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
+                createEvent(auditContainer + "orium" + fileID,
+                    asList(AS_NS + "Create"), asList(REPOSITORY + "Resource")));
 
         assertMockEndpointsSatisfied();
     }
 
     @Test
     public void testAuditFilterNearMatchIndexable() throws Exception {
-
-        final String eventTypes = REPOSITORY + "NODE_ADDED";
-        final String eventProps = REPOSITORY + "hasContent";
 
         context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -199,8 +200,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
-                createEvent(auditContainer + "orium" + fileID, eventTypes, eventProps));
+                IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
+                createEvent(auditContainer + "orium" + fileID,
+                    asList(AS_NS + "Create"), asList(REPOSITORY + "Container")));
 
         assertMockEndpointsSatisfied();
     }
@@ -208,9 +210,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
 
     @Test
     public void testPrepareRouterIndexable() throws Exception {
-
-        final String eventTypes = REPOSITORY + "NODE_ADDED";
-        final String eventProps = REPOSITORY + "hasContent";
 
         context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -228,17 +227,14 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
-                createEvent(fileID, eventTypes, eventProps));
+                IOUtils.toString(loadResourceAsStream("event.json"), "UTF-8"),
+                createEvent(fileID, asList(AS_NS + "Create"), asList(INDEXABLE)));
 
         assertMockEndpointsSatisfied();
     }
 
     @Test
     public void testIndexRouterContainer() throws Exception {
-
-        final String eventTypes = REPOSITORY + "NODE_ADDED";
-        final String eventProps = REPOSITORY + "hasContent";
 
         context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -256,17 +252,14 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
-                createEvent(fileID, eventTypes, eventProps));
+                IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
+                createEvent(fileID, asList(AS_NS + "Create"), asList(REPOSITORY + "Container")));
 
         assertMockEndpointsSatisfied();
     }
 
     @Test
     public void testIndexRouterIndexable() throws Exception {
-
-        final String eventTypes = REPOSITORY + "NODE_ADDED";
-        final String eventProps = REPOSITORY + "hasContent";
 
         context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
@@ -284,8 +277,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
         getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
 
         template.sendBodyAndHeaders(
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("indexable.rdf"), "UTF-8"),
-                createEvent(fileID, eventTypes, eventProps));
+                IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
+                createEvent(fileID, asList(AS_NS + "Create"), asList(INDEXABLE)));
 
         assertMockEndpointsSatisfied();
     }
@@ -293,25 +286,22 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testUpdateRouter() throws Exception {
 
-        final String document = IOUtils.toString(ObjectHelper.loadResourceAsStream("container.nt"), "UTF-8").trim();
-        final String eventTypes = REPOSITORY + "NODE_ADDED";
-        final String eventProps = REPOSITORY + "hasContent";
+        final String document = IOUtils.toString(loadResourceAsStream("container.nt"), "UTF-8").trim();
         final String responsePrefix =
                   "DELETE WHERE { <" + baseURL + fileID + "> ?p ?o };\n" +
-                  "DELETE WHERE { <" + baseURL + fileID + "/fcr:export?format=jcr/xml> ?p ?o };\n" +
                   "INSERT DATA { ";
 
         context.getRouteDefinition("FcrepoTriplestoreUpdater").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("http4*");
+                mockEndpointsAndSkip("http*");
             }
         });
 
         context.start();
 
-        final MockEndpoint endpoint = getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update");
+        final MockEndpoint endpoint = getMockEndpoint("mock:http:localhost:8080/fuseki/test/update");
 
         endpoint.expectedMessageCount(1);
         endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
@@ -322,11 +312,12 @@ public class RouteTest extends CamelBlueprintTestSupport {
             endpoint.expectedBodyReceived().body().contains(encode(s, "UTF-8"));
         }
 
-        final Map<String, Object> headers = createEvent(fileID, eventTypes, eventProps);
+        final Map<String, Object> headers = createEvent(baseURL + fileID, asList(AS_NS + "Create"),
+                    asList(REPOSITORY + "Container"));
         headers.put(Exchange.CONTENT_TYPE, "application/rdf+xml");
 
         template.sendBodyAndHeaders("direct:update.triplestore",
-                IOUtils.toString(ObjectHelper.loadResourceAsStream("container.rdf"), "UTF-8"),
+                IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
                 headers);
 
         assertMockEndpointsSatisfied();
@@ -341,35 +332,36 @@ public class RouteTest extends CamelBlueprintTestSupport {
         context.getRouteDefinition("FcrepoTriplestoreDeleter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
-                mockEndpointsAndSkip("http4*");
+                mockEndpointsAndSkip("http*");
             }
         });
 
         context.start();
 
-        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update")
+        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update").expectedMessageCount(1);
+        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update")
             .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
-        getMockEndpoint("mock:http4:localhost:8080/fuseki/test/update")
+        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update")
             .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:delete.triplestore", "",
-                createEvent(fileID, eventTypes, eventProps));
+                createEvent(fileID, asList(AS_NS + "Delete")));
 
         assertMockEndpointsSatisfied();
     }
 
-    private static Map<String,Object> createEvent(final String identifier, final String eventTypes,
-            final String eventProperties) {
+    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes) {
+        return createEvent(identifier, eventTypes, emptyList());
+    }
 
+    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes,
+            final List<String> resourceTypes) {
         final Map<String, Object> headers = new HashMap<>();
-        headers.put(JmsHeaders.BASE_URL, baseURL);
-        headers.put(JmsHeaders.IDENTIFIER, identifier);
-        headers.put(JmsHeaders.TIMESTAMP, timestamp);
-        headers.put(JmsHeaders.USER, userID);
-        headers.put(JmsHeaders.USER_AGENT, userAgent);
-        headers.put(JmsHeaders.EVENT_TYPE, eventTypes);
-        headers.put(JmsHeaders.PROPERTIES, eventProperties);
+        headers.put(FCREPO_URI, identifier);
+        headers.put(FCREPO_DATE_TIME, eventDate);
+        headers.put(FCREPO_AGENT, asList(userID, userAgent));
+        headers.put(FCREPO_EVENT_TYPE, eventTypes);
+        headers.put(FCREPO_RESOURCE_TYPE, resourceTypes);
         return headers;
     }
 }

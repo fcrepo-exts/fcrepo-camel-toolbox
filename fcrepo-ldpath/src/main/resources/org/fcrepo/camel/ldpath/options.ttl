@@ -1,0 +1,11 @@
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix registry: <http://fedora.info/extensions#> .
+@prefix apix: <urn:apix#> .
+
+<#Extension> a apix:Extension ;
+    rdfs:label "LDPath Service" ;
+    rdfs:comment "A service that can apply LDPath programs to Fedora resources" ;
+    rdfs:seeAlso <https://github.com/fcrepo4-exts/fcrepo-camel-toolbox> ;
+    apix:exposesService registry:LDPathService ;
+    apix:exposesServiceAtURI "svc:ldpath" ;
+    apix:bindsTo fedora:Resource .
