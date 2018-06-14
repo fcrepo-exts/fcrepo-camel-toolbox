@@ -45,10 +45,10 @@ import org.openrdf.repository.RepositoryException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Test the route workflow.
+ * Test the route workflow with functions enabled.
  *
- * @author acoburn
- * @since Aug 6, 2016
+ * @author Peter Eichman
+ * @since May 11, 2018
  */
 public class RouteWithFunctionsTest extends CamelBlueprintTestSupport {
 
