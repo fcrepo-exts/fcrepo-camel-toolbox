@@ -31,7 +31,10 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.apache.camel.util.KeyValueHolder;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -48,6 +51,9 @@ import org.slf4j.Logger;
 public class RouteIT extends CamelBlueprintTestSupport {
 
     private static final Logger LOGGER = getLogger(RouteIT.class);
+
+    private static String FEDORA_USERNAME = "fedoraAdmin";
+    private static String FEDORA_PASSWORD = "fedoraAdmin";
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -89,7 +95,9 @@ public class RouteIT extends CamelBlueprintTestSupport {
     }
 
     private String post(final String url) {
-        final CloseableHttpClient httpclient = HttpClients.createDefault();
+        final BasicCredentialsProvider provider = new BasicCredentialsProvider();
+        provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(FEDORA_USERNAME, FEDORA_PASSWORD));
+        final CloseableHttpClient httpclient = HttpClients.custom().setDefaultCredentialsProvider(provider).build();
         try {
             final HttpPost httppost = new HttpPost(url);
             final HttpResponse response = httpclient.execute(httppost);

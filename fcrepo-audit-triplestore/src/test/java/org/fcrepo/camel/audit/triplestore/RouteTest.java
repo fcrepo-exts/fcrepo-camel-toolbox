@@ -51,9 +51,6 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String baseURL = "http://localhost/rest";
     private static final String fileID = "/file1";
     private static final String auditContainer = "/audit";
-    private static final String eventDate = "2015-04-06T22:45:20Z";
-    private static final String userID = "fedo raAdmin";
-    private static final String userAgent = "CLAW client/1.0";
 
     @Override
     protected String getBlueprintDescriptor() {

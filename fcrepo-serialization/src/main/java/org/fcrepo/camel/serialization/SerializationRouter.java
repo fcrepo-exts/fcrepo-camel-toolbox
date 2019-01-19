@@ -51,6 +51,9 @@ public class SerializationRouter extends RouteBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SerializationRouter.class);
 
+    final String AUTH_PARAMS = "authUsername=" + System.getProperty("fcrepo.authUsername", "fedoraAdmin") +
+            "&authPassword=" + System.getProperty("fcrepo.authPassword", "fedoraAdmin");
+
     private static final String RESOURCE_DELETION = "http://fedora.info/definitions/v4/event#ResourceDeletion";
     private static final String DELETE = "https://www.w3.org/ns/activitystreams#Delete";
     private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
@@ -112,7 +115,7 @@ public class SerializationRouter extends RouteBuilder {
 
         from("direct:metadata")
             .routeId("FcrepoSerializationMetadataUpdater")
-            .to("fcrepo:localhost?accept={{serialization.mimeType}}")
+            .to("fcrepo:localhost?accept={{serialization.mimeType}}&" + AUTH_PARAMS)
             .log(INFO, LOGGER, "Serializing object ${headers[CamelFcrepoUri]}")
             .setHeader(FILE_NAME).simple("${headers[CamelSerializationPath]}.{{serialization.extension}}")
             .log(DEBUG, LOGGER, "filename is ${headers[CamelFileName]}")
@@ -122,10 +125,10 @@ public class SerializationRouter extends RouteBuilder {
             .routeId("FcrepoSerializationBinaryUpdater")
             .filter().simple("{{serialization.includeBinaries}} == 'true'")
             .to("fcrepo:localhost?preferInclude=PreferMinimalContainer" +
-                    "&accept=application/rdf+xml")
+                    "&accept=application/rdf+xml&" + AUTH_PARAMS)
             .filter().xpath(isBinaryResourceXPath, ns)
             .log(INFO, LOGGER, "Writing binary ${headers[CamelSerializationPath]}")
-            .to("fcrepo:localhost?metadata=false")
+            .to("fcrepo:localhost?metadata=false&" + AUTH_PARAMS)
             .setHeader(FILE_NAME).header(SERIALIZATION_PATH)
             .log(DEBUG, LOGGER, "header filename is: ${headers[CamelFileName]}")
             .to("file://{{serialization.binaries}}");

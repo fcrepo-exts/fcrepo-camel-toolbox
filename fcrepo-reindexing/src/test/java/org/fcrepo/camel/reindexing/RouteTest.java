@@ -42,7 +42,7 @@ import org.junit.Test;
  * @author acoburn
  * @since 2015-05-22
  */
-public class RouteTest extends CamelBlueprintTestSupport {
+public class    RouteTest extends CamelBlueprintTestSupport {
 
     private static final String restPrefix = "/reindexing";
     private static final String reindexingStream = "broker:queue:foo";

@@ -248,11 +248,11 @@
             <portName>fcrepo.dynamic.test.port</portName>
             <portName>fcrepo.dynamic.jms.port</portName>
             <portName>fcrepo.dynamic.stomp.port</portName>
+            <portName>jetty.dynamic.stop.port</portName>
             <portName>fcrepo.dynamic.reindexing.port</portName>
             <portName>karaf.rmiRegistry.port</portName>
             <portName>karaf.rmiServer.port</portName>
             <portName>karaf.ssh.port</portName>
-            <portName>jetty.dynamic.stop.port</portName>
           </portNames>
         </configuration>
         <executions>
@@ -330,10 +330,6 @@
               <value>${fcrepo.dynamic.stomp.port}</value>
             </systemProperty>
             <systemProperty>
-              <name>fcrepo.dynamic.test.port</name>
-              <value>${fcrepo.dynamic.test.port}</value>
-            </systemProperty>
-            <systemProperty>
               <name>fcrepo.modeshape.configuration</name>
               <value>classpath:/config/file-simple/repository.json</value>
             </systemProperty>
@@ -352,13 +348,14 @@
               <goal>start</goal>
             </goals>
             <configuration>
+              <jettyXml>${project.build.directory}/test-classes/jetty-test.xml</jettyXml>
               <httpConnector>
                 <port>${fcrepo.dynamic.test.port}</port>
               </httpConnector>
               <scanIntervalSeconds>0</scanIntervalSeconds>
               <daemon>true</daemon>
               <contextHandlers>
-                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
+                <contextHandler implementation="org.eclipse.jetty.maven.plugin.JettyWebAppContext">
                   <war>${project.build.directory}/fcrepo.war</war>
                   <contextPath>/fcrepo</contextPath>
                 </contextHandler>

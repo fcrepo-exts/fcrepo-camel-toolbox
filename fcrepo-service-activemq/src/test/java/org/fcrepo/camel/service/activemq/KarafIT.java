@@ -19,7 +19,6 @@ package org.fcrepo.camel.service.activemq;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
-import static org.apache.http.impl.client.HttpClientBuilder.create;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -46,7 +45,10 @@ import javax.inject.Inject;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -77,6 +79,9 @@ import org.slf4j.Logger;
 public class KarafIT {
 
     private static Logger LOGGER = getLogger(KarafIT.class);
+
+    private static String FEDORA_USERNAME = "fedoraAdmin";
+    private static String FEDORA_PASSWORD = "fedoraAdmin";
 
     @Inject
     protected FeaturesService featuresService;
@@ -149,7 +154,6 @@ public class KarafIT {
 
     @Test
     public void testQueuingService() throws Exception {
-        final CloseableHttpClient client = create().build();
         final String baseUrl = "http://localhost:" + System.getProperty("fcrepo.port") + "/fcrepo/rest";
         final CamelContext ctx = getOsgiService(CamelContext.class,
                 "(camel.context.name=FcrepoQueuingService)", 10000);
@@ -168,7 +172,10 @@ public class KarafIT {
     }
 
     private String post(final String url) {
-        final CloseableHttpClient httpclient = HttpClients.createDefault();
+        final BasicCredentialsProvider provider = new BasicCredentialsProvider();
+        provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(FEDORA_USERNAME, FEDORA_PASSWORD));
+        final CloseableHttpClient httpclient = HttpClients.custom().setDefaultCredentialsProvider(provider).build();
+
         try {
             final HttpPost httppost = new HttpPost(url);
             final HttpResponse response = httpclient.execute(httppost);

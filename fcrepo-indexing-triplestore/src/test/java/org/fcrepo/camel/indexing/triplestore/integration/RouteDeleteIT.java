@@ -21,8 +21,8 @@ import static java.lang.Integer.parseInt;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
+import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.getEvent;
-import static org.fcrepo.client.FcrepoClient.client;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -81,7 +81,7 @@ public class RouteDeleteIT extends CamelBlueprintTestSupport {
 
     @Before
     public void setUpFuseki() throws Exception {
-        final FcrepoClient client = client().throwExceptionOnFailure().build();
+        final FcrepoClient client = createClient();
         final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
                     .body(loadResourceAsStream("container.ttl"), "text/turtle").perform();
         fullPath = res.getLocation().toString();

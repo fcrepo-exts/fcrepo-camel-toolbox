@@ -53,6 +53,9 @@ public class TriplestoreRouter extends RouteBuilder {
      */
     public void configure() throws Exception {
 
+        final String AUTH_PARAMS = "authUsername=" + System.getProperty("fcrepo.authUsername", "fedoraAdmin") +
+                "&authPassword=" + System.getProperty("fcrepo.authPassword", "fedoraAdmin");
+
         final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
 
@@ -104,7 +107,8 @@ public class TriplestoreRouter extends RouteBuilder {
                 .when(simple("{{indexing.predicate}} != 'true'"))
                     .to("direct:update.triplestore")
                 .otherwise()
-                    .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
+                    .to("fcrepo:{{fcrepo.baseUrl}}?" + AUTH_PARAMS +
+                            "&preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
                     .choice()
                         .when(indexable)
                             .to("direct:update.triplestore")
@@ -128,7 +132,7 @@ public class TriplestoreRouter extends RouteBuilder {
             .routeId("FcrepoTriplestoreUpdater")
             .setHeader(FCREPO_NAMED_GRAPH)
                 .simple("{{triplestore.namedGraph}}")
-            .to("fcrepo:{{fcrepo.baseUrl}}?accept=application/n-triples" +
+            .to("fcrepo:{{fcrepo.baseUrl}}?" + AUTH_PARAMS + "&accept=application/n-triples" +
                     "&preferOmit={{prefer.omit}}&preferInclude={{prefer.include}}")
             .process(new SparqlUpdateProcessor())
             .log(LoggingLevel.INFO, LOGGER,

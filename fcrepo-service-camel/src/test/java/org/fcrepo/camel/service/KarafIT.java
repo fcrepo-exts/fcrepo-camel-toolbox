@@ -19,7 +19,6 @@ package org.fcrepo.camel.service;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
-import static org.apache.http.impl.client.HttpClients.createDefault;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
@@ -50,8 +49,12 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Test;
@@ -77,8 +80,10 @@ import org.slf4j.Logger;
 @ExamReactorStrategy(PerClass.class)
 public class KarafIT {
 
-    private final CloseableHttpClient httpclient = createDefault();
     private static Logger LOGGER = getLogger(KarafIT.class);
+
+    private static String FEDORA_USERNAME = "fedoraAdmin";
+    private static String FEDORA_PASSWORD = "fedoraAdmin";
 
     @Inject
     protected FeaturesService featuresService;
@@ -118,7 +123,11 @@ public class KarafIT {
             CoreOptions.systemProperty("fcrepo.service.bundle").value(fcrepoServiceBundle),
 
             editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.baseUrl",
-                    "http://localhost:" + fcrepoPort + "/fcrepo/rest"),
+                        "http://localhost:" + fcrepoPort + "/fcrepo/rest"),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.authUsername",
+                    FEDORA_USERNAME),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.authPassword",
+                    FEDORA_PASSWORD),
 
             bundle(fcrepoServiceBundle).start(),
 
@@ -164,6 +173,10 @@ public class KarafIT {
 
     private String post(final String url) {
         try {
+            final BasicCredentialsProvider provider = new BasicCredentialsProvider();
+            provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(FEDORA_USERNAME, FEDORA_PASSWORD));
+            final CloseableHttpClient httpclient = HttpClients.custom().setDefaultCredentialsProvider(provider).build();
+
             final HttpPost httppost = new HttpPost(url);
             final HttpResponse response = httpclient.execute(httppost);
             assertEquals(SC_CREATED, response.getStatusLine().getStatusCode());

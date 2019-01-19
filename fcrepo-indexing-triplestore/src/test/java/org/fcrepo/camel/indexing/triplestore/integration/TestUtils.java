@@ -29,6 +29,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.fcrepo.client.FcrepoClient;
+
+import static org.fcrepo.client.FcrepoClient.client;
 
 /**
  * Utility functions for the integration tests
@@ -37,6 +40,9 @@ import org.apache.http.impl.client.HttpClients;
  * @since 2015-04-21
  */
 public class TestUtils {
+
+    private static String FEDORA_USERNAME = "fedoraAdmin";
+    private static String FEDORA_PASSWORD = "fedoraAdmin";
 
     /**
      *  Format a Sparql-update for the provided subject.
@@ -76,37 +82,41 @@ public class TestUtils {
      * @return the event message as JSON
      */
     public static String getEvent(final String subject, final String eventType) {
-        return "{\"@context\" : {" +
-            "\"prov\" : \"http://www.w3.org/ns/prov#\" ," +
-            "\"foaf\" : \"http://xmlns.com/foaf/0.1/\" ," +
-            "\"dcterms\" : \"http://purl.org/dc/terms/\" ," +
-            "\"xsd\" : \"http://www.w3.org/2001/XMLSchema#\" ," +
-            "\"type\" : \"@type\" , " +
-            "\"id\" : \"@id\" ," +
-            "\"atTime\" : { \"@id\" : \"prov:atTime\", \"@type\" : \"xsd:dateTime\" } ," +
-            "\"identifier\" : { \"@id\" : \"dcterms:identifier\" , \"@type\" : \"@id\" } ," +
-            "\"isPartOf\" : { \"@id\" : \"dcterms:isPartOf\", \"@type\" : \"@id\" } ," +
-            "\"name\" : { \"@id\" : \"foaf:name\", \"@type\" : \"xsd:string\" } ," +
-            "\"wasAttributedTo\" : { \"@id\" : \"prov:wasAttributedTo\", \"@type\" : \"@id\" } ," +
-            "\"wasGeneratedBy\" : { \"@id\" : \"prov:wasGeneratedBy\", \"@type\" : \"@id\" }" +
-          "} ," +
-          "\"id\" : \"" + subject + "\" ," +
-          "\"type\" : [ " +
-            "\"http://www.w3.org/ns/prov#Entity\" ," +
-            "\"http://fedora.info/definitions/v4/repository#Resource\" ," +
-            "\"http://fedora.info/definitions/v4/repository#Container\" ] ," +
-          "\"wasGeneratedBy\" : {" +
-            "\"type\" : [" +
-              "\"http://www.w3.org/ns/prov#Activity\" ," +
-              "\"" + eventType + "\" ] ," +
-            "\"identifier\" : \"urn:uuid:3c834a8f-5638-4412-aa4b-35ea80416a18\" ," +
-            "\"atTime\" : \"2016-05-19T17:17:39-04:00Z\" } ," +
-          "\"wasAttributedTo\" : [" +
-            "{ \"type\" : \"http://www.w3.org/ns/prov#Person\" ," +
-              "\"name\" : \"fedo raAdmin\" }," +
-            "{ \"type\" : \"http://www.w3.org/ns/prov#SoftwareAgent\" ," +
-              "\"name\" : \"CLAW client/1.0\" } ]" +
-        "}";
+        return "{\n" +
+                "\"id\": \"urn:uuid:3c834a8f-5638-4412-aa4b-35ea80416a18\", \n" +
+                "\"type\" : [ \"http://www.w3.org/ns/prov#Activity\" ,\n" +
+                "             \"" + eventType + "\" ],\n" +
+                "\"name\": \"resource event\",\n" +
+                "        \"published\": \"2016-05-19T17:17:43-04:00Z\",\n" +
+                "        \"actor\": [{\n" +
+                "   \"type\": [\"Person\"],\n" +
+                "    \"id\": \"info:fedora/fedoraAdmin\"\n" +
+                "}, {\n" +
+                "    \"type\": [\"Application\"],\n" +
+                "    \"name\": \"CLAW client/1.0\"\n" +
+                "}],\n" +
+                "        \n" +
+                "\"object\" : {\n" +
+                "    \"id\" : \"" + subject + "\" ,\n" +
+                "            \"type\" : [\n" +
+                "    \"http://www.w3.org/ns/prov#Entity\" ,\n" +
+                "            \"http://fedora.info/definitions/v4/repository#Resource\" ,\n" +
+                "            \"http://fedora.info/definitions/v4/repository#Container\" ,\n" +
+                "            \"http://www.w3.org/ns/ldp#RDFSource\",\n" +
+                "           \"http://www.w3.org/ns/ldp#BasicContainer\" ],\n" +
+                "    \"isPartOf\" : \"http://localhost/rest\"\n" +
+                "},\n" +
+                " \n" +
+                "\"@context\": [\"https://www.w3.org/ns/activitystreams\", {\n" +
+                "       \"prov\": \"http://www.w3.org/ns/prov#\",\n" +
+                "        \"dcterms\": \"http://purl.org/dc/terms/\",\n" +
+                "       \"type\": \"@type\",\n" +
+                "        \"id\": \"@id\",\n" +
+                "        \"isPartOf\": {\n" +
+                "    \"@id\": \"dcterms:isPartOf\",\n" +
+                "            \"@type\": \"@id\"\n" +
+                "}}]\n" +
+                "}";
     }
 
     /**
@@ -156,6 +166,15 @@ public class TestUtils {
                         .get("results").get("bindings").get(0).get("n").get("value").asText(), 10);
             }
         };
+    }
+
+    /**
+     * Create a new FcrepoClient instance with authentication.
+     * @return the newly created client
+     */
+    public static FcrepoClient createClient() {
+        return client().throwExceptionOnFailure()
+                .credentials(FEDORA_USERNAME, FEDORA_PASSWORD).build();
     }
 
     private TestUtils() {
