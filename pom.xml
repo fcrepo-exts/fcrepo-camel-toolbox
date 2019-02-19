@@ -609,11 +609,11 @@
 
   <developers>
     <developer>
-      <id>acoburn</id>
-      <name>Aaron Coburn</name>
-      <email>acoburn@amherst.edu</email>
-      <organization>Amherst College</organization>
-      <organizationUrl>http://www.amherst.edu</organizationUrl>
+      <id>peichman</id>
+      <name>Peter Eichman</name>
+      <email>peichman@umd.edu</email>
+      <organization>University of Maryland</organization>
+      <organizationUrl>https://umd.edu</organizationUrl>
       <roles>
         <role>developer</role>
       </roles>
