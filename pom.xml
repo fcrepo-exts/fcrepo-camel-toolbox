@@ -12,7 +12,7 @@
   <groupId>org.fcrepo.camel</groupId>
   <artifactId>fcrepo-camel-toolbox</artifactId>
   <packaging>pom</packaging>
-  <version>4.8.0-SNAPSHOT</version>
+  <version>4.8.0</version>
 
   <name>Fedora4 Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
@@ -658,6 +658,6 @@
     <connection>scm:git:git://github.com/fcrepo4-exts/fcrepo-camel-toolbox.git</connection>
     <developerConnection>scm:git:git@github.com:fcrepo4-exts/fcrepo-camel-toolbox.git</developerConnection>
     <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox</url>
-    <tag>HEAD</tag>
+    <tag>fcrepo-camel-toolbox-4.8.0</tag>
   </scm>
 </project>

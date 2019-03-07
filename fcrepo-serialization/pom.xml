@@ -6,7 +6,7 @@
   <parent>
     <artifactId>fcrepo-camel-toolbox</artifactId>
     <groupId>org.fcrepo.camel</groupId>
-    <version>4.8.0-SNAPSHOT</version>
+    <version>4.8.0</version>
   </parent>
 
   <artifactId>fcrepo-serialization</artifactId>
