@@ -1,0 +1,259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to DuraSpace under one or more contributor license agreements.<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * See the NOTICE file distributed with this work for additional information<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * DuraSpace licenses this file to you under the Apache License,<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * Version 2.0 (the "License"); you may not use this file except in<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * compliance with the License.  You may obtain a copy of the License at<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * See the License for the specific language governing permissions and<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * limitations under the License.<a name="line.16"></a>
+<span class="sourceLineNo">017</span> */<a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.fcrepo.camel.indexing.solr;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static java.util.stream.Collectors.toList;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import static org.apache.camel.Exchange.CONTENT_TYPE;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import static org.apache.camel.Exchange.HTTP_METHOD;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import static org.apache.camel.Exchange.HTTP_QUERY;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import static org.apache.camel.Exchange.HTTP_URI;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import static org.apache.camel.builder.PredicateBuilder.and;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import static org.apache.camel.builder.PredicateBuilder.in;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import static org.apache.camel.builder.PredicateBuilder.not;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import static org.apache.camel.builder.PredicateBuilder.or;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import static org.slf4j.LoggerFactory.getLogger;<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.apache.camel.LoggingLevel;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.apache.camel.builder.RouteBuilder;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.apache.camel.builder.xml.Namespaces;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.fcrepo.camel.processor.EventProcessor;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.slf4j.Logger;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>/**<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * A content router for handling JMS events.<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * @author Aaron Coburn<a name="line.44"></a>
+<span class="sourceLineNo">045</span> */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>public class SolrRouter extends RouteBuilder {<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private static final Logger logger = getLogger(SolrRouter.class);<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    private static final String hasIndexingTransformation =<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        "(/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/@rdf:resource | " +<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        "/rdf:RDF/rdf:Description/indexing:hasIndexingTransformation/@rdf:about)[1]";<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    private static final String RESOURCE_DELETION = "http://fedora.info/definitions/v4/event#ResourceDeletion";<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    private static final String DELETE = "https://www.w3.org/ns/activitystreams#Delete";<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    private static final String INDEXING_TRANSFORMATION = "CamelIndexingTransformation";<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    private static final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    private static final String INDEXING_URI = "CamelIndexingUri";<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * Configure the message route workflow.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    public void configure() throws Exception {<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>        final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        ns.add("ldp", "http://www.w3.org/ns/ldp#");<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>        /*<a name="line.70"></a>
+<span class="sourceLineNo">071</span>         * A generic error handler (specific to this RouteBuilder)<a name="line.71"></a>
+<span class="sourceLineNo">072</span>         */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        onException(Exception.class)<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            .maximumRedeliveries("{{error.maxRedeliveries}}")<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            .log("Index Routing Error: ${routeId}");<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>        /*<a name="line.77"></a>
+<span class="sourceLineNo">078</span>         * route a message to the proper queue, based on whether<a name="line.78"></a>
+<span class="sourceLineNo">079</span>         * it is a DELETE or UPDATE operation.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>         */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        from("{{input.stream}}")<a name="line.81"></a>
+<span class="sourceLineNo">082</span>            .routeId("FcrepoSolrRouter")<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            .process(new EventProcessor())<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            .choice()<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                            header(FCREPO_EVENT_TYPE).contains(DELETE)))<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                    .to("direct:delete.solr")<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                .otherwise()<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                    .to("direct:index.solr");<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>        /*<a name="line.91"></a>
+<span class="sourceLineNo">092</span>         * Handle re-index events<a name="line.92"></a>
+<span class="sourceLineNo">093</span>         */<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        from("{{solr.reindex.stream}}")<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            .routeId("FcrepoSolrReindex")<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            .to("direct:index.solr");<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>        /*<a name="line.98"></a>
+<span class="sourceLineNo">099</span>         * Based on an item's metadata, determine if it is indexable.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>         */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        from("direct:index.solr")<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            .routeId("FcrepoSolrIndexer")<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            .removeHeaders("CamelHttp*")<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            .filter(not(in(tokenizePropertyPlaceholder(getContext(), "{{filter.containers}}", ",").stream()<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                        .map(uri -&gt; or(<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                            header(FCREPO_URI).startsWith(constant(uri + "/")),<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                            header(FCREPO_URI).isEqualTo(constant(uri))))<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                        .collect(toList()))))<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            .choice()<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                .when(and(simple("{{indexing.predicate}} != 'true'"),<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                          simple("{{fcrepo.checkHasIndexingTransformation}} != 'true'")))<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                    .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}")<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                    .to("direct:update.solr")<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                .otherwise()<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                    .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&amp;accept=application/rdf+xml")<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                    .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                    .choice()<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                        .when(or(header(INDEXING_TRANSFORMATION).isNull(),<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                                 header(INDEXING_TRANSFORMATION).isEqualTo("")))<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                            .setHeader(INDEXING_TRANSFORMATION).simple("{{fcrepo.defaultTransform}}").end()<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                    .removeHeaders("CamelHttp*")<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                    .choice()<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                        .when(or(simple("{{indexing.predicate}} != 'true'"),<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                                 header(FCREPO_RESOURCE_TYPE).contains(INDEXABLE)))<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                            .to("direct:update.solr")<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                        .otherwise()<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                            .to("direct:delete.solr");<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>        /*<a name="line.130"></a>
+<span class="sourceLineNo">131</span>         * Remove an item from the solr index.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>         */<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        from("direct:delete.solr").routeId("FcrepoSolrDeleter")<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            .removeHeaders("CamelHttp*")<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            .to("mustache:org/fcrepo/camel/indexing/solr/delete.mustache")<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            .log(LoggingLevel.INFO, logger, "Deleting Solr Object ${headers[CamelFcrepoUri]}")<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            .setHeader(HTTP_METHOD).constant("POST")<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            .setHeader(CONTENT_TYPE).constant("application/json")<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            .setHeader(HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            .to("{{solr.baseUrl}}/update?useSystemProperties=true");<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>        from("direct:external.ldpath").routeId("FcrepoSolrLdpathFetch")<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            .removeHeaders("CamelHttp*")<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            .setHeader(HTTP_URI).header(INDEXING_TRANSFORMATION)<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            .setHeader(HTTP_METHOD).constant("GET")<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            .to("http4://localhost/ldpath");<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>        from("direct:transform.ldpath").routeId("FcrepoSolrTransform")<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            .removeHeaders("CamelHttp*")<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            .setHeader(HTTP_URI).simple("{{ldpath.service.baseUrl}}")<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            .setHeader(HTTP_QUERY).simple("context=${headers.CamelFcrepoUri}")<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            .to("http4://localhost/ldpath");<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>        /*<a name="line.154"></a>
+<span class="sourceLineNo">155</span>         * Handle update operations<a name="line.155"></a>
+<span class="sourceLineNo">156</span>         */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        from("direct:update.solr").routeId("FcrepoSolrUpdater")<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            .log(LoggingLevel.INFO, logger, "Indexing Solr Object ${header.CamelFcrepoUri}")<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            .setBody(constant(null))<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            .setHeader(INDEXING_URI).simple("${header.CamelFcrepoUri}")<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            // Don't index the transformation itself<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            .filter().simple("${header.CamelIndexingTransformation} != ${header.CamelIndexingUri}")<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                .choice()<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                    .when(header(INDEXING_TRANSFORMATION).startsWith("http"))<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                        .log(LoggingLevel.INFO, logger,<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                                "Fetching external LDPath program from ${header.CamelIndexingTransformation}")<a name="line.166"></a>
+<span class="sourceLineNo">167</span>                        .to("direct:external.ldpath")<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                        .setHeader(HTTP_METHOD).constant("POST")<a name="line.168"></a>
+<span class="sourceLineNo">169</span>                        .to("direct:transform.ldpath")<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                        .to("direct:send.to.solr")<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                    .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                        .setHeader(HTTP_METHOD).constant("GET")<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                        .to("direct:transform.ldpath")<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                        .to("direct:send.to.solr")<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                    .otherwise()<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                        .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>        /*<a name="line.178"></a>
+<span class="sourceLineNo">179</span>         * Send the transformed resource to Solr<a name="line.179"></a>
+<span class="sourceLineNo">180</span>         */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        from("direct:send.to.solr").routeId("FcrepoSolrSend")<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            .removeHeaders("CamelHttp*")<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            .setHeader(HTTP_METHOD).constant("POST")<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            .setHeader(HTTP_QUERY).simple("commitWithin={{solr.commitWithin}}")<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            .to("{{solr.baseUrl}}/update?useSystemProperties=true");<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    }<a name="line.186"></a>
+<span class="sourceLineNo">187</span>}<a name="line.187"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
