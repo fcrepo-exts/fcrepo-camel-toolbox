@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TriplestoreRouter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fedora Indexing Service with a Triplestore backend</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.indexing.triplestore</a> &gt; <span class="el_source">TriplestoreRouter.java</span></div><h1>TriplestoreRouter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.indexing.triplestore;
+
+import static java.util.stream.Collectors.toList;
+import static org.apache.camel.builder.PredicateBuilder.in;
+import static org.apache.camel.builder.PredicateBuilder.not;
+import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_NAMED_GRAPH;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.apache.camel.LoggingLevel;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.xml.Namespaces;
+import org.apache.camel.builder.xml.XPathBuilder;
+import org.fcrepo.camel.processor.EventProcessor;
+import org.fcrepo.camel.processor.SparqlDeleteProcessor;
+import org.fcrepo.camel.processor.SparqlUpdateProcessor;
+import org.slf4j.Logger;
+
+/**
+ * A content router for handling Fedora events.
+ *
+ * @author Aaron Coburn
+ */
+<span class="fc" id="L44">public class TriplestoreRouter extends RouteBuilder {</span>
+
+<span class="fc" id="L46">    private static final Logger LOGGER = getLogger(TriplestoreRouter.class);</span>
+
+    private static final String RESOURCE_DELETION = &quot;http://fedora.info/definitions/v4/event#ResourceDeletion&quot;;
+    private static final String DELETE = &quot;https://www.w3.org/ns/activitystreams#Delete&quot;;
+
+    /**
+     * Configure the message route workflow.
+     */
+    public void configure() throws Exception {
+
+<span class="fc" id="L56">        final Namespaces ns = new Namespaces(&quot;rdf&quot;, &quot;http://www.w3.org/1999/02/22-rdf-syntax-ns#&quot;);</span>
+<span class="fc" id="L57">        ns.add(&quot;indexing&quot;, &quot;http://fedora.info/definitions/v4/indexing#&quot;);</span>
+
+<span class="fc" id="L59">        final XPathBuilder indexable = new XPathBuilder(</span>
+<span class="fc" id="L60">                String.format(&quot;/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']&quot;,</span>
+                    &quot;http://fedora.info/definitions/v4/indexing#Indexable&quot;));
+<span class="fc" id="L62">        indexable.namespaces(ns);</span>
+
+        /**
+         * A generic error handler (specific to this RouteBuilder)
+         */
+<span class="fc" id="L67">        onException(Exception.class)</span>
+<span class="fc" id="L68">            .maximumRedeliveries(&quot;{{error.maxRedeliveries}}&quot;)</span>
+<span class="fc" id="L69">            .log(&quot;Index Routing Error: ${routeId}&quot;);</span>
+
+        /**
+         * route a message to the proper queue, based on whether
+         * it is a DELETE or UPDATE operation.
+         */
+<span class="fc" id="L75">        from(&quot;{{input.stream}}&quot;)</span>
+<span class="fc" id="L76">            .routeId(&quot;FcrepoTriplestoreRouter&quot;)</span>
+<span class="fc" id="L77">            .process(new EventProcessor())</span>
+<span class="fc" id="L78">            .choice()</span>
+<span class="fc" id="L79">                .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),</span>
+<span class="fc" id="L80">                            header(FCREPO_EVENT_TYPE).contains(DELETE)))</span>
+<span class="fc" id="L81">                    .to(&quot;direct:delete.triplestore&quot;)</span>
+<span class="fc" id="L82">                .otherwise()</span>
+<span class="fc" id="L83">                    .to(&quot;direct:index.triplestore&quot;);</span>
+
+        /**
+         * Handle re-index events
+         */
+<span class="fc" id="L88">        from(&quot;{{triplestore.reindex.stream}}&quot;)</span>
+<span class="fc" id="L89">            .routeId(&quot;FcrepoTriplestoreReindex&quot;)</span>
+<span class="fc" id="L90">            .to(&quot;direct:index.triplestore&quot;);</span>
+
+        /**
+         * Based on an item's metadata, determine if it is indexable.
+         */
+<span class="fc" id="L95">        from(&quot;direct:index.triplestore&quot;)</span>
+<span class="fc" id="L96">            .routeId(&quot;FcrepoTriplestoreIndexer&quot;)</span>
+<span class="fc" id="L97">            .filter(not(in(tokenizePropertyPlaceholder(getContext(), &quot;{{filter.containers}}&quot;, &quot;,&quot;).stream()</span>
+<span class="fc" id="L98">                        .map(uri -&gt; or(</span>
+<span class="fc" id="L99">                            header(FCREPO_URI).startsWith(constant(uri + &quot;/&quot;)),</span>
+<span class="fc" id="L100">                            header(FCREPO_URI).isEqualTo(constant(uri))))</span>
+<span class="fc" id="L101">                        .collect(toList()))))</span>
+<span class="fc" id="L102">            .removeHeaders(&quot;CamelHttp*&quot;)</span>
+<span class="fc" id="L103">            .choice()</span>
+<span class="fc" id="L104">                .when(simple(&quot;{{indexing.predicate}} != 'true'&quot;))</span>
+<span class="fc" id="L105">                    .to(&quot;direct:update.triplestore&quot;)</span>
+<span class="fc" id="L106">                .otherwise()</span>
+<span class="fc" id="L107">                    .to(&quot;fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferMinimalContainer&amp;accept=application/rdf+xml&quot;)</span>
+<span class="fc" id="L108">                    .choice()</span>
+<span class="fc" id="L109">                        .when(indexable)</span>
+<span class="fc" id="L110">                            .to(&quot;direct:update.triplestore&quot;)</span>
+<span class="fc" id="L111">                        .otherwise()</span>
+<span class="fc" id="L112">                            .to(&quot;direct:delete.triplestore&quot;);</span>
+
+        /**
+         * Remove an item from the triplestore index.
+         */
+<span class="fc" id="L117">        from(&quot;direct:delete.triplestore&quot;)</span>
+<span class="fc" id="L118">            .routeId(&quot;FcrepoTriplestoreDeleter&quot;)</span>
+<span class="fc" id="L119">            .process(new SparqlDeleteProcessor())</span>
+<span class="fc" id="L120">            .log(LoggingLevel.INFO, LOGGER,</span>
+                    &quot;Deleting Triplestore Object ${headers[CamelFcrepoUri]}&quot;)
+<span class="fc" id="L122">            .to(&quot;{{triplestore.baseUrl}}?useSystemProperties=true&quot;);</span>
+
+        /**
+         * Perform the sparql update.
+         */
+<span class="fc" id="L127">        from(&quot;direct:update.triplestore&quot;)</span>
+<span class="fc" id="L128">            .routeId(&quot;FcrepoTriplestoreUpdater&quot;)</span>
+<span class="fc" id="L129">            .setHeader(FCREPO_NAMED_GRAPH)</span>
+<span class="fc" id="L130">                .simple(&quot;{{triplestore.namedGraph}}&quot;)</span>
+<span class="fc" id="L131">            .to(&quot;fcrepo:{{fcrepo.baseUrl}}?accept=application/n-triples&quot; +</span>
+                    &quot;&amp;preferOmit={{prefer.omit}}&amp;preferInclude={{prefer.include}}&quot;)
+<span class="fc" id="L133">            .process(new SparqlUpdateProcessor())</span>
+<span class="fc" id="L134">            .log(LoggingLevel.INFO, LOGGER,</span>
+                    &quot;Indexing Triplestore Object ${headers[CamelFcrepoUri]}&quot;)
+<span class="fc" id="L136">            .to(&quot;{{triplestore.baseUrl}}?useSystemProperties=true&quot;);</span>
+<span class="fc" id="L137">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
