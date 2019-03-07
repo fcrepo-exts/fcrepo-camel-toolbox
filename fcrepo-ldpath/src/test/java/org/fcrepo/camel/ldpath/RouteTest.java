@@ -22,9 +22,6 @@ import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.HTTP_URI;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -141,7 +138,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("language:simple:resource:classpath:org/fcrepo/camel/ldpath/options.ttl");
             }
         });
         context.start();

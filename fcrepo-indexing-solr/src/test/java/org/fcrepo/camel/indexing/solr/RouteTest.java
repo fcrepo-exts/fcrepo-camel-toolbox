@@ -52,7 +52,7 @@ import org.junit.Test;
  */
 public class RouteTest extends CamelBlueprintTestSupport {
 
-    private final String EVENT_NS = "http://fedora.info/definitions/v4/event#";
+    private final String EVENT_NS = "https://www.w3.org/ns/activitystreams#";
     private final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
 
     @EndpointInject(uri = "mock:result")
@@ -110,7 +110,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
     @Test
     public void testEventTypeRouter() throws Exception {
 
-        final List<String> eventTypes = asList(EVENT_NS + "ResourceDeletion");
+        final List<String> eventTypes = asList(EVENT_NS + "Delete");
 
         context.getRouteDefinition("FcrepoSolrRouter").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override

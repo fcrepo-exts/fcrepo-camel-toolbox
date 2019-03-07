@@ -1,36 +1,38 @@
 {
-  "@context" : {
-    "prov" : "http://www.w3.org/ns/prov#" ,
-    "foaf" : "http://xmlns.com/foaf/0.1/" ,
-    "dcterms" : "http://purl.org/dc/terms/" ,
-    "xsd" : "http://www.w3.org/2001/XMLSchema#" ,
-
-    "type" : "@type" ,
-    "id" : "@id" ,
-
-    "atTime" : { "@id" : "prov:atTime", "@type" : "xsd:dateTime" } ,
-    "identifier" : { "@id" : "dcterms:identifier" , "@type" : "@id" } ,
-    "isPartOf" : { "@id" : "dcterms:isPartOf", "@type" : "@id" } ,
-    "name" : { "@id" : "foaf:name", "@type" : "xsd:string" } ,
-    "wasAttributedTo" : { "@id" : "prov:wasAttributedTo", "@type" : "@id" } ,
-    "wasGeneratedBy" : { "@id" : "prov:wasGeneratedBy", "@type" : "@id" }
-  } ,
-
-  "id" : "http://localhost/rest/audit/1234" ,
+  "id": "urn:uuid:3c834a8f-5638-4412-aa4b-35ea80416a11",
   "type" : [
-    "http://www.w3.org/ns/prov#Entity" ,
-    "http://fedora.info/definitions/v4/repository#Resource" ,
-    "http://fedora.info/definitions/v4/repository#Container" ] ,
-  "isPartOf" : "http://localhost/rest" ,
-  "wasGeneratedBy" : {
+    "http://www.w3.org/ns/prov#Activity" ,
+    "https://www.w3.org/ns/activitystreams#Create" ],
+  "name": "create resource",
+  "published": "2016-05-19T17:17:40-04:00Z",
+  "actor": [{
+    "type": ["Person"],
+    "id": "info:fedora/fedoraAdmin"
+  }, {
+    "type": ["Application"],
+    "name": "CLAW client/1.0"
+  }],
+
+  "object" : {
+    "id" : "http://localhost/rest/audit/1234" ,
     "type" : [
-      "http://www.w3.org/ns/prov#Activity" ,
-      "http://fedora.info/definitions/v4/event#ResourceCreation" ] ,
-    "identifier" : "urn:uuid:3c834a8f-5638-4412-aa4b-35ea80416a18" ,
-    "atTime" : "2016-05-19T17:17:39-04:00Z" } ,
-  "wasAttributedTo" : [
-    { "type" : "http://www.w3.org/ns/prov#Person" ,
-      "name" : "fedo raAdmin" },
-    { "type" : "http://www.w3.org/ns/prov#SoftwareAgent" ,
-      "name" : "CLAW client/1.0" } ]
+      "http://www.w3.org/ns/prov#Entity" ,
+      "http://fedora.info/definitions/v4/repository#Resource" ,
+      "http://fedora.info/definitions/v4/repository#Container" ,
+      "http://www.w3.org/ns/ldp#RDFSource",
+      "http://www.w3.org/ns/ldp#BasicContainer" ],
+    "isPartOf" : "http://localhost/rest"
+  },
+
+  "@context": ["https://www.w3.org/ns/activitystreams", {
+    "prov": "http://www.w3.org/ns/prov#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "type": "@type",
+    "id": "@id",
+    "isPartOf": {
+      "@id": "dcterms:isPartOf",
+      "@type": "@id"
+    }
+  }]
 }
+

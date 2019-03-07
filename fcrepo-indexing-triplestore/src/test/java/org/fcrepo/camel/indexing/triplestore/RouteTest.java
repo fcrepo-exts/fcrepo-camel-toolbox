@@ -91,6 +91,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
          props.put("filter.containers", auditContainer);
          props.put("input.stream", "seda:foo");
          props.put("reindex.stream", "seda:bar");
+         props.put("triplestore.reindex.stream", "seda:reindex");
          return props;
     }
 

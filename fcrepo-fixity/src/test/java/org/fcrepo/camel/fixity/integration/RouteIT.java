@@ -53,6 +53,9 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
 
+    private static String FEDORA_USERNAME = "fedoraAdmin";
+    private static String FEDORA_PASSWORD = "fedoraAdmin";
+
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
@@ -66,7 +69,8 @@ public class RouteIT extends CamelBlueprintTestSupport {
     @Override
     protected void doPreSetup() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-        final FcrepoClient client = client().throwExceptionOnFailure().build();
+        final FcrepoClient client = client().throwExceptionOnFailure()
+                                            .credentials(FEDORA_USERNAME, FEDORA_PASSWORD).build();
         final FcrepoResponse res = client.post(URI.create("http://localhost:" + webPort + "/fcrepo/rest"))
                                 .body(loadResourceAsStream(binary), "text/plain").perform();
         fullPath = res.getLocation().toString();
@@ -109,7 +113,8 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
         final FcrepoComponent fcrepo = new FcrepoComponent();
         fcrepo.setBaseUrl("http://localhost:" + webPort + "/fcrepo/rest");
-
+        fcrepo.setAuthUsername(FEDORA_USERNAME);
+        fcrepo.setAuthPassword(FEDORA_PASSWORD);
         services.put("broker", asService(component, "osgi.jndi.service.name", "fcrepo/Broker"));
         services.put("fcrepo", asService(fcrepo, "osgi.jndi.service.name", "fcrepo/Camel"));
     }
@@ -134,7 +139,6 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
         getMockEndpoint(fcrepoEndpoint).expectedMessageCount(2);
         getMockEndpoint("mock:success").expectedMessageCount(1);
-
         template.sendBodyAndHeader("direct:start", "", FCREPO_URI,
                 "http://localhost:" + webPort + "/fcrepo/rest" + path);
 
