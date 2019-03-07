@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AuditSparqlProcessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fedora Audit System with a Triplestore backend</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.audit.triplestore</a> &gt; <span class="el_source">AuditSparqlProcessor.java</span></div><h1>AuditSparqlProcessor.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.audit.triplestore;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static org.apache.jena.riot.RDFDataMgr.write;
+import static org.apache.jena.riot.RDFFormat.NTRIPLES;
+import static org.apache.jena.vocabulary.RDF.type;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_ID;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.apache.jena.datatypes.xsd.XSDDatatype.XSDdateTime;
+import static org.apache.jena.datatypes.xsd.XSDDatatype.XSDstring;
+import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
+import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
+import static org.apache.jena.rdf.model.ResourceFactory.createResource;
+import static org.apache.jena.rdf.model.ResourceFactory.createTypedLiteral;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import org.fcrepo.camel.processor.ProcessorUtils;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.Processor;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+
+/**
+ * A processor that converts an audit message into a sparql-update
+ * statement for an external triplestore.
+ *
+ * @author Aaron Coburn
+ * @author escowles
+ * @since 2015-04-09
+ */
+
+<span class="fc" id="L62">public class AuditSparqlProcessor implements Processor {</span>
+
+    static final String AUDIT = &quot;http://fedora.info/definitions/v4/audit#&quot;;
+    static final String PREMIS = &quot;http://www.loc.gov/premis/rdf/v1#&quot;;
+    static final String PROV = &quot;http://www.w3.org/ns/prov#&quot;;
+    static final String XSD = &quot;http://www.w3.org/2001/XMLSchema#&quot;;
+    static final String EVENT_TYPE = &quot;http://id.loc.gov/vocabulary/preservation/eventType/&quot;;
+    static final String EVENT_NAMESPACE = &quot;http://fedora.info/definitions/v4/event#&quot;;
+    static final String AS_NAMESPACE = &quot;https://www.w3.org/ns/activitystreams#&quot;;
+    static final String REPOSITORY = &quot;http://fedora.info/definitions/v4/repository#&quot;;
+
+    static final String CONTENT_MOD = AUDIT + &quot;contentModification&quot;;
+    static final String CONTENT_REM = AUDIT + &quot;contentRemoval&quot;;
+    static final String METADATA_MOD = AUDIT + &quot;metadataModification&quot;;
+
+    static final String CONTENT_ADD = EVENT_TYPE + &quot;ing&quot;;
+    static final String OBJECT_ADD = EVENT_TYPE + &quot;cre&quot;;
+    static final String OBJECT_REM = EVENT_TYPE + &quot;del&quot;;
+
+    /**
+     * Define how a message should be processed.
+     *
+     * @param exchange the current camel message exchange
+     */
+    public void process(final Exchange exchange) throws Exception {
+<span class="fc" id="L87">        final Message in = exchange.getIn();</span>
+<span class="fc" id="L88">        final String eventURIBase = in.getHeader(AuditHeaders.EVENT_BASE_URI, String.class);</span>
+<span class="fc" id="L89">        final String eventID = in.getHeader(FCREPO_EVENT_ID, String.class);</span>
+<span class="fc" id="L90">        final Resource eventURI = createResource(eventURIBase + &quot;/&quot; + eventID);</span>
+
+        // generate SPARQL Update
+<span class="fc" id="L93">        final StringBuilder query = new StringBuilder(&quot;update=&quot;);</span>
+<span class="fc" id="L94">        query.append(ProcessorUtils.insertData(serializedGraphForMessage(in, eventURI), &quot;&quot;));</span>
+
+        // update exchange
+<span class="fc" id="L97">        in.setBody(query.toString());</span>
+<span class="fc" id="L98">        in.setHeader(AuditHeaders.EVENT_URI, eventURI.toString());</span>
+<span class="fc" id="L99">        in.setHeader(Exchange.CONTENT_TYPE, &quot;application/x-www-form-urlencoded&quot;);</span>
+<span class="fc" id="L100">        in.setHeader(Exchange.HTTP_METHOD, &quot;POST&quot;);</span>
+<span class="fc" id="L101">    }</span>
+
+    // namespaces and properties
+<span class="fc" id="L104">    private static final Resource INTERNAL_EVENT = createResource(AUDIT + &quot;InternalEvent&quot;);</span>
+<span class="fc" id="L105">    private static final Resource PREMIS_EVENT = createResource(PREMIS + &quot;Event&quot;);</span>
+<span class="fc" id="L106">    private static final Resource PROV_EVENT = createResource(PROV + &quot;InstantaneousEvent&quot;);</span>
+
+<span class="fc" id="L108">    private static final Property PREMIS_TIME = createProperty(PREMIS + &quot;hasEventDateTime&quot;);</span>
+<span class="fc" id="L109">    private static final Property PREMIS_OBJ = createProperty(PREMIS + &quot;hasEventRelatedObject&quot;);</span>
+<span class="fc" id="L110">    private static final Property PREMIS_AGENT = createProperty(PREMIS + &quot;hasEventRelatedAgent&quot;);</span>
+<span class="fc" id="L111">    private static final Property PREMIS_TYPE = createProperty(PREMIS + &quot;hasEventType&quot;);</span>
+
+    private static final String EMPTY_STRING = &quot;&quot;;
+
+    /**
+     * Convert a Camel message to audit event description.
+     * @param message Camel message produced by an audit event
+     * @param subject RDF subject of the audit description
+     */
+    private static String serializedGraphForMessage(final Message message, final Resource subject) throws IOException {
+
+        // serialize triples
+<span class="fc" id="L123">        final ByteArrayOutputStream serializedGraph = new ByteArrayOutputStream();</span>
+<span class="fc" id="L124">        final Model model = createDefaultModel();</span>
+
+        // get info from jms message headers
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L128">        final List&lt;String&gt; eventType = message.getHeader(FCREPO_EVENT_TYPE, emptyList(), List.class);</span>
+<span class="fc" id="L129">        final String dateTime = message.getHeader(FCREPO_DATE_TIME, EMPTY_STRING, String.class);</span>
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L131">        final List&lt;String&gt; agents = message.getHeader(FCREPO_AGENT, emptyList(), List.class);</span>
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L133">        final List&lt;String&gt; resourceTypes = message.getHeader(FCREPO_RESOURCE_TYPE, emptyList(), List.class);</span>
+<span class="fc" id="L134">        final String identifier = message.getHeader(FCREPO_URI, EMPTY_STRING, String.class);</span>
+<span class="fc" id="L135">        final Optional&lt;String&gt; premisType = getAuditEventType(eventType, resourceTypes);</span>
+
+<span class="fc" id="L137">        model.add( model.createStatement(subject, type, INTERNAL_EVENT) );</span>
+<span class="fc" id="L138">        model.add( model.createStatement(subject, type, PREMIS_EVENT) );</span>
+<span class="fc" id="L139">        model.add( model.createStatement(subject, type, PROV_EVENT) );</span>
+
+        // basic event info
+<span class="fc" id="L142">        model.add( model.createStatement(subject, PREMIS_TIME, createTypedLiteral(dateTime, XSDdateTime)) );</span>
+<span class="fc" id="L143">        model.add( model.createStatement(subject, PREMIS_OBJ, createResource(identifier)) );</span>
+
+<span class="fc" id="L145">        agents.forEach(agent -&gt; {</span>
+<span class="fc" id="L146">            model.add( model.createStatement(subject, PREMIS_AGENT, createTypedLiteral(agent, XSDstring)) );</span>
+<span class="fc" id="L147">        });</span>
+
+<span class="fc" id="L149">        premisType.ifPresent(rdfType -&gt; {</span>
+<span class="fc" id="L150">            model.add(model.createStatement(subject, PREMIS_TYPE, createResource(rdfType)));</span>
+<span class="fc" id="L151">        });</span>
+
+<span class="fc" id="L153">        write(serializedGraph, model, NTRIPLES);</span>
+<span class="fc" id="L154">        return serializedGraph.toString(&quot;UTF-8&quot;);</span>
+    }
+
+    /**
+     * Returns the Audit event type based on fedora event type and properties.
+     *
+     * @param eventType from Fedora
+     * @param properties associated with the Fedora event
+     * @return Audit event
+     */
+    private static Optional&lt;String&gt; getAuditEventType(final List&lt;String&gt; eventType, final List&lt;String&gt; resourceType) {
+        // mapping event type/properties to audit event type
+<span class="pc bpc" id="L166" title="2 of 4 branches missed.">        if (eventType.contains(EVENT_NAMESPACE + &quot;ResourceCreation&quot;) || eventType.contains(AS_NAMESPACE + &quot;Create&quot;)) {</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">            if (resourceType.contains(REPOSITORY + &quot;Binary&quot;)) {</span>
+<span class="nc" id="L168">                return of(CONTENT_ADD);</span>
+            } else {
+<span class="fc" id="L170">                return of(OBJECT_ADD);</span>
+            }
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        } else if (eventType.contains(EVENT_NAMESPACE + &quot;ResourceDeletion&quot;) ||</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                eventType.contains(AS_NAMESPACE + &quot;Delete&quot;)) {</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">            if (resourceType.contains(REPOSITORY + &quot;Binary&quot;)) {</span>
+<span class="nc" id="L175">                return of(CONTENT_REM);</span>
+            } else {
+<span class="nc" id="L177">                return of(OBJECT_REM);</span>
+            }
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        } else if (eventType.contains(EVENT_NAMESPACE + &quot;ResourceModification&quot;) ||</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">                eventType.contains(AS_NAMESPACE + &quot;Update&quot;)) {</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">            if (resourceType.contains(REPOSITORY + &quot;Binary&quot;)) {</span>
+<span class="nc" id="L182">                return of(CONTENT_MOD);</span>
+            } else {
+<span class="nc" id="L184">                return of(METADATA_MOD);</span>
+            }
+        }
+<span class="nc" id="L187">        return empty();</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
