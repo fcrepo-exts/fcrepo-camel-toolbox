@@ -18,7 +18,7 @@ script:
  - sudo service resolvconf stop
  - sudo service sshguard stop
  - sudo service ssh stop
- - mvn install -B -V
+ - mvn install -B -V -q
 
 notifications:
   irc: "irc.freenode.org#fcrepo"
