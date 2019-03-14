@@ -102,7 +102,8 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("direct:index.triplestore");
+                mockEndpointsAndSkip("direct:delete.triplestore");
             }
         });
         context.start();
@@ -123,7 +124,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("fcrepo:*");
+                mockEndpointsAndSkip("http:*");
+                mockEndpointsAndSkip("direct:delete.triplestore");
+                mockEndpointsAndSkip("direct:index.triplestore");
             }
         });
         context.start();
@@ -146,7 +150,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("fcrepo:*");
+                mockEndpointsAndSkip("http:*");
+                mockEndpointsAndSkip("direct:delete.triplestore");
+                mockEndpointsAndSkip("direct:index.triplestore");
             }
         });
         context.start();
@@ -169,7 +176,10 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("fcrepo:*");
+                mockEndpointsAndSkip("http:*");
+                mockEndpointsAndSkip("direct:delete.triplestore");
+                mockEndpointsAndSkip("direct:index.triplestore");
             }
         });
         context.start();
@@ -192,7 +202,9 @@ public class RouteTest extends CamelBlueprintTestSupport {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("fcrepo:*");
+                mockEndpointsAndSkip("direct:delete.triplestore");
+                mockEndpointsAndSkip("direct:update.triplestore");
             }
         });
         context.start();

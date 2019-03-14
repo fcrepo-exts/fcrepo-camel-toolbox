@@ -58,7 +58,8 @@ public class BinaryEnabledRouteTest extends AbstractRouteTest {
               @Override
               public void configure() throws Exception {
                   replaceFromWith("direct:start");
-                  mockEndpointsAndSkip("*");
+                        mockEndpointsAndSkip("fcrepo:*");
+                        mockEndpointsAndSkip("file:*");
               }
         });
         context.start();

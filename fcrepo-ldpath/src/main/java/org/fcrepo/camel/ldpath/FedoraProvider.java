@@ -49,7 +49,7 @@ public class FedoraProvider extends LinkedDataProvider {
 
     public static final String PROVIDER_NAME = "Fedora";
 
-    private HttpClient httpClient;
+    private final HttpClient httpClient;
 
     private final String NON_RDF_SOURCE_URI = "http://www.w3.org/ns/ldp#NonRDFSource";
 
@@ -83,7 +83,7 @@ public class FedoraProvider extends LinkedDataProvider {
             if ( nonRdfSourceDescUri.isPresent() ) {
                 return Collections.singletonList(nonRdfSourceDescUri.get());
             }
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new UncheckedIOException(ex);
         }
         return Collections.singletonList(resourceUri);
@@ -98,7 +98,7 @@ public class FedoraProvider extends LinkedDataProvider {
         if ( links != null ) {
             String descriptionUri = null;
             boolean isNonRDFSource = false;
-            for ( Header h : links ) {
+            for ( final Header h : links ) {
                 final FcrepoLink link = new FcrepoLink(h.getValue());
                 if ( link.getRel().equals("describedby") ) {
                     descriptionUri = link.getUri().toString();

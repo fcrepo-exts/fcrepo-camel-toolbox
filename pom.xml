@@ -32,11 +32,11 @@
 
     <!-- version ranges -->
     <activemq.version.range>[5.14,6)</activemq.version.range>
-    <camel.version.range>[2.18,3)</camel.version.range>
+    <camel.version.range>[2.20,3)</camel.version.range>
 
     <!-- dependencies -->
     <activemq.version>5.14.1</activemq.version>
-    <camel.version>2.18.0</camel.version>
+    <camel.version>2.20.0</camel.version>
     <commons.lang3.version>3.4</commons.lang3.version>
     <jackson2.version>2.7.3</jackson2.version>
     <jena.version>3.1.1</jena.version>
