@@ -12,6 +12,9 @@
     <cm:default-properties>
         <cm:property name="error.maxRedeliveries" value="10"/>
         <cm:property name="input.stream" value="broker:topic:fedora"/>
+        <cm:property name="fcrepo.authUsername" value="fedoraAdmin"/>
+        <cm:property name="fcrepo.authPassword" value="fedoraAdmin"/>
+        <cm:property name="fcrepo.authHost" value=""/>
         <cm:property name="serialization.stream" value="broker:queue:serialization"/>
         <cm:property name="serialization.descriptions" value="/tmp/descriptions"/>
         <cm:property name="serialization.binaries" value="/tmp/binaries"/>
@@ -25,6 +28,13 @@
 
   <bean id="broker" class="org.apache.activemq.camel.component.ActiveMQComponent">
      <property name="brokerURL" value="${jms.brokerUrl}"/>
+  </bean>
+
+  <!-- component-wide configuration of fcrepo -->
+  <bean id="fcrepo" class="org.fcrepo.camel.FcrepoComponent">
+    <property name="authUsername" value="${fcrepo.authUsername}"/>
+    <property name="authPassword" value="${fcrepo.authPassword}"/>
+    <property name="authHost" value="${fcrepo.authHost}"/>
   </bean>
 
   <camelContext id="FcrepoSerialization" xmlns="http://camel.apache.org/schema/blueprint">

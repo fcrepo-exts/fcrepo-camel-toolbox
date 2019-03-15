@@ -3,6 +3,12 @@ fcrepo4-data/
 *transaction.log
 *~
 
+# Eclipse files
+**/.settings
+**/.classpath
+**/.checkstyle
+**/.project
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

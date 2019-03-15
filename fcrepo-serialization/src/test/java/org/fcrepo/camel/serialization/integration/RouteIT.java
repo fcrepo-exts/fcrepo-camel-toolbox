@@ -55,6 +55,9 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     private static final String auditContainer = "/audit";
 
+    private static String FEDORA_USERNAME = "fedoraAdmin";
+    private static String FEDORA_PASSWORD = "fedoraAdmin";
+
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
@@ -66,7 +69,8 @@ public class RouteIT extends CamelBlueprintTestSupport {
 
     @Override
     protected void doPreSetup() throws Exception {
-        final FcrepoClient client = client().throwExceptionOnFailure().build();
+        final FcrepoClient client =  client().throwExceptionOnFailure()
+                .credentials(FEDORA_USERNAME, FEDORA_PASSWORD).build();
         final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
                 .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
         fullPath = res.getLocation().toString();

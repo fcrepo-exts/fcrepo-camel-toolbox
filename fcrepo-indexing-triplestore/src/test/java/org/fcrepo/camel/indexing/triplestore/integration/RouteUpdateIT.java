@@ -21,8 +21,8 @@ import static java.lang.Integer.parseInt;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
+import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.getEvent;
-import static org.fcrepo.client.FcrepoClient.client;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -78,14 +78,16 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
 
     @Override
     protected void doPreSetup() throws Exception {
-        final FcrepoClient client = client().throwExceptionOnFailure().build();
-        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
-                  .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
-        fullPath = res.getLocation().toString();
+
     }
 
     @Before
     public void setUpFuseki() throws Exception {
+        final FcrepoClient client = createClient();
+        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
+                  .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
+        fullPath = res.getLocation().toString();
+
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
         final Dataset ds = new DatasetImpl(createDefaultModel());
         server = FusekiEmbeddedServer.create().setPort(parseInt(FUSEKI_PORT))
@@ -123,6 +125,7 @@ public class RouteUpdateIT extends CamelBlueprintTestSupport {
         props.put("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
         props.put("jms.brokerUrl", "tcp://localhost:" + jmsPort);
         props.put("input.stream", "direct:start");
+        props.put("triplestore.reindex.stream", "direct:reindex");
         return props;
     }
 

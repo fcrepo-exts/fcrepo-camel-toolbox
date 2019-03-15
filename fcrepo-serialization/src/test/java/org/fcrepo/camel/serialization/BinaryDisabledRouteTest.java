@@ -40,7 +40,10 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("direct:metadata");
+                mockEndpointsAndSkip("direct:binary");
+                mockEndpointsAndSkip("direct:delete");
+                mockEndpointsAndSkip("fcrepo:*");
             }
         });
         context.start();
@@ -61,7 +64,10 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("direct:metadata");
+                mockEndpointsAndSkip("direct:binary");
+                mockEndpointsAndSkip("direct:delete");
+                mockEndpointsAndSkip("fcrepo:*");
             }
         });
         context.start();
@@ -81,7 +87,10 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
             @Override
             public void configure() throws Exception {
                 replaceFromWith("direct:start");
-                mockEndpointsAndSkip("*");
+                mockEndpointsAndSkip("direct:metadata");
+                mockEndpointsAndSkip("direct:binary");
+                mockEndpointsAndSkip("direct:delete");
+                mockEndpointsAndSkip("fcrepo:*");
             }
         });
         context.start();
@@ -101,7 +110,8 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
                   @Override
                   public void configure() throws Exception {
                       replaceFromWith("direct:start");
-                      mockEndpointsAndSkip("*");
+                      mockEndpointsAndSkip("fcrepo:*");
+                      mockEndpointsAndSkip("file:*");
                       weaveAddLast().to("mock:result");
                   }
               });
@@ -122,7 +132,8 @@ public class BinaryDisabledRouteTest extends AbstractRouteTest {
               @Override
               public void configure() throws Exception {
                   replaceFromWith("direct:start");
-                  mockEndpointsAndSkip("*");
+                        mockEndpointsAndSkip("fcrepo:*");
+                        mockEndpointsAndSkip("file:*");
               }
         });
         context.start();

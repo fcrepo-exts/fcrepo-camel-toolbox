@@ -19,7 +19,6 @@ package org.fcrepo.camel.service;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
-import static org.apache.http.impl.client.HttpClients.createDefault;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
@@ -50,8 +49,12 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Test;
@@ -77,7 +80,14 @@ import org.slf4j.Logger;
 @ExamReactorStrategy(PerClass.class)
 public class KarafIT {
 
-    private final CloseableHttpClient httpclient = createDefault();
+    private final static String FEDORA_USERNAME = "fedoraAdmin";
+
+    private final static String FEDORA_PASSWORD = "fedoraAdmin";
+
+    private final BasicCredentialsProvider provider = new BasicCredentialsProvider();
+
+    private final CloseableHttpClient httpclient;
+
     private static Logger LOGGER = getLogger(KarafIT.class);
 
     @Inject
@@ -85,6 +95,11 @@ public class KarafIT {
 
     @Inject
     protected BundleContext bundleContext;
+
+    public KarafIT() {
+        provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(FEDORA_USERNAME, FEDORA_PASSWORD));
+        httpclient = HttpClients.custom().setDefaultCredentialsProvider(provider).build();
+    }
 
     @Configuration
     public Option[] config() throws Exception {
@@ -119,6 +134,10 @@ public class KarafIT {
 
             editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.baseUrl",
                     "http://localhost:" + fcrepoPort + "/fcrepo/rest"),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.authUsername",
+                    FEDORA_USERNAME),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.cfg", "fcrepo.authPassword",
+                    FEDORA_PASSWORD),
 
             bundle(fcrepoServiceBundle).start(),
 
@@ -168,7 +187,7 @@ public class KarafIT {
             final HttpResponse response = httpclient.execute(httppost);
             assertEquals(SC_CREATED, response.getStatusLine().getStatusCode());
             return EntityUtils.toString(response.getEntity(), "UTF-8");
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LOGGER.debug("Unable to extract HttpEntity response into an InputStream: ", ex);
             return "";
         }
@@ -184,9 +203,9 @@ public class KarafIT {
                 throw new RuntimeException("Gave up waiting for service " + filter);
             }
             return type.cast(svc);
-        } catch (InvalidSyntaxException e) {
+        } catch (final InvalidSyntaxException e) {
             throw new IllegalArgumentException("Invalid filter", e);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

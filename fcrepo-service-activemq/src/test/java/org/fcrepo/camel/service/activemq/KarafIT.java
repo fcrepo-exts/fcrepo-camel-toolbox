@@ -19,7 +19,6 @@ package org.fcrepo.camel.service.activemq;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
-import static org.apache.http.impl.client.HttpClientBuilder.create;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -41,12 +40,19 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -78,6 +84,10 @@ public class KarafIT {
 
     private static Logger LOGGER = getLogger(KarafIT.class);
 
+    private final static String FEDORA_USERNAME = "fedoraAdmin";
+
+    private final static String FEDORA_PASSWORD = "fedoraAdmin";
+
     @Inject
     protected FeaturesService featuresService;
 
@@ -98,6 +108,7 @@ public class KarafIT {
             karafDistributionConfiguration()
                 .frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf")
                         .versionAsInProject().type("zip"))
+                    .karafVersion("4.0.6")
                 .unpackDirectory(new File("target", "exam"))
                 .useDeployFolder(false),
             logLevel(LogLevel.WARN),
@@ -117,15 +128,13 @@ public class KarafIT {
             CoreOptions.systemProperty("jms.port").value(jmsPort),
             CoreOptions.systemProperty("fcrepo.service.activemq.bundle").value(fcrepoServiceBundle),
 
-            editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.brokerUrl",
-                    "tcp://localhost:" + jmsPort),
             editConfigurationFilePut("etc/org.ops4j.pax.logging.cfg",
                     "log4j.logger.org.apache.camel.impl.converter", "ERROR, stdout"),
 
             bundle(fcrepoServiceBundle).start(),
             streamBundle(
                     TinyBundles.bundle().add("OSGI-INF/blueprint/blueprint-test.xml",
-                    new File("src/test/resources/OSGI-INF/blueprint/blueprint-test.xml").toURL())
+                            new File("src/test/resources/OSGI-INF/blueprint/blueprint-test.xml").toURI().toURL())
                     .set(Constants.BUNDLE_SYMBOLICNAME, "org.fcrepo.camel.service.activemq.test")
                     .set(Constants.BUNDLE_MANIFESTVERSION, "2")
                     .set(Constants.DYNAMICIMPORT_PACKAGE, "*")
@@ -136,7 +145,9 @@ public class KarafIT {
             editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.connections", "1"),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort", rmiRegistryPort),
             editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort", rmiServerPort),
-            editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort)
+            editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", sshPort),
+            editConfigurationFilePut("etc/org.fcrepo.camel.service.activemq.cfg", "jms.brokerUrl",
+                    "tcp://localhost:" + jmsPort)
        };
     }
 
@@ -149,8 +160,8 @@ public class KarafIT {
 
     @Test
     public void testQueuingService() throws Exception {
-        final CloseableHttpClient client = create().build();
-        final String baseUrl = "http://localhost:" + System.getProperty("fcrepo.port") + "/fcrepo/rest";
+        final String webPort = System.getProperty("fcrepo.port");
+        final String baseUrl = "http://localhost:" + webPort + "/fcrepo/rest";
         final CamelContext ctx = getOsgiService(CamelContext.class,
                 "(camel.context.name=FcrepoQueuingService)", 10000);
 
@@ -162,19 +173,31 @@ public class KarafIT {
         final String url1 = post(baseUrl);
         final String url2 = post(baseUrl);
 
-        resultEndpoint.expectedMessageCount(4);
-        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(FCREPO_URI, url1, url2, baseUrl, baseUrl);
+        final List<String> expected = new ArrayList<>();
+        expected.add(baseUrl);
+        expected.add(baseUrl);
+        expected.add(url1);
+        expected.add(url2);
+        expected.add(url1 + "/fcr:versions");
+        expected.add(url2 + "/fcr:versions");
+
+        resultEndpoint.expectedHeaderValuesReceivedInAnyOrder(FCREPO_URI, expected);
+        resultEndpoint.await(500, TimeUnit.MILLISECONDS);
+
         assertIsSatisfied(resultEndpoint);
     }
 
     private String post(final String url) {
-        final CloseableHttpClient httpclient = HttpClients.createDefault();
+        final BasicCredentialsProvider provider = new BasicCredentialsProvider();
+        provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(FEDORA_USERNAME, FEDORA_PASSWORD));
+        final CloseableHttpClient httpclient = HttpClients.custom().setDefaultCredentialsProvider(provider).build();
+
         try {
             final HttpPost httppost = new HttpPost(url);
             final HttpResponse response = httpclient.execute(httppost);
             assertEquals(SC_CREATED, response.getStatusLine().getStatusCode());
             return EntityUtils.toString(response.getEntity(), "UTF-8");
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LOGGER.debug("Unable to extract HttpEntity response into an InputStream: ", ex);
             return "";
         }
@@ -190,9 +213,9 @@ public class KarafIT {
                 throw new RuntimeException("Gave up waiting for service " + filter);
             }
             return type.cast(svc);
-        } catch (InvalidSyntaxException e) {
+        } catch (final InvalidSyntaxException e) {
             throw new IllegalArgumentException("Invalid filter", e);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

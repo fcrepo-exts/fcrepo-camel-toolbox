@@ -11,8 +11,8 @@
    <cm:property-placeholder id="properties" persistent-id="fcrepo-testing">
      <cm:default-properties>
        <cm:property name="error.maxRedeliveries" value="10"/>
-       <cm:property name="fcrepo.authUsername" value=""/>
-       <cm:property name="fcrepo.authPassword" value=""/>
+       <cm:property name="fcrepo.authUsername" value="fedoraAdmin"/>
+       <cm:property name="fcrepo.authPassword" value="fedoraAdmin"/>
        <cm:property name="fcrepo.authHost" value=""/>
        <cm:property name="fcrepo.baseUrl" value="http://localhost:8080/fcrepo/rest"/>
        <cm:property name="reindexing.stream" value="broker:queue:reindexing"/>
