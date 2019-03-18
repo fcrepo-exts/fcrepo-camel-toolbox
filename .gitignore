@@ -22,3 +22,7 @@ hs_err_pid*
 
 # maven target directories
 target/
+
+# intellij
+.idea/
+*.iml
