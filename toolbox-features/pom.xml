@@ -155,7 +155,6 @@
     <dependency>
       <groupId>org.fcrepo.client</groupId>
       <artifactId>fcrepo-java-client</artifactId>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
