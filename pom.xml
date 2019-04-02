@@ -46,7 +46,7 @@
     <spring.version>4.2.5.RELEASE</spring.version>
     <fcrepo.version>5.0.2</fcrepo.version>
     <fcrepo-java-client.version>0.4.0</fcrepo-java-client.version>
-    <fcrepo-camel.version>5.0.0-SNAPSHOT</fcrepo-camel.version>
+    <fcrepo-camel.version>5.0.0</fcrepo-camel.version>
     <woodstox.version>4.4.1</woodstox.version>
     <!-- testing -->
     <awaitility.version>1.7.0</awaitility.version>
