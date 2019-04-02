@@ -104,6 +104,7 @@ public class RouteTest extends CamelBlueprintTestSupport {
          props.put("fcrepo.defaultTransform", "http://localhost/ldpath/program");
          props.put("solr.baseUrl", solrURL);
          props.put("solr.reindex.stream", "seda:reindex");
+         props.put("fcrepo.checkHasIndexingTransformation", "true");
          return props;
     }
 

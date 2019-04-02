@@ -12,6 +12,7 @@
      <cm:default-properties>
        <cm:property name="error.maxRedeliveries" value="10"/>
        <cm:property name="fcrepo.baseUrl" value="http://localhost:8080/fcrepo/rest"/>
+       <cm:property name="fcrepo.checkHasIndexingTransformation" value="true"/>
        <cm:property name="fcrepo.defaultTransform" value=""/>
        <cm:property name="ldpath.service.baseUrl" value="http://localhost:9086/ldpath"/>
        <cm:property name="indexing.predicate" value="false"/>
