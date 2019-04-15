@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>EventRouter.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Fedora Audit Service with a triplestore backend</a> &gt; <a href="../index.html" class="el_bundle">fcrepo-audit-triplestore</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.audit.triplestore</a> &gt; <span class="el_source">EventRouter.java</span></div><h1>EventRouter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.audit.triplestore;
+
+import static java.util.stream.Collectors.toList;
+import static org.apache.camel.builder.PredicateBuilder.in;
+import static org.apache.camel.builder.PredicateBuilder.not;
+import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.apache.camel.LoggingLevel;
+import org.apache.camel.builder.RouteBuilder;
+import org.fcrepo.camel.processor.EventProcessor;
+import org.slf4j.Logger;
+
+/**
+ * A content router for handling JMS events.
+ *
+ * @author Aaron Coburn
+ * @author escowles
+ */
+<span class="fc" id="L39">public class EventRouter extends RouteBuilder {</span>
+
+<span class="fc" id="L41">    private static final Logger LOGGER = getLogger(EventRouter.class);</span>
+
+    /**
+     * Configure the message route workflow.
+     */
+    public void configure() throws Exception {
+
+        /**
+         * A generic error handler (specific to this RouteBuilder)
+         */
+<span class="fc" id="L51">        onException(Exception.class)</span>
+<span class="fc" id="L52">            .maximumRedeliveries(&quot;{{error.maxRedeliveries}}&quot;)</span>
+<span class="fc" id="L53">            .log(&quot;Event Routing Error: ${routeId}&quot;);</span>
+
+        /**
+         * Process a message.
+         */
+<span class="fc" id="L58">        from(&quot;{{input.stream}}&quot;)</span>
+<span class="fc" id="L59">            .routeId(&quot;AuditFcrepoRouter&quot;)</span>
+<span class="fc" id="L60">            .process(new EventProcessor())</span>
+<span class="fc" id="L61">            .filter(not(in(tokenizePropertyPlaceholder(getContext(), &quot;{{filter.containers}}&quot;, &quot;,&quot;).stream()</span>
+<span class="fc" id="L62">                        .map(uri -&gt; or(</span>
+<span class="fc" id="L63">                            header(FCREPO_URI).startsWith(constant(uri + &quot;/&quot;)),</span>
+<span class="fc" id="L64">                            header(FCREPO_URI).isEqualTo(constant(uri))))</span>
+<span class="fc" id="L65">                        .collect(toList()))))</span>
+<span class="fc" id="L66">                .to(&quot;direct:event&quot;);</span>
+
+<span class="fc" id="L68">        from(&quot;direct:event&quot;)</span>
+<span class="fc" id="L69">            .routeId(&quot;AuditEventRouter&quot;)</span>
+<span class="fc" id="L70">            .setHeader(AuditHeaders.EVENT_BASE_URI, simple(&quot;{{event.baseUri}}&quot;))</span>
+<span class="fc" id="L71">            .process(new AuditSparqlProcessor())</span>
+<span class="fc" id="L72">            .log(LoggingLevel.INFO, &quot;org.fcrepo.camel.audit&quot;,</span>
+                    &quot;Audit Event: ${headers.CamelFcrepoUri} :: ${headers[CamelAuditEventUri]}&quot;)
+<span class="fc" id="L74">            .to(&quot;{{triplestore.baseUrl}}?useSystemProperties=true&quot;);</span>
+<span class="fc" id="L75">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
