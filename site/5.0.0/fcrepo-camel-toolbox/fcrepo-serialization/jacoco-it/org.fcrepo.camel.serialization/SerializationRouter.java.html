@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SerializationRouter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Fedora Serialization Service</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.serialization</a> &gt; <span class="el_source">SerializationRouter.java</span></div><h1>SerializationRouter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.serialization;
+
+import static java.net.URI.create;
+import static java.util.stream.Collectors.toList;
+import static org.apache.camel.LoggingLevel.INFO;
+import static org.apache.camel.LoggingLevel.DEBUG;
+import static org.apache.camel.Exchange.FILE_NAME;
+import static org.apache.camel.builder.PredicateBuilder.in;
+import static org.apache.camel.builder.PredicateBuilder.not;
+import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.apache.camel.component.exec.ExecBinding.EXEC_COMMAND_ARGS;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
+
+import java.util.List;
+
+import org.apache.camel.Predicate;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.xml.Namespaces;
+import org.fcrepo.camel.processor.EventProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ *
+ * A router for serializing fedora objects and binaries.
+ *
+ * @author Bethany Seeger
+ * @since 2015-09-28
+ */
+
+<span class="fc" id="L50">public class SerializationRouter extends RouteBuilder {</span>
+
+<span class="fc" id="L52">    private static final Logger LOGGER = LoggerFactory.getLogger(SerializationRouter.class);</span>
+
+    private static final String RESOURCE_DELETION = &quot;http://fedora.info/definitions/v4/event#ResourceDeletion&quot;;
+    private static final String DELETE = &quot;https://www.w3.org/ns/activitystreams#Delete&quot;;
+    private static final String REPOSITORY = &quot;http://fedora.info/definitions/v4/repository#&quot;;
+
+    private static final String isBinaryResourceXPath =
+        &quot;/rdf:RDF/rdf:Description/rdf:type[@rdf:resource=\&quot;&quot; + REPOSITORY + &quot;Binary\&quot;]&quot;;
+
+    public static final String SERIALIZATION_PATH = &quot;CamelSerializationPath&quot;;
+
+<span class="fc" id="L63">    public final List&lt;Predicate&gt; uriFilter = tokenizePropertyPlaceholder(getContext(), &quot;{{filter.containers}}&quot;, &quot;,&quot;)</span>
+<span class="pc" id="L64">                        .stream().map(uri -&gt; or(</span>
+<span class="nc" id="L65">                            header(FCREPO_URI).startsWith(constant(uri + &quot;/&quot;)),</span>
+<span class="nc" id="L66">                            header(FCREPO_URI).isEqualTo(constant(uri))))</span>
+<span class="fc" id="L67">                        .collect(toList());</span>
+
+    /**
+     * Configure the message route workflow
+     *
+     */
+
+    public void configure() throws Exception {
+
+<span class="fc" id="L76">        final Namespaces ns = new Namespaces(&quot;rdf&quot;, &quot;http://www.w3.org/1999/02/22-rdf-syntax-ns#&quot;)</span>
+<span class="fc" id="L77">                .add(&quot;fedora&quot;, REPOSITORY);</span>
+
+        /**
+         * A generic error handler (specific to this RouteBuilder)
+         */
+<span class="fc" id="L82">        onException(Exception.class)</span>
+<span class="fc" id="L83">                .maximumRedeliveries(&quot;{{error.maxRedeliveries}}&quot;)</span>
+<span class="fc" id="L84">                .log(&quot;Index Routing Error: ${routeId}&quot;);</span>
+
+        /**
+         * Handle Serialization Events
+         */
+<span class="fc" id="L89">        from(&quot;{{input.stream}}&quot;)</span>
+<span class="fc" id="L90">            .routeId(&quot;FcrepoSerialization&quot;)</span>
+<span class="fc" id="L91">            .process(new EventProcessor())</span>
+<span class="fc" id="L92">            .process(exchange -&gt; {</span>
+<span class="fc" id="L93">                final String uri = exchange.getIn().getHeader(FCREPO_URI, &quot;&quot;, String.class);</span>
+<span class="fc" id="L94">                exchange.getIn().setHeader(SERIALIZATION_PATH, create(uri).getPath());</span>
+<span class="fc" id="L95">            })</span>
+<span class="fc" id="L96">            .filter(not(in(uriFilter)))</span>
+<span class="fc" id="L97">            .choice()</span>
+<span class="fc" id="L98">                .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),</span>
+<span class="fc" id="L99">                            header(FCREPO_EVENT_TYPE).contains(DELETE)))</span>
+<span class="fc" id="L100">                    .to(&quot;direct:delete&quot;)</span>
+<span class="fc" id="L101">                .otherwise()</span>
+<span class="fc" id="L102">                    .multicast().to(&quot;direct:metadata&quot;, &quot;direct:binary&quot;);</span>
+
+<span class="fc" id="L104">        from(&quot;{{serialization.stream}}&quot;)</span>
+<span class="fc" id="L105">            .routeId(&quot;FcrepoReSerialization&quot;)</span>
+<span class="fc" id="L106">            .filter(not(in(uriFilter)))</span>
+<span class="fc" id="L107">            .process(exchange -&gt; {</span>
+<span class="nc" id="L108">                final String uri = exchange.getIn().getHeader(FCREPO_URI, &quot;&quot;, String.class);</span>
+<span class="nc" id="L109">                exchange.getIn().setHeader(SERIALIZATION_PATH, create(uri).getPath());</span>
+<span class="nc" id="L110">            })</span>
+<span class="fc" id="L111">            .multicast().to(&quot;direct:metadata&quot;, &quot;direct:binary&quot;);</span>
+
+<span class="fc" id="L113">        from(&quot;direct:metadata&quot;)</span>
+<span class="fc" id="L114">            .routeId(&quot;FcrepoSerializationMetadataUpdater&quot;)</span>
+<span class="fc" id="L115">            .to(&quot;fcrepo:localhost?accept={{serialization.mimeType}}&quot;)</span>
+<span class="fc" id="L116">            .log(INFO, LOGGER, &quot;Serializing object ${headers[CamelFcrepoUri]}&quot;)</span>
+<span class="fc" id="L117">            .setHeader(FILE_NAME).simple(&quot;${headers[CamelSerializationPath]}.{{serialization.extension}}&quot;)</span>
+<span class="fc" id="L118">            .log(DEBUG, LOGGER, &quot;filename is ${headers[CamelFileName]}&quot;)</span>
+<span class="fc" id="L119">            .to(&quot;file://{{serialization.descriptions}}&quot;);</span>
+
+<span class="fc" id="L121">        from(&quot;direct:binary&quot;)</span>
+<span class="fc" id="L122">            .routeId(&quot;FcrepoSerializationBinaryUpdater&quot;)</span>
+<span class="fc" id="L123">            .filter().simple(&quot;{{serialization.includeBinaries}} == 'true'&quot;)</span>
+<span class="fc" id="L124">            .to(&quot;fcrepo:localhost?preferInclude=PreferMinimalContainer&quot; +</span>
+                    &quot;&amp;accept=application/rdf+xml&quot;)
+<span class="fc" id="L126">            .filter().xpath(isBinaryResourceXPath, ns)</span>
+<span class="fc" id="L127">            .log(INFO, LOGGER, &quot;Writing binary ${headers[CamelSerializationPath]}&quot;)</span>
+<span class="fc" id="L128">            .to(&quot;fcrepo:localhost?metadata=false&quot;)</span>
+<span class="fc" id="L129">            .setHeader(FILE_NAME).header(SERIALIZATION_PATH)</span>
+<span class="fc" id="L130">            .log(DEBUG, LOGGER, &quot;header filename is: ${headers[CamelFileName]}&quot;)</span>
+<span class="fc" id="L131">            .to(&quot;file://{{serialization.binaries}}&quot;);</span>
+
+<span class="fc" id="L133">        from(&quot;direct:delete&quot;)</span>
+<span class="fc" id="L134">            .routeId(&quot;FcrepoSerializationDeleter&quot;)</span>
+<span class="fc" id="L135">            .setHeader(EXEC_COMMAND_ARGS).simple(</span>
+                &quot;-rf {{serialization.descriptions}}${headers[CamelSerializationPath]}.{{serialization.extension}} &quot; +
+                &quot;{{serialization.descriptions}}${headers[CamelSerializationPath]} &quot; +
+                &quot;{{serialization.binaries}}${headers[CamelSerializationPath]}&quot;)
+<span class="fc" id="L139">            .to(&quot;exec:rm&quot;);</span>
+<span class="fc" id="L140">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
