@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to DuraSpace under one or more contributor license agreements.<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * See the NOTICE file distributed with this work for additional information<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * DuraSpace licenses this file to you under the Apache License,<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * Version 2.0 (the "License"); you may not use this file except in<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * compliance with the License.  You may obtain a copy of the License at<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * Unless required by applicable law or agreed to in writing, software<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * See the License for the specific language governing permissions and<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * limitations under the License.<a name="line.16"></a>
+<span class="sourceLineNo">017</span> */<a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.fcrepo.camel.ldpath;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static java.util.Collections.singletonList;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.io.InputStream;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.io.InputStreamReader;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.util.Collection;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import java.util.List;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import java.util.Map;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import java.util.Set;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>import com.github.jsonldjava.sesame.SesameJSONLDParserFactory;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.marmotta.ldpath.LDPath;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.marmotta.ldpath.api.functions.SelectorFunction;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.marmotta.ldpath.exception.LDPathParseException;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.openrdf.model.Value;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.openrdf.model.impl.URIImpl;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.openrdf.query.resultio.BooleanQueryResultParserRegistry;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.openrdf.query.resultio.TupleQueryResultParserRegistry;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.openrdf.query.resultio.sparqlxml.SPARQLBooleanXMLParserFactory;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLParserFactory;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.openrdf.rio.RDFParserRegistry;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.openrdf.rio.n3.N3ParserFactory;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.openrdf.rio.ntriples.NTriplesParserFactory;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.openrdf.rio.rdfjson.RDFJSONParserFactory;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import org.openrdf.rio.rdfxml.RDFXMLParserFactory;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import org.openrdf.rio.trig.TriGParserFactory;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import org.openrdf.rio.turtle.TurtleParserFactory;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import org.semarglproject.sesame.rdf.rdfa.SesameRDFaParserFactory;<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>/**<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * A convenience factory for creating an LDPath object with an LDCacheBackend.<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * @author acoburn<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * @since Aug 5, 2016<a name="line.52"></a>
+<span class="sourceLineNo">053</span> */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>public class LDPathWrapper {<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    private final LDPath&lt;Value&gt; ldpath;<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * Create an LDPathWrapper and register a set of selector functions.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     *<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * @param backend the linkeddata backend<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * @param functions selector functions<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     */<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    @SuppressWarnings({ "unchecked", "rawtypes" })<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    public LDPathWrapper(final LDCacheBackend backend, final Set&lt;SelectorFunction&gt; functions) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        this(backend);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        for (SelectorFunction&lt;Value&gt; function : functions) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            ldpath.registerFunction(function);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        }<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * Create an LDPathWrapper Object<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * @param backend the linkeddata backend<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     */<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    public LDPathWrapper(final LDCacheBackend backend) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>        // Register the Sesame RDF Parsers manually<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        // TODO: use the OSGi service registry as described in:<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        // http://blog.osgi.org/2013/02/javautilserviceloader-in-osgi.html<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        RDFParserRegistry.getInstance().add(new RDFXMLParserFactory());<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        RDFParserRegistry.getInstance().add(new NTriplesParserFactory());<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        RDFParserRegistry.getInstance().add(new TurtleParserFactory());<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        RDFParserRegistry.getInstance().add(new N3ParserFactory());<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        RDFParserRegistry.getInstance().add(new SesameJSONLDParserFactory());<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        RDFParserRegistry.getInstance().add(new RDFJSONParserFactory());<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        RDFParserRegistry.getInstance().add(new SesameRDFaParserFactory());<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        RDFParserRegistry.getInstance().add(new TriGParserFactory());<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        BooleanQueryResultParserRegistry.getInstance().add(new SPARQLBooleanXMLParserFactory());<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        TupleQueryResultParserRegistry.getInstance().add(new SPARQLResultsXMLParserFactory());<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>        ldpath = new LDPath&lt;Value&gt;(backend);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * Execute an LDPath query<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @param uri the URI to query<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @param program the LDPath program<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @return a result object wrapped in a List<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * @throws LDPathParseException if the LDPath program was malformed<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public List&lt;Map&lt;String, Collection&lt;?&gt;&gt;&gt; programQuery(final String uri, final InputStream program)<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            throws LDPathParseException {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        return singletonList(ldpath.programQuery(new URIImpl(uri), new InputStreamReader(program)));<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span>}<a name="line.106"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
