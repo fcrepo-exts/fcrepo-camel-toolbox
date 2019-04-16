@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ClientFactory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Fedora LDPath service</a> &gt; <a href="../index.html" class="el_bundle">fcrepo-ldpath</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.ldpath</a> &gt; <span class="el_source">ClientFactory.java</span></div><h1>ClientFactory.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.ldpath;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
+import java.util.List;
+
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
+import org.apache.marmotta.ldclient.api.provider.DataProvider;
+import org.apache.marmotta.ldclient.endpoint.rdf.LinkedDataEndpoint;
+import org.apache.marmotta.ldclient.model.ClientConfiguration;
+import org.apache.marmotta.ldclient.provider.rdf.CacheProvider;
+import org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider;
+import org.apache.marmotta.ldclient.provider.rdf.RegexUriProvider;
+import org.apache.marmotta.ldclient.provider.rdf.SPARQLProvider;
+
+/**
+ * A convenience factory for creating a ClientConfiguration object
+ * @author acoburn
+ * @since Aug 5, 2016
+ */
+public class ClientFactory {
+
+
+    /**
+     * Configure a linked data client suitable for use with a Fedora Repository.
+     * @param endpoint  Endpoint to enable on the client
+     * @return a configuration for use with an LDClient
+     */
+    public static ClientConfiguration createClient(final Endpoint endpoint) {
+<span class="nc" id="L53">        return createClient(singletonList(endpoint), emptyList());</span>
+    }
+
+    /**
+     * Configure a linked data client suitable for use with a Fedora Repository.
+     * @param provider Provider to enable on the client
+     * @return a configuration for use with an LDClient
+     */
+    public static ClientConfiguration createClient(final DataProvider provider) {
+<span class="nc" id="L62">        return createClient(null, null, emptyList(), singletonList(provider));</span>
+    }
+
+
+    /**
+     * Configure a linked data client suitable for use with a Fedora Repository.
+     * @param endpoint  Endpoint to enable on the client
+     * @param provider Provider to enable on the client
+     * @return a configuration for use with an LDClient
+     */
+    public static ClientConfiguration createClient(final Endpoint endpoint, final DataProvider provider) {
+<span class="nc" id="L73">        return createClient(singletonList(endpoint), singletonList(provider));</span>
+    }
+
+    /**
+     * Configure a linked data client suitable for use with a Fedora Repository.
+     * @param endpoints additional endpoints to enable on the client
+     * @param providers additional providers to enable on the client
+     * @return a configuration for use with an LDClient
+     */
+    public static ClientConfiguration createClient(final List&lt;Endpoint&gt; endpoints, final List&lt;DataProvider&gt; providers) {
+<span class="nc" id="L83">        return createClient(null, null, endpoints, providers);</span>
+    }
+
+    /**
+     * Configure a linked data client suitable for use with a Fedora Repository.
+     * @param authScope the authentication scope
+     * @param credentials the credentials
+     * @return a configuration for use with an LDClient
+     */
+    public static ClientConfiguration createClient(final AuthScope authScope, final Credentials credentials) {
+<span class="nc" id="L93">        return createClient(authScope, credentials, emptyList(), emptyList());</span>
+    }
+
+    /**
+     * Create a linked data client suitable for use with a Fedora Repository.
+     * @param authScope the authentication scope
+     * @param credentials the credentials
+     * @param endpoints additional endpoints to enable on the client
+     * @param providers additional providers to enable on the client
+     * @return a configuration for use with an LDClient
+     */
+    public static ClientConfiguration createClient(final AuthScope authScope, final Credentials credentials,
+            final List&lt;Endpoint&gt; endpoints, final List&lt;DataProvider&gt; providers) {
+
+<span class="fc" id="L107">        final ClientConfiguration client = new ClientConfiguration();</span>
+
+<span class="pc bpc" id="L109" title="2 of 4 branches missed.">        if (credentials != null &amp;&amp; authScope != null) {</span>
+<span class="fc" id="L110">            final CredentialsProvider credsProvider = new BasicCredentialsProvider();</span>
+<span class="fc" id="L111">            credsProvider.setCredentials(authScope, credentials);</span>
+<span class="fc" id="L112">            client.setHttpClient(HttpClients.custom()</span>
+<span class="fc" id="L113">                    .setDefaultCredentialsProvider(credsProvider)</span>
+<span class="fc" id="L114">                    .useSystemProperties().build());</span>
+        }
+
+        // manually add default Providers and Endpoints
+<span class="fc" id="L118">        client.addProvider(new LinkedDataProvider());</span>
+<span class="fc" id="L119">        client.addProvider(new CacheProvider());</span>
+<span class="fc" id="L120">        client.addProvider(new RegexUriProvider());</span>
+<span class="fc" id="L121">        client.addProvider(new SPARQLProvider());</span>
+<span class="fc" id="L122">        client.addEndpoint(new LinkedDataEndpoint());</span>
+
+        // add any injected endpoints/providers
+<span class="fc" id="L125">        endpoints.forEach(client::addEndpoint);</span>
+<span class="fc" id="L126">        providers.forEach(client::addProvider);</span>
+
+<span class="fc" id="L128">        return client;</span>
+    }
+
+    private ClientFactory() {
+        // prevent instantiation
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LDPathRouter.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Fedora LDPath service</a> &gt; <a href="../index.html" class="el_bundle">fcrepo-ldpath</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.ldpath</a> &gt; <span class="el_source">LDPathRouter.java</span></div><h1>LDPathRouter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.ldpath;
+
+import static org.apache.camel.builder.PredicateBuilder.and;
+import static org.apache.camel.builder.PredicateBuilder.not;
+import static org.apache.camel.model.dataformat.JsonLibrary.Jackson;
+import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.apache.camel.Exchange.HTTP_RESPONSE_CODE;
+import static org.apache.camel.Exchange.HTTP_URI;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.apache.camel.builder.RouteBuilder;
+import org.slf4j.Logger;
+
+/**
+ * A content router for an LDPath service.
+ *
+ * @author Aaron Coburn
+ * @since Aug 5, 2016
+ */
+<span class="fc" id="L38">public class LDPathRouter extends RouteBuilder {</span>
+
+<span class="fc" id="L40">    private static final Logger LOGGER = getLogger(LDPathRouter.class);</span>
+
+    /**
+     * Configure the message route workflow.
+     */
+    public void configure() throws Exception {
+
+        /**
+         * Expose a RESTful endpoint for LDPath processing
+         */
+<span class="fc" id="L50">        from(&quot;jetty:http://{{rest.host}}:{{rest.port}}{{rest.prefix}}?&quot; +</span>
+                &quot;&amp;httpMethodRestrict=GET,POST,OPTIONS&quot; +
+                &quot;&amp;sendServerVersion=false&quot;)
+<span class="fc" id="L53">            .routeId(&quot;FcrepoLDPathRest&quot;)</span>
+<span class="fc" id="L54">            .routeDescription(&quot;Expose the ldpath endpoint over HTTP&quot;)</span>
+<span class="fc" id="L55">            .choice()</span>
+<span class="fc" id="L56">                .when(header(HTTP_METHOD).isEqualTo(&quot;OPTIONS&quot;))</span>
+<span class="fc" id="L57">                    .setHeader(CONTENT_TYPE).constant(&quot;text/turtle&quot;)</span>
+<span class="fc" id="L58">                    .setHeader(&quot;Allow&quot;).constant(&quot;GET,POST,OPTIONS&quot;)</span>
+<span class="fc" id="L59">                    .to(&quot;language:simple:resource:classpath:org/fcrepo/camel/ldpath/options.ttl&quot;)</span>
+                // make sure the required context parameter is present
+<span class="fc" id="L61">                .when(not(and(header(&quot;context&quot;).isNotNull(), header(&quot;context&quot;).regex(&quot;^https?://.+&quot;))))</span>
+<span class="fc" id="L62">                    .setHeader(HTTP_RESPONSE_CODE).constant(400)</span>
+<span class="fc" id="L63">                    .setHeader(CONTENT_TYPE).constant(&quot;text/plain&quot;)</span>
+<span class="fc" id="L64">                    .transform(constant(&quot;Missing context parameter&quot;))</span>
+<span class="fc" id="L65">                .when(header(HTTP_METHOD).isEqualTo(&quot;GET&quot;))</span>
+<span class="fc" id="L66">                    .to(&quot;direct:get&quot;)</span>
+<span class="fc" id="L67">                .when(header(HTTP_METHOD).isEqualTo(&quot;POST&quot;))</span>
+<span class="fc" id="L68">                    .to(&quot;direct:ldpathPrepare&quot;);</span>
+
+<span class="fc" id="L70">        from(&quot;direct:get&quot;)</span>
+<span class="fc" id="L71">            .routeId(&quot;FcrepoLDPathGet&quot;)</span>
+<span class="fc" id="L72">            .choice()</span>
+<span class="fc" id="L73">                .when(and(header(&quot;ldpath&quot;).isNotNull(), header(&quot;ldpath&quot;).regex(&quot;^https?://.*&quot;)))</span>
+<span class="fc" id="L74">                    .removeHeaders(&quot;CamelHttp*&quot;)</span>
+<span class="fc" id="L75">                    .setHeader(HTTP_URI).header(&quot;ldpath&quot;)</span>
+<span class="fc" id="L76">                    .to(&quot;http4://localhost?useSystemProperties=true&quot;)</span>
+<span class="fc" id="L77">                    .to(&quot;direct:ldpathPrepare&quot;)</span>
+<span class="fc" id="L78">                .otherwise()</span>
+<span class="fc" id="L79">                    .to(&quot;language:simple:resource:classpath:org/fcrepo/camel/ldpath/default.ldpath&quot;)</span>
+<span class="fc" id="L80">                    .to(&quot;direct:ldpathPrepare&quot;);</span>
+
+<span class="fc" id="L82">        from(&quot;direct:ldpathPrepare&quot;).routeId(&quot;FcrepoLDPathPrepare&quot;)</span>
+<span class="fc" id="L83">            .to(&quot;direct:ldpath&quot;)</span>
+<span class="fc" id="L84">            .to(&quot;direct:format&quot;);</span>
+
+<span class="fc" id="L86">        from(&quot;direct:format&quot;).routeId(&quot;FcrepoLDPathFormat&quot;)</span>
+<span class="fc" id="L87">            .marshal().json(Jackson)</span>
+<span class="fc" id="L88">            .removeHeaders(&quot;*&quot;)</span>
+<span class="fc" id="L89">            .setHeader(CONTENT_TYPE).constant(&quot;application/json&quot;);</span>
+<span class="fc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FedoraProvider.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Fedora LDPath service</a> &gt; <a href="../index.html" class="el_bundle">fcrepo-ldpath</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.ldpath</a> &gt; <span class="el_source">FedoraProvider.java</span></div><h1>FedoraProvider.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.ldpath;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
+import org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider;
+import org.fcrepo.client.FcrepoHttpClientBuilder;
+import org.fcrepo.client.FcrepoLink;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.slf4j.Logger;
+
+
+/**
+ * An extension Linked Data provider to support Binary nodes in Fedora.
+ *
+ * @author Mohamed Mohideen Abdul Rasheed
+ */
+public class FedoraProvider extends LinkedDataProvider {
+
+<span class="fc" id="L48">    private static final Logger LOGGER = getLogger(FedoraProvider.class);</span>
+
+    public static final String PROVIDER_NAME = &quot;Fedora&quot;;
+
+    private final HttpClient httpClient;
+
+<span class="fc" id="L54">    private final String NON_RDF_SOURCE_URI = &quot;http://www.w3.org/ns/ldp#NonRDFSource&quot;;</span>
+
+    /**
+     * FedoraProvider
+     * @param builder FcrepoHttpClientBuilder for building HttpClient
+     */
+<span class="fc" id="L60">    public FedoraProvider(final FcrepoHttpClientBuilder builder) {</span>
+<span class="fc" id="L61">        Objects.requireNonNull(builder);</span>
+<span class="fc" id="L62">        httpClient = builder.build();</span>
+<span class="fc" id="L63">    }</span>
+
+    /*
+     * Return the name of this data provider. To be used e.g. in the configuration and in log messages.
+     */
+    @Override
+    public String getName() {
+<span class="nc" id="L70">        return PROVIDER_NAME;</span>
+    }
+
+    /*
+     * Return the describedBy URL for NonRdfSource resources. Return the resourseUri otherwise.
+     */
+    @Override
+    public List&lt;String&gt; buildRequestUrl(final String resourceUri, final Endpoint endpoint) {
+<span class="nc" id="L78">        LOGGER.debug(&quot;Processing: &quot; + resourceUri);</span>
+<span class="nc" id="L79">        Objects.requireNonNull(resourceUri);</span>
+        try {
+<span class="nc" id="L81">            final Optional&lt;String&gt; nonRdfSourceDescUri =</span>
+<span class="nc" id="L82">                    getNonRDFSourceDescribedByUri(resourceUri);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if ( nonRdfSourceDescUri.isPresent() ) {</span>
+<span class="nc" id="L84">                return Collections.singletonList(nonRdfSourceDescUri.get());</span>
+            }
+<span class="nc" id="L86">        } catch (final IOException ex) {</span>
+<span class="nc" id="L87">            throw new UncheckedIOException(ex);</span>
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">        return Collections.singletonList(resourceUri);</span>
+    }
+
+    /*
+    * Get the describedBy Uri if the resource has a NON_RDF_SOURCE_URI link header.
+    */
+    private Optional&lt;String&gt; getNonRDFSourceDescribedByUri(final String resourceUri) throws IOException {
+<span class="nc" id="L96">        Optional&lt;String&gt; nonRdfSourceDescUri = Optional.empty();</span>
+<span class="nc" id="L97">        final Header[] links = getLinkHeaders(resourceUri);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if ( links != null ) {</span>
+<span class="nc" id="L99">            String descriptionUri = null;</span>
+<span class="nc" id="L100">            boolean isNonRDFSource = false;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            for ( final Header h : links ) {</span>
+<span class="nc" id="L102">                final FcrepoLink link = new FcrepoLink(h.getValue());</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                if ( link.getRel().equals(&quot;describedby&quot;) ) {</span>
+<span class="nc" id="L104">                    descriptionUri = link.getUri().toString();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                } else if ( link.getUri().toString().contains(NON_RDF_SOURCE_URI)) {</span>
+<span class="nc" id="L106">                    isNonRDFSource = true;</span>
+                }
+            }
+<span class="nc" id="L109">            LOGGER.debug(&quot;isNonRDFSource: &quot; + isNonRDFSource);</span>
+<span class="nc bnc" id="L110" title="All 4 branches missed.">            if (isNonRDFSource &amp;&amp; descriptionUri != null) {</span>
+<span class="nc" id="L111">                nonRdfSourceDescUri = Optional.of(descriptionUri);</span>
+            }
+        }
+<span class="nc" id="L114">        return nonRdfSourceDescUri;</span>
+    }
+
+    /*
+    * Get the link headers for the resource at the given Uri.
+    */
+    private Header[] getLinkHeaders(final String resourceUri) throws IOException {
+<span class="nc" id="L121">        final HttpHead request = new HttpHead(resourceUri);</span>
+<span class="nc" id="L122">        final HttpResponse response = httpClient.execute(request);</span>
+<span class="nc" id="L123">        LOGGER.debug(&quot;Got: &quot; + response.getStatusLine().getStatusCode() + &quot; for HEAD &quot; + resourceUri);</span>
+<span class="nc" id="L124">        return response.getHeaders(&quot;Link&quot;);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

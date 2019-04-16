@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Fedora LDPath service/fcrepo-ldpath,org.fcrepo.camel.ldpath,LDPathWrapper,19,82,2,0,5,14,2,2,1,2
+Fedora LDPath service/fcrepo-ldpath,org.fcrepo.camel.ldpath,FedoraEndpoint,6,50,0,0,2,7,1,1,1,1
+Fedora LDPath service/fcrepo-ldpath,org.fcrepo.camel.ldpath,FedoraProvider,137,17,14,0,30,6,11,2,4,2
+Fedora LDPath service/fcrepo-ldpath,org.fcrepo.camel.ldpath,ClientFactory,30,64,2,2,5,15,7,1,5,1
+Fedora LDPath service/fcrepo-ldpath,org.fcrepo.camel.ldpath,LDPathRouter,0,146,0,0,0,37,0,3,0,3
