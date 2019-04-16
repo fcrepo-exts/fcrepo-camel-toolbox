@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ReindexingRouter.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">Fedora reindexing service</a> &gt; <a href="../index.html" class="el_bundle">fcrepo-reindexing</a> &gt; <a href="index.source.html" class="el_package">org.fcrepo.camel.reindexing</a> &gt; <span class="el_source">ReindexingRouter.java</span></div><h1>ReindexingRouter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to DuraSpace under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * DuraSpace licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fcrepo.camel.reindexing;
+
+import static java.net.InetAddress.getLocalHost;
+import static org.apache.camel.Exchange.CONTENT_TYPE;
+import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.apache.camel.Exchange.HTTP_RESPONSE_CODE;
+import static org.apache.camel.LoggingLevel.INFO;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENTS;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_HOST;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_PORT;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_PREFIX;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.client.HttpMethods.GET;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.apache.camel.PropertyInject;
+import org.apache.camel.builder.RouteBuilder;
+import org.slf4j.Logger;
+
+/**
+ * A content router for handling JMS events.
+ *
+ * @author Aaron Coburn
+ */
+<span class="fc" id="L43">public class ReindexingRouter extends RouteBuilder {</span>
+
+<span class="fc" id="L45">    private static final Logger LOGGER = getLogger(ReindexingRouter.class);</span>
+    private static final int BAD_REQUEST = 400;
+    private static final String LDP_CONTAINS = &quot;&lt;http://www.w3.org/ns/ldp#contains&gt;&quot;;
+
+    @PropertyInject(value = &quot;rest.port&quot;, defaultValue = &quot;9080&quot;)
+    private String port;
+
+    @PropertyInject(value = &quot;rest.host&quot;, defaultValue = &quot;localhost&quot;)
+    private String host;
+
+    /**
+     * Configure the message route workflow.
+     */
+    public void configure() throws Exception {
+
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        final String hostname = host.startsWith(&quot;http&quot;) ? host : &quot;http://&quot; + host;</span>
+
+        /**
+         * A generic error handler (specific to this RouteBuilder)
+         */
+<span class="fc" id="L65">        onException(Exception.class)</span>
+<span class="fc" id="L66">            .maximumRedeliveries(&quot;{{error.maxRedeliveries}}&quot;)</span>
+<span class="fc" id="L67">            .log(&quot;Index Routing Error: ${routeId}&quot;);</span>
+
+        /**
+         * Expose a RESTful endpoint for re-indexing
+         */
+<span class="fc" id="L72">        from(&quot;jetty:&quot; + hostname + &quot;:&quot; + port + &quot;{{rest.prefix}}?matchOnUriPrefix=true&amp;httpMethodRestrict=GET,POST&quot;)</span>
+<span class="fc" id="L73">            .routeId(&quot;FcrepoReindexingRest&quot;)</span>
+<span class="fc" id="L74">            .routeDescription(&quot;Expose the reindexing endpoint over HTTP&quot;)</span>
+<span class="fc" id="L75">            .setHeader(FCREPO_URI).simple(&quot;{{fcrepo.baseUrl}}${headers.CamelHttpPath}&quot;)</span>
+<span class="fc" id="L76">            .choice()</span>
+<span class="fc" id="L77">                .when(header(HTTP_METHOD).isEqualTo(&quot;GET&quot;)).to(&quot;direct:usage&quot;)</span>
+<span class="fc" id="L78">                .otherwise().to(&quot;direct:reindex&quot;);</span>
+
+<span class="fc" id="L80">        from(&quot;direct:usage&quot;).routeId(&quot;FcrepoReindexingUsage&quot;)</span>
+<span class="fc" id="L81">            .setHeader(REINDEXING_PREFIX).simple(&quot;{{rest.prefix}}&quot;)</span>
+<span class="fc" id="L82">            .setHeader(REINDEXING_PORT).simple(port)</span>
+<span class="fc" id="L83">            .setHeader(FCREPO_BASE_URL).simple(&quot;{{fcrepo.baseUrl}}&quot;)</span>
+<span class="fc" id="L84">            .process(exchange -&gt; {</span>
+<span class="fc" id="L85">                exchange.getIn().setHeader(REINDEXING_HOST, getLocalHost().getHostName());</span>
+<span class="fc" id="L86">            })</span>
+<span class="fc" id="L87">            .to(&quot;mustache:org/fcrepo/camel/reindexing/usage.mustache&quot;);</span>
+
+        /**
+         * A Re-indexing endpoint, setting where in the fcrepo hierarchy
+         * a re-indexing operation should begin.
+         */
+<span class="fc" id="L93">        from(&quot;direct:reindex&quot;).routeId(&quot;FcrepoReindexingReindex&quot;)</span>
+<span class="fc" id="L94">            .process(new RestProcessor())</span>
+<span class="fc" id="L95">            .removeHeaders(&quot;CamelHttp*&quot;)</span>
+<span class="fc" id="L96">            .removeHeader(&quot;JMSCorrelationID&quot;)</span>
+<span class="fc" id="L97">            .setBody(constant(null))</span>
+<span class="fc" id="L98">            .choice()</span>
+<span class="fc" id="L99">                .when(header(HTTP_RESPONSE_CODE).isGreaterThanOrEqualTo(BAD_REQUEST))</span>
+<span class="fc" id="L100">                    .endChoice()</span>
+<span class="fc" id="L101">                .when(header(REINDEXING_RECIPIENTS).isEqualTo(&quot;&quot;))</span>
+<span class="fc" id="L102">                    .transform().simple(&quot;No endpoints configured for indexing&quot;)</span>
+<span class="fc" id="L103">                    .endChoice()</span>
+<span class="fc" id="L104">                .otherwise()</span>
+<span class="fc" id="L105">                    .log(INFO, LOGGER, &quot;Initial indexing path: ${headers[CamelFcrepoUri]}&quot;)</span>
+<span class="fc" id="L106">                    .inOnly(&quot;{{reindexing.stream}}?disableTimeToLive=true&quot;)</span>
+<span class="fc" id="L107">                    .setHeader(CONTENT_TYPE).constant(&quot;text/plain&quot;)</span>
+<span class="fc" id="L108">                    .transform().simple(&quot;Indexing started at ${headers[CamelFcrepoUri]}&quot;);</span>
+
+        /**
+         *  A route that traverses through a fedora heirarchy
+         *  indexing nodes, as appropriate.
+         */
+<span class="fc" id="L114">        from(&quot;{{reindexing.stream}}?asyncConsumer=true&quot;).routeId(&quot;FcrepoReindexingTraverse&quot;)</span>
+<span class="fc" id="L115">            .inOnly(&quot;direct:recipients&quot;)</span>
+<span class="fc" id="L116">            .removeHeaders(&quot;CamelHttp*&quot;)</span>
+<span class="fc" id="L117">            .setHeader(HTTP_METHOD).constant(GET)</span>
+<span class="fc" id="L118">            .to(&quot;fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferContainment&quot; +</span>
+                    &quot;&amp;preferOmit=ServerManaged&amp;accept=application/n-triples&quot;)
+            // split the n-triples stream on line breaks so that each triple is split into a separate message
+<span class="fc" id="L121">            .split(body().tokenize(&quot;\\n&quot;)).streaming()</span>
+<span class="fc" id="L122">                .removeHeader(FCREPO_URI)</span>
+<span class="fc" id="L123">                .removeHeader(&quot;JMSCorrelationID&quot;)</span>
+<span class="fc" id="L124">                .process(exchange -&gt; {</span>
+                    // This is a simple n-triples parser, spliting nodes on whitespace according to
+                    // https://www.w3.org/TR/n-triples/#n-triples-grammar
+                    // If the body is not null and the predicate is ldp:contains and the object is a URI,
+                    // then set the CamelFcrepoUri header (if that header is not set, the processing stops
+                    // at the filter() line below.
+<span class="fc" id="L130">                    final String body = exchange.getIn().getBody(String.class);</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                    if (body != null) {</span>
+<span class="fc" id="L132">                        final String parts[] = body.split(&quot;\\s+&quot;);</span>
+<span class="pc bpc" id="L133" title="2 of 6 branches missed.">                        if (parts.length &gt; 2 &amp;&amp; parts[1].equals(LDP_CONTAINS) &amp;&amp; parts[2].startsWith(&quot;&lt;&quot;)) {</span>
+<span class="fc" id="L134">                            exchange.getIn().setHeader(FCREPO_URI, parts[2].substring(1, parts[2].length() - 1));</span>
+                        }
+<span class="fc" id="L136">                        exchange.getIn().setBody(null);</span>
+                    }
+<span class="fc" id="L138">                })</span>
+<span class="fc" id="L139">                .filter(header(FCREPO_URI).isNotNull())</span>
+<span class="fc" id="L140">                    .inOnly(&quot;{{reindexing.stream}}?disableTimeToLive=true&quot;);</span>
+
+        /**
+         *  Send the message to all of the pre-determined endpoints
+         */
+<span class="fc" id="L145">        from(&quot;direct:recipients&quot;).routeId(&quot;FcrepoReindexingRecipients&quot;)</span>
+<span class="fc" id="L146">            .recipientList(header(REINDEXING_RECIPIENTS))</span>
+<span class="fc" id="L147">            .ignoreInvalidEndpoints();</span>
+<span class="fc" id="L148">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
