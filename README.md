@@ -4,7 +4,7 @@ A collection of ready-to-use messaging applications for use
 with [Fedora4](http://fcrepo.org). These applications use
 [Apache Camel](https://camel.apache.org).
 
-[![Build Status](https://travis-ci.org/fcrepo4-exts/fcrepo-camel-toolbox.png?branch=master)](https://travis-ci.org/fcrepo4-exts/fcrepo-camel-toolbox)
+[![Build Status](https://travis-ci.com/fcrepo4-exts/fcrepo-camel-toolbox.svg?branch=master)](https://travis-ci.com/fcrepo4-exts/fcrepo-camel-toolbox)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.fcrepo.camel/toolbox-features/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.fcrepo.camel/toolbox-features/)
 
 Additional background information is available on the Fedora Wiki on the

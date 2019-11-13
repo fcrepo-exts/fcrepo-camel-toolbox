@@ -1,7 +1,12 @@
 language: java
-sudo: true
 jdk:
- - oraclejdk8
+ - openjdk8
+ - openjdk11
+
+jobs:
+  allow_failures:
+  - jdk: openjdk11
+
 before_install:
  - "echo $JAVA_OPTS"
  - "export JAVA_OPTS=-Xmx1024m"
@@ -19,9 +24,4 @@ script:
  - sudo service sshguard stop
  - sudo service ssh stop
  - mvn install -B -V -q
-
-notifications:
-  irc: "irc.freenode.org#fcrepo"
-  email:
-      - fedora-tech@googlegroups.com
 
