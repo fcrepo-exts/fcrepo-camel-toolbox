@@ -63,7 +63,7 @@
     <karaf.version>4.0.6</karaf.version>
     <pax-exam.version>4.8.0</pax-exam.version>
     <solr.version>4.10.2</solr.version>
-    <xerces.version>2.11.0</xerces.version>
+    <xerces.version>2.12.0</xerces.version>
     <!-- jared's -->
     <failsafe.plugin.version>2.18.1</failsafe.plugin.version>
     <!-- osgi -->
