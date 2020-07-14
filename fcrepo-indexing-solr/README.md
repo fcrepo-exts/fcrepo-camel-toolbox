@@ -5,10 +5,7 @@ for [Fedora4](http://fcrepo.org).
 
 The application relies on LDPath-based transformations to convert a resource
 from RDF into JSON. More information on the LDPath language is available on the
-[Marmotta website](http://marmotta.apache.org/ldpath/language.html). It may also
-be helpful to read about Fedora's
-[transformation API](https://wiki.duraspace.org/display/FEDORA4x/RESTful+HTTP+API+-+Transform),
-which describes how to install special purpose LDPath programs in Fedora.
+[Marmotta website](http://marmotta.apache.org/ldpath/language.html).
 
 Additional background information is available on the Fedora Wiki on the
 [Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
