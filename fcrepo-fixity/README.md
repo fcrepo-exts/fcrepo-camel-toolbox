@@ -9,7 +9,7 @@ modified by specifying an alternate value for `fixity.failure`. It is
 also possible to trigger an event on successful fixity checks.
 
 This service is typically used in conjunction with the
-[fcrepo-reindexing](https://github.com/fcrepo4-exts/fcrepo-camel-toolbox/tree/master/fcrepo-reindexing)
+[fcrepo-reindexing](https://github.com/fcrepo-exts/fcrepo-camel-toolbox/tree/master/fcrepo-reindexing)
 module. For example:
 
     curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
