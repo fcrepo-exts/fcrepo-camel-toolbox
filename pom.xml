@@ -25,9 +25,9 @@
 
   <properties>
     <!-- Use ${project_name} instead of ${project.artifactId} to avoid incorrect
-      replacements of "fcrepo4" in child modules (for scm, site-distribution, etc -->
+      replacements of "fcrepo" in child modules (for scm, site-distribution, etc -->
     <project_name>fcrepo-camel-toolbox</project_name>
-    <project_organization>fcrepo4-exts</project_organization>
+    <project_organization>fcrepo-exts</project_organization>
     <project.copyrightYear>2016</project.copyrightYear>
 
     <!-- version ranges -->
@@ -656,7 +656,7 @@
   </developers>
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox/issues</url>
+    <url>https://github.com/fcrepo-exts/fcrepo-camel-toolbox/issues</url>
   </issueManagement>
 
   <ciManagement>
@@ -665,9 +665,9 @@
   </ciManagement>
 
   <scm>
-    <connection>scm:git:git://github.com/fcrepo4-exts/fcrepo-camel-toolbox.git</connection>
-    <developerConnection>scm:git:git@github.com:fcrepo4-exts/fcrepo-camel-toolbox.git</developerConnection>
-    <url>https://github.com/fcrepo4-exts/fcrepo-camel-toolbox</url>
+    <connection>scm:git:git://github.com/fcrepo-exts/fcrepo-camel-toolbox.git</connection>
+    <developerConnection>scm:git:git@github.com:fcrepo-exts/fcrepo-camel-toolbox.git</developerConnection>
+    <url>https://github.com/fcrepo-exts/fcrepo-camel-toolbox</url>
     <tag>HEAD</tag>
   </scm>
 </project>
