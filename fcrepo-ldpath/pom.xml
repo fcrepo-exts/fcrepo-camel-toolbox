@@ -6,11 +6,11 @@
   <parent>
     <artifactId>fcrepo-camel-toolbox</artifactId>
     <groupId>org.fcrepo.camel</groupId>
-    <version>5.1.0-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>fcrepo-ldpath</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <name>Fedora LDPath Service</name>
   <description>Camel-based LDPath service</description>
@@ -40,6 +40,14 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jackson</artifactId>
       <version>${camel.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-core</artifactId>
     </dependency>
 
     <dependency>
@@ -139,47 +147,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-      </plugin>
-
-      <!-- to generate the MANIFEST-FILE of the bundle -->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <!-- many of the marmotta bundles are not properly formatted and so must be embedded -->
-            <Import-Package>
-              org.apache.marmotta.ldcache.backend.infinispan;resolution:=optional,
-              org.openrdf.rio.turtle,
-              org.openrdf.rio.rdfxml,
-              org.openrdf.rio.ntriples,
-              org.openrdf.rio.n3,
-              org.openrdf.rio.datatypes,
-              org.openrdf.rio.helpers,
-              com.github.jsonldjava.sesame,
-              *
-            </Import-Package>
-            <Export-Package>
-              org.apache.marmotta.ldclient.api.*;version=3.3.0,
-              org.apache.marmotta.ldclient.model;version=3.3.0,
-              org.apache.marmotta.ldclient.exception;version=3.3.0,
-              org.apache.marmotta.ldpath.backend.linkeddata;version=3.3.0,
-              org.apache.marmotta.ldclient.endpoint.rdf;version=3.3.0,
-              org.apache.marmotta.ldclient.provider.rdf;version=3.3.0,
-              javax.realtime,
-              javolution.*,
-              org.apache.marmotta.commons.*;version=3.3.0,
-              org.apache.marmotta.commons.vocabulary;version=3.3.0,
-              org.apache.marmotta.ldpath.*;version=3.3.0,
-              org.fcrepo.camel.ldpath;version=${project.version}
-            </Export-Package>
-            <Embed-Dependency>
-              ldclient-api,ldpath-backend-linkeddata,ldclient-provider-rdf,marmotta-commons,marmotta-model-vocabs,ldpath-core-bundle
-            </Embed-Dependency>
-            <SPI-Provider>*</SPI-Provider>
-          </instructions>
-        </configuration>
       </plugin>
 
       <!-- enable checkstyle plugin -->

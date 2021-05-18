@@ -6,21 +6,21 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo-parent</artifactId>
-    <version>5.0.1</version>
+    <version>6.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.fcrepo.camel</groupId>
   <artifactId>fcrepo-camel-toolbox</artifactId>
   <packaging>pom</packaging>
-  <version>5.1.0-SNAPSHOT</version>
+  <version>6.0.0-SNAPSHOT</version>
 
-  <name>Fedora4 Camel Workflows</name>
+  <name>Fedora Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
   <url>http://fcrepo.org</url>
 
   <organization>
-    <name>DuraSpace, Inc.</name>
-    <url>http://www.duraspace.org/</url>
+    <name>Lyrasis, Inc.</name>
+    <url>http://www.lyrasis.org/</url>
   </organization>
 
   <properties>
@@ -31,23 +31,27 @@
     <project.copyrightYear>2016</project.copyrightYear>
 
     <!-- version ranges -->
-    <activemq.version.range>[5.14,6)</activemq.version.range>
-    <camel.version.range>[2.20.4,3)</camel.version.range>
+    <activemq.version.range>[5.16.0,6)</activemq.version.range>
+    <camel.version.range>[2.24.2,3)</camel.version.range>
 
     <!-- dependencies -->
-    <activemq.version>5.14.1</activemq.version>
-    <camel.version>2.20.4</camel.version>
+    <activemq.version>5.16.0</activemq.version>
+    <camel.version>2.24.2</camel.version>
     <commons.lang3.version>3.4</commons.lang3.version>
     <jackson2.version>2.8.11.1</jackson2.version>
-    <jena.version>3.1.1</jena.version>
+    <jena.version>3.17.0</jena.version>
     <logback.version>1.1.7</logback.version>
     <marmotta.version>3.3.0</marmotta.version>
     <slf4j.version>1.7.20</slf4j.version>
-    <spring.version>4.2.5.RELEASE</spring.version>
-    <fcrepo.version>5.0.2</fcrepo.version>
-    <fcrepo-java-client.version>0.4.0</fcrepo-java-client.version>
-    <fcrepo-camel.version>5.0.0</fcrepo-camel.version>
+    <spring.version>5.3.4</spring.version>
+    <fcrepo.version>6.0.0-SNAPSHOT</fcrepo.version>
+    <fcrepo-java-client.version>6.0.0-SNAPSHOT</fcrepo-java-client.version>
+    <fcrepo-camel.version>6.0.0-SNAPSHOT</fcrepo-camel.version>
     <woodstox.version>4.4.1</woodstox.version>
+    <jaxb.core.version>2.3.0.1</jaxb.core.version>
+    <javaee-api.version>8.0.1</javaee-api.version>
+    <javaee.xml.version>2.3.1</javaee.xml.version>
+
     <!-- testing -->
     <awaitility.version>1.7.0</awaitility.version>
     <commons.codec.version>1.10</commons.codec.version>
@@ -55,38 +59,33 @@
     <commons.logging.version>1.1.3</commons.logging.version>
     <grizzly.version>2.3.16</grizzly.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <httpclient.version>4.5.5</httpclient.version>
+    <httpclient.version>4.5.6</httpclient.version>
     <httpcore.version>4.4.6</httpcore.version>
     <hk2.version>2.3.0</hk2.version>
     <jena.fuseki.version>2.4.1</jena.fuseki.version>
-    <jersey.version>2.22.2</jersey.version>
-    <karaf.version>4.0.6</karaf.version>
-    <pax-exam.version>4.8.0</pax-exam.version>
+    <jersey.version>2.32</jersey.version>
     <solr.version>4.10.2</solr.version>
     <xerces.version>2.11.0</xerces.version>
     <!-- jared's -->
     <failsafe.plugin.version>2.18.1</failsafe.plugin.version>
-    <!-- osgi -->
-    <osgi.import.packages>*</osgi.import.packages>
     <!-- plugins -->
-    <jetty.plugin.version>9.3.25.v20180904</jetty.plugin.version>
+    <jetty.plugin.version>9.4.34.v20201102</jetty.plugin.version>
     <jetty.users.file>${project.build.directory}/test-classes/jetty-users.properties</jetty.users.file>
-    <paxexam.plugin.version>1.2.4</paxexam.plugin.version>
   </properties>
 
   <modules>
+    <!--
     <module>fcrepo-audit-triplestore</module>
     <module>fcrepo-fixity</module>
     <module>fcrepo-indexing-solr</module>
     <module>fcrepo-indexing-triplestore</module>
-    <module>fcrepo-ldpath</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-serialization</module>
+    -->
+    <module>fcrepo-ldpath</module>
     <module>fcrepo-service-activemq</module>
     <module>fcrepo-service-camel</module>
     <module>fcrepo-service-ldcache-file</module>
-    <module>blueprint</module>
-    <module>toolbox-features</module>
   </modules>
 
   <repositories>
@@ -107,6 +106,11 @@
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-core</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-spring-javaconfig</artifactId>
         <version>${camel.version}</version>
       </dependency>
       <dependency>
@@ -209,6 +213,18 @@
         <artifactId>jackson-databind</artifactId>
         <version>${jackson2.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>${javaee.xml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>${jaxb.core.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.glassfish.hk2.external</groupId>
         <artifactId>javax.inject</artifactId>
@@ -376,55 +392,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.ops4j.pax.exam</groupId>
-        <artifactId>pax-exam-container-karaf</artifactId>
-        <version>${pax-exam.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.ops4j.pax.exam</groupId>
-        <artifactId>pax-exam-junit4</artifactId>
-        <version>${pax-exam.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.karaf</groupId>
-        <artifactId>apache-karaf</artifactId>
-        <version>${karaf.version}</version>
-        <type>zip</type>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.camel.karaf</groupId>
-        <artifactId>apache-camel</artifactId>
-        <version>${camel.version}</version>
-        <type>xml</type>
-        <classifier>features</classifier>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-karaf</artifactId>
-        <version>${activemq.version}</version>
-        <type>xml</type>
-        <classifier>features</classifier>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.karaf.features</groupId>
-        <artifactId>standard</artifactId>
-        <version>${karaf.version}</version>
-        <type>xml</type>
-        <classifier>features</classifier>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.jena</groupId>
         <artifactId>jena-fuseki-embedded</artifactId>
         <version>${jena.fuseki.version}</version>
@@ -475,21 +442,6 @@
           </executions>
         </plugin>
 
-        <!-- pax exam -->
-        <plugin>
-         <groupId>org.ops4j.pax.exam</groupId>
-         <artifactId>maven-paxexam-plugin</artifactId>
-         <version>${paxexam.plugin.version}</version>
-         <executions>
-           <execution>
-             <id>generate-config</id>
-             <goals>
-               <goal>generate-depends-file</goal>
-             </goals>
-           </execution>
-         </executions>
-       </plugin>
-
         <plugin>
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-maven-plugin</artifactId>
@@ -534,7 +486,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>-Xms512m -Xmx1024m -XX:-UseSplitVerifier ${jacoco.agent.unit.arg}</argLine>
+          <argLine>-Xms512m -Xmx1024m ${jacoco.agent.unit.arg}</argLine>
         </configuration>
       </plugin>
 
@@ -653,16 +605,23 @@
       </roles>
       <timezone>-5</timezone>
     </developer>
+
+    <developer>
+      <id>dbernstein</id>
+      <name>Daniel Bernstein</name>
+      <email>daniel.bernstein@lyrasis.org</email>
+      <organization>Lyrasis</organization>
+      <organizationUrl>http://www.lyrasis.edu</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-8</timezone>
+    </developer>
   </developers>
   <issueManagement>
     <system>GitHub</system>
     <url>https://github.com/fcrepo-exts/fcrepo-camel-toolbox/issues</url>
   </issueManagement>
-
-  <ciManagement>
-    <system>Jenkins</system>
-    <url>http://jenkins.fcrepo.org/job/fcrepo-camel-toolbox/</url>
-  </ciManagement>
 
   <scm>
     <connection>scm:git:git://github.com/fcrepo-exts/fcrepo-camel-toolbox.git</connection>

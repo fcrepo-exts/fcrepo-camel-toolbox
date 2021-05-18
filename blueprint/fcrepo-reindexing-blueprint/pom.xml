@@ -6,11 +6,11 @@
   <parent>
     <artifactId>fcrepo-camel-toolbox-blueprint</artifactId>
     <groupId>org.fcrepo.camel</groupId>
-    <version>5.1.0-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>fcrepo-reindexing-blueprint</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <name>Fedora reindexing service</name>
   <description>Camel-based service for serializing repository content to disk</description>
