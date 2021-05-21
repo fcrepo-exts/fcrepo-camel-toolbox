@@ -13,18 +13,8 @@
   <packaging>jar</packaging>
 
   <name>Fedora ActiveMQ Service</name>
-  <description>An OSGi ActiveMQ-based service used to connect toolbox applications with Fedora's message broker</description>
+  <description>A service used to connect toolbox applications with Fedora's message broker</description>
 
-  <properties>
-    <osgi.import.packages>
-      org.apache.activemq,
-      org.apache.activemq.camel.component,
-      org.apache.activemq.pool,
-      org.apache.camel.component.jms,
-      *
-    </osgi.import.packages>
-    <osgi.export.packages>org.fcrepo.camel.service.activemq;version=${project.version}</osgi.export.packages>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -33,11 +23,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-blueprint</artifactId>
+      <artifactId>camel-spring-javaconfig</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-activemq</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -67,14 +57,8 @@
 
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-test-blueprint</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring</artifactId>
     </dependency>
-
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
@@ -97,6 +81,11 @@
       <artifactId>httpclient</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -110,12 +99,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-      </plugin>
-
-      <!-- to generate the MANIFEST-FILE of the bundle -->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
       </plugin>
 
       <!-- enable checkstyle plugin -->
@@ -194,6 +177,7 @@
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-maven-plugin</artifactId>
           <configuration>
+            <supportedPackagings>jar</supportedPackagings>
             <systemProperties>
               <force>true</force>
               <systemProperty>
@@ -211,10 +195,6 @@
               <systemProperty>
                 <name>fcrepo.dynamic.stomp.port</name>
                 <value>${fcrepo.dynamic.stomp.port}</value>
-              </systemProperty>
-              <systemProperty>
-                <name>fcrepo.modeshape.configuration</name>
-                <value>classpath:/config/file-simple/repository.json</value>
               </systemProperty>
             </systemProperties>
             <scanIntervalSeconds>10</scanIntervalSeconds>
