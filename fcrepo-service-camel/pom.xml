@@ -13,10 +13,9 @@
   <packaging>jar</packaging>
 
   <name>Fedora Repository Connector Service</name>
-  <description>An OSGi service used to connect toolbox applications with Fedora's REST API</description>
+  <description>A service used to connect toolbox applications with Fedora's REST API</description>
 
   <properties>
-    <osgi.export.packages>org.fcrepo.camel.service;version=${project.version}</osgi.export.packages>
   </properties>
 
   <dependencies>
@@ -27,6 +26,10 @@
     <dependency>
       <groupId>org.fcrepo.camel</groupId>
       <artifactId>fcrepo-camel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-spring-javaconfig</artifactId>
     </dependency>
 
     <!-- logging -->
@@ -157,6 +160,7 @@
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-maven-plugin</artifactId>
           <configuration>
+            <supportedPackagings>jar</supportedPackagings>
             <systemProperties>
               <force>true</force>
               <systemProperty>
@@ -175,11 +179,7 @@
                 <name>fcrepo.dynamic.stomp.port</name>
                 <value>${fcrepo.dynamic.stomp.port}</value>
               </systemProperty>
-              <systemProperty>
-                <name>fcrepo.modeshape.configuration</name>
-                <value>classpath:/config/file-simple/repository.json</value>
-              </systemProperty>
-            </systemProperties>
+           </systemProperties>
             <scanIntervalSeconds>10</scanIntervalSeconds>
             <stopKey>STOP</stopKey>
             <stopPort>${jetty.dynamic.stop.port}</stopPort>

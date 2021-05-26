@@ -20,9 +20,9 @@ package org.fcrepo.camel.service;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.apache.camel.util.KeyValueHolder;
+import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -31,19 +31,27 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.fcrepo.camel.FcrepoComponent;
-import org.junit.Ignore;
+import org.fcrepo.camel.processor.EventProcessor;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_IDENTIFIER;
+import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -52,42 +60,31 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @author Aaron Coburn
  * @since 2016-07-21
  */
-public class RouteIT extends CamelBlueprintTestSupport {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
+public class RouteIT {
 
     private static final Logger LOGGER = getLogger(RouteIT.class);
 
     private static String FEDORA_USERNAME = "fedoraAdmin";
     private static String FEDORA_PASSWORD = "fedoraAdmin";
-
-    @EndpointInject(uri = "mock:result")
+    private static String FEDORA_BASE_URL = "";
+    @EndpointInject("mock:result")
     protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
+    @Produce("direct:start")
     protected ProducerTemplate template;
 
-    @Override
-    protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint-test.xml";
-    }
-
-    @Override
-    protected void addServicesOnStartup(final Map<String, KeyValueHolder<Object, Dictionary>> services) {
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty("fcrepo.authUsername", FEDORA_USERNAME);
+        System.setProperty("fcrepo.authPassword", FEDORA_PASSWORD);
         final String fcrepoPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
-        final FcrepoComponent component = new FcrepoComponent();
-
-        component.setBaseUrl("http://localhost:" + fcrepoPort + "/fcrepo/rest");
-        component.setAuthUsername(FEDORA_USERNAME);
-        component.setAuthPassword(FEDORA_PASSWORD);
-        services.put("fcrepo", asService(component, "osgi.jndi.service.name", "fcrepo/Camel"));
-    }
-
-    @Override
-    public boolean isUseRouteBuilder() {
-        return false;
+        FEDORA_BASE_URL = "http://localhost:" + fcrepoPort + "/fcrepo/rest";
+        System.setProperty("fcrepo.baseUrl", FEDORA_BASE_URL);
     }
 
     @Test
-    @Ignore("fix me")
     public void testFcrepoService() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
 
@@ -104,7 +101,7 @@ public class RouteIT extends CamelBlueprintTestSupport {
         template.sendBodyAndHeaders(null, headers);
 
         resultEndpoint.expectedMessageCount(2);
-        assertMockEndpointsSatisfied();
+        assertIsSatisfied(resultEndpoint);
     }
 
     private String post(final String url) {
@@ -121,5 +118,23 @@ public class RouteIT extends CamelBlueprintTestSupport {
             LOGGER.debug("Unable to extract HttpEntity response into an InputStream: ", ex);
             return "";
         }
+    }
+
+
+}
+
+@Configuration
+@ComponentScan("org.fcrepo.camel")
+class ContextConfig extends CamelConfiguration {
+    @Bean
+    public RouteBuilder route() {
+        return new RouteBuilder() {
+            public void configure() throws Exception {
+                from("direct:start")
+                        .process(new EventProcessor())
+                        .to("fcrepo:localhost/rest")
+                        .to("mock:result");
+            }
+        };
     }
 }
