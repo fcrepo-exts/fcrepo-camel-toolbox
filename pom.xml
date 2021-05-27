@@ -81,11 +81,11 @@
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-serialization</module>
-    <module>fcrepo-ldpath</module>
     <module>fcrepo-service-ldcache-file</module>
     -->
     <module>fcrepo-service-activemq</module>
     <module>fcrepo-service-camel</module>
+    <module>fcrepo-ldpath</module>
   </modules>
 
   <repositories>
@@ -108,6 +108,12 @@
         <artifactId>camel-core</artifactId>
         <version>${camel.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-support</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-spring-javaconfig</artifactId>
@@ -115,9 +121,16 @@
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-http4</artifactId>
+        <artifactId>camel-http</artifactId>
         <version>${camel.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-http-common</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-jms</artifactId>
@@ -128,11 +141,19 @@
         <artifactId>camel-exec</artifactId>
         <version>${camel.version}</version>
       </dependency>
+
       <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-jetty9</artifactId>
+        <artifactId>camel-jetty</artifactId>
         <version>${camel.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-jetty-common</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-jackson</artifactId>
@@ -245,6 +266,7 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>ldcache-backend-file</artifactId>
         <version>${marmotta.version}</version>
+        <scope>compile</scope>
       </dependency>
 
       <dependency>

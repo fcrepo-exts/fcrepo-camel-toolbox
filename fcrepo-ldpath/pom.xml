@@ -16,7 +16,6 @@
   <description>Camel-based LDPath service</description>
 
   <properties>
-    <osgi.export.packages>org.fcrepo.camel.ldpath;version=${project.version}</osgi.export.packages>
   </properties>
 
   <dependencies>
@@ -24,19 +23,65 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
     </dependency>
-    <!--dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-http4</artifactId>
-    </dependency-->
-    <!--dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-jetty9</artifactId>
-    </dependency -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jackson</artifactId>
       <version>${camel.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jetty</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jetty-common</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http-common</artifactId>
+    </dependency>
+
+
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.6.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-support</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldcache-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldcache-backend-file</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-spring-javaconfig</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${httpclient.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
     <dependency>
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
@@ -116,6 +161,10 @@
       <groupId>org.apache.marmotta</groupId>
       <artifactId>ldcache-backend-file</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldcache-backend-file</artifactId>
     </dependency>
 
 
