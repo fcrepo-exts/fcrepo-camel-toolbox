@@ -28,6 +28,8 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.apache.camel.support.builder.ExpressionBuilder;
+import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,6 +42,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,11 +88,20 @@ public class RouteWithFunctionsTest {
 
     @BeforeClass
     public static void beforeClass() {
-        final String ldCacheDir = System.getProperty("project.build.directory", "target");
+        final String targetDir = System.getProperty("project.build.directory", "target");
+        final var ldCacheDir = targetDir + File.separator + "ldcache";
+        new File(ldCacheDir).mkdirs();
+
         System.setProperty("ldcache.directory", ldCacheDir);
         final String restPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
         System.setProperty("rest.port", restPort);
         System.setProperty("rest.host", "0.0.0.0");
+
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        FileUtils.deleteQuietly(new File(System.getProperty("ldcache.directory")));
     }
 
     @Test
@@ -238,7 +250,7 @@ public class RouteWithFunctionsTest {
 
 
     @Configuration
-    @ComponentScan("org.fcrepo.camel.ldpathtest")
+    @ComponentScan(resourcePattern = "**/Test*.class")
     static class ContextConfig extends CamelConfiguration {
         @Bean
         public RouteBuilder route() {
