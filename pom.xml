@@ -77,12 +77,12 @@
     <!--
     <module>fcrepo-audit-triplestore</module>
     <module>fcrepo-fixity</module>
-    <module>fcrepo-indexing-solr</module>
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-serialization</module>
     <module>fcrepo-service-ldcache-file</module>
     -->
+    <module>fcrepo-indexing-solr</module>
     <module>fcrepo-service-activemq</module>
     <module>fcrepo-service-camel</module>
     <module>fcrepo-ldpath</module>

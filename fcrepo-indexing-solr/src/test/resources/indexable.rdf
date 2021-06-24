@@ -5,7 +5,7 @@
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
-<rdf:Description rdf:about="http://localhost:8080/fcrepo4/rest/foo">
+<rdf:Description rdf:about="http://localhost:8080/fcrepo/rest/foo">
     <rdf:type rdf:resource="http://www.w3.org/ns/ldp#RDFSource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/ldp#Container"/>
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Container"/>
