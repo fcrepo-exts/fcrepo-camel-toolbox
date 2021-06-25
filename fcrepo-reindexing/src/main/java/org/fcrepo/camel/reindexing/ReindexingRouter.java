@@ -17,23 +17,24 @@
  */
 package org.fcrepo.camel.reindexing;
 
+import org.apache.camel.builder.RouteBuilder;
+import org.fcrepo.camel.service.FcrepoCamelConfig;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import static java.net.InetAddress.getLocalHost;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.HTTP_RESPONSE_CODE;
 import static org.apache.camel.LoggingLevel.INFO;
-import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENTS;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_HOST;
 import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_PORT;
 import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_PREFIX;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_BASE_URL;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENTS;
 import static org.fcrepo.client.HttpMethods.GET;
 import static org.slf4j.LoggerFactory.getLogger;
-
-import org.apache.camel.PropertyInject;
-import org.apache.camel.builder.RouteBuilder;
-import org.slf4j.Logger;
 
 /**
  * A content router for handling JMS events.
@@ -46,41 +47,42 @@ public class ReindexingRouter extends RouteBuilder {
     private static final int BAD_REQUEST = 400;
     private static final String LDP_CONTAINS = "<http://www.w3.org/ns/ldp#contains>";
 
-    @PropertyInject(value = "rest.port", defaultValue = "9080")
-    private String port;
+    @Autowired
+    private FcrepoReindexerConfig config;
 
-    @PropertyInject(value = "rest.host", defaultValue = "localhost")
-    private String host;
+    @Autowired
+    private FcrepoCamelConfig fcrepoCamelConfig;
 
     /**
      * Configure the message route workflow.
      */
     public void configure() throws Exception {
-
+        final String host = config.getRestHost();
         final String hostname = host.startsWith("http") ? host : "http://" + host;
-
+        final int port = config.getRestPort();
         /**
          * A generic error handler (specific to this RouteBuilder)
          */
         onException(Exception.class)
-            .maximumRedeliveries("{{error.maxRedeliveries}}")
+                .maximumRedeliveries(config.getMaxRedeliveries())
             .log("Index Routing Error: ${routeId}");
 
         /**
          * Expose a RESTful endpoint for re-indexing
          */
-        from("jetty:" + hostname + ":" + port + "{{rest.prefix}}?matchOnUriPrefix=true&httpMethodRestrict=GET,POST")
-            .routeId("FcrepoReindexingRest")
-            .routeDescription("Expose the reindexing endpoint over HTTP")
-            .setHeader(FCREPO_URI).simple("{{fcrepo.baseUrl}}${headers.CamelHttpPath}")
+        from("jetty:" + hostname + ":" + port + config.getRestPrefix() +
+                "?matchOnUriPrefix=true&httpMethodRestrict=GET,POST")
+                .routeId("FcrepoReindexingRest")
+                .routeDescription("Expose the reindexing endpoint over HTTP")
+                .setHeader(FCREPO_URI).simple("${headers.CamelHttpPath}")
             .choice()
                 .when(header(HTTP_METHOD).isEqualTo("GET")).to("direct:usage")
                 .otherwise().to("direct:reindex");
 
         from("direct:usage").routeId("FcrepoReindexingUsage")
-            .setHeader(REINDEXING_PREFIX).simple("{{rest.prefix}}")
-            .setHeader(REINDEXING_PORT).simple(port)
-            .setHeader(FCREPO_BASE_URL).simple("{{fcrepo.baseUrl}}")
+                .setHeader(REINDEXING_PREFIX).simple(config.getRestPrefix())
+                .setHeader(REINDEXING_PORT).simple(String.valueOf(port))
+                .setHeader(FCREPO_BASE_URL).simple(fcrepoCamelConfig.getFcrepoBaseUrl())
             .process(exchange -> {
                 exchange.getIn().setHeader(REINDEXING_HOST, getLocalHost().getHostName());
             })
@@ -91,19 +93,19 @@ public class ReindexingRouter extends RouteBuilder {
          * a re-indexing operation should begin.
          */
         from("direct:reindex").routeId("FcrepoReindexingReindex")
-            .process(new RestProcessor())
-            .removeHeaders("CamelHttp*")
-            .removeHeader("JMSCorrelationID")
-            .setBody(constant(null))
-            .choice()
+                .process(new RestProcessor())
+                .removeHeaders("CamelHttp*")
+                .removeHeader("JMSCorrelationID")
+                .setBody(constant(null))
+                .choice()
                 .when(header(HTTP_RESPONSE_CODE).isGreaterThanOrEqualTo(BAD_REQUEST))
-                    .endChoice()
+                .endChoice()
                 .when(header(REINDEXING_RECIPIENTS).isEqualTo(""))
-                    .transform().simple("No endpoints configured for indexing")
-                    .endChoice()
+                .transform().simple("No endpoints configured for indexing")
+                .endChoice()
                 .otherwise()
-                    .log(INFO, LOGGER, "Initial indexing path: ${headers[CamelFcrepoUri]}")
-                    .inOnly("{{reindexing.stream}}?disableTimeToLive=true")
+                .log(INFO, LOGGER, "Initial indexing path: ${headers[CamelFcrepoUri]}")
+                .inOnly(config.getReindexingStream() + "?disableTimeToLive=true")
                     .setHeader(CONTENT_TYPE).constant("text/plain")
                     .transform().simple("Indexing started at ${headers[CamelFcrepoUri]}");
 
@@ -111,12 +113,12 @@ public class ReindexingRouter extends RouteBuilder {
          *  A route that traverses through a fedora heirarchy
          *  indexing nodes, as appropriate.
          */
-        from("{{reindexing.stream}}?asyncConsumer=true").routeId("FcrepoReindexingTraverse")
-            .inOnly("direct:recipients")
-            .removeHeaders("CamelHttp*")
-            .setHeader(HTTP_METHOD).constant(GET)
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=PreferContainment" +
-                    "&preferOmit=ServerManaged&accept=application/n-triples")
+        from(config.getReindexingStream() + "?asyncConsumer=true").routeId("FcrepoReindexingTraverse")
+                .inOnly("direct:recipients")
+                .removeHeaders("CamelHttp*")
+                .setHeader(HTTP_METHOD).constant(GET)
+                .to("fcrepo:" + fcrepoCamelConfig.getFcrepoBaseUrl() + "?preferInclude=PreferContainment" +
+                        "&preferOmit=ServerManaged&accept=application/n-triples")
             // split the n-triples stream on line breaks so that each triple is split into a separate message
             .split(body().tokenize("\\n")).streaming()
                 .removeHeader(FCREPO_URI)
@@ -137,7 +139,7 @@ public class ReindexingRouter extends RouteBuilder {
                     }
                 })
                 .filter(header(FCREPO_URI).isNotNull())
-                    .inOnly("{{reindexing.stream}}?disableTimeToLive=true");
+                .inOnly(config.getReindexingStream() + "?disableTimeToLive=true");
 
         /**
          *  Send the message to all of the pre-determined endpoints

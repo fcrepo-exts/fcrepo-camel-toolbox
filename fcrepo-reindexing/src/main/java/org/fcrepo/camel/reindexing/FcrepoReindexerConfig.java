@@ -15,44 +15,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel.service;
+package org.fcrepo.camel.reindexing;
 
-import org.fcrepo.camel.FcrepoComponent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * A configuration class for the re-indexer service
+ *
  * @author dbernstein
  */
 @Configuration
-public class FcrepoCamelConfig {
+public class FcrepoReindexerConfig {
+
+    @Value("${reindexing.error.maxRedeliveries:10}")
+    private int maxRedeliveries;
+
+    @Value("${reindexing.stream:broker:queue:reindexing}")
+    private String reindexingStream;
+
+    @Value("${reindexing.rest.prefix:/reindexing}")
+    private String restPrefix;
+
+    @Value("${reindexing.rest.host:localhost}")
+    private String restHost;
+
+    @Value("${reindexing.rest.port:9080}")
+    private int restPort;
 
 
-    @Value("${fcrepo.baseUrl:http://localhost:8080/fcrepo/rest}")
-    private String fcrepoBaseUrl;
-
-    @Value("${fcrepo.authUsername:#{null}}")
-    private String fcrepoUsername;
-
-    @Value("${fcrepo.authPassword:#{null}}")
-    private String fcrepoPassword;
-
-    @Value("${fcrepo.authHost:#{null}}")
-    private String fcrepoAuthHost;
-
-    @Bean("fcrepo")
-    public FcrepoComponent fcrepoComponent() {
-        final var fcrepoComponent = new FcrepoComponent();
-        fcrepoComponent.setBaseUrl(fcrepoBaseUrl);
-        fcrepoComponent.setAuthUsername(fcrepoUsername);
-        fcrepoComponent.setAuthPassword(fcrepoPassword);
-        fcrepoComponent.setAuthHost(fcrepoAuthHost);
-        return fcrepoComponent;
+    public int getMaxRedeliveries() {
+        return maxRedeliveries;
     }
 
-    public String getFcrepoBaseUrl() {
-        return fcrepoBaseUrl;
+    public String getReindexingStream() {
+        return reindexingStream;
     }
+
+    public String getRestPrefix() {
+        return restPrefix;
+    }
+
+    public String getRestHost() {
+        return restHost;
+    }
+
+    public int getRestPort() {
+        return restPort;
+    }
+
 }
-
