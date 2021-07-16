@@ -71,7 +71,6 @@ public class RouteTest {
     @Autowired
     private CamelContext camelContext;
 
-
     @BeforeClass
     public static void beforeClass() {
         final String restPort = System.getProperty("fcrepo.dynamic.reindexing.port");
@@ -208,6 +207,7 @@ public class RouteTest {
         MockEndpoint.assertIsSatisfied(recipientsEndpoint, reindexingEndpoint);
     }
 
+    @DirtiesContext
     @Test
     public void testRecipientList() throws Exception {
         final String id = "/foo";

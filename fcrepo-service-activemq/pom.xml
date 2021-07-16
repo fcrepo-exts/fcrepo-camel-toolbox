@@ -112,10 +112,11 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemProperties>
-            <property>
-              <name>fcrepo.dynamic.reindexing.port</name>
-              <value>${fcrepo.dynamic.reindexing.port}</value>
-            </property>
+            <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
+            <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
+            <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
+            <fcrepo.dynamic.reindexing.port>${fcrepo.dynamic.reindexing.port}</fcrepo.dynamic.reindexing.port>
+            <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
           </systemProperties>
         </configuration>
       </plugin>
@@ -134,24 +135,6 @@
               <portName>jetty.dynamic.stop.port</portName>
             </portNames>
           </configuration>
-          <executions>
-            <execution>
-              <id>attach-artifacts</id>
-              <phase>package</phase>
-              <goals>
-                <goal>attach-artifact</goal>
-              </goals>
-              <configuration>
-                <artifacts>
-                  <artifact>
-                    <file>src/main/cfg/org.fcrepo.camel.service.activemq.cfg</file>
-                    <type>cfg</type>
-                    <classifier>configuration</classifier>
-                  </artifact>
-                </artifacts>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
 
         <!-- integration testing -->
