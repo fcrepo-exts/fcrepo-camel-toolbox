@@ -21,6 +21,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
+import org.fcrepo.camel.common.config.BasePropsConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,7 @@ import javax.jms.ConnectionFactory;
  * @author dbernstein
  */
 @Configuration
-public class ActiveMQConfig {
+public class ActiveMQConfig extends BasePropsConfig {
     @Value("${jms.brokerUrl:tcp://localhost:61616}")
     private String jmsBrokerUrl;
 

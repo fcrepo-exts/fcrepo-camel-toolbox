@@ -17,8 +17,10 @@
  */
 package org.fcrepo.camel.indexing.solr;
 
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http.HttpComponent;
 import org.fcrepo.camel.FcrepoComponent;
+import org.fcrepo.camel.common.config.BasePropsConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
  * @author dbernstein
  */
 @Configuration
-public class FcrepoSolrIndexerConfig {
+public class FcrepoSolrIndexerConfig extends BasePropsConfig {
 
     @Value("${error.maxRedeliveries:10}")
     private int maxRedeliveries;
@@ -58,10 +60,10 @@ public class FcrepoSolrIndexerConfig {
     @Value("${filter.containers:http://localhost:8080/fcrepo/rest/audit}")
     private String filterContainers;
 
-    @Value("${solr.baseUrl:http://localhost:8983/solr/collection1}")
+    @Value("${solr.baseUrl:http://localhost:8983/solr#/collection1}")
     private String solrBaseUrl;
 
-    @Value("${:http://localhost:8983/fcrepo/rest}")
+    @Value("${fcrepo.baseUrl:http://localhost:8080/fcrepo/rest}")
     private String fcrepoBaseUrl;
 
     public int getMaxRedeliveries() {
@@ -121,5 +123,10 @@ public class FcrepoSolrIndexerConfig {
     @Bean(name = "https")
     public HttpComponent https() {
         return new HttpComponent();
+    }
+
+    @Bean
+    public RouteBuilder solrRoute() {
+        return new SolrRouter();
     }
 }

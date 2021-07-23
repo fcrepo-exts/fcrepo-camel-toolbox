@@ -32,6 +32,12 @@
       <artifactId>camel-spring-javaconfig</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-camel-common</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
     <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>

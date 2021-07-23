@@ -17,7 +17,11 @@
  */
 package org.fcrepo.camel.reindexing;
 
+import org.apache.camel.builder.RouteBuilder;
+import org.fcrepo.camel.common.config.BasePropsConfig;
+import org.fcrepo.camel.common.config.ConditionOnPropertyFalse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -25,8 +29,16 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author dbernstein
  */
+
 @Configuration
-public class FcrepoReindexerConfig {
+public class FcrepoReindexerConfig extends BasePropsConfig {
+
+    private static final String REINDEXER_ENABLED = "fcrepo.reindexer.enabled";
+    static class ReindexerDisabled extends ConditionOnPropertyFalse {
+        ReindexerDisabled() {
+            super(FcrepoReindexerConfig.REINDEXER_ENABLED, true);
+        }
+    }
 
     @Value("${reindexing.error.maxRedeliveries:10}")
     private int maxRedeliveries;
@@ -64,4 +76,8 @@ public class FcrepoReindexerConfig {
         return restPort;
     }
 
+    @Bean
+    public RouteBuilder reindexingRoute() {
+        return new ReindexingRouter();
+    }
 }

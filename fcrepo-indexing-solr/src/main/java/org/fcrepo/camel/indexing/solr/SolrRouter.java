@@ -75,14 +75,14 @@ public class SolrRouter extends RouteBuilder {
          * A generic error handler (specific to this RouteBuilder)
          */
         onException(Exception.class)
-            .maximumRedeliveries("{{error.maxRedeliveries}}")
+            .maximumRedeliveries(config.getMaxRedeliveries())
             .log("Index Routing Error: ${routeId}");
 
         /*
          * route a message to the proper queue, based on whether
          * it is a DELETE or UPDATE operation.
          */
-        from("{{input.stream}}")
+        from(config.getInputStream())
             .routeId("FcrepoSolrRouter")
             .process(new EventProcessor())
             .choice()
@@ -105,7 +105,7 @@ public class SolrRouter extends RouteBuilder {
         from("direct:index.solr")
             .routeId("FcrepoSolrIndexer")
             .removeHeaders("CamelHttp*")
-            .filter(not(in(tokenizePropertyPlaceholder(getContext(), "{{filter.containers}}", ",").stream()
+            .filter(not(in(tokenizePropertyPlaceholder(getContext(), config.getFilterContainers(), ",").stream()
                         .map(uri -> or(
                             header(FCREPO_URI).startsWith(constant(uri + "/")),
                             header(FCREPO_URI).isEqualTo(constant(uri))))
@@ -116,7 +116,7 @@ public class SolrRouter extends RouteBuilder {
                     .setHeader(INDEXING_TRANSFORMATION).simple(config.getDefaultTransform())
                     .to("direct:update.solr")
                 .otherwise()
-                    .to("fcrepo:{{fcrepo.baseUrl}}?preferOmit=PreferContainment&accept=application/rdf+xml")
+                    .to("fcrepo:" + config.getFcrepoBaseUrl() + "?preferOmit=PreferContainment&accept=application/rdf+xml")
                     .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
                     .choice()
                         .when(or(header(INDEXING_TRANSFORMATION).isNull(),

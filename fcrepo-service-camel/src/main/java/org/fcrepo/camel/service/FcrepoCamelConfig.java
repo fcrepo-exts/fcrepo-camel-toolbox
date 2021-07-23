@@ -18,6 +18,7 @@
 package org.fcrepo.camel.service;
 
 import org.fcrepo.camel.FcrepoComponent;
+import org.fcrepo.camel.common.config.BasePropsConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
  * @author dbernstein
  */
 @Configuration
-public class FcrepoCamelConfig {
+public class FcrepoCamelConfig extends BasePropsConfig {
 
 
     @Value("${fcrepo.baseUrl:http://localhost:8080/fcrepo/rest}")

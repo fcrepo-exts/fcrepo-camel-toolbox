@@ -37,6 +37,11 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-pool</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-camel-common</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
 
     <!-- logging -->
     <dependency>

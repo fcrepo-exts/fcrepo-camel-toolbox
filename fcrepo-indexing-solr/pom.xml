@@ -49,6 +49,11 @@
       <artifactId>fcrepo-java-client</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-camel-common</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
 
     <!-- logging -->
     <dependency>

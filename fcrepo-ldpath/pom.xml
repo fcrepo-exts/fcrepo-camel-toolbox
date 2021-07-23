@@ -49,6 +49,11 @@
       <artifactId>camel-http-common</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-camel-common</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>ant</groupId>
