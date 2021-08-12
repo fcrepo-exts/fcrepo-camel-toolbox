@@ -7,15 +7,15 @@
 
 id      = . :: xsd:string ;
 
-created = fedora:created :: xsd:dateTime ;
-createdBy = fedora:createdBy :: xsd:string ;
-hasParent = fedora:hasParent :: xsd:string ;
-hasVersions = fedora:hasVersions :: xsd:anyURI ;
-lastModified = fedora:lastModified :: xsd:dateTime ;
-lastModifiedBy = fedora:lastModifiedBy :: xsd:string ;
-numberOfChildren = fedora:numberOfChildren :: xsd:integer ;
+created_l = fedora:created :: xsd:dateTime ;
+createdBy_s = fedora:createdBy :: xsd:string ;
+hasParent_s = fedora:hasParent :: xsd:string ;
+hasVersions_s = fedora:hasVersions :: xsd:anyURI ;
+lastModified_l = fedora:lastModified :: xsd:dateTime ;
+lastModifiedBy_s = fedora:lastModifiedBy :: xsd:string ;
+numberOfChildren_l = fedora:numberOfChildren :: xsd:integer ;
 
-type    = rdf:type :: xsd:anyURI ;
+type_ss    = rdf:type :: xsd:anyURI ;
 label = rdfs:label :: xsd:string ;
 comment = rdfs:comment :: xsd:string ;
 sameAs = owl:sameAs :: xsd:anyURI ;
