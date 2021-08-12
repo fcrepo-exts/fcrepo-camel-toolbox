@@ -28,6 +28,7 @@ import static org.apache.camel.Exchange.HTTP_URI;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.support.builder.ExpressionBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,6 +42,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class LDPathRouter extends RouteBuilder {
 
     private static final Logger LOGGER = getLogger(LDPathRouter.class);
+
+    @Autowired
+    private LDPathWrapper ldpathWrapper;
 
     @Autowired
     private FcrepoLdPathConfig config;
@@ -92,5 +96,9 @@ public class LDPathRouter extends RouteBuilder {
             .marshal().json(Jackson)
             .removeHeaders("*")
             .setHeader(CONTENT_TYPE).constant("application/json");
+
+        from("direct:ldpath")
+                .setBody(ExpressionBuilder.beanExpression(ldpathWrapper,
+                        "programQuery(${headers.context}, ${body})"));
     }
 }

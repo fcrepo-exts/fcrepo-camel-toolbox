@@ -54,13 +54,13 @@ public class FcrepoSolrIndexerConfig extends BasePropsConfig {
     @Value("${indexing.predicate:false}")
     private boolean indexingPredicate;
 
-    @Value("${ldpath.service.baseUrl:http://localhost:9086/ldpath}")
+    @Value("${ldpath.service.baseUrl:http://localhost:9085/ldpath}")
     private String ldpathServiceBaseUrl;
 
     @Value("${filter.containers:http://localhost:8080/fcrepo/rest/audit}")
     private String filterContainers;
 
-    @Value("${solr.baseUrl:http://localhost:8983/solr#/collection1}")
+    @Value("${solr.baseUrl:http://localhost:8983/solr/collection1}")
     private String solrBaseUrl;
 
     @Value("${fcrepo.baseUrl:http://localhost:8080/fcrepo/rest}")
@@ -110,10 +110,6 @@ public class FcrepoSolrIndexerConfig extends BasePropsConfig {
         return fcrepoBaseUrl;
     }
 
-    @Bean
-    public FcrepoComponent fcrepo() {
-        return new FcrepoComponent();
-    }
 
     @Bean(name = "http")
     public HttpComponent http() {

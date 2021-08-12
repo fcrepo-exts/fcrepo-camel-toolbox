@@ -49,6 +49,7 @@ public class Driver implements Callable<Integer> {
     public Integer call() {
         final var appContext = new AnnotationConfigApplicationContext("org.fcrepo.camel");
         appContext.start();
+        LOGGER.info("fcrepo-camel-toolbox started.");
 
         while (appContext.isRunning()) {
             try {

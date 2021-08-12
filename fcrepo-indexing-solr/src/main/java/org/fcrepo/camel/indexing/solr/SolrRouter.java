@@ -88,9 +88,11 @@ public class SolrRouter extends RouteBuilder {
             .choice()
                 .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
                             header(FCREPO_EVENT_TYPE).contains(DELETE)))
-                    .to("direct:delete.solr")
+                .log(LoggingLevel.TRACE, "Received message from Fedora routing to delete.solr")
+                .to("direct:delete.solr")
                 .otherwise()
-                    .to("direct:index.solr");
+                .log(LoggingLevel.TRACE, "Received message from Fedora routing to index.solr")
+                .to("direct:index.solr");
 
         /*
          * Handle re-index events
@@ -183,6 +185,7 @@ public class SolrRouter extends RouteBuilder {
          * Send the transformed resource to Solr
          */
         from("direct:send.to.solr").routeId("FcrepoSolrSend")
+                .log(LoggingLevel.INFO, logger, "sending to solr...")
                 .removeHeaders("CamelHttp*")
                 .setHeader(HTTP_METHOD).constant("POST")
                 .setHeader(HTTP_QUERY).simple("commitWithin=" + config.getCommitWithin())

@@ -76,8 +76,6 @@ public class LDPathWrapper {
     public LDPathWrapper(final LDCacheBackend backend) {
 
         // Register the Sesame RDF Parsers manually
-        // TODO: use the OSGi service registry as described in:
-        // http://blog.osgi.org/2013/02/javautilserviceloader-in-osgi.html
         RDFParserRegistry.getInstance().add(new RDFXMLParserFactory());
         RDFParserRegistry.getInstance().add(new NTriplesParserFactory());
         RDFParserRegistry.getInstance().add(new TurtleParserFactory());

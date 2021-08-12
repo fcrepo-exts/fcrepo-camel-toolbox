@@ -33,10 +33,10 @@ public class FcrepoCamelConfig extends BasePropsConfig {
     @Value("${fcrepo.baseUrl:http://localhost:8080/fcrepo/rest}")
     private String fcrepoBaseUrl;
 
-    @Value("${fcrepo.authUsername:#{null}}")
+    @Value("${fcrepo.authUsername:fedoraAdmin}")
     private String fcrepoUsername;
 
-    @Value("${fcrepo.authPassword:#{null}}")
+    @Value("${fcrepo.authPassword:fedoraAdmin}")
     private String fcrepoPassword;
 
     @Value("${fcrepo.authHost:#{null}}")
