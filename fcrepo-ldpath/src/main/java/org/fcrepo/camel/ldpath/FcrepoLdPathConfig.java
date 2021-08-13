@@ -81,6 +81,9 @@ public class FcrepoLdPathConfig {
     @Value("${ldcache.directory:ldcache/}")
     private Path ldCacheDirectory;
 
+    @Value("${ldpath.transform.path:classpath:org/fcrepo/camel/ldpath/default.ldpath}")
+    private String ldpathTransformPath;
+
     public String getRestHost() {
         return restHost;
     }
@@ -91,6 +94,10 @@ public class FcrepoLdPathConfig {
 
     public String getRestPrefix() {
         return restPrefix;
+    }
+
+    public String getLdpathTransformPath() {
+        return ldpathTransformPath;
     }
 
 
@@ -120,5 +127,6 @@ public class FcrepoLdPathConfig {
     public LDPathRouter ldPathRouter() {
         return new LDPathRouter();
     }
+
 
 }

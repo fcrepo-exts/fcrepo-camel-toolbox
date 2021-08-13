@@ -76,6 +76,7 @@ public class LDPathRouter extends RouteBuilder {
                 .when(header(HTTP_METHOD).isEqualTo("POST"))
                     .to("direct:ldpathPrepare");
 
+
         from("direct:get")
             .routeId("FcrepoLDPathGet")
             .choice()
@@ -85,7 +86,7 @@ public class LDPathRouter extends RouteBuilder {
                     .to("http://localhost?useSystemProperties=true")
                     .to("direct:ldpathPrepare")
                 .otherwise()
-                    .to("language:simple:resource:classpath:org/fcrepo/camel/ldpath/default.ldpath")
+                    .to("language:simple:resource:" + config.getLdpathTransformPath())
                     .to("direct:ldpathPrepare");
 
         from("direct:ldpathPrepare").routeId("FcrepoLDPathPrepare")
