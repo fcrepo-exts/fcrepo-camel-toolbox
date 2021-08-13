@@ -79,7 +79,6 @@
     <module>fcrepo-audit-triplestore</module>
     <module>fcrepo-fixity</module>
     <module>fcrepo-indexing-triplestore</module>
-    <module>fcrepo-serialization</module>
     <module>fcrepo-service-ldcache-file</module>
     -->
     <module>fcrepo-reindexing</module>
