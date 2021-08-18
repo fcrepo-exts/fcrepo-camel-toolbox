@@ -81,24 +81,26 @@
       </plugin>
 
       <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.5.4</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.1</version>
         <executions>
           <execution>
-            <id>create-runnable-jar</id>
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>shade</goal>
             </goals>
             <configuration>
-              <descriptors>
-                <descriptor>src/assembly/driver.xml</descriptor>
-              </descriptors>
-              <archive>
-                <manifest>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>driver</shadedClassifierName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>org.fcrepo.camel.toolbox.app.Driver</mainClass>
-                </manifest>
-              </archive>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>META-INF/services/org/apache/camel/TypeConverterLoader</resource>
+                </transformer>
+              </transformers>
             </configuration>
           </execution>
         </executions>
