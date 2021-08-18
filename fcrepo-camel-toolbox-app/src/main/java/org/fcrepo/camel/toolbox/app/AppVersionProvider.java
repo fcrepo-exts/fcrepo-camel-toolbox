@@ -28,7 +28,7 @@ class AppVersionProvider implements CommandLine.IVersionProvider {
     @Override
     public String[] getVersion() throws Exception {
             try {
-                final var is = AppVersionProvider.class.getResourceAsStream("app.properties");
+                final var is = AppVersionProvider.class.getResourceAsStream("/app.properties");
                 final var appProps = new Properties();
                 appProps.load(is);
                 return new String[]{appProps.get("app.version") + " r." + appProps.get("app.revision")};
