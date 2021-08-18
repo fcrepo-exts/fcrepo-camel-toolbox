@@ -25,6 +25,7 @@ import picocli.CommandLine;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
+import static org.fcrepo.camel.common.config.BasePropsConfig.FCREPO_CAMEL_CONFIG_FILE_PROP_SOURCE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 //TODO pull in version and git revision from generated property file
@@ -47,6 +48,10 @@ public class Driver implements Callable<Integer> {
 
     @Override
     public Integer call() {
+
+        if (configurationFilePath != null) {
+            System.setProperty(FCREPO_CAMEL_CONFIG_FILE_PROP_SOURCE, configurationFilePath.toFile().getAbsolutePath());
+        }
         final var appContext = new AnnotationConfigApplicationContext("org.fcrepo.camel");
         appContext.start();
         LOGGER.info("fcrepo-camel-toolbox started.");

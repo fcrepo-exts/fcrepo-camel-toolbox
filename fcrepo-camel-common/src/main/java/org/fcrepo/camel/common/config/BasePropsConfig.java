@@ -38,7 +38,7 @@ import org.springframework.context.annotation.PropertySources;
 })
 public abstract class BasePropsConfig {
 
-    public static final String FCREPO_CAMEL_TOOLBOX_HOME_PROPERTY = "fcrepo.home";
+    public static final String FCREPO_CAMEL_TOOLBOX_HOME_PROPERTY = "fcrepo-camel-toolbox.home";
     public static final String DEFAULT_FCREPO_HOME_VALUE = "fcrepo-camel-toolbox-home";
     public static final String DEFAULT_FCREPO_CAMEL_TOOLBOX_CONFIG_FILE_PROP_SOURCE =
             "file:${" + FCREPO_CAMEL_TOOLBOX_HOME_PROPERTY + ":" + DEFAULT_FCREPO_HOME_VALUE + "}/config/fcrepo-camel-toolbox.properties";
