@@ -23,6 +23,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
@@ -43,6 +44,41 @@ public abstract class BasePropsConfig {
     public static final String DEFAULT_FCREPO_CAMEL_TOOLBOX_CONFIG_FILE_PROP_SOURCE =
             "file:${" + FCREPO_CAMEL_TOOLBOX_HOME_PROPERTY + ":" + DEFAULT_FCREPO_HOME_VALUE + "}/config/fcrepo-camel-toolbox.properties";
     public static final String FCREPO_CAMEL_CONFIG_FILE_PROP_SOURCE = "file:${fcrepo.camel.toolbox.config.file}";
+
+    @Value("${error.maxRedeliveries:10}")
+    private int maxRedeliveries;
+
+    @Value("${fcrepo.baseUrl:http://localhost:8080/fcrepo/rest}")
+    private String fcrepoBaseUrl;
+
+    @Value("${fcrepo.authUsername:fedoraAdmin}")
+    private String fcrepoUsername;
+
+    @Value("${fcrepo.authPassword:fedoraAdmin}")
+    private String fcrepoPassword;
+
+    @Value("${fcrepo.authHost:localhost}")
+    private String fcrepoAuthHost;
+
+    public int getMaxRedeliveries() {
+        return maxRedeliveries;
+    }
+
+    public String getFcrepoBaseUrl() {
+        return fcrepoBaseUrl;
+    }
+
+    public String getFcrepoUsername() {
+        return fcrepoUsername;
+    }
+
+    public String getFcrepoPassword() {
+        return fcrepoPassword;
+    }
+
+    public String getFcrepoAuthHost() {
+        return fcrepoAuthHost;
+    }
 
     protected Path createDirectories(final Path path) throws IOException {
         try {

@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fcrepo.camel.indexing.solr;
+package org.fcrepo.camel.indexing.triplestore;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http.HttpComponent;
-import org.fcrepo.camel.FcrepoComponent;
 import org.fcrepo.camel.common.config.BasePropsConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,42 +30,31 @@ import org.springframework.context.annotation.Configuration;
  * @author dbernstein
  */
 @Configuration
-public class FcrepoSolrIndexerConfig extends BasePropsConfig {
+public class FcrepoTripleStoreIndexerConfig extends BasePropsConfig {
 
-    @Value("${fcrepo.checkHasIndexingTransformation:true}")
-    private boolean checkHasIndexingTransformation;
-
-    @Value("${fcrepo.defaultTransform:}")
-    private String defaultTransform;
-
-    @Value("${input.stream:broker:topic:fedora}")
+    @Value("${triplestore.input.stream:broker:topic:fedora}")
     private String inputStream;
 
-    @Value("${solr.reindex.stream:broker:queue:solr.reindex}")
+    @Value("${triplestore.reindex.stream:broker:queue:triplestore.reindex}")
     private String reindexStream;
 
-    @Value("${solr.commitWithin:10000}")
-    private long commitWithin;
-
-    @Value("${indexing.predicate:false}")
+    @Value("${triplestore.indexing.predicate:false}")
     private boolean indexingPredicate;
 
-    @Value("${ldpath.service.baseUrl:http://localhost:9085/ldpath}")
-    private String ldpathServiceBaseUrl;
+    @Value("${triplestore.namedGraph:}")
+    private String namedGraph;
 
-    @Value("${filter.containers:http://localhost:8080/fcrepo/rest/audit}")
+    @Value("${triplestore.filter.containers:http://localhost:8080/fcrepo/rest/audit}")
     private String filterContainers;
 
-    @Value("${solr.baseUrl:http://localhost:8983/solr/collection1}")
-    private String solrBaseUrl;
+    @Value("${triplestore.prefer.include:}")
+    private String preferInclude;
 
-    public boolean isCheckHasIndexingTransformation() {
-        return checkHasIndexingTransformation;
-    }
+    @Value("${triplestore.prefer.omit:http://www.w3.org/ns/ldp#PreferContainment}")
+    private String preferOmit;
 
-    public String getDefaultTransform() {
-        return defaultTransform;
-    }
+    @Value("${triplestore.baseUrl:http://localhost:8080/fuseki/test/update}")
+    private String triplestoreBaseUrl;
 
     public String getInputStream() {
         return inputStream;
@@ -76,24 +64,28 @@ public class FcrepoSolrIndexerConfig extends BasePropsConfig {
         return reindexStream;
     }
 
-    public long getCommitWithin() {
-        return commitWithin;
-    }
-
     public boolean isIndexingPredicate() {
         return indexingPredicate;
     }
 
-    public String getLdpathServiceBaseUrl() {
-        return ldpathServiceBaseUrl;
+    public String getNamedGraph() {
+        return namedGraph;
     }
 
     public String getFilterContainers() {
         return filterContainers;
     }
 
-    public String getSolrBaseUrl() {
-        return solrBaseUrl;
+    public String getPreferInclude() {
+        return preferInclude;
+    }
+
+    public String getPreferOmit() {
+        return preferOmit;
+    }
+
+    public String getTriplestoreBaseUrl() {
+        return triplestoreBaseUrl;
     }
 
 
@@ -108,7 +100,8 @@ public class FcrepoSolrIndexerConfig extends BasePropsConfig {
     }
 
     @Bean
-    public RouteBuilder solrRoute() {
-        return new SolrRouter();
+    public RouteBuilder tripleStoreRoute() {
+        return new TriplestoreRouter();
     }
+
 }
