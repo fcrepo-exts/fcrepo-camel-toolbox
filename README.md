@@ -48,7 +48,18 @@ solr.baseUrl=http://localhost:8983/solr/collection1
 | fcrepo.authPassword | A valid password      | no       | fcrepoAdmin | | 
 | fcrepo.authHostName |       | no       | localhost | | 
 | fcrepo.authPort |       | no       | 8080 | | 
+| Triplestore Service|
+| triplestore.indexer.enabled | Enables/disables the triplestore indexing service. Enabled by default | no | true | 
+| triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update | 
+| triplestore.input.stream |   The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | | 
+| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | no       | broker:queue:solr.reindex | | 
+| triplestore.indexing.predicate |   ?    | no       | false | | 
+| triplestore.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | no       | http://localhost:8080/fcrepo/rest/audit | | 
+| triplestore.namedGraph |  ?  | no       | null | | 
+| triplestore.prefer.include |  ?  | no       | null | | 
+| triplestore.prefer.omit |  ?  | no       | http://www.w3.org/ns/ldp#PreferContainment | | 
 | SOLR Service|
+| solr.indexer.enabled | Enables/disables the SOLR indexing service. Enabled by default | no | true | 
 | error.maxRedeliveries |       | no       | 10 | | 
 | fcrepo.checkHasIndexingTransformation |       | no       | true | | 
 | fcrepo.defaultTransform |   ?    | no       | null | | 
@@ -67,6 +78,7 @@ solr.baseUrl=http://localhost:8983/solr/collection1
 | ldcache.directory | LDCache directory  |  no | ldcache/  | |
 | ldpath.transform.path | The LDPath transform file path | no | classpath:org/fcrepo/camel/ldpath/default.ldpath | For local file paths use `file:` prefix. e.g `file:/path/to/your/transform.txt` |
 | Reindexing Service |
+| reindexing.enabled | Enables/disables the reindexing component. Enabled by default | no | true | 
 | reindexing.error.maxRedeliveries | Maximum redelivery attempts | no | 10 | 
 | reindexing.stream | Reindexing jms message stream | no | broker:queue:reindexing | 
 | reindexing.host | Reindexing service host | no | localhost | 

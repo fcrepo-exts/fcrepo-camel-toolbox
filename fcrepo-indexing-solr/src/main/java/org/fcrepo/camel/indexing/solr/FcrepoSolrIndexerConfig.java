@@ -19,10 +19,13 @@ package org.fcrepo.camel.indexing.solr;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http.HttpComponent;
-import org.fcrepo.camel.FcrepoComponent;
 import org.fcrepo.camel.common.config.BasePropsConfig;
+import org.fcrepo.camel.common.config.ConditionOnPropertyTrue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -31,7 +34,17 @@ import org.springframework.context.annotation.Configuration;
  * @author dbernstein
  */
 @Configuration
+@Conditional(FcrepoSolrIndexerConfig.SolrIndexerEnabled.class)
 public class FcrepoSolrIndexerConfig extends BasePropsConfig {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FcrepoSolrIndexerConfig.class);
+    static final String SOLR_INDEXER_ENABLED = "solr.indexer.enabled";
+
+    static class SolrIndexerEnabled extends ConditionOnPropertyTrue {
+        SolrIndexerEnabled() {
+            super(FcrepoSolrIndexerConfig.SOLR_INDEXER_ENABLED, true);
+        }
+    }
 
     @Value("${fcrepo.checkHasIndexingTransformation:true}")
     private boolean checkHasIndexingTransformation;

@@ -20,8 +20,12 @@ package org.fcrepo.camel.indexing.triplestore;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http.HttpComponent;
 import org.fcrepo.camel.common.config.BasePropsConfig;
+import org.fcrepo.camel.common.config.ConditionOnPropertyTrue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -30,7 +34,17 @@ import org.springframework.context.annotation.Configuration;
  * @author dbernstein
  */
 @Configuration
+@Conditional(FcrepoTripleStoreIndexerConfig.TriplestoreIndexerEnabled.class)
 public class FcrepoTripleStoreIndexerConfig extends BasePropsConfig {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FcrepoTripleStoreIndexerConfig.class);
+    static final String TRIPLESTORE_INDEXER_ENABLED = "triplestore.indexer.enabled";
+
+    static class TriplestoreIndexerEnabled extends ConditionOnPropertyTrue {
+        TriplestoreIndexerEnabled() {
+            super(FcrepoTripleStoreIndexerConfig.TRIPLESTORE_INDEXER_ENABLED, true);
+        }
+    }
 
     @Value("${triplestore.input.stream:broker:topic:fedora}")
     private String inputStream;
