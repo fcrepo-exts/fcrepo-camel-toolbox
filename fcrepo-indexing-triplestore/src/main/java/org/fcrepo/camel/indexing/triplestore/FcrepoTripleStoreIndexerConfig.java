@@ -42,7 +42,7 @@ public class FcrepoTripleStoreIndexerConfig extends BasePropsConfig {
 
     static class TriplestoreIndexerEnabled extends ConditionOnPropertyTrue {
         TriplestoreIndexerEnabled() {
-            super(FcrepoTripleStoreIndexerConfig.TRIPLESTORE_INDEXER_ENABLED, true);
+            super(FcrepoTripleStoreIndexerConfig.TRIPLESTORE_INDEXER_ENABLED, false);
         }
     }
 

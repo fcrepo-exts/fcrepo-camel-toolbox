@@ -97,6 +97,7 @@ public class RouteUpdateIT {
 
     @BeforeClass
     public static void beforeClass() {
+        System.setProperty("triplestore.indexer.enabled", "true");
         System.setProperty("triplestore.indexing.predicate", "true");
         System.setProperty("triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + JMS_PORT);

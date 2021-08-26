@@ -42,7 +42,7 @@ public class FcrepoSolrIndexerConfig extends BasePropsConfig {
 
     static class SolrIndexerEnabled extends ConditionOnPropertyTrue {
         SolrIndexerEnabled() {
-            super(FcrepoSolrIndexerConfig.SOLR_INDEXER_ENABLED, true);
+            super(FcrepoSolrIndexerConfig.SOLR_INDEXER_ENABLED, false);
         }
     }
 

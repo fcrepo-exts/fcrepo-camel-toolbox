@@ -80,6 +80,8 @@ public class RouteTest {
 
     @BeforeClass
     public static void beforeClass() {
+
+        System.setProperty("solr.indexer.enabled", "true");
         System.setProperty("indexing.predicate", "true");
         System.setProperty("filter.containers", baseURL + auditContainer);
         System.setProperty("input.stream", "seda:foo");

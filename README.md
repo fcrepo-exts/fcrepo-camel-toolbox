@@ -43,13 +43,14 @@ solr.baseUrl=http://localhost:8983/solr/collection1
 ## Properties
 | Name      | Description| Required | Default Value | Values |
 | :---      | :---| :---:  |    :----   | --- |
+| Fedora Service|
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | no       | http://localhost:8080/fcrepo/rest | Any valid fcrepo url
 | fcrepo.authUsername | A valid username      | no       | fcrepoAdmin | | 
 | fcrepo.authPassword | A valid password      | no       | fcrepoAdmin | | 
 | fcrepo.authHostName |       | no       | localhost | | 
 | fcrepo.authPort |       | no       | 8080 | | 
 | Triplestore Service|
-| triplestore.indexer.enabled | Enables/disables the triplestore indexing service. Enabled by default | no | true | 
+| triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | no | false | 
 | triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update | 
 | triplestore.input.stream |   The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | | 
 | triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | no       | broker:queue:solr.reindex | | 
@@ -59,7 +60,7 @@ solr.baseUrl=http://localhost:8983/solr/collection1
 | triplestore.prefer.include |  ?  | no       | null | | 
 | triplestore.prefer.omit |  ?  | no       | http://www.w3.org/ns/ldp#PreferContainment | | 
 | SOLR Service|
-| solr.indexer.enabled | Enables/disables the SOLR indexing service. Enabled by default | no | true | 
+| solr.indexer.enabled | Enables/disables the SOLR indexing service. Disabled by default | no | false | 
 | error.maxRedeliveries |       | no       | 10 | | 
 | fcrepo.checkHasIndexingTransformation |       | no       | true | | 
 | fcrepo.defaultTransform |   ?    | no       | null | | 

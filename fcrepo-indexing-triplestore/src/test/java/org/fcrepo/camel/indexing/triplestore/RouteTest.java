@@ -89,6 +89,7 @@ public class RouteTest {
 
     @BeforeClass
     public static void beforeClass() {
+        System.setProperty("triplestore.indexer.enabled", "true");
         System.setProperty("triplestore.indexing.predicate", "true");
         System.setProperty("triplestore.filter.containers", auditContainer);
         System.setProperty("triplestore.input.stream", "seda:foo");
