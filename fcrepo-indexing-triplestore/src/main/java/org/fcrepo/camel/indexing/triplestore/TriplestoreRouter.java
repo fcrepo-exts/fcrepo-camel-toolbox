@@ -55,7 +55,6 @@ public class TriplestoreRouter extends RouteBuilder {
     /**
      * Configure the message route workflow.
      */
-    @Override
     public void configure() throws Exception {
 
         final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
