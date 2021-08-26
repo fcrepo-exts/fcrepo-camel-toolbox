@@ -18,14 +18,14 @@
 
 package org.fcrepo.camel.common.config;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
+
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 
 /**
  * A base class for property configs
@@ -43,7 +43,8 @@ public abstract class BasePropsConfig {
     public static final String DEFAULT_FCREPO_HOME_VALUE = "fcrepo-camel-toolbox-home";
     public static final String DEFAULT_FCREPO_CAMEL_TOOLBOX_CONFIG_FILE_PROP_SOURCE =
             "file:${" + FCREPO_CAMEL_TOOLBOX_HOME_PROPERTY + ":" + DEFAULT_FCREPO_HOME_VALUE + "}/config/fcrepo-camel-toolbox.properties";
-    public static final String FCREPO_CAMEL_CONFIG_FILE_PROP_SOURCE = "file:${fcrepo.camel.toolbox.config.file}";
+    public static final String FCREPO_CAMEL_CONFIG_FILE_PROPERTY = "fcrepo.camel.toolbox.config.file";
+    public static final String FCREPO_CAMEL_CONFIG_FILE_PROP_SOURCE = "file:${" + FCREPO_CAMEL_CONFIG_FILE_PROPERTY + "}";
 
     @Value("${error.maxRedeliveries:10}")
     private int maxRedeliveries;
