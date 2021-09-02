@@ -17,6 +17,8 @@
  */
 package org.fcrepo.camel.reindexing;
 
+import org.apache.camel.ExchangePattern;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.fcrepo.camel.service.FcrepoCamelConfig;
 import org.slf4j.Logger;
@@ -105,7 +107,7 @@ public class ReindexingRouter extends RouteBuilder {
                 .endChoice()
                 .otherwise()
                 .log(INFO, LOGGER, "Initial indexing path: ${headers[CamelFcrepoUri]}")
-                .inOnly(config.getReindexingStream() + "?disableTimeToLive=true")
+                .to(ExchangePattern.InOnly, config.getReindexingStream() + "?disableTimeToLive=true")
                     .setHeader(CONTENT_TYPE).constant("text/plain")
                     .transform().simple("Indexing started at ${headers[CamelFcrepoUri]}");
 
@@ -114,7 +116,8 @@ public class ReindexingRouter extends RouteBuilder {
          *  indexing nodes, as appropriate.
          */
         from(config.getReindexingStream() + "?asyncConsumer=true").routeId("FcrepoReindexingTraverse")
-                .inOnly("direct:recipients")
+                .to(ExchangePattern.InOnly, "direct:recipients")
+                .log(LoggingLevel.DEBUG, "Beginning traverse")
                 .removeHeaders("CamelHttp*")
                 .setHeader(HTTP_METHOD).constant(GET)
                 .to("fcrepo:" + fcrepoCamelConfig.getFcrepoBaseUrl() + "?preferInclude=PreferContainment" +
@@ -139,7 +142,7 @@ public class ReindexingRouter extends RouteBuilder {
                     }
                 })
                 .filter(header(FCREPO_URI).isNotNull())
-                .inOnly(config.getReindexingStream() + "?disableTimeToLive=true");
+                .to(ExchangePattern.InOnly, config.getReindexingStream() + "?disableTimeToLive=true");
 
         /**
          *  Send the message to all of the pre-determined endpoints
