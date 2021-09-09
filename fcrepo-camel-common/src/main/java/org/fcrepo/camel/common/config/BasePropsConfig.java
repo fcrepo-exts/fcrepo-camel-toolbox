@@ -80,14 +80,4 @@ public abstract class BasePropsConfig {
     public String getFcrepoAuthHost() {
         return fcrepoAuthHost;
     }
-
-    protected Path createDirectories(final Path path) throws IOException {
-        try {
-            return Files.createDirectories(path);
-        } catch (final FileAlreadyExistsException e) {
-            // Ignore. This only happens with the path is a symlink
-            return path;
-        }
-    }
-
 }

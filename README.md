@@ -20,24 +20,41 @@ Currently the Solr, ActiveMQ, Reindexing, and LDPath microservices are available
 
 ## Running the toolbox
 
-Before starting the camel toolbox fire up a Fedora 6.x instance and Solr 8.x
+Before starting the camel toolbox fire up a Fedora 6.x instance, Solr 8.x, and Fuseki (triple store).
 
+Fedora
+```
+docker run -p8080:8080 --rm -p61616:61616  -p8181:8181 --name=my_fcrepo6  fcrepo/fcrepo:6.0.0
 ```
 
+Solr
 ```
+docker run  --rm -p 8983:8983 --name my_solr solr:8
+```
+
+Create the default Solr Core
+```
+docker exec -it my_solr solr create_core -c collection1
+```
+
+Fuseki 
+```
+docker run --rm -p 3030:3030 --name my_fuseki atomgraph/fuseki --mem /test
+```
+
 
 ```
 mvn clean install
 java -jar fcrepo-camel-toolbox/fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-app-<verion>-driver.jar -c /path/to/configuration.properties
 ``` 
 
-where your properties file is a standard java properties file containing key value pairs: 
+where your `configuration.properties `file is a standard java properties file containing key value pairs. To run with the above solr and fuseki docker containers  set the following properties
 
 ```
-fcrepo.baseUrl=http://localhost:8080/rest
-solr.baseUrl=http://localhost:8983/solr/collection1
-...
-
+triplestore.indexer.enabled=true
+solr.index.enabled=true
+triplestore.baseUrl=http://localhost:
+solr.baseUrl=http://localhost:8983/solr/
 ```
 
 ## Properties

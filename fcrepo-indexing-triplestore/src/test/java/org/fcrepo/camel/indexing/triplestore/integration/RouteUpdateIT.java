@@ -156,6 +156,7 @@ public class RouteUpdateIT {
         fusekiMockEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:delete.triplestore");
         deleteEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:update.triplestore");
         updateEndpoint.expectedMessageCount(1);
 

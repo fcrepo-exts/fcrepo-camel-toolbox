@@ -1,0 +1,130 @@
+@prefix fedora : <http://fedora.info/definitions/v4/repository#>
+@prefix pcdm : <http://pcdm.org/models#>
+@prefix ore : <http://www.openarchives.org/ore/terms/>
+@prefix iana : <http://www.iana.org/assignments/relation/>
+@prefix acl : <http://www.w3.org/ns/auth/acl#>
+@prefix dcterms : <http://purl.org/dc/terms/>
+
+id      = . :: xsd:string ;
+
+created_l = fedora:created :: xsd:dateTime ;
+createdBy_s = fedora:createdBy :: xsd:string ;
+hasParent_s = fedora:hasParent :: xsd:string ;
+hasVersions_s = fedora:hasVersions :: xsd:anyURI ;
+lastModified_l = fedora:lastModified :: xsd:dateTime ;
+lastModifiedBy_s = fedora:lastModifiedBy :: xsd:string ;
+numberOfChildren_l = fedora:numberOfChildren :: xsd:integer ;
+
+type_ss    = rdf:type :: xsd:anyURI ;
+label = rdfs:label :: xsd:string ;
+comment = rdfs:comment :: xsd:string ;
+sameAs = owl:sameAs :: xsd:anyURI ;
+
+altLabel = skos:altLabel :: xsd:string ;
+broadMatch = skos:broadMatch :: xsd:anyURI ;
+broader = skos:broader :: xsd:anyURI ;
+broaderTransitive = skos:broaderTransitive :: xsd:anyURI ;
+changeNote = skos:changeNote :: xsd:string ;
+closeMatch = skos:closeMatch :: xsd:string ;
+definition = skos:definition :: xsd:string ;
+editorialNote = skos:editorialNote :: xsd:string ;
+exactMatch = skos:exactMatch :: xsd:anyURI ;
+example = skos:example :: xsd:string ;
+hiddenLabel = skos:hiddenLabel :: xsd:string ;
+historyNote = skos:historyNote :: xsd:string ;
+inScheme = skos:inScheme :: xsd:anyURI ;
+mappingRelation = skos:mappingRelation :: xsd:anyURI ;
+member = skos:member :: xsd:anyURI ;
+memberList = skos:memberList :: xsd:anyURI ;
+narrowMatch = skos:narrowMatch :: xsd:anyURI ;
+narrower = skos:narrower :: xsd:anyURI ;
+narrowerTransitive = skos:narrowerTrasitive :: xsd:anyURI ;
+notation = skos:notation :: xsd:string ;
+note = skos:note :: xsd:string ;
+prefLabel = skos:prefLabel :: xsd:string ;
+related = skos:related :: xsd:anyURI ;
+relatedMatch = skos:relatedMatch :: xsd:anyURI ;
+scopeNote = skos:scopeNote :: xsd:string ;
+semanticRelation = skos:semanticRelation :: xsd:anyURI ;
+topConceptOf = skos:topConceptOf :: xsd:anyURI ;
+
+abstract = dcterms:abstract :: xsd:string ;
+accessRights = dcterms:accessRights :: xsd:string ;
+accrualMethod = dcterms:accrualMethod :: xsd:string ;
+accrualPeriodicity = dcterms:accrualPeriodicity :: xsd:string ;
+accrualPolicy = dcterms:accrualPolicy :: xsd:string ;
+alternative = dcterms:alternative :: xsd:string ;
+audience = dcterms:audience :: xsd:string ;
+available = dcterms:available :: xsd:string ;
+bibliographicCitation = dcterms:bibliographicCitation :: xsd:string ;
+conformsTo = dcterms:conformsTo :: xsd:string ;
+contributor = dc:contributor | dcterms:contributor :: xsd:string ;
+coverage = dc:coverage | dcterms:coverage :: xsd:string ;
+creator = dc:creator | dcterms:creator :: xsd:string ;
+date = dc:date | dcterms:date :: xsd:dateTime ;
+dateAccepted = dcterms:dateAccepted :: xsd:dateTime ;
+dateCopyrighted = dcterms:dateCopyrighted :: xsd:dateTime ;
+dateSubmitted = dcterms:dateSubmitted :: xsd:dateTime ;
+description = dc:description | dcterms:description :: xsd:string ;
+educationLevel = dcterms:educationLevel :: xsd:string ;
+extent = dcterms:extent :: xsd:string ;
+format = dc:format | dcterms:format :: xsd:string ;
+hasFormat = dcterms:hasFormat :: xsd:string ;
+hasPart = dcterms:hasPart :: xsd:string ;
+hasVersion = dcterms:hasVersion :: xsd:string ;
+identifier = dc:identifier | dcterms:identifier :: xsd:string ;
+instructionalMethod = dcterms:instructionalMethod :: xsd:string ;
+isFormatOf = dcterms:isFormatOf :: xsd:string ;
+isPartOf = dcterms:isPartOf :: xsd:string ;
+isReferencedBy = dcterms:isReferencedBy :: xsd:string ;
+isReplacedBy = dcterms:isReplacedBy :: xsd:string ;
+isRequiredBy = dcterms:isRequiredBy :: xsd:string ;
+issued = dcterms:issued :: xsd:string ;
+isVersionOf = dcterms:isVersionOf :: xsd:string ;
+language = dc:language | dcterms:language :: xsd:string ;
+license = dcterms:license :: xsd:string ;
+mediator = dcterms:mediator :: xsd:string ;
+medium = dcterms:medium :: xsd:string ;
+modified = dcterms:modified :: xsd:string ;
+provenance = dcterms:provenance :: xsd:string ;
+publisher = dc:publisher | dcterms:publisher :: xsd:string ;
+references = dcterms:references :: xsd:string ;
+relation = dc:relation | dcterms:relation :: xsd:string ;
+replaces = dcterms:replaces :: xsd:string ;
+requires = dcterms:requires :: xsd:string ;
+rights = dc:rights | dcterms:rights :: xsd:string ;
+rightsHolder = dcterms:rightsHolder :: xsd:string ;
+source = dc:source | dcterms:source :: xsd:string ;
+spatial = dcterms:spatial :: xsd:string ;
+subject = dc:subject | dcterms:subject :: xsd:string ;
+tableOfContents = dcterms:tableOfContents :: xsd:string ;
+temporal = dcterms:temporal :: xsd:string ;
+title = dc:title | dcterms:title :: xsd:string ;
+valid = dcterms:valid :: xsd:string ;
+
+fileOf = pcdm:fileOf :: xsd:anyURI ;
+hasFile = pcdm:hasFile :: xsd:anyURI ;
+hasMember = pcdm:hasMember :: xsd:anyURI ;
+hasRelatedObject = pcdm:hasRelatedObject :: xsd:anyURI ;
+memberOf = pcdm:memberOf :: xsd:anyURI ;
+relatedObjectOf = pcdm:relatedObjectOf :: xsd:anyURI ;
+
+aggregates = ore:aggregates :: xsd:anyURI ;
+isAggregatedBy = ore:isAggregatedBy :: xsd:anyURI ;
+proxyFor = ore:proxyFor :: xsd:anyURI ;
+proxyIn = ore:proxyIn :: xsd:anyURI ;
+
+first = iana:first :: xsd:anyURI ;
+last = iana:last :: xsd:anyURI ;
+next = iana:next :: xsd:anyURI ;
+prev = iana:prev :: xsd:anyURI ;
+describes = iana:describes :: xsd:anyURI ;
+describedBy = iana:describedBy :: xsd:anyURI ;
+
+accessControl = acl:accessControl :: xsd:anyURI ;
+accessTo = acl:accessTo :: xsd:anyURI ;
+accessToClass = acl:accessToClass :: xsd:anyURI ;
+agent = acl:agent :: xsd:string ;
+agentClass = acl:agentClass :: xsd:anyURI ;
+mode = acl:mode :: xsd:anyURI ;
+

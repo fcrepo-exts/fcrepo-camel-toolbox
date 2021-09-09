@@ -207,18 +207,5 @@ public class RouteTest {
     @Configuration
     @ComponentScan(resourcePattern = "**/Fcrepo*.class")
     static class ContextConfig extends CamelConfiguration {
-        /*
-        @Bean
-        public RouteBuilder route() {
-            final var ldpath = getBean("ldpath");
-            return new RouteBuilder() {
-                public void configure() throws Exception {
-                    from("direct:ldpath")
-                            .setBody(ExpressionBuilder.beanExpression(ldpath,
-                                    "programQuery(${headers.context}, ${body})"));
-                }
-            };
-        }
-         */
     }
 }

@@ -131,6 +131,7 @@ public class RouteTest {
 
         final var reindexingEndpoint = MockEndpoint.resolve(camelContext, "mock:" + reindexingStream);
         reindexingEndpoint.expectedMessageCount(0);
+        reindexingEndpoint.setAssertPeriod(1000);
         resultEndpoint.expectedMessageCount(1);
         resultEndpoint.expectedHeaderReceived(FCREPO_URI, url);
         resultEndpoint.expectedBodiesReceived("No endpoints configured for indexing");

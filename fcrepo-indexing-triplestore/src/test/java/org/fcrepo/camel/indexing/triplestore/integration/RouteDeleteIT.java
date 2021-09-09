@@ -155,9 +155,10 @@ public class RouteDeleteIT {
         deleteEndpoint.expectedMessageCount(1);
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:update.triplestore");
         updateEndpoint.expectedMessageCount(0);
-
+        updateEndpoint.setAssertPeriod(1000);
         final var fcrepoMockEndpoint = MockEndpoint.resolve(camelContext, fcrepoEndpoint);
         fcrepoMockEndpoint.expectedMessageCount(0);
+        fcrepoMockEndpoint.setAssertPeriod(1000);
         template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Delete"));
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), equalTo(0));

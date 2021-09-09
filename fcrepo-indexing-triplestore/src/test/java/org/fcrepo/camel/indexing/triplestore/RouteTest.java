@@ -124,6 +124,7 @@ public class RouteTest {
         final var indexEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:index.triplestore");
         deleteEndpoint.expectedMessageCount(1);
         indexEndpoint.expectedMessageCount(0);
+        indexEndpoint.setAssertPeriod(1000);
 
         template.sendBody(
                 IOUtils.toString(loadResourceAsStream("event_delete_resource.json"), "UTF-8"));
@@ -150,7 +151,8 @@ public class RouteTest {
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
         deleteEndpoint.expectedMessageCount(0);
         updateEndpoint.expectedMessageCount(0);
-
+        deleteEndpoint.setAssertPeriod(1000);
+        updateEndpoint.setAssertPeriod(1000);
         template.sendBodyAndHeaders("",
                 createEvent(auditContainer + fileID, asList(AS_NS + "Update"), asList(REPOSITORY + "Binary")));
         template.sendBodyAndHeaders("",
@@ -176,7 +178,8 @@ public class RouteTest {
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
         deleteEndpoint.expectedMessageCount(0);
         updateEndpoint.expectedMessageCount(0);
-
+        deleteEndpoint.setAssertPeriod(1000);
+        updateEndpoint.setAssertPeriod(1000);
 
         template.sendBodyAndHeaders("",
                 createEvent(auditContainer, asList(AS_NS + "Update"), asList(REPOSITORY + "Binary")));
@@ -202,7 +205,7 @@ public class RouteTest {
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
         deleteEndpoint.expectedMessageCount(1);
         updateEndpoint.expectedMessageCount(0);
-
+        updateEndpoint.setAssertPeriod(1000);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
@@ -227,6 +230,7 @@ public class RouteTest {
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
         deleteEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
         updateEndpoint.expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
@@ -253,6 +257,7 @@ public class RouteTest {
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
         indexEndpoint.expectedMessageCount(1);
         deleteEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("event.json"), "UTF-8"),
@@ -277,6 +282,7 @@ public class RouteTest {
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
         updateEndpoint.expectedMessageCount(0);
+        updateEndpoint.setAssertPeriod(1000);
         deleteEndpoint.expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
@@ -302,6 +308,7 @@ public class RouteTest {
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
         updateEndpoint.expectedMessageCount(1);
         deleteEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
