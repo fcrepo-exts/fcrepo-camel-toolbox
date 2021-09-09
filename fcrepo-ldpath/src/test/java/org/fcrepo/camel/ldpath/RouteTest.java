@@ -77,7 +77,8 @@ public class RouteTest {
     @BeforeClass
     public static void beforeClass() {
         final String targetDir = System.getProperty("project.build.directory", "target");
-        final var ldCacheDir = targetDir + File.separator + "ldcache";
+        final var ldCacheDir = targetDir + File.separator + RouteTest.class.getCanonicalName() +
+                File.separator + "ldcache";
         new File(ldCacheDir).mkdirs();
         System.setProperty("ldcache.directory", ldCacheDir);
         final String restPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");

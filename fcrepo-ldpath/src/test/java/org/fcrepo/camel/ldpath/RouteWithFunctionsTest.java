@@ -78,7 +78,8 @@ public class RouteWithFunctionsTest {
     @BeforeClass
     public static void beforeClass() {
         final String targetDir = System.getProperty("project.build.directory", "target");
-        final var ldCacheDir = targetDir + File.separator + "ldcache";
+        final var ldCacheDir = targetDir + File.separator + RouteWithFunctionsTest.class.getCanonicalName() +
+                File.separator + "ldcache";
         new File(ldCacheDir).mkdirs();
 
         System.setProperty("ldcache.directory", ldCacheDir);
@@ -242,7 +243,7 @@ public class RouteWithFunctionsTest {
 
 
     @Configuration
-    @ComponentScan(resourcePattern = "**/Test*.class")
+    @ComponentScan(resourcePattern = "**/Fcrepo*.class")
     static class ContextConfig extends CamelConfiguration {
     }
 }
