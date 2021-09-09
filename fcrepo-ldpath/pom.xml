@@ -136,7 +136,7 @@
     <dependency>
       <groupId>org.openrdf.sesame</groupId>
       <artifactId>sesame-rio-api</artifactId>
-      <version>2.7.13</version>
+      <version>2.9.0</version>
     </dependency>
 
     <dependency>
@@ -144,6 +144,12 @@
       <artifactId>fcrepo-java-client</artifactId>
       <version>${fcrepo-java-client.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.marmotta</groupId>
+      <artifactId>ldcache-backend-file</artifactId>
+    </dependency>
+
 
     <!-- logging -->
     <dependency>
@@ -161,17 +167,6 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.marmotta</groupId>
-      <artifactId>ldcache-backend-file</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.marmotta</groupId>
-      <artifactId>ldcache-backend-file</artifactId>
-    </dependency>
-
 
   </dependencies>
 
