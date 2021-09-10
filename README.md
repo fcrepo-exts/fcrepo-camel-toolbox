@@ -1,19 +1,115 @@
 # Fedora Messaging Application Toolbox
 
 A collection of ready-to-use messaging applications for use
-with [Fedora4](http://fcrepo.org). These applications use
+with [Fedora](http://fcrepo.org). These applications use
 [Apache Camel](https://camel.apache.org).
 
-[![Build Status](https://travis-ci.org/fcrepo-exts/fcrepo-camel-toolbox.png?branch=master)](https://travis-ci.org/fcrepo-exts/fcrepo-camel-toolbox)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.fcrepo.camel/toolbox-features/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.fcrepo.camel/toolbox-features/)
 
 Additional background information is available on the Fedora Wiki on the
 [Integration Services page](https://wiki.duraspace.org/display/FEDORA4x/Integration+Services).
 
-## Applications
+## Prerequisites
+* Java 11
+* Solr
+* Fedora 6
 
-Each of these applications are available as OSGi bundles and can be deployed
-directly into an OSGi container such as Karaf. 
+NOTE:  This is project is currently in a state of flux as we are in the process of upgrading it to support Java 11 and Camel 3.9.x
+Currently the Solr, ActiveMQ, Reindexing, and LDPath microservices are available. Triplestore indexing and Fixity are coming soon.
+
+
+## Running the toolbox
+
+Before starting the camel toolbox fire up a Fedora 6.x instance, Solr 8.x, and Fuseki (triple store).
+
+Fedora
+```
+docker run -p8080:8080 --rm -p61616:61616  -p8181:8181 --name=my_fcrepo6  fcrepo/fcrepo:6.0.0
+```
+
+Solr
+```
+docker run  --rm -p 8983:8983 --name my_solr solr:8
+```
+
+Create the default Solr Core
+```
+docker exec -it my_solr solr create_core -c collection1
+```
+
+Fuseki 
+```
+docker run --rm -p 3030:3030 --name my_fuseki atomgraph/fuseki --mem /test
+```
+
+
+```
+mvn clean install
+java -jar fcrepo-camel-toolbox/fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-app-<verion>-driver.jar -c /path/to/configuration.properties
+``` 
+
+where your `configuration.properties `file is a standard java properties file containing key value pairs. To run with the above solr and fuseki docker containers  set the following properties
+
+```
+triplestore.indexer.enabled=true
+solr.index.enabled=true
+triplestore.baseUrl=http://localhost:
+solr.baseUrl=http://localhost:8983/solr/
+```
+
+## Properties
+| Name      | Description| Required | Default Value | Values |
+| :---      | :---| :---:  |    :----   | --- |
+| Fedora Service|
+| fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | no       | http://localhost:8080/fcrepo/rest | Any valid fcrepo url
+| fcrepo.authUsername | A valid username      | no       | fcrepoAdmin | | 
+| fcrepo.authPassword | A valid password      | no       | fcrepoAdmin | | 
+| fcrepo.authHostName |       | no       | localhost | | 
+| fcrepo.authPort |       | no       | 8080 | | 
+| Triplestore Service|
+| triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | no | false | 
+| triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update | 
+| triplestore.input.stream |   The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | | 
+| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | no       | broker:queue:solr.reindex | | 
+| triplestore.indexing.predicate |   ?    | no       | false | | 
+| triplestore.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | no       | http://localhost:8080/fcrepo/rest/audit | | 
+| triplestore.namedGraph |  ?  | no       | null | | 
+| triplestore.prefer.include |  ?  | no       | null | | 
+| triplestore.prefer.omit |  ?  | no       | http://www.w3.org/ns/ldp#PreferContainment | | 
+| SOLR Service|
+| solr.indexer.enabled | Enables/disables the SOLR indexing service. Disabled by default | no | false | 
+| error.maxRedeliveries |       | no       | 10 | | 
+| fcrepo.checkHasIndexingTransformation |       | no       | true | | 
+| fcrepo.defaultTransform |   ?    | no       | null | | 
+| input.stream |   The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | | 
+| solr.reindex.stream |   The JMS topic or queue serving as the reindex message source    | no       | broker:queue:solr.reindex | | 
+| solr.commitWithin |   Milliseconds within which commits should occur    | no       | 10000 | | 
+| indexing.predicate |   ?    | no       | false | | 
+| ldpath.service.baseUrl |   The LDPath service base url    | no       | http://localhost:9085/ldpath | | 
+| filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | no       | http://localhost:8080/fcrepo/rest/audit | | 
+| LDPath Service | 
+| fcrepo.cache.timeout | The timeout in seconds for the ldpath cache | no       | 0 | | 
+| rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath| |
+| rest.port| The LDPath rest endpoint port |  no | 9085 |
+| rest.host| The LDPath rest endpoint host |  no | localhost |
+| cache.timeout | LDCache ?  timeout in seconds  |  no | 86400  | |
+| ldcache.directory | LDCache directory  |  no | ldcache/  | |
+| ldpath.transform.path | The LDPath transform file path | no | classpath:org/fcrepo/camel/ldpath/default.ldpath | For local file paths use `file:` prefix. e.g `file:/path/to/your/transform.txt` |
+| Reindexing Service |
+| reindexing.enabled | Enables/disables the reindexing component. Enabled by default | no | true | 
+| reindexing.error.maxRedeliveries | Maximum redelivery attempts | no | 10 | 
+| reindexing.stream | Reindexing jms message stream | no | broker:queue:reindexing | 
+| reindexing.host | Reindexing service host | no | localhost | 
+| reindexing.port | Reindexing service port | no | 9080 |
+| reindexing.rest | Reindexing rest URI prefix | no | /reindexing | 
+| ActiveMQ Service |
+| jms.brokerUrl | JMS Broker endpoint | no | tcp://localhost:61616 |
+| jms.username | JMS username | no | null |
+| jms.password | JMS password | no | null |
+| jms.connections | The JMS connection count | no | 10 |
+| jms.consumers | The JMS consumer count | no | 1 |
+
+TODO:  clean up and regularize property names. 
 
 ## Note
 
@@ -55,12 +151,12 @@ is available on the Fedora wiki.
 This application listens to Fedora's event stream and
 indexes objects into an external Solr server.
 
-### Repository Indexer (Triplestore)
+### Repository Indexer (Triplestore) (not currently available)
 
 This application listens to Fedora's event stream and
 indexes objects into an external triplestore.
 
-### Fixity Checking Service
+### Fixity Checking Service (not currently available
 
 This application can be used in conjunction with the Repository
 Re-Indexer to verify the checksums for all Binary resources in
@@ -93,90 +189,8 @@ To build these projects use this command
 
     MAVEN_OPTS="-Xmx1024m" mvn clean install
 
-## OSGi deployment (Karaf 4.x)
-
-These applications are distributed as OSGi features, making it easy to deploy these
-applications in a Karaf container. There are several ways to install these features, and
-it may be useful to refer to the Karaf documentation related to
-[provisioning](https://karaf.apache.org/manual/latest/#_provisioning).
-
-### Production deployment
-
-For production use, it is recommended to make use of Karaf's [boot features](https://karaf.apache.org/manual/latest/#_boot_features).
-This involves editing the `$KARAF_HOME/etc/org.apache.karaf.features.cfg` configuration file. The two relevant
-configuration options are:
-
-  * `featuresRepositories`, which contains a comma-separated list of features repository URLs.
-  * `featuresBoot`, which contains a comma-separated list of feature names.
-
-To install `fcrepo-camel-toolbox/4.6.2`, one would add the following:
-
-      featuresRepositories = \
-          ..., \
-          mvn:org.fcrepo.camel/toolbox-features/4.6.2/xml/features
-
-To install version 4.7.1 of the `fcrepo-camel-toolbox`, one will also need to specify the version of Camel and ActiveMQ like so:
-
-      featuresRepositories = \
-          ..., \
-          mvn:org.apache.activemq/activemq-karaf/5.14.0/xml/features, \
-          mvn:org.apache.camel.karaf/apache-camel/2.18.0/xml/features, \
-          mvn:org.fcrepo.camel/toolbox-features/4.7.1/xml/features
-
-Users are not resticted to particular versions of Camel and ActiveMQ, so long as Camel is
-at least version 2.18.0 and ActiveMQ is at least version 5.14.0.
-
-In order to add particular features into a Karaf container at boot time, the `featuresBoot`
-configuration value should be edited to include the desired features. For instance, to install
-`fcrepo-indexing-triplestore`, one would add the following to `featuresBoot`:
-
-    featuresBoot = \
-        ..., \
-        fcrepo-service-activemq, \
-        fcrepo-service-camel, \
-        fcrepo-indexing-triplestore
-
-For most features, it is necessary to explicitly specify the `fcrepo-service-activemq` feature.
-
-With this configuration in place, it is possible to upgrade the version of `fcrepo-camel-toolbox` by
-simply shutting down Karaf, deleting the `$KARAF_HOME/data` directory, updating the version number(s)
-in the `featuresRepositories` configuration and restarting Karaf. The updated features
-will automatically re-deploy in a fresh Karaf environment.
-
-**Note**: When installing a fcrepo-camel-toolbox feature repository, it is recommended to use a released version
-rather than specifying `LATEST`. The latest released version can be found by inspecting the Maven Central badge at
-top of this README file.
-
-### Deployment for development or testing
-
-When testing karaf features, it can be more convenient to install/uninstall them directly from the Karaf console.
-
-To do this, first, add the `toolbox-features` repository:
-
-    $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/4.6.2/xml/features
-
-Or, if you are using version 4.7.1 or later, also add the Camel and ActiveMQ repositories:
-
-    $> feature:repo-add camel 2.18.0
-    $> feature:repo-add activemq 5.14.0
-    $> feature:repo-add mvn:org.fcrepo.camel/toolbox-features/4.7.1/xml/features
-
-Then, you can add any combination of the following applications:
-
-    $> feature:install fcrepo-service-activemq
-    $> feature:install fcrepo-audit-triplestore
-    $> feature:install fcrepo-fixity
-    $> feature:install fcrepo-indexing-solr
-    $> feature:install fcrepo-indexing-triplestore
-    $> feature:install fcrepo-ldpath
-    $> feature:install fcrepo-reindexing
-    $> feature:install fcrepo-serialization
-    $> feature:install fcrepo-service-ldcache-file
-
 ## Maintainers
 
 Current maintainers:
 
-* [Peter Eichman](https://github.com/peichman-umd)
-* [Daniel Lamb](https://github.com/dannylamb)
-* [Bethany Seeger](https://github.com/bseeger)
+* [Danny Bernstein](https://github.com/dbernstein)

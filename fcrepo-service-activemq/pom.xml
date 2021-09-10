@@ -6,25 +6,15 @@
   <parent>
     <artifactId>fcrepo-camel-toolbox</artifactId>
     <groupId>org.fcrepo.camel</groupId>
-    <version>5.1.0-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>fcrepo-service-activemq</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <name>Fedora ActiveMQ Service</name>
-  <description>An OSGi ActiveMQ-based service used to connect toolbox applications with Fedora's message broker</description>
+  <description>A service used to connect toolbox applications with Fedora's message broker</description>
 
-  <properties>
-    <osgi.import.packages>
-      org.apache.activemq,
-      org.apache.activemq.camel.component,
-      org.apache.activemq.pool,
-      org.apache.camel.component.jms,
-      *
-    </osgi.import.packages>
-    <osgi.export.packages>org.fcrepo.camel.service.activemq;version=${project.version}</osgi.export.packages>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -33,11 +23,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-blueprint</artifactId>
+      <artifactId>camel-spring-javaconfig</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-activemq</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -46,6 +36,11 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-pool</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-camel-common</artifactId>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <!-- logging -->
@@ -67,14 +62,8 @@
 
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-test-blueprint</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring</artifactId>
     </dependency>
-
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
@@ -98,39 +87,10 @@
     </dependency>
 
     <dependency>
-      <groupId>org.ops4j.pax.exam</groupId>
-      <artifactId>pax-exam-container-karaf</artifactId>
-      <scope>test</scope>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.ops4j.pax.exam</groupId>
-      <artifactId>pax-exam-junit4</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.karaf</groupId>
-      <artifactId>apache-karaf</artifactId>
-      <type>zip</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.camel.karaf</groupId>
-      <artifactId>apache-camel</artifactId>
-      <type>xml</type>
-      <classifier>features</classifier>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-karaf</artifactId>
-      <type>xml</type>
-      <classifier>features</classifier>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -146,26 +106,6 @@
         <artifactId>maven-resources-plugin</artifactId>
       </plugin>
 
-      <!-- to generate the MANIFEST-FILE of the bundle -->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
-
-      <!-- pax exam -->
-      <plugin>
-       <groupId>org.ops4j.pax.exam</groupId>
-       <artifactId>maven-paxexam-plugin</artifactId>
-       <executions>
-         <execution>
-           <id>generate-config</id>
-           <goals>
-             <goal>generate-depends-file</goal>
-           </goals>
-         </execution>
-       </executions>
-     </plugin>
-
       <!-- enable checkstyle plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -177,10 +117,11 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemProperties>
-            <property>
-              <name>fcrepo.dynamic.reindexing.port</name>
-              <value>${fcrepo.dynamic.reindexing.port}</value>
-            </property>
+            <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
+            <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
+            <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
+            <fcrepo.dynamic.reindexing.port>${fcrepo.dynamic.reindexing.port}</fcrepo.dynamic.reindexing.port>
+            <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
           </systemProperties>
         </configuration>
       </plugin>
@@ -197,29 +138,8 @@
               <portName>fcrepo.dynamic.stomp.port</portName>
               <portName>fcrepo.dynamic.reindexing.port</portName>
               <portName>jetty.dynamic.stop.port</portName>
-              <portName>karaf.rmiRegistry.port</portName>
-              <portName>karaf.rmiServer.port</portName>
-              <portName>karaf.ssh.port</portName>
             </portNames>
           </configuration>
-          <executions>
-            <execution>
-              <id>attach-artifacts</id>
-              <phase>package</phase>
-              <goals>
-                <goal>attach-artifact</goal>
-              </goals>
-              <configuration>
-                <artifacts>
-                  <artifact>
-                    <file>src/main/cfg/org.fcrepo.camel.service.activemq.cfg</file>
-                    <type>cfg</type>
-                    <classifier>configuration</classifier>
-                  </artifact>
-                </artifacts>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
 
         <!-- integration testing -->
@@ -235,9 +155,6 @@
               <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
               <project.artifactId>${project.artifactId}</project.artifactId>
               <project.version>${project.version}</project.version>
-              <karaf.ssh.port>${karaf.ssh.port}</karaf.ssh.port>
-              <karaf.rmiRegistry.port>${karaf.rmiRegistry.port}</karaf.rmiRegistry.port>
-              <karaf.rmiServer.port>${karaf.rmiServer.port}</karaf.rmiServer.port>
             </systemPropertyVariables>
           </configuration>
         </plugin>
@@ -248,6 +165,7 @@
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-maven-plugin</artifactId>
           <configuration>
+            <supportedPackagings>jar</supportedPackagings>
             <systemProperties>
               <force>true</force>
               <systemProperty>
@@ -265,10 +183,6 @@
               <systemProperty>
                 <name>fcrepo.dynamic.stomp.port</name>
                 <value>${fcrepo.dynamic.stomp.port}</value>
-              </systemProperty>
-              <systemProperty>
-                <name>fcrepo.modeshape.configuration</name>
-                <value>classpath:/config/file-simple/repository.json</value>
               </systemProperty>
             </systemProperties>
             <scanIntervalSeconds>10</scanIntervalSeconds>

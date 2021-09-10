@@ -162,8 +162,10 @@ public class TestUtils {
         final ObjectMapper mapper = new ObjectMapper();
         return new Callable<Integer>() {
             public Integer call() throws Exception {
-                return Integer.valueOf(mapper.readTree(httpGet(url))
-                        .get("results").get("bindings").get(0).get("n").get("value").asText(), 10);
+               final var results =  mapper.readTree(httpGet(url));
+               final var count = Integer.valueOf(results.get("results")
+                       .get("bindings").get(0).get("n").get("value").asText(), 10);
+               return count;
             }
         };
     }
@@ -174,6 +176,7 @@ public class TestUtils {
      */
     public static FcrepoClient createClient() {
         return client().throwExceptionOnFailure()
+                .authScope("localhost")
                 .credentials(FEDORA_USERNAME, FEDORA_PASSWORD).build();
     }
 

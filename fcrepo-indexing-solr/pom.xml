@@ -6,17 +6,16 @@
   <parent>
     <artifactId>fcrepo-camel-toolbox</artifactId>
     <groupId>org.fcrepo.camel</groupId>
-    <version>5.1.0-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>fcrepo-indexing-solr</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <name>Fedora Indexing Service with a Solr backend</name>
   <description>Camel-based indexing service for Solr</description>
 
   <properties>
-    <osgi.export.packages>org.fcrepo.camel.indexing.solr;version=${project.version}</osgi.export.packages>
   </properties>
 
   <dependencies>
@@ -27,12 +26,12 @@
 
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-blueprint</artifactId>
+      <artifactId>camel-spring-javaconfig</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-http4</artifactId>
+      <artifactId>camel-http</artifactId>
     </dependency>
 
     <dependency>
@@ -43,6 +42,17 @@
     <dependency>
       <groupId>org.fcrepo.camel</groupId>
       <artifactId>fcrepo-camel</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fcrepo.client</groupId>
+      <artifactId>fcrepo-java-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-camel-common</artifactId>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <!-- logging -->
@@ -58,8 +68,7 @@
     <!-- Testing & Camel Plugin -->
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-test-blueprint</artifactId>
-      <scope>test</scope>
+      <artifactId>camel-test-spring</artifactId>
     </dependency>
 
     <dependency>
@@ -85,10 +94,10 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
-      <plugin>
+      <!--plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
+      </plugin-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -96,10 +105,6 @@
       </plugin>
 
       <!-- to generate the MANIFEST-FILE of the bundle -->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
     </plugins>
   </build>
 </project>

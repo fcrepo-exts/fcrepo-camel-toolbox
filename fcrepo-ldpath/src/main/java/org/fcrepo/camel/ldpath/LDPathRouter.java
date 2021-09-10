@@ -17,6 +17,7 @@
  */
 package org.fcrepo.camel.ldpath;
 
+import static java.lang.String.format;
 import static org.apache.camel.builder.PredicateBuilder.and;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.model.dataformat.JsonLibrary.Jackson;
@@ -27,7 +28,9 @@ import static org.apache.camel.Exchange.HTTP_URI;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.support.builder.ExpressionBuilder;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A content router for an LDPath service.
@@ -35,10 +38,16 @@ import org.slf4j.Logger;
  * @author Aaron Coburn
  * @since Aug 5, 2016
  */
+
 public class LDPathRouter extends RouteBuilder {
 
     private static final Logger LOGGER = getLogger(LDPathRouter.class);
 
+    @Autowired
+    private LDPathWrapper ldpathWrapper;
+
+    @Autowired
+    private FcrepoLdPathConfig config;
     /**
      * Configure the message route workflow.
      */
@@ -47,9 +56,9 @@ public class LDPathRouter extends RouteBuilder {
         /**
          * Expose a RESTful endpoint for LDPath processing
          */
-        from("jetty:http://{{rest.host}}:{{rest.port}}{{rest.prefix}}?" +
-                "&httpMethodRestrict=GET,POST,OPTIONS" +
-                "&sendServerVersion=false")
+        from(format("jetty:http://%s:%d%s?" +
+                "httpMethodRestrict=GET,POST,OPTIONS" +
+                "&sendServerVersion=false", config.getRestHost(), config.getRestPort(),config.getRestPrefix()))
             .routeId("FcrepoLDPathRest")
             .routeDescription("Expose the ldpath endpoint over HTTP")
             .choice()
@@ -67,16 +76,17 @@ public class LDPathRouter extends RouteBuilder {
                 .when(header(HTTP_METHOD).isEqualTo("POST"))
                     .to("direct:ldpathPrepare");
 
+
         from("direct:get")
             .routeId("FcrepoLDPathGet")
             .choice()
                 .when(and(header("ldpath").isNotNull(), header("ldpath").regex("^https?://.*")))
                     .removeHeaders("CamelHttp*")
                     .setHeader(HTTP_URI).header("ldpath")
-                    .to("http4://localhost?useSystemProperties=true")
+                    .to("http://localhost?useSystemProperties=true")
                     .to("direct:ldpathPrepare")
                 .otherwise()
-                    .to("language:simple:resource:classpath:org/fcrepo/camel/ldpath/default.ldpath")
+                    .to("language:simple:resource:" + config.getLdpathTransformPath())
                     .to("direct:ldpathPrepare");
 
         from("direct:ldpathPrepare").routeId("FcrepoLDPathPrepare")
@@ -87,5 +97,9 @@ public class LDPathRouter extends RouteBuilder {
             .marshal().json(Jackson)
             .removeHeaders("*")
             .setHeader(CONTENT_TYPE).constant("application/json");
+
+        from("direct:ldpath")
+                .setBody(ExpressionBuilder.beanExpression(ldpathWrapper,
+                        "programQuery(${headers.context}, ${body})"));
     }
 }

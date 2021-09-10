@@ -17,6 +17,33 @@
  */
 package org.fcrepo.camel.indexing.triplestore;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
+import org.apache.camel.Produce;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.AdviceWith;
+import org.apache.camel.component.activemq.ActiveMQComponent;
+import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.model.ModelCamelContext;
+import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.apache.commons.io.IOUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static java.net.URLEncoder.encode;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -27,37 +54,27 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
-import org.apache.camel.Produce;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-import org.apache.commons.io.IOUtils;
-
-import org.junit.Test;
-
 /**
  * Test the route workflow.
  *
  * @author Aaron Coburn
  * @since 2015-04-22
  */
-public class RouteTest extends CamelBlueprintTestSupport {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
+public class RouteTest {
 
     private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
 
-    @EndpointInject(uri = "mock:result")
+    @EndpointInject("mock:result")
     protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
+    @Produce("direct:start")
     protected ProducerTemplate template;
+
+    @Autowired
+    private CamelContext camelContext;
+
 
     private static final String baseURL = "http://localhost/rest";
     private static final String fileID = "/file1";
@@ -69,252 +86,255 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
     private static final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
 
-    @Override
-    public boolean isUseAdviceWith() {
-        return true;
+
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty("triplestore.indexer.enabled", "true");
+        System.setProperty("triplestore.indexing.predicate", "true");
+        System.setProperty("triplestore.filter.containers", auditContainer);
+        System.setProperty("triplestore.input.stream", "seda:foo");
+        System.setProperty("triplestore.reindex.stream", "seda:reindex");
+
     }
 
-    @Override
-    public boolean isUseRouteBuilder() {
-        return false;
+    private static Map<String, Object> createEvent(final String identifier, final List<String> eventTypes,
+                                                   final List<String> resourceTypes) {
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put(FCREPO_URI, identifier);
+        headers.put(FCREPO_DATE_TIME, eventDate);
+        headers.put(FCREPO_AGENT, asList(userID, userAgent));
+        headers.put(FCREPO_EVENT_TYPE, eventTypes);
+        headers.put(FCREPO_RESOURCE_TYPE, resourceTypes);
+        return headers;
     }
 
-    @Override
-    protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint-test.xml";
-    }
-
-    @Override
-    protected Properties useOverridePropertiesWithPropertiesComponent() {
-         final Properties props = new Properties();
-         props.put("indexing.predicate", "true");
-         props.put("filter.containers", auditContainer);
-         props.put("input.stream", "seda:foo");
-         props.put("reindex.stream", "seda:bar");
-         props.put("triplestore.reindex.stream", "seda:reindex");
-         return props;
-    }
-
+    @DirtiesContext
     @Test
     public void testEventTypeRouter() throws Exception {
 
-        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("direct:index.triplestore");
-                mockEndpointsAndSkip("direct:delete.triplestore");
-            }
-        });
-        context.start();
+        final var context = camelContext.adapt(ModelCamelContext.class);
 
-        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:index.triplestore").expectedMessageCount(0);
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreRouter", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("direct:index.triplestore");
+            a.mockEndpointsAndSkip("direct:delete.triplestore");
+        });
+
+        final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
+        final var indexEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:index.triplestore");
+        deleteEndpoint.expectedMessageCount(1);
+        indexEndpoint.expectedMessageCount(0);
+        indexEndpoint.setAssertPeriod(1000);
 
         template.sendBody(
                 IOUtils.toString(loadResourceAsStream("event_delete_resource.json"), "UTF-8"));
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(deleteEndpoint, indexEndpoint);
     }
 
+    @DirtiesContext
     @Test
     public void testAuditFilter() throws Exception {
 
-        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo:*");
-                mockEndpointsAndSkip("http:*");
-                mockEndpointsAndSkip("direct:delete.triplestore");
-                mockEndpointsAndSkip("direct:index.triplestore");
-            }
+        final var context = camelContext.adapt(ModelCamelContext.class);
+
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo:*");
+            a.mockEndpointsAndSkip("http:*");
+            a.mockEndpointsAndSkip("direct:delete.triplestore");
+            a.mockEndpointsAndSkip("direct:index.triplestore");
         });
-        context.start();
 
-        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
-        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
 
+        final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
+        final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
+        deleteEndpoint.expectedMessageCount(0);
+        updateEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
+        updateEndpoint.setAssertPeriod(1000);
         template.sendBodyAndHeaders("",
                 createEvent(auditContainer + fileID, asList(AS_NS + "Update"), asList(REPOSITORY + "Binary")));
         template.sendBodyAndHeaders("",
                 createEvent(auditContainer + fileID, asList(AS_NS + "Delete"), asList(REPOSITORY + "Binary")));
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
     }
 
+    @DirtiesContext
     @Test
     public void testAuditFilterExactMatch() throws Exception {
+        final var context = camelContext.adapt(ModelCamelContext.class);
 
-        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo:*");
-                mockEndpointsAndSkip("http:*");
-                mockEndpointsAndSkip("direct:delete.triplestore");
-                mockEndpointsAndSkip("direct:index.triplestore");
-            }
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo:*");
+            a.mockEndpointsAndSkip("http:*");
+            a.mockEndpointsAndSkip("direct:delete.triplestore");
+            a.mockEndpointsAndSkip("direct:index.triplestore");
         });
-        context.start();
 
-        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
-        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
+        final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
+        final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
+        deleteEndpoint.expectedMessageCount(0);
+        updateEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
+        updateEndpoint.setAssertPeriod(1000);
 
         template.sendBodyAndHeaders("",
                 createEvent(auditContainer, asList(AS_NS + "Update"), asList(REPOSITORY + "Binary")));
         template.sendBodyAndHeaders("",
                 createEvent(auditContainer, asList(AS_NS + "Delete"), asList(REPOSITORY + "Binary")));
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
     }
 
+    @DirtiesContext
     @Test
     public void testAuditFilterNearMatch() throws Exception {
+        final var context = camelContext.adapt(ModelCamelContext.class);
 
-        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo:*");
-                mockEndpointsAndSkip("http:*");
-                mockEndpointsAndSkip("direct:delete.triplestore");
-                mockEndpointsAndSkip("direct:index.triplestore");
-            }
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo:*");
+            a.mockEndpointsAndSkip("http:*");
+            a.mockEndpointsAndSkip("direct:delete.triplestore");
+            a.mockEndpointsAndSkip("direct:index.triplestore");
         });
-        context.start();
-
-        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
+        final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
+        final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
+        deleteEndpoint.expectedMessageCount(1);
+        updateEndpoint.expectedMessageCount(0);
+        updateEndpoint.setAssertPeriod(1000);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
                 createEvent(auditContainer + "orium" + fileID,
-                    asList(AS_NS + "Create"), asList(REPOSITORY + "Resource")));
+                        asList(AS_NS + "Create"), asList(REPOSITORY + "Resource")));
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
     }
 
+    @DirtiesContext
     @Test
     public void testAuditFilterNearMatchIndexable() throws Exception {
+        final var context = camelContext.adapt(ModelCamelContext.class);
 
-        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo:*");
-                mockEndpointsAndSkip("direct:delete.triplestore");
-                mockEndpointsAndSkip("direct:update.triplestore");
-            }
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo:*");
+            a.mockEndpointsAndSkip("direct:delete.triplestore");
+            a.mockEndpointsAndSkip("direct:update.triplestore");
         });
-        context.start();
 
-        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
-        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(1);
+        final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
+        final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
+        deleteEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
+        updateEndpoint.expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
                 createEvent(auditContainer + "orium" + fileID,
-                    asList(AS_NS + "Create"), asList(REPOSITORY + "Container")));
+                        asList(AS_NS + "Create"), asList(REPOSITORY + "Container")));
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
     }
 
-
+    @DirtiesContext
     @Test
     public void testPrepareRouterIndexable() throws Exception {
+        final var context = camelContext.adapt(ModelCamelContext.class);
 
-        context.getRouteDefinition("FcrepoTriplestoreRouter").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("direct:index.triplestore");
-                mockEndpointsAndSkip("direct:delete.triplestore");
-            }
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreRouter", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo*");
+            a.mockEndpointsAndSkip("direct:index.triplestore");
+            a.mockEndpointsAndSkip("direct:delete.triplestore");
         });
 
-        context.start();
-
-        getMockEndpoint("mock:direct:index.triplestore").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
+        final var indexEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:index.triplestore");
+        final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
+        indexEndpoint.expectedMessageCount(1);
+        deleteEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("event.json"), "UTF-8"),
                 createEvent(fileID, asList(AS_NS + "Create"), asList(INDEXABLE)));
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(deleteEndpoint, indexEndpoint);
     }
 
+    @DirtiesContext
     @Test
     public void testIndexRouterContainer() throws Exception {
+        final var context = camelContext.adapt(ModelCamelContext.class);
 
-        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("direct:update.triplestore");
-                mockEndpointsAndSkip("direct:delete.triplestore");
-            }
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo*");
+            a.mockEndpointsAndSkip("direct:update.triplestore");
+            a.mockEndpointsAndSkip("direct:delete.triplestore");
         });
 
-        context.start();
 
-        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(0);
-        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(1);
+        final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
+        final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
+        updateEndpoint.expectedMessageCount(0);
+        updateEndpoint.setAssertPeriod(1000);
+        deleteEndpoint.expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
                 createEvent(fileID, asList(AS_NS + "Create"), asList(REPOSITORY + "Container")));
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
     }
 
+    @DirtiesContext
     @Test
     public void testIndexRouterIndexable() throws Exception {
+        final var context = camelContext.adapt(ModelCamelContext.class);
 
-        context.getRouteDefinition("FcrepoTriplestoreIndexer").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("direct:update.triplestore");
-                mockEndpointsAndSkip("direct:delete.triplestore");
-            }
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo*");
+            a.mockEndpointsAndSkip("direct:update.triplestore");
+            a.mockEndpointsAndSkip("direct:delete.triplestore");
         });
 
-        context.start();
-
-        getMockEndpoint("mock:direct:update.triplestore").expectedMessageCount(1);
-        getMockEndpoint("mock:direct:delete.triplestore").expectedMessageCount(0);
+        final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.triplestore");
+        final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.triplestore");
+        updateEndpoint.expectedMessageCount(1);
+        deleteEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
                 createEvent(fileID, asList(AS_NS + "Create"), asList(INDEXABLE)));
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
+
     }
 
+    @DirtiesContext
     @Test
     public void testUpdateRouter() throws Exception {
 
         final String document = IOUtils.toString(loadResourceAsStream("container.nt"), "UTF-8").trim();
         final String responsePrefix =
-                  "DELETE WHERE { <" + baseURL + fileID + "> ?p ?o };\n" +
-                  "INSERT DATA { ";
+                "DELETE WHERE { <" + baseURL + fileID + "> ?p ?o };\n" +
+                        "INSERT DATA { ";
 
-        context.getRouteDefinition("FcrepoTriplestoreUpdater").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                mockEndpointsAndSkip("fcrepo*");
-                mockEndpointsAndSkip("http*");
-            }
+        final var context = camelContext.adapt(ModelCamelContext.class);
+
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreUpdater", a -> {
+            a.mockEndpointsAndSkip("fcrepo*");
+            a.mockEndpointsAndSkip("http*");
         });
 
-        context.start();
-
-        final MockEndpoint endpoint = getMockEndpoint("mock:http:localhost:8080/fuseki/test/update");
+        final MockEndpoint endpoint = MockEndpoint.resolve(camelContext, "mock:http:localhost:8080/fuseki/test/update");
 
         endpoint.expectedMessageCount(1);
         endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
@@ -326,55 +346,52 @@ public class RouteTest extends CamelBlueprintTestSupport {
         }
 
         final Map<String, Object> headers = createEvent(baseURL + fileID, asList(AS_NS + "Create"),
-                    asList(REPOSITORY + "Container"));
+                asList(REPOSITORY + "Container"));
         headers.put(Exchange.CONTENT_TYPE, "application/rdf+xml");
 
         template.sendBodyAndHeaders("direct:update.triplestore",
                 IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
                 headers);
 
-        assertMockEndpointsSatisfied();
+        endpoint.assertIsSatisfied();
     }
 
+    private static Map<String, Object> createEvent(final String identifier, final List<String> eventTypes) {
+        return createEvent(identifier, eventTypes, emptyList());
+    }
+
+    @DirtiesContext
     @Test
     public void testDeleteRouter() throws Exception {
 
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        context.getRouteDefinition("FcrepoTriplestoreDeleter").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                mockEndpointsAndSkip("http*");
-            }
+        final var context = camelContext.adapt(ModelCamelContext.class);
+
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreDeleter", a -> {
+            a.mockEndpointsAndSkip("http*");
         });
 
-        context.start();
-
-        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update").expectedMessageCount(1);
-        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update")
-            .expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
-        getMockEndpoint("mock:http:localhost:8080/fuseki/test/update")
-            .expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+        final MockEndpoint endpoint = MockEndpoint.resolve(camelContext, "mock:http:localhost:8080/fuseki/test/update");
+        endpoint.expectedMessageCount(1);
+        endpoint.expectedHeaderReceived(Exchange.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
+        endpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
         template.sendBodyAndHeaders("direct:delete.triplestore", "",
                 createEvent(fileID, asList(AS_NS + "Delete")));
 
-        assertMockEndpointsSatisfied();
+        endpoint.assertIsSatisfied();
     }
 
-    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes) {
-        return createEvent(identifier, eventTypes, emptyList());
-    }
-
-    private static Map<String,Object> createEvent(final String identifier, final List<String> eventTypes,
-            final List<String> resourceTypes) {
-        final Map<String, Object> headers = new HashMap<>();
-        headers.put(FCREPO_URI, identifier);
-        headers.put(FCREPO_DATE_TIME, eventDate);
-        headers.put(FCREPO_AGENT, asList(userID, userAgent));
-        headers.put(FCREPO_EVENT_TYPE, eventTypes);
-        headers.put(FCREPO_RESOURCE_TYPE, resourceTypes);
-        return headers;
+    @Configuration
+    @ComponentScan(basePackages = "org.fcrepo.camel")
+    static class ContextConfig extends CamelConfiguration {
+        @Bean
+        public ActiveMQComponent broker() {
+            final var component = new ActiveMQComponent();
+            component.setBrokerURL("tcp://localhost:61616");
+            return component;
+        }
     }
 }
