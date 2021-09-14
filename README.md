@@ -52,8 +52,8 @@ where your `configuration.properties `file is a standard java properties file co
 
 ```
 triplestore.indexer.enabled=true
-solr.index.enabled=true
-triplestore.baseUrl=http://localhost:
+solr.indexer.enabled=true
+triplestore.baseUrl=http://localhost:3030/test
 solr.baseUrl=http://localhost:8983/solr/
 ```
 
