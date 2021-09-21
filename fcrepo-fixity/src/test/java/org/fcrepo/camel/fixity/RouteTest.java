@@ -17,20 +17,28 @@
  */
 package org.fcrepo.camel.fixity;
 
-import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
-
-import java.util.Properties;
-
+import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
+import org.apache.camel.model.ModelCamelContext;
+import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.apache.commons.io.IOUtils;
-
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 
 /**
  * Test the route workflow.
@@ -38,101 +46,97 @@ import org.junit.Test;
  * @author Aaron Coburn
  * @since 2015-06-18
  */
-public class RouteTest extends CamelBlueprintTestSupport {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
+public class RouteTest {
 
-    @EndpointInject(uri = "mock:result")
+    @EndpointInject("mock:result")
     protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
+    @Produce("direct:start")
     protected ProducerTemplate template;
 
     private static final String baseURL = "http://localhost/rest";
     private static final String identifier = "/file1";
 
-    @Override
-    public boolean isUseAdviceWith() {
-        return true;
-    }
+    @Autowired
+    private CamelContext camelContext;
 
-    @Override
-    public boolean isUseRouteBuilder() {
-        return false;
-    }
+    @Autowired
+    private FcrepoFixityConfig config;
 
-    @Override
-    protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint-test.xml";
-    }
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty("fixity.failure", "mock:failure");
+        System.setProperty("fixity.success", "mock:success");
+        System.setProperty("fixity.stream", "seda:foo");
+        System.setProperty("fixity.enabled", "true");
 
-    @Override
-    protected Properties useOverridePropertiesWithPropertiesComponent() {
-         final Properties props = new Properties();
-         props.put("fixity.failure", "mock:failure");
-         props.put("fixity.success", "mock:success");
-         props.put("fixity.stream", "seda:foo");
-         return props;
     }
 
     @Test
     public void testBinaryFixitySuccess() throws Exception {
 
-        context.getRouteDefinition("FcrepoFixity").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo:*");
-            }
+        final var context = camelContext.adapt(ModelCamelContext.class);
+        AdviceWith.adviceWith(context, "FcrepoFixity", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo:*");
         });
-        context.start();
 
-        getMockEndpoint("mock:failure").expectedMessageCount(0);
-        getMockEndpoint("mock:success").expectedMessageCount(1);
+        final var failureEndpoint = MockEndpoint.resolve(camelContext, config.getFixityFailure());
+        failureEndpoint.expectedMessageCount(0);
+        failureEndpoint.setAssertPeriod(1000);
+        final var successEndpoint = MockEndpoint.resolve(camelContext, config.getFixitySuccess());
+        successEndpoint.expectedMessageCount(1);
 
         final String body = IOUtils.toString(loadResourceAsStream("fixity.rdf"), "UTF-8");
         template.sendBodyAndHeader(body, FCREPO_URI, baseURL + identifier);
 
-        assertMockEndpointsSatisfied();
+        assertIsSatisfied(failureEndpoint, successEndpoint);
     }
 
     @Test
     public void testBinaryFixityFailure() throws Exception {
-
-        context.getRouteDefinition("FcrepoFixity").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo:*");
-            }
+        final var context = camelContext.adapt(ModelCamelContext.class);
+        AdviceWith.adviceWith(context, "FcrepoFixity", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo:*");
         });
-        context.start();
 
-        getMockEndpoint("mock:failure").expectedMessageCount(1);
-        getMockEndpoint("mock:success").expectedMessageCount(0);
+        final var failureEndpoint = MockEndpoint.resolve(camelContext, "mock:failure");
+        failureEndpoint.expectedMessageCount(1);
+        final var successEndpoint = MockEndpoint.resolve(camelContext, "mock:success");
+        successEndpoint.expectedMessageCount(0);
+        successEndpoint.setAssertPeriod(1000);
 
         final String body = IOUtils.toString(loadResourceAsStream("fixityFailure.rdf"), "UTF-8");
         template.sendBodyAndHeader(body, FCREPO_URI, baseURL + identifier);
 
-        assertMockEndpointsSatisfied();
+        assertIsSatisfied(failureEndpoint, successEndpoint);
     }
 
     @Test
     public void testNonBinary() throws Exception {
-
-        context.getRouteDefinition("FcrepoFixity").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-                mockEndpointsAndSkip("fcrepo:*");
-            }
+        final var context = camelContext.adapt(ModelCamelContext.class);
+        AdviceWith.adviceWith(context, "FcrepoFixity", a -> {
+            a.replaceFromWith("direct:start");
+            a.mockEndpointsAndSkip("fcrepo:*");
         });
-        context.start();
 
-        getMockEndpoint("mock:failure").expectedMessageCount(0);
-        getMockEndpoint("mock:success").expectedMessageCount(0);
+        final var failureEndpoint = MockEndpoint.resolve(camelContext, "mock:failure");
+        failureEndpoint.expectedMessageCount(0);
+        failureEndpoint.setAssertPeriod(1000);
+        final var successEndpoint = MockEndpoint.resolve(camelContext, "mock:success");
+        successEndpoint.expectedMessageCount(0);
+        successEndpoint.setAssertPeriod(1000);
 
         final String body = IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8");
         template.sendBodyAndHeader(body, FCREPO_URI, baseURL + identifier);
+        assertIsSatisfied(failureEndpoint, successEndpoint);
+    }
 
-        assertMockEndpointsSatisfied();
+    @Configuration
+    @ComponentScan(resourcePattern = "**/Fcrepo*.class")
+    static class ContextConfig extends CamelConfiguration {
     }
 }
