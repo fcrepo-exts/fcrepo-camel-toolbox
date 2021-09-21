@@ -24,3 +24,9 @@ services:
       - --mem 
       - /test
       
+  camel-toolbox:
+    build:
+      context: .
+    volumes:
+      - ./fcrepo-camel-config:/config
+
