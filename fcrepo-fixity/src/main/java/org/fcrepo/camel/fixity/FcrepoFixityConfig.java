@@ -46,8 +46,8 @@ public class FcrepoFixityConfig extends BasePropsConfig {
         }
     }
 
-    @Value("${fixity.stream:broker:topic:fixity}")
-    private String fixityStream;
+    @Value("${fixity.input.stream:broker:topic:fixity}")
+    private String inputStream;
 
 
     @Value("${fixity.delay:0}")
@@ -64,8 +64,8 @@ public class FcrepoFixityConfig extends BasePropsConfig {
      * The input stream for the fixity service
      * @return
      */
-    public String getFixityStream() {
-        return fixityStream;
+    public String getInputStream() {
+        return inputStream;
     }
 
     /**

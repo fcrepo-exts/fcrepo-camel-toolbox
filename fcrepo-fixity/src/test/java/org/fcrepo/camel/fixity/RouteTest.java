@@ -69,7 +69,7 @@ public class RouteTest {
     public static void beforeClass() {
         System.setProperty("fixity.failure", "mock:failure");
         System.setProperty("fixity.success", "mock:success");
-        System.setProperty("fixity.stream", "seda:foo");
+        System.setProperty("fixity.input.stream", "seda:foo");
         System.setProperty("fixity.enabled", "true");
 
     }

@@ -108,6 +108,12 @@ solr.baseUrl=http://localhost:8983/solr/
 | jms.password | JMS password | no | null |
 | jms.connections | The JMS connection count | no | 10 |
 | jms.consumers | The JMS consumer count | no | 1 |
+| Fixity Service |
+| fixity.enabled | Enables/disabless fixity service  | no | false |
+| fixity.input.stream | Fixity Service message input stream | no | broker:topic:fixity |
+| fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | no | 0 |
+| fixity.success|  It is also possible to trigger an action on success (by default, this is a no-op) | no | null |
+| fixity.failure |  Most importantly, it is possible to configure what should happen when a fixity check fails. In the default example below, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`) or use just about any other camel component.| no | file:/tmp/?fileName=fixityErrors.log&fileExist=Append |
 
 TODO:  clean up and regularize property names. 
 

@@ -59,7 +59,7 @@ public class FixityRouter extends RouteBuilder {
         /**
          * Handle fixity events
          */
-        from(config.getFixityStream())
+        from(config.getInputStream())
                 .routeId("FcrepoFixity")
                 .to("fcrepo:" + config.getFcrepoBaseUrl() + "?preferInclude=ServerManged&accept=application/rdf+xml")
                 .filter().xpath(

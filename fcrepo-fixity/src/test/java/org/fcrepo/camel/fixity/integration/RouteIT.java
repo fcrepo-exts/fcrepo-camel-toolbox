@@ -89,7 +89,7 @@ public class RouteIT {
 
         System.setProperty("fixity.failure", "mock:failure");
         System.setProperty("fixity.success", "mock:success");
-        System.setProperty("fixity.stream", "direct:start");
+        System.setProperty("fixity.input.stream", "direct:start");
 
         System.setProperty("fcrepo.baseUrl", "http://localhost:" + webPort + "/fcrepo/rest");
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + jmsPort);
