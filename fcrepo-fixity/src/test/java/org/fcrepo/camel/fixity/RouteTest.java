@@ -50,6 +50,7 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
 
+    private static final long ASSERT_PERIOD_MS = 5000;
     @EndpointInject("mock:result")
     protected MockEndpoint resultEndpoint;
 
@@ -85,7 +86,7 @@ public class RouteTest {
 
         final var failureEndpoint = MockEndpoint.resolve(camelContext, config.getFixityFailure());
         failureEndpoint.expectedMessageCount(0);
-        failureEndpoint.setAssertPeriod(1000);
+        failureEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         final var successEndpoint = MockEndpoint.resolve(camelContext, config.getFixitySuccess());
         successEndpoint.expectedMessageCount(1);
 
@@ -107,7 +108,7 @@ public class RouteTest {
         failureEndpoint.expectedMessageCount(1);
         final var successEndpoint = MockEndpoint.resolve(camelContext, "mock:success");
         successEndpoint.expectedMessageCount(0);
-        successEndpoint.setAssertPeriod(1000);
+        successEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
 
         final String body = IOUtils.toString(loadResourceAsStream("fixityFailure.rdf"), "UTF-8");
         template.sendBodyAndHeader(body, FCREPO_URI, baseURL + identifier);
@@ -125,10 +126,10 @@ public class RouteTest {
 
         final var failureEndpoint = MockEndpoint.resolve(camelContext, "mock:failure");
         failureEndpoint.expectedMessageCount(0);
-        failureEndpoint.setAssertPeriod(1000);
+        failureEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         final var successEndpoint = MockEndpoint.resolve(camelContext, "mock:success");
         successEndpoint.expectedMessageCount(0);
-        successEndpoint.setAssertPeriod(1000);
+        successEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
 
         final String body = IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8");
         template.sendBodyAndHeader(body, FCREPO_URI, baseURL + identifier);

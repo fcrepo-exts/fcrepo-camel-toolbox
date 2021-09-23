@@ -34,6 +34,8 @@ import org.fcrepo.client.FcrepoResponse;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -58,7 +60,7 @@ import static org.fcrepo.client.FcrepoClient.client;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {RouteIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteIT {
-
+    private static Logger LOGGER = LoggerFactory.getLogger(RouteIT.class);
     private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
 
     private static String FEDORA_USERNAME = "fedoraAdmin";
@@ -108,6 +110,7 @@ public class RouteIT {
 
         final var digest = DigestUtils.sha512Hex(loadResourceAsStream(binary));
 
+        LOGGER.info("digest={}", digest);
         final var context = camelContext.adapt(ModelCamelContext.class);
         AdviceWith.adviceWith(context, "FcrepoFixity", a -> {
             a.mockEndpoints("*");
@@ -121,8 +124,10 @@ public class RouteIT {
                 config.getFcrepoBaseUrl() + path);
 
         assertIsSatisfied(fcrepoEndpointObj, successEndpoint);
+
         final String body = successEndpoint.assertExchangeReceived(0).getIn().getBody(String.class);
 
+        LOGGER.info("body={}", body);
         assertTrue(body.contains(
                 "<premis:hasSize rdf:datatype=\"http://www.w3.org/2001/XMLSchema#long\">74</premis:hasSize>"));
         assertTrue(body.contains(
