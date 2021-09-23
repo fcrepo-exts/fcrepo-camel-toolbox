@@ -53,6 +53,8 @@ where your `configuration.properties `file is a standard java properties file co
 ```
 triplestore.indexer.enabled=true
 solr.indexer.enabled=true
+audit.enabled=true
+fixity.enabled=true
 triplestore.baseUrl=http://localhost:3030/test
 solr.baseUrl=http://localhost:8983/solr/
 ```
@@ -114,8 +116,12 @@ solr.baseUrl=http://localhost:8983/solr/
 | fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | no | 0 |
 | fixity.success|  It is also possible to trigger an action on success. By default, this is a no-op. The value should be a camel route action.  To log it to a file use something like this:  file:/tmp/?fileName=fixity-succes.log&fileExist=Append | no | null |
 | fixity.failure |  Most importantly, it is possible to configure what should happen when a fixity check fails. In the default example below, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`) or use just about any other camel component.| no | file:/tmp/?fileName=fixity-errors.log&fileExist=Append |
-
-TODO:  clean up and regularize property names. 
+| Audit Triplestore Service |  
+| audit.enabled | Enables/disables audit triplestore service  | no | false |
+| audit.input.stream | Audit Service jms message stream | no | broker:topic:fedora |
+| audit.event.baseUri | ? | no | http://example.com/event |
+| audit.triplestore.baseUrl| The base url for the external triplestore service | no | http://localhost:3030/fuseki/test/update |
+| audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | no | http://localhost:8080/fcrepo/rest/audit | 
 
 ## Note
 

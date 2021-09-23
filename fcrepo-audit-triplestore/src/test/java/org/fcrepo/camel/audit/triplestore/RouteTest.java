@@ -17,21 +17,30 @@
  */
 package org.fcrepo.camel.audit.triplestore;
 
-import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
-import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.PREMIS;
-
-import java.util.Properties;
-
+import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
-
+import org.apache.camel.model.ModelCamelContext;
+import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
+import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
+import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.PREMIS;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the route workflow.
@@ -40,13 +49,18 @@ import org.junit.Test;
  * @author Aaron Coburn
  * @since 2015-04-10
  */
-public class RouteTest extends CamelBlueprintTestSupport {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
+public class RouteTest {
 
-    @EndpointInject(uri = "mock:result")
+    @EndpointInject("mock:result")
     protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
+    @Produce("direct:start")
     protected ProducerTemplate template;
+
+    @Autowired
+    private CamelContext camelContext;
 
     private static final String baseURL = "http://localhost/rest";
     private static final String fileID = "/file1";
@@ -55,35 +69,26 @@ public class RouteTest extends CamelBlueprintTestSupport {
     private static final String userID = "fedo raAdmin";
     private static final String userAgent = "CLAW client/1.0";
 
-    @Override
-    protected String getBlueprintDescriptor() {
-        return "/OSGI-INF/blueprint/blueprint-test.xml";
-    }
 
-    @Override
-    protected Properties useOverridePropertiesWithPropertiesComponent() {
-         final Properties props = new Properties();
-         props.put("filter.containers", baseURL + auditContainer);
-         props.put("input.stream", "seda:foo");
-         return props;
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty("audit.input.stream", "seda:foo");
+        System.setProperty("audit.filter.containers", baseURL + auditContainer);
+        System.setProperty("audit.enabled", "true");
     }
 
     @Test
     public void testWithoutJms() throws Exception {
 
-        context.getRouteDefinition("AuditFcrepoRouter").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                replaceFromWith("direct:start");
-            }
+        final var context = camelContext.adapt(ModelCamelContext.class);
+
+        AdviceWith.adviceWith(context, "AuditFcrepoRouter", a -> {
+            a.replaceFromWith("direct:start");
         });
 
-        context.getRouteDefinition("AuditEventRouter").adviceWith(context, new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                mockEndpointsAndSkip("http*");
-                weaveAddLast().to("mock:result");
-            }
+        AdviceWith.adviceWith(context, "AuditEventRouter", a -> {
+            a.mockEndpointsAndSkip("http*");
+            a.weaveAddLast().to("mock:result");
         });
 
         resultEndpoint.expectedMessageCount(2);
@@ -96,11 +101,17 @@ public class RouteTest extends CamelBlueprintTestSupport {
         template.sendBody(loadResourceAsStream("event_audit_resource.json"));
         template.sendBody(loadResourceAsStream("event_audit_update.json"));
 
-        assertMockEndpointsSatisfied();
-        final String body = (String)resultEndpoint.assertExchangeReceived(0).getIn().getBody();
+        assertIsSatisfied(resultEndpoint);
+        final String body = (String) resultEndpoint.assertExchangeReceived(0).getIn().getBody();
         assertTrue("Event type not found!",
-            body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentRemoval>"));
+                body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentRemoval>"));
         assertTrue("Object link not found!",
-            body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
+                body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
+    }
+
+    @Configuration
+    @ComponentScan(basePackages = "org.fcrepo.camel.audit")
+    static class ContextConfig extends CamelConfiguration {
+
     }
 }

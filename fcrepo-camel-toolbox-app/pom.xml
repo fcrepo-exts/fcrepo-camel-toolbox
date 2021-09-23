@@ -57,6 +57,12 @@
     </dependency>
 
     <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-audit-triplestore</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring-javaconfig</artifactId>
     </dependency>
