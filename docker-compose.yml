@@ -7,6 +7,8 @@ services:
       - "8080:8080"
       - "8181:8181"
       - "61616:61616"
+    environment:
+      CATALINA_OPTS: "-Dfcrepo.jms.baseUrl=http://fcrepo:8080"
 
   solr:
     image: solr:8
@@ -29,4 +31,6 @@ services:
     image: fcrepo/fcrepo-camel-toolbox
     volumes:
       - ./fcrepo-camel-config:/config
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
