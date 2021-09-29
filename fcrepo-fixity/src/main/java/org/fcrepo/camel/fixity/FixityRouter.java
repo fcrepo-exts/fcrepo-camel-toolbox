@@ -45,7 +45,6 @@ public class FixityRouter extends RouteBuilder {
      * Configure the message route workflow.
      */
     public void configure() throws Exception {
-
         final Namespaces ns = new Namespaces("rdf", RDF.uri);
         ns.add("premis", "http://www.loc.gov/premis/rdf/v1#");
 
@@ -73,10 +72,14 @@ public class FixityRouter extends RouteBuilder {
                 .when().xpath(
                 "/rdf:RDF/rdf:Description/premis:hasEventOutcome" +
                         "[text()='SUCCESS']", ns)
+                .log(LoggingLevel.INFO, LOGGER,
+                        "Fixity success on ${headers[CamelFcrepoUri]}")
                 .to(config.getFixitySuccess())
                 .otherwise()
                 .log(LoggingLevel.WARN, LOGGER,
                         "Fixity error on ${headers[CamelFcrepoUri]}")
                 .to(config.getFixityFailure());
+
+        LOGGER.info("FixityRouter configured");
     }
 }

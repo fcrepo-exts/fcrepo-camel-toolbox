@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * A configuration class for the Solr Indexer service
+ * A configuration class for the Fixity service
  *
  * @author dbernstein
  */
@@ -46,7 +46,7 @@ public class FcrepoFixityConfig extends BasePropsConfig {
         }
     }
 
-    @Value("${fixity.input.stream:broker:topic:fixity}")
+    @Value("${fixity.input.stream:broker:queue:fixity}")
     private String inputStream;
 
 
