@@ -31,6 +31,4 @@ services:
     image: fcrepo/fcrepo-camel-toolbox
     volumes:
       - ./fcrepo-camel-config:/config
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
