@@ -17,13 +17,14 @@
  */
 package org.fcrepo.camel.fixity;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.xml.Namespaces;
+import org.apache.camel.support.builder.Namespaces;
 import org.apache.jena.vocabulary.RDF;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A content router for checking fixity of Binary resources.
@@ -37,11 +38,13 @@ public class FixityRouter extends RouteBuilder {
 
     private static final String REPOSITORY = "http://fedora.info/definitions/v4/repository#";
 
+    @Autowired
+    private FcrepoFixityConfig config;
+
     /**
      * Configure the message route workflow.
      */
     public void configure() throws Exception {
-
         final Namespaces ns = new Namespaces("rdf", RDF.uri);
         ns.add("premis", "http://www.loc.gov/premis/rdf/v1#");
 
@@ -49,30 +52,34 @@ public class FixityRouter extends RouteBuilder {
          * A generic error handler (specific to this RouteBuilder)
          */
         onException(Exception.class)
-            .maximumRedeliveries("{{error.maxRedeliveries}}")
-            .log("Index Routing Error: ${routeId}");
+                .maximumRedeliveries(config.getMaxRedeliveries())
+                .log("Index Routing Error: ${routeId}");
 
         /**
          * Handle fixity events
          */
-        from("{{fixity.stream}}")
-            .routeId("FcrepoFixity")
-            .to("fcrepo:{{fcrepo.baseUrl}}?preferInclude=ServerManged&accept=application/rdf+xml")
-            .filter().xpath(
-                    "/rdf:RDF/rdf:Description/rdf:type" +
-                    "[@rdf:resource='" + REPOSITORY + "Binary']", ns)
-            .log(LoggingLevel.INFO, LOGGER,
-                    "Checking Fixity for ${headers[CamelFcrepoUri]}")
-            .delay(simple("{{fixity.delay}}"))
-            .to("fcrepo:{{fcrepo.baseUrl}}?fixity=true&accept=application/rdf+xml")
-            .choice()
+        from(config.getInputStream())
+                .routeId("FcrepoFixity")
+                .to("fcrepo:" + config.getFcrepoBaseUrl() + "?preferInclude=ServerManged&accept=application/rdf+xml")
+                .filter().xpath(
+                "/rdf:RDF/rdf:Description/rdf:type" +
+                        "[@rdf:resource='" + REPOSITORY + "Binary']", ns)
+                .log(LoggingLevel.INFO, LOGGER,
+                        "Checking Fixity for ${headers[CamelFcrepoUri]}")
+                .delay(simple(String.valueOf(config.getFixityDelay())))
+                .to("fcrepo:" + config.getFcrepoBaseUrl() + "?fixity=true&accept=application/rdf+xml")
+                .choice()
                 .when().xpath(
-                        "/rdf:RDF/rdf:Description/premis:hasEventOutcome" +
+                "/rdf:RDF/rdf:Description/premis:hasEventOutcome" +
                         "[text()='SUCCESS']", ns)
-                    .to("{{fixity.success}}")
+                .log(LoggingLevel.INFO, LOGGER,
+                        "Fixity success on ${headers[CamelFcrepoUri]}")
+                .to(config.getFixitySuccess())
                 .otherwise()
-                    .log(LoggingLevel.WARN, LOGGER,
+                .log(LoggingLevel.WARN, LOGGER,
                         "Fixity error on ${headers[CamelFcrepoUri]}")
-                    .to("{{fixity.failure}}");
+                .to(config.getFixityFailure());
+
+        LOGGER.info("FixityRouter configured");
     }
 }

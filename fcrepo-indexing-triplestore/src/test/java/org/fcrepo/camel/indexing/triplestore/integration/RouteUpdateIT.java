@@ -52,6 +52,7 @@ import java.net.URI;
 import static com.jayway.awaitility.Awaitility.await;
 import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.ASSERT_PERIOD_MS;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.getEvent;
 import static org.hamcrest.Matchers.equalTo;
@@ -103,6 +104,7 @@ public class RouteUpdateIT {
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + JMS_PORT);
         System.setProperty("triplestore.input.stream", "direct:start");
         System.setProperty("triplestore.reindex.stream", "direct:reindex");
+        System.setProperty("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
     }
 
     @After
@@ -156,7 +158,7 @@ public class RouteUpdateIT {
         fusekiMockEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:delete.triplestore");
         deleteEndpoint.expectedMessageCount(0);
-        deleteEndpoint.setAssertPeriod(1000);
+        deleteEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:update.triplestore");
         updateEndpoint.expectedMessageCount(1);
 

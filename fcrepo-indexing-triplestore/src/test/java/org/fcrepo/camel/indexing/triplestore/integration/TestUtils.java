@@ -43,7 +43,7 @@ public class TestUtils {
 
     private static String FEDORA_USERNAME = "fedoraAdmin";
     private static String FEDORA_PASSWORD = "fedoraAdmin";
-
+    public static long ASSERT_PERIOD_MS = 5000;
     /**
      *  Format a Sparql-update for the provided subject.
      *

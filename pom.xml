@@ -78,7 +78,6 @@
     <!--
     TODO: Convert these servicdes.
     <module>fcrepo-audit-triplestore</module>
-    <module>fcrepo-fixity</module>
     -->
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
@@ -88,6 +87,7 @@
     <module>fcrepo-ldpath</module>
     <module>fcrepo-camel-toolbox-app</module>
     <module>fcrepo-camel-common</module>
+    <module>fcrepo-fixity</module>
   </modules>
 
   <repositories>
