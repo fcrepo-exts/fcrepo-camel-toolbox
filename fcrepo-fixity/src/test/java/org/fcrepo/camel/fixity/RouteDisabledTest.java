@@ -18,15 +18,7 @@
 package org.fcrepo.camel.fixity;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Produce;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.builder.AdviceWith;
-import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,9 +30,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
-import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.junit.Assert.assertNull;
 
 /**
