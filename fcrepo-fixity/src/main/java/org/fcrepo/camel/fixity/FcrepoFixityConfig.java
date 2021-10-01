@@ -61,7 +61,7 @@ public class FcrepoFixityConfig extends BasePropsConfig {
     private String fixitySuccess;
 
     /**
-     * The input stream for the fixity service
+     * The jms message stream for the fixity service
      * @return
      */
     public String getInputStream() {
@@ -70,7 +70,7 @@ public class FcrepoFixityConfig extends BasePropsConfig {
 
     /**
      * Because fixity checking can put a significant load on a server, it can be convenient
-     * o introduce a delay between each fixity check. That delay is measured in milliseconds.
+     * to introduce a delay between each fixity check. That delay is measured in milliseconds.
      */
     public long getFixityDelay() {
         return fixityDelay;
