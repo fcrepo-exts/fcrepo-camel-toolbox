@@ -29,7 +29,8 @@ import org.springframework.context.annotation.Configuration;
 /**
  * A configuration class for the Http Indexer service
  *
- * @author Geoff Scholl, Demian Katz
+ * @author Geoff Scholl
+ * @author Demian Katz
  */
 @Configuration
 @Conditional(FcrepoHttpIndexerConfig.HttpIndexerEnabled.class)

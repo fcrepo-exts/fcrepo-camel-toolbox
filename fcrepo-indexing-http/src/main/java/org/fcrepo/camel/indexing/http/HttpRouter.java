@@ -30,7 +30,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * A content router for handling JMS events.
  *
- * @author Geoff Scholl, Demian Katz
+ * @author Geoff Scholl
+ * @author Demian Katz
  */
 public class HttpRouter extends RouteBuilder {
 
