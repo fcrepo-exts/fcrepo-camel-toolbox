@@ -1,4 +1,4 @@
-**/target
-.git
-.github
-.idea
+**/*
+
+!docker/
+!fcrepo-camel-toolbox-app/target/
