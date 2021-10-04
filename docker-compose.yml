@@ -31,4 +31,5 @@ services:
     image: fcrepo/fcrepo-camel-toolbox
     volumes:
       - ./fcrepo-camel-config:/config
-
+    ports:
+      - "9080:9080"
