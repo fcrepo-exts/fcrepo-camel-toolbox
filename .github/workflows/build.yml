@@ -60,3 +60,15 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Deploy Docker image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          FCREPO_CAMEL_TOOLBOX_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "building docker container"
+          docker build --tag="fcrepo/fcrepo-camel-toolbox:latest" --tag="fcrepo/fcrepo-camel-toolbox:${FCREPO_CAMEL_TOOLBOX_VERSION}" .
+          echo "authenticating with dockerhub"
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          echo "pushing images to dockerhub"
+          docker push --all-tags fcrepo/fcrepo-camel-toolbox
