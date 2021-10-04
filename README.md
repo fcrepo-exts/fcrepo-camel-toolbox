@@ -64,7 +64,7 @@ solr.baseUrl=http://localhost:8983/solr/
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | no       | http://localhost:8080/fcrepo/rest | Any valid fcrepo url
 | fcrepo.authUsername | A valid username      | no       | fcrepoAdmin | | 
 | fcrepo.authPassword | A valid password      | no       | fcrepoAdmin | | 
-| fcrepo.authHost |       | no       | localhost | | 
+| fcrepo.authHost | The hostname of the Fedora installation which the authUsername and authPassword should be applied to | no       | localhost | | 
 | fcrepo.authPort |       | no       | 8080 | | 
 | Triplestore Service|
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | no | false | 
