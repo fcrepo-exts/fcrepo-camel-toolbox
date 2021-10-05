@@ -20,43 +20,31 @@ Currently the Solr, ActiveMQ, Reindexing, and LDPath microservices are available
 
 ## Running the toolbox
 
-Before starting the camel toolbox fire up a Fedora 6.x instance, Solr 8.x, and Fuseki (triple store).
+The camel toolbox can be started using Docker Compose which will create containers for Fedora, Fuseki, Solr, and the
+Camel Toolbox application. 
 
-Fedora
+Configuration for the Camel Toolbox can be done through the `fcrepo-camel-config/configuration.properties` or through 
+environment variables (not yet available) as standard java properties as key value pairs. To run with the docker containers 
+the following properties are set by default:
 ```
-docker run -p8080:8080 --rm -p61616:61616  -p8181:8181 --name=my_fcrepo6  fcrepo/fcrepo:6.0.0
-```
+jms.brokerUrl=tcp://fcrepo:61616
+fcrepo.baseUrl=http://fcrepo:8080/fcrepo/rest
 
-Solr
-```
-docker run  --rm -p 8983:8983 --name my_solr solr:8
-```
-
-Create the default Solr Core
-```
-docker exec -it my_solr solr create_core -c collection1
-```
-
-Fuseki 
-```
-docker run --rm -p 3030:3030 --name my_fuseki atomgraph/fuseki --mem /test
-```
-
-
-```
-mvn clean install
-java -jar fcrepo-camel-toolbox/fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-app-<verion>-driver.jar -c /path/to/configuration.properties
-``` 
-
-where your `configuration.properties `file is a standard java properties file containing key value pairs. To run with the above solr and fuseki docker containers  set the following properties
-
-```
-triplestore.indexer.enabled=true
 solr.indexer.enabled=true
+solr.baseUrl=http://solr:8983/solr/fcrepo
+
+triplestore.indexer.enabled=true
+triplestore.baseUrl=http://fuseki:3030/fcrepo
+
 audit.enabled=true
 fixity.enabled=true
-triplestore.baseUrl=http://localhost:3030/test
-solr.baseUrl=http://localhost:8983/solr/
+fcrepo.authHost=fcrepo
+reindexing.rest.host=0.0.0.0
+```
+
+Then to start the Camel Toolbox, Fedora, Fuseki, and Solr containers run
+```
+docker-compose up -d
 ```
 
 ## Properties
@@ -100,9 +88,9 @@ solr.baseUrl=http://localhost:8983/solr/
 | reindexing.enabled | Enables/disables the reindexing component. Enabled by default | no | true | 
 | reindexing.error.maxRedeliveries | Maximum redelivery attempts | no | 10 | 
 | reindexing.stream | Reindexing jms message stream | no | broker:queue:reindexing | 
-| reindexing.host | Reindexing service host | no | localhost | 
-| reindexing.port | Reindexing service port | no | 9080 |
-| reindexing.rest | Reindexing rest URI prefix | no | /reindexing | 
+| reindexing.rest.host | Reindexing service host | no | localhost | 
+| reindexing.rest.port | Reindexing service port | no | 9080 |
+| reindexing.rest.prefix | Reindexing rest URI prefix | no | /reindexing | 
 | ActiveMQ Service |
 | jms.brokerUrl | JMS Broker endpoint | no | tcp://localhost:61616 |
 | jms.username | JMS username | no | null |
