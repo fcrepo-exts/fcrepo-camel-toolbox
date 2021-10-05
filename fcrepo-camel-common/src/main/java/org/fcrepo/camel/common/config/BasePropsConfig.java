@@ -57,9 +57,6 @@ public abstract class BasePropsConfig {
     @Value("${fcrepo.authHost:localhost}")
     private String fcrepoAuthHost;
 
-    @Value("${fcrepo.authPort:8080}")
-    private int fcrepoAuthPort;
-
     public int getMaxRedeliveries() {
         return maxRedeliveries;
     }
@@ -80,7 +77,4 @@ public abstract class BasePropsConfig {
         return fcrepoAuthHost;
     }
 
-    public int getFcrepoAuthPort() {
-        return fcrepoAuthPort;
-    }
 }

@@ -65,7 +65,6 @@ solr.baseUrl=http://localhost:8983/solr/
 | fcrepo.authUsername | A valid username      | no       | fcrepoAdmin | | 
 | fcrepo.authPassword | A valid password      | no       | fcrepoAdmin | | 
 | fcrepo.authHost | The hostname of the Fedora installation which the authUsername and authPassword should be applied to | no       | localhost | | 
-| fcrepo.authPort |       | no       | 8080 | | 
 | Triplestore Service|
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | no | false | 
 | triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update | 
