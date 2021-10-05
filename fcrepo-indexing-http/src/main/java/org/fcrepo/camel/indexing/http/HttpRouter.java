@@ -17,7 +17,11 @@
  */
 package org.fcrepo.camel.indexing.http;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.camel.Exchange;
+import org.apache.camel.Expression;
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.support.builder.Namespaces;
 import org.fcrepo.camel.processor.EventProcessor;
@@ -35,7 +39,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class HttpRouter extends RouteBuilder {
 
-    private static final Logger logger = getLogger(HttpRouter.class);
+    private static final Logger LOGGER = getLogger(HttpRouter.class);
 
     @Autowired
     private FcrepoHttpIndexerConfig config;
@@ -76,7 +80,8 @@ public class HttpRouter extends RouteBuilder {
          * Forward message to Http
          */
         from("direct:send.to.http").routeId("FcrepoHttpSend")
-            .log(LoggingLevel.INFO, logger, "sending to http...")
+            .log(LoggingLevel.INFO, LOGGER, "sending ${headers[CamelFcrepoUri]} to http endpoint...")
+            .to("mustache:org/fcrepo/camel/indexing/http/reindex.mustache")
             .setHeader(HTTP_METHOD).constant("POST")
             .to(config.getHttpBaseUrl());
     }
