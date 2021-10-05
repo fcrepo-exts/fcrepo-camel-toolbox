@@ -17,6 +17,7 @@
  */
 package org.fcrepo.camel.ldpath;
 
+import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -89,11 +90,15 @@ public class FcrepoLdPathConfig extends BasePropsConfig {
     public LDPathWrapper ldpath() throws Exception {
         final var fcrepoBaseUrl = getFcrepoBaseUrl();
         final var fcrepoAuthHost = getFcrepoAuthHost();
-        final var fcrepoAuthPort = getFcrepoAuthPort();
         final var fcrepoUsername = getFcrepoUsername();
         final var fcrepoPassword = getFcrepoPassword();
 
-        final AuthScope authScope = new AuthScope(fcrepoAuthHost, fcrepoAuthPort);
+        final AuthScope authScope;
+        if (fcrepoAuthHost == null || fcrepoAuthHost.isBlank()) {
+            authScope = new AuthScope(AuthScope.ANY);
+        } else {
+            authScope = new AuthScope(new HttpHost(fcrepoAuthHost));
+        }
         final Credentials credentials = new UsernamePasswordCredentials(fcrepoUsername, fcrepoPassword);
         final List<Endpoint> endpoints = List.of(new FedoraEndpoint(fcrepoBaseUrl, fcrepoCacheTimeout));
         final var fcrepoHttpClientBuilder = new FcrepoHttpClientBuilder(fcrepoUsername, fcrepoPassword, fcrepoAuthHost);
@@ -105,8 +110,7 @@ public class FcrepoLdPathConfig extends BasePropsConfig {
         ldCachingBackend.initialize();
         final LDCache ldCache = new LDCache(config, ldCachingBackend);
         final var backend = new LDCacheBackend(ldCache);
-        final var ldPathWrapper = new LDPathWrapper(backend, createSelectorFunctions());
-        return ldPathWrapper;
+        return new LDPathWrapper(backend, createSelectorFunctions());
     }
 
     protected Set<SelectorFunction> createSelectorFunctions() {
