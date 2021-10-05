@@ -50,7 +50,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
@@ -109,12 +108,9 @@ public class AuditSparqlIT {
     @BeforeClass
     public static void beforeClass() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
-        final Properties props = new Properties();
-        System.setProperty("triplestore.indexer.enabled", "true");
-        System.setProperty("indexing.predicate", "true");
-        System.setProperty("triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
+        System.setProperty("audit.triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + jmsPort);
-        System.setProperty("triplestore.input.stream", "direct:start");
+        System.setProperty("audit.input.stream", "direct:start");
         System.setProperty("audit.enabled", "true");
 
     }
@@ -296,14 +292,6 @@ public class AuditSparqlIT {
             final XPathBuilder xpath = new XPathBuilder(
                     "//sparql:result/sparql:binding[@name='o']");
             xpath.namespaces(ns);
-
-            final XPathBuilder uriResult = new XPathBuilder(
-                    "/sparql:binding/sparql:uri");
-            uriResult.namespaces(ns);
-
-            final XPathBuilder literalResult = new XPathBuilder(
-                    "/sparql:binding/sparql:literal");
-            literalResult.namespaces(ns);
 
             return new RouteBuilder() {
                 public void configure() throws IOException {
