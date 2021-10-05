@@ -78,7 +78,9 @@ public class HttpRouter extends RouteBuilder {
             .to("direct:add.type.to.http.message");
 
         /*
-         * Add event type header to message
+         * Add event type header to message; we want to use the header.org.fcrepo.jms.eventtype
+         * value when it is available. If it is unset, that likely indicates a reindex operation,
+         * in which case we should default to an Update.
          */
         from("direct:add.type.to.http.message")
             .choice()
