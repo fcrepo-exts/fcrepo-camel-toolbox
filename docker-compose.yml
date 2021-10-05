@@ -16,7 +16,7 @@ services:
       - "8983:8983"
     command:
       - solr-precreate
-      - collection1
+      - fcrepo
 
   fuseki:
     image: atomgraph/fuseki
@@ -24,7 +24,7 @@ services:
       - "3030:3030"
     command:
       - --mem 
-      - /test
+      - /fcrepo
       
   camel-toolbox:
     build: .
