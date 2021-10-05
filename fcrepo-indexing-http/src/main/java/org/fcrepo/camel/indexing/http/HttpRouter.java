@@ -28,6 +28,7 @@ import org.fcrepo.camel.processor.EventProcessor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -67,22 +68,35 @@ public class HttpRouter extends RouteBuilder {
             .routeId("FcrepoHttpRouter")
             .process(new EventProcessor())
             .log(LoggingLevel.TRACE, "Received message from Fedora routing to index.http")
-            .to("direct:send.to.http");
+            .to("direct:add.type.to.http.message");
 
         /*
          * Handle re-index events
          */
         from(config.getReindexStream())
             .routeId("FcrepoHttpReindex")
-            .to("direct:send.to.http");
+            .to("direct:add.type.to.http.message");
+
+        /*
+         * Add event type header to message
+         */
+        from("direct:add.type.to.http.message")
+            .choice()
+            .when(simple("${header.org.fcrepo.jms.eventtype}"))
+                .setHeader("CamelFcrepoEventType").simple("${header.org.fcrepo.jms.eventtype}")
+                .to("direct:send.to.http")
+            .otherwise()
+                .setHeader("CamelFcrepoEventType").constant("https://www.w3.org/ns/activitystreams#Update")
+                .to("direct:send.to.http");
 
         /*
          * Forward message to Http
          */
         from("direct:send.to.http").routeId("FcrepoHttpSend")
             .log(LoggingLevel.INFO, LOGGER, "sending ${headers[CamelFcrepoUri]} to http endpoint...")
-            .to("mustache:org/fcrepo/camel/indexing/http/reindex.mustache")
+            .to("mustache:org/fcrepo/camel/indexing/http/httpMessage.mustache")
             .setHeader(HTTP_METHOD).constant("POST")
+            .setHeader(CONTENT_TYPE).constant("application/json")
             .to(config.getHttpBaseUrl());
     }
 }
