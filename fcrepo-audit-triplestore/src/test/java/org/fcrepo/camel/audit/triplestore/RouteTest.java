@@ -32,6 +32,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -47,6 +48,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author escowles
  * @author Aaron Coburn
+ * @author  dbernstein
  * @since 2015-04-10
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -65,9 +67,6 @@ public class RouteTest {
     private static final String baseURL = "http://localhost/rest";
     private static final String fileID = "/file1";
     private static final String auditContainer = "/audit";
-    private static final String eventDate = "2015-04-06T22:45:20Z";
-    private static final String userID = "fedo raAdmin";
-    private static final String userAgent = "CLAW client/1.0";
 
 
     @BeforeClass
@@ -77,6 +76,7 @@ public class RouteTest {
         System.setProperty("audit.enabled", "true");
     }
 
+    @DirtiesContext
     @Test
     public void testWithoutJms() throws Exception {
 
@@ -98,8 +98,6 @@ public class RouteTest {
 
         template.sendBody(loadResourceAsStream("event_delete_binary.json"));
         template.sendBody(loadResourceAsStream("event_delete_resource.json"));
-        template.sendBody(loadResourceAsStream("event_audit_resource.json"));
-        template.sendBody(loadResourceAsStream("event_audit_update.json"));
 
         assertIsSatisfied(resultEndpoint);
         final String body = (String) resultEndpoint.assertExchangeReceived(0).getIn().getBody();
@@ -107,6 +105,31 @@ public class RouteTest {
                 body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentRemoval>"));
         assertTrue("Object link not found!",
                 body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
+    }
+
+    @DirtiesContext
+    @Test
+    public void testFilterContainersWithoutJms() throws Exception {
+
+        final var context = camelContext.adapt(ModelCamelContext.class);
+
+        resultEndpoint.expectedMessageCount(0);
+        resultEndpoint.setAssertPeriod(1000);
+
+        AdviceWith.adviceWith(context, "AuditFcrepoRouter", a -> {
+            a.replaceFromWith("direct:start");
+        });
+
+        AdviceWith.adviceWith(context, "AuditEventRouter", a -> {
+            a.mockEndpointsAndSkip("http*");
+            a.weaveAddLast().to("mock:result");
+        });
+
+        //send events that should be filtered
+        template.sendBody(loadResourceAsStream("event_audit_resource.json"));
+        template.sendBody(loadResourceAsStream("event_audit_update.json"));
+
+        assertIsSatisfied(resultEndpoint);
     }
 
     @Configuration

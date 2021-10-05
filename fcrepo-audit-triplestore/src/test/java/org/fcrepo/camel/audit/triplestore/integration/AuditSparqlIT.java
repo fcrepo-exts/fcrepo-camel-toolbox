@@ -17,7 +17,6 @@
  */
 package org.fcrepo.camel.audit.triplestore.integration;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
@@ -38,7 +37,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -102,9 +100,6 @@ public class AuditSparqlIT {
     @Produce("direct:start")
     protected ProducerTemplate template;
 
-    @Autowired
-    private CamelContext camelContext;
-
     @BeforeClass
     public static void beforeClass() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
@@ -112,7 +107,6 @@ public class AuditSparqlIT {
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + jmsPort);
         System.setProperty("audit.input.stream", "direct:start");
         System.setProperty("audit.enabled", "true");
-
     }
 
     @Before
@@ -169,7 +163,6 @@ public class AuditSparqlIT {
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
     }
-
 
     @DirtiesContext
     @Test
@@ -256,6 +249,7 @@ public class AuditSparqlIT {
         sparqlQueryEndpoint.assertIsSatisfied();
         sparqlUpdateEndpoint.assertIsSatisfied();
     }
+
 
     @DirtiesContext
     @Test
