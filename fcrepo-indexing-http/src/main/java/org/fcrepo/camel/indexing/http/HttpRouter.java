@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -83,12 +84,13 @@ public class HttpRouter extends RouteBuilder {
          * in which case we should default to an Update.
          */
         from("direct:add.type.to.http.message")
+            .routeId("FcrepoHttpAddType")
             .choice()
             .when(simple("${header.org.fcrepo.jms.eventtype}"))
-                .setHeader("CamelFcrepoEventType").simple("${header.org.fcrepo.jms.eventtype}")
+                .setHeader(FCREPO_EVENT_TYPE).simple("${header.org.fcrepo.jms.eventtype}")
                 .to("direct:send.to.http")
             .otherwise()
-                .setHeader("CamelFcrepoEventType").constant("https://www.w3.org/ns/activitystreams#Update")
+                .setHeader(FCREPO_EVENT_TYPE).constant("https://www.w3.org/ns/activitystreams#Update")
                 .to("direct:send.to.http");
 
         /*
