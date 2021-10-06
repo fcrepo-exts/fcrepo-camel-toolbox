@@ -52,6 +52,7 @@
     <jaxb.core.version>2.3.0.1</jaxb.core.version>
     <javaee-api.version>8.0.1</javaee-api.version>
     <javaee.xml.version>2.3.1</javaee.xml.version>
+    <jena.version>3.9.0</jena.version>
 
     <!-- testing -->
     <awaitility.version>1.7.0</awaitility.version>
@@ -75,10 +76,6 @@
   </properties>
 
   <modules>
-    <!--
-    TODO: Convert these servicdes.
-    <module>fcrepo-audit-triplestore</module>
-    -->
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-indexing-solr</module>
@@ -88,6 +85,7 @@
     <module>fcrepo-camel-toolbox-app</module>
     <module>fcrepo-camel-common</module>
     <module>fcrepo-fixity</module>
+    <module>fcrepo-audit-triplestore</module>
   </modules>
 
   <repositories>
@@ -302,6 +300,17 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>ldclient-provider-rdf</artifactId>
         <version>${marmotta.version}</version>
+      </dependency>
+      <!-- jena -->
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-arq</artifactId>
+        <version>${jena.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-core</artifactId>
+        <version>${jena.version}</version>
       </dependency>
 
       <!-- Spring -->

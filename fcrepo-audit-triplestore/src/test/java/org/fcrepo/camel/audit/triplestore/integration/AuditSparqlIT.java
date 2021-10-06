@@ -17,39 +17,48 @@
  */
 package org.fcrepo.camel.audit.triplestore.integration;
 
-import static java.lang.Integer.parseInt;
-import static java.util.Arrays.asList;
-import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
-import static org.apache.jena.vocabulary.RDF.type;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_ID;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.io.IOException;
-
-import org.apache.camel.Produce;
-import org.apache.camel.Exchange;
 import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
+import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.xml.XPathBuilder;
-import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.jena.fuseki.embedded.FusekiEmbeddedServer;
+import org.apache.camel.language.xpath.XPathBuilder;
+import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.apache.camel.support.builder.Namespaces;
+import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.sparql.core.DatasetImpl;
 import org.fcrepo.camel.audit.triplestore.AuditHeaders;
 import org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.Integer.parseInt;
+import static java.util.Arrays.asList;
+import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
+import static org.apache.jena.vocabulary.RDF.type;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_ID;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Represents an integration test for interacting with an external triplestore.
@@ -57,14 +66,16 @@ import org.slf4j.Logger;
  * @author Aaron Coburn
  * @since Nov 8, 2014
  */
-public class AuditSparqlIT extends CamelTestSupport {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {AuditSparqlIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
+public class AuditSparqlIT {
 
     final private Logger logger = getLogger(AuditSparqlIT.class);
 
     private static final int FUSEKI_PORT = parseInt(System.getProperty(
             "fuseki.dynamic.test.port", "8080"));
 
-    private static FusekiEmbeddedServer server = null;
+    private static FusekiServer server = null;
 
     private static final String PREMIS = "http://www.loc.gov/premis/rdf/v1#";
 
@@ -80,26 +91,43 @@ public class AuditSparqlIT extends CamelTestSupport {
 
     private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
 
-    @EndpointInject(uri = "mock:sparql.update")
+    @EndpointInject("mock:sparql.update")
     protected MockEndpoint sparqlUpdateEndpoint;
 
-    @EndpointInject(uri = "mock:sparql.query")
+    @EndpointInject("mock:sparql.query")
     protected MockEndpoint sparqlQueryEndpoint;
 
-    @Produce(uri = "direct:start")
+    @Produce("direct:start")
     protected ProducerTemplate template;
+
+    @BeforeClass
+    public static void beforeClass() {
+        final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
+        System.setProperty("audit.triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
+        System.setProperty("jms.brokerUrl", "tcp://localhost:" + jmsPort);
+        System.setProperty("audit.input.stream", "direct:start");
+        System.setProperty("audit.enabled", "true");
+    }
 
     @Before
     public void setup() throws Exception {
+
         final Dataset ds = new DatasetImpl(createDefaultModel());
-        server = FusekiEmbeddedServer.create().setPort(FUSEKI_PORT).setContextPath("/fuseki").add("/test", ds).build();
-        logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
+        server = FusekiServer.create()
+                .verbose(true)
+                .port(FUSEKI_PORT)
+                .contextPath("/fuseki")
+                .add("/test", ds, true)
+                .build();
+        server.start();
+
+        logger.info("Starting on port {}", FUSEKI_PORT);
         server.start();
     }
 
     @After
     public void tearDown() throws Exception {
-        logger.info("Stopping EmbeddedFusekiServer");
+        logger.info("Stopping Fuseki");
         server.stop();
     }
 
@@ -115,6 +143,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         return headers;
     }
 
+    @DirtiesContext
     @Test
     public void testAuditEventTypeTriples() throws Exception {
         sparqlUpdateEndpoint.expectedMessageCount(2);
@@ -135,6 +164,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlUpdateEndpoint.assertIsSatisfied();
     }
 
+    @DirtiesContext
     @Test
     public void testAuditEventRelatedTriples() throws Exception {
         sparqlUpdateEndpoint.expectedMessageCount(2);
@@ -144,7 +174,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlQueryEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         sparqlQueryEndpoint.expectedBodiesReceivedInAnyOrder(
                 "http://localhost/rest/foo"
-            );
+        );
 
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
@@ -156,6 +186,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlUpdateEndpoint.assertIsSatisfied();
     }
 
+    @DirtiesContext
     @Test
     public void testAuditEventDateTriples() throws Exception {
         sparqlUpdateEndpoint.expectedMessageCount(2);
@@ -165,7 +196,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlQueryEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         sparqlQueryEndpoint.expectedBodiesReceivedInAnyOrder(
                 "2015-04-10T14:30:36Z"
-            );
+        );
 
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
@@ -177,6 +208,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlUpdateEndpoint.assertIsSatisfied();
     }
 
+    @DirtiesContext
     @Test
     public void testAuditEventAgentTriples() throws Exception {
         sparqlUpdateEndpoint.expectedMessageCount(2);
@@ -187,7 +219,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlQueryEndpoint.expectedBodiesReceivedInAnyOrder(
                 USER,
                 USER_AGENT
-            );
+        );
 
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
@@ -199,6 +231,7 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlUpdateEndpoint.assertIsSatisfied();
     }
 
+    @DirtiesContext
     @Test
     public void testAuditEventAllTriples() throws Exception {
         sparqlUpdateEndpoint.expectedMessageCount(2);
@@ -217,6 +250,8 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlUpdateEndpoint.assertIsSatisfied();
     }
 
+
+    @DirtiesContext
     @Test
     public void testAuditTypeTriples() throws Exception {
         sparqlUpdateEndpoint.expectedMessageCount(2);
@@ -228,7 +263,7 @@ public class AuditSparqlIT extends CamelTestSupport {
                 "http://www.loc.gov/premis/rdf/v1#Event",
                 "http://fedora.info/definitions/v4/audit#InternalEvent",
                 "http://www.w3.org/ns/prov#InstantaneousEvent"
-            );
+        );
 
         template.sendBody("direct:clear", null);
         template.sendBodyAndHeaders(null, getEventHeaders());
@@ -240,52 +275,48 @@ public class AuditSparqlIT extends CamelTestSupport {
         sparqlUpdateEndpoint.assertIsSatisfied();
     }
 
-    @Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
+    @Configuration
+    @ComponentScan(resourcePattern = "**/Fcrepo*.class")
+    static class ContextConfig extends CamelConfiguration {
 
-        final Namespaces ns = new Namespaces("sparql", "http://www.w3.org/2005/sparql-results#");
+        @Bean
+        public RouteBuilder route() {
+            final Namespaces ns = new Namespaces("sparql", "http://www.w3.org/2005/sparql-results#");
 
-        final XPathBuilder xpath = new XPathBuilder(
-                "//sparql:result/sparql:binding[@name='o']");
-        xpath.namespaces(ns);
+            final XPathBuilder xpath = new XPathBuilder(
+                    "//sparql:result/sparql:binding[@name='o']");
+            xpath.namespaces(ns);
 
-        final XPathBuilder uriResult = new XPathBuilder(
-                "/sparql:binding/sparql:uri");
-        uriResult.namespaces(ns);
+            return new RouteBuilder() {
+                public void configure() throws IOException {
+                    final String fuseki_url = "http://localhost:" + Integer.toString(FUSEKI_PORT);
 
-        final XPathBuilder literalResult = new XPathBuilder(
-                "/sparql:binding/sparql:literal");
-        literalResult.namespaces(ns);
+                    from("direct:start")
+                            .setHeader(AuditHeaders.EVENT_BASE_URI, constant(EVENT_BASE_URI))
+                            .process(new AuditSparqlProcessor())
+                            .to(fuseki_url + "/fuseki/test/update")
+                            .to("mock:sparql.update");
 
-        return new RouteBuilder() {
-            public void configure() throws IOException {
-                final String fuseki_url = "http4://localhost:" + Integer.toString(FUSEKI_PORT);
-
-                from("direct:start")
-                    .setHeader(AuditHeaders.EVENT_BASE_URI, constant(EVENT_BASE_URI))
-                    .process(new AuditSparqlProcessor())
-                    .to(fuseki_url + "/fuseki/test/update")
-                    .to("mock:sparql.update");
-
-                from("direct:query")
-                    .to(fuseki_url + "/fuseki/test/query")
-                    .split(xpath)
-                        .choice()
+                    from("direct:query")
+                            .to(fuseki_url + "/fuseki/test/query")
+                            .split(xpath)
+                            .choice()
                             .when().xpath("/sparql:binding/sparql:uri", String.class, ns)
-                                .transform().xpath("/sparql:binding/sparql:uri/text()", String.class, ns)
-                                .to("mock:sparql.query")
+                            .transform().xpath("/sparql:binding/sparql:uri/text()", String.class, ns)
+                            .to("mock:sparql.query")
                             .when().xpath("/sparql:binding/sparql:literal", String.class, ns)
-                                .transform().xpath("/sparql:binding/sparql:literal/text()", String.class, ns)
-                                .to("mock:sparql.query");
+                            .transform().xpath("/sparql:binding/sparql:literal/text()", String.class, ns)
+                            .to("mock:sparql.query");
 
-                from("direct:clear")
-                    .transform().constant("update=DELETE WHERE { ?s ?o ?p }")
-                    .setHeader(Exchange.CONTENT_TYPE).constant("application/x-www-form-urlencoded")
-                    .setHeader(Exchange.HTTP_METHOD).constant("POST")
-                    .to(fuseki_url + "/fuseki/test/update")
-                    .to("mock:sparql.update");
+                    from("direct:clear")
+                            .transform().constant("update=DELETE WHERE { ?s ?o ?p }")
+                            .setHeader(Exchange.CONTENT_TYPE).constant("application/x-www-form-urlencoded")
+                            .setHeader(Exchange.HTTP_METHOD).constant("POST")
+                            .to(fuseki_url + "/fuseki/test/update")
+                            .to("mock:sparql.update");
 
-            }
-        };
+                }
+            };
+        }
     }
 }

@@ -29,6 +29,7 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.fcrepo.camel.processor.EventProcessor;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A content router for handling JMS events.
@@ -40,6 +41,8 @@ public class EventRouter extends RouteBuilder {
 
     private static final Logger LOGGER = getLogger(EventRouter.class);
 
+    @Autowired
+    private FcrepoAuditTriplestoreConfig config;
     /**
      * Configure the message route workflow.
      */
@@ -49,16 +52,16 @@ public class EventRouter extends RouteBuilder {
          * A generic error handler (specific to this RouteBuilder)
          */
         onException(Exception.class)
-            .maximumRedeliveries("{{error.maxRedeliveries}}")
+            .maximumRedeliveries(config.getMaxRedeliveries())
             .log("Event Routing Error: ${routeId}");
 
         /**
          * Process a message.
          */
-        from("{{input.stream}}")
+        from(config.getInputStream())
             .routeId("AuditFcrepoRouter")
             .process(new EventProcessor())
-            .filter(not(in(tokenizePropertyPlaceholder(getContext(), "{{filter.containers}}", ",").stream()
+            .filter(not(in(tokenizePropertyPlaceholder(getContext(), config.getFilterContainers(), ",").stream()
                         .map(uri -> or(
                             header(FCREPO_URI).startsWith(constant(uri + "/")),
                             header(FCREPO_URI).isEqualTo(constant(uri))))
@@ -67,10 +70,10 @@ public class EventRouter extends RouteBuilder {
 
         from("direct:event")
             .routeId("AuditEventRouter")
-            .setHeader(AuditHeaders.EVENT_BASE_URI, simple("{{event.baseUri}}"))
+            .setHeader(AuditHeaders.EVENT_BASE_URI, simple(config.getEventBaseUri()))
             .process(new AuditSparqlProcessor())
             .log(LoggingLevel.INFO, "org.fcrepo.camel.audit",
                     "Audit Event: ${headers.CamelFcrepoUri} :: ${headers[CamelAuditEventUri]}")
-            .to("{{triplestore.baseUrl}}?useSystemProperties=true");
+            .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
     }
 }

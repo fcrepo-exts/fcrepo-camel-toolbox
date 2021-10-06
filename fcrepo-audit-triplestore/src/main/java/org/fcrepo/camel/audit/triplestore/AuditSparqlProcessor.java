@@ -158,7 +158,7 @@ public class AuditSparqlProcessor implements Processor {
      * Returns the Audit event type based on fedora event type and properties.
      *
      * @param eventType from Fedora
-     * @param properties associated with the Fedora event
+     * @param resourceType associated with the Fedora event
      * @return Audit event
      */
     private static Optional<String> getAuditEventType(final List<String> eventType, final List<String> resourceType) {
