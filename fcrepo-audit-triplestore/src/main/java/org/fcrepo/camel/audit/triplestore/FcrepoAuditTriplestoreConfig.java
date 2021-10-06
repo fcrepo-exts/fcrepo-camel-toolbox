@@ -55,6 +55,11 @@ public class FcrepoAuditTriplestoreConfig extends BasePropsConfig {
     @Value("${audit.triplestore.baseUrl:http://localhost:3030/fuseki/test/update}")
     private String triplestoreBaseUrl;
 
+    @Value("${audit.triplestore.authUsername:}")
+    private String triplestoreAuthUsername;
+
+    @Value("${audit.triplestore.authPassword:}")
+    private String tripleStoreAuthPassword;
 
     @Value("${audit.filter.containers:http://localhost:8080/fcrepo/rest/audit}")
     private String filterContainers;
@@ -76,6 +81,14 @@ public class FcrepoAuditTriplestoreConfig extends BasePropsConfig {
 
     public String getTriplestoreBaseUrl() {
         return triplestoreBaseUrl;
+    }
+
+    public String getTriplestoreAuthPassword() {
+        return tripleStoreAuthPassword;
+    }
+
+    public String getTriplestoreAuthUsername() {
+        return triplestoreAuthUsername;
     }
 
     public String getFilterContainers() {

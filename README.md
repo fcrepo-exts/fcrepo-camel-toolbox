@@ -121,6 +121,8 @@ solr.baseUrl=http://localhost:8983/solr/
 | audit.input.stream | Audit Service jms message stream | no | broker:topic:fedora |
 | audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | no | http://example.com/event |
 | audit.triplestore.baseUrl| The base url for the external triplestore service | no | http://localhost:3030/fuseki/test/update |
+| audit.triplestore.authUsername| Username for basic authentication against triplestore | no | |
+| audit.triplestore.authPassword| Password for basic authentication against triplestore | no | |
 | audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | no | http://localhost:8080/fcrepo/rest/audit | 
 
 ## Note

@@ -31,6 +31,8 @@ import org.fcrepo.camel.processor.EventProcessor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Base64;
+
 /**
  * A content router for handling JMS events.
  *
@@ -43,6 +45,7 @@ public class EventRouter extends RouteBuilder {
 
     @Autowired
     private FcrepoAuditTriplestoreConfig config;
+
     /**
      * Configure the message route workflow.
      */
@@ -62,18 +65,28 @@ public class EventRouter extends RouteBuilder {
             .routeId("AuditFcrepoRouter")
             .process(new EventProcessor())
             .filter(not(in(tokenizePropertyPlaceholder(getContext(), config.getFilterContainers(), ",").stream()
-                        .map(uri -> or(
-                            header(FCREPO_URI).startsWith(constant(uri + "/")),
-                            header(FCREPO_URI).isEqualTo(constant(uri))))
-                        .collect(toList()))))
-                .to("direct:event");
+                .map(uri -> or(
+                    header(FCREPO_URI).startsWith(constant(uri + "/")),
+                    header(FCREPO_URI).isEqualTo(constant(uri))))
+                .collect(toList()))))
+            .to("direct:event");
 
         from("direct:event")
             .routeId("AuditEventRouter")
             .setHeader(AuditHeaders.EVENT_BASE_URI, simple(config.getEventBaseUri()))
             .process(new AuditSparqlProcessor())
             .log(LoggingLevel.INFO, "org.fcrepo.camel.audit",
-                    "Audit Event: ${headers.CamelFcrepoUri} :: ${headers[CamelAuditEventUri]}")
+                "Audit Event: ${headers.CamelFcrepoUri} :: ${headers[CamelAuditEventUri]}")
+            .choice()
+            .when((x) -> !config.getTriplestoreAuthUsername().isEmpty())
+            .setHeader("Authorization", simple(
+                "Basic " + Base64.getEncoder().encodeToString(
+                    (config.getTriplestoreAuthUsername() +
+                        ":" +
+                        config.getTriplestoreAuthPassword()
+                    ).getBytes()))
+            )
+            .end()
             .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
     }
 }
