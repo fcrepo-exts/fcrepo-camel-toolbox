@@ -23,6 +23,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
+import org.apache.jena.atlas.web.AuthScheme;
 import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -46,7 +47,6 @@ import java.util.Properties;
 import static com.jayway.awaitility.Awaitility.await;
 import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.ASSERT_PERIOD_MS;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.createFcrepoClient;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.getEvent;
 import static org.hamcrest.Matchers.equalTo;
@@ -61,9 +61,9 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {RouteUpdateIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
-public class RouteDeleteIT {
+public class RouteDeleteAuthIT {
 
-    final private Logger logger = getLogger(RouteDeleteIT.class);
+    final private Logger logger = getLogger(RouteDeleteAuthIT.class);
 
     private static FusekiServer server = null;
 
@@ -91,7 +91,11 @@ public class RouteDeleteIT {
         final Properties props = new Properties();
         System.setProperty("triplestore.indexer.enabled", "true");
         System.setProperty("indexing.predicate", "true");
+
         System.setProperty("triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
+        System.setProperty("triplestore.authUsername", "admin");
+        System.setProperty("triplestore.authPassword", "password");
+
         System.setProperty("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + jmsPort);
         System.setProperty("triplestore.input.stream", "direct:start");
@@ -117,6 +121,8 @@ public class RouteDeleteIT {
             .port(parseInt(FUSEKI_PORT))
             .contextPath("/fuseki")
             .add("/test", ds, true)
+            .passwordFile("src/test/resources/passwd")
+            .auth(AuthScheme.BASIC)
             .build();
         server.start();
     }
@@ -152,12 +158,15 @@ public class RouteDeleteIT {
 
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:delete.triplestore");
         deleteEndpoint.expectedMessageCount(1);
+
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:update.triplestore");
         updateEndpoint.expectedMessageCount(0);
-        updateEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
+        updateEndpoint.setAssertPeriod(1000);
+
         final var fcrepoMockEndpoint = MockEndpoint.resolve(camelContext, fcrepoEndpoint);
         fcrepoMockEndpoint.expectedMessageCount(0);
-        fcrepoMockEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
+        fcrepoMockEndpoint.setAssertPeriod(1000);
+
         template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Delete"));
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), equalTo(0));

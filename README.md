@@ -70,7 +70,9 @@ solr.baseUrl=http://localhost:8983/solr/
 | fcrepo.authPort |       | no       | 8080 | | 
 | Triplestore Service|
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | no | false | 
-| triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update | 
+| triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update |
+| triplestore.authUsername | Username for basic authentication against triplestore | no | |
+| triplestore.authPassword | Password for basic authentication against triplestore | no | |
 | triplestore.input.stream |   The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | | 
 | triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | no       | broker:queue:solr.reindex | | 
 | triplestore.indexing.predicate |   ?    | no       | false | | 
