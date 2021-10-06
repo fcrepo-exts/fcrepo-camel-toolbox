@@ -17,21 +17,26 @@
  */
 package org.fcrepo.camel.indexing.http;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.camel.Exchange;
-import org.apache.camel.Expression;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.support.builder.Namespaces;
 import org.fcrepo.camel.processor.EventProcessor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.camel.builder.PredicateBuilder.in;
+import static org.apache.camel.builder.PredicateBuilder.not;
+import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static java.util.stream.Collectors.toList;
+import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
+
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
+
+import java.util.Base64;
 
 /**
  * A content router for handling JMS events.
@@ -97,10 +102,22 @@ public class HttpRouter extends RouteBuilder {
          * Forward message to Http
          */
         from("direct:send.to.http").routeId("FcrepoHttpSend")
+            .filter(not(in(tokenizePropertyPlaceholder(getContext(), config.getFilterContainers(), ",").stream()
+                .map(uri -> or(
+                    header(FCREPO_URI).startsWith(constant(uri + "/")),
+                    header(FCREPO_URI).isEqualTo(constant(uri))))
+                .collect(toList())))) 
             .log(LoggingLevel.INFO, LOGGER, "sending ${headers[CamelFcrepoUri]} to http endpoint...")
             .to("mustache:org/fcrepo/camel/indexing/http/httpMessage.mustache")
             .setHeader(HTTP_METHOD).constant("POST")
             .setHeader(CONTENT_TYPE).constant("application/json")
+            .choice()
+                .when((x) -> !config.getHttpAuthUsername().isEmpty())
+                .setHeader("Authorization", simple(
+                    "Basic " + Base64.getEncoder().encodeToString(
+                        (config.getHttpAuthUsername() + ":" + config.getHttpAuthPassword()).getBytes()))
+                    )
+                    .end()
             .to(config.getHttpBaseUrl());
     }
 }

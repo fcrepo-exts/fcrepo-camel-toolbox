@@ -44,17 +44,23 @@ public class FcrepoHttpIndexerConfig extends BasePropsConfig {
         }
     }
 
-    @Value("${input.stream:broker:topic:fedora}")
+    @Value("${http.input.stream:broker:topic:fedora}")
     private String inputStream;
 
     @Value("${http.reindex.stream:broker:queue:http.reindex}")
     private String reindexStream;
 
-    @Value("${filter.containers:http://localhost:8080/fcrepo/rest/audit}")
+    @Value("${http.filter.containers:http://localhost:8080/fcrepo/rest/audit}")
     private String filterContainers;
 
-    @Value("${http.baseUrl:http://localhost:8983/http/collection1}")
+    @Value("${http.baseUrl:}")
     private String httpBaseUrl;
+
+    @Value("${http.authUsername:}")
+    private String httpAuthUsername;
+
+    @Value("${http.authPassword:}")
+    private String httpAuthPassword;
 
     public String getInputStream() {
         return inputStream;
@@ -64,8 +70,20 @@ public class FcrepoHttpIndexerConfig extends BasePropsConfig {
         return reindexStream;
     }
 
+    public String getFilterContainers() {
+        return filterContainers;
+    }
+
     public String getHttpBaseUrl() {
         return httpBaseUrl;
+    }
+
+    public String getHttpAuthUsername() {
+        return httpAuthUsername;
+    }
+
+    public String getHttpAuthPassword() {
+        return httpAuthPassword;
     }
 
 
