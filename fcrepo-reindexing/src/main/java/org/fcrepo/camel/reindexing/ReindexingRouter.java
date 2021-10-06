@@ -76,7 +76,7 @@ public class ReindexingRouter extends RouteBuilder {
                 "?matchOnUriPrefix=true&httpMethodRestrict=GET,POST")
                 .routeId("FcrepoReindexingRest")
                 .routeDescription("Expose the reindexing endpoint over HTTP")
-                .setHeader(FCREPO_URI).simple("${headers.CamelHttpPath}")
+                .setHeader(FCREPO_URI).simple(config.getFcrepoBaseUrl() + "${headers.CamelHttpPath}")
             .choice()
                 .when(header(HTTP_METHOD).isEqualTo("GET")).to("direct:usage")
                 .otherwise().to("direct:reindex");
@@ -112,7 +112,7 @@ public class ReindexingRouter extends RouteBuilder {
                     .transform().simple("Indexing started at ${headers[CamelFcrepoUri]}");
 
         /**
-         *  A route that traverses through a fedora heirarchy
+         *  A route that traverses through a fedora hierarchy
          *  indexing nodes, as appropriate.
          */
         from(config.getReindexingStream() + "?asyncConsumer=true").routeId("FcrepoReindexingTraverse")
