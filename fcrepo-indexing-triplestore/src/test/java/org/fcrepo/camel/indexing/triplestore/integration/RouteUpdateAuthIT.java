@@ -56,8 +56,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * Test the route workflow.
  *
- * @author Aaron Coburn
- * @since 2015-04-10
+ * @author Andy Pfister
+ * @since 2021-10-06
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {RouteUpdateIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
