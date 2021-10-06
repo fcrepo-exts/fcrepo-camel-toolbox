@@ -188,6 +188,14 @@ To build these projects use this command
 
     MAVEN_OPTS="-Xmx1024m" mvn clean install
 
+## Troubleshooting
+
+### java.lang.IllegalArgumentException: Credentials may not be null
+
+Check the `configuration.properties` to ensure that the `fcrepo.baseUrl` and `fcrepo.authHost` have
+the same hostname. If they differ, the http client will not be able to find the credentials passed in
+for authentication.
+
 ## Maintainers
 
 Current maintainers:
