@@ -108,6 +108,11 @@ solr.baseUrl=http://localhost:8983/solr/
 | jms.password | JMS password | no | null |
 | jms.connections | The JMS connection count | no | 10 |
 | jms.consumers | The JMS consumer count | no | 1 |
+| HTTP Service |
+| http.indexer.enabled | Enables/disables the HTTP indexing service. Disabled by default | no | false | 
+| http.input.stream | The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | |
+| http.reindex.stream | The JMS topic or queue serving as the reindex message source    | no       | broker:queue:http.reindex | | 
+| http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | no        http://localhost:8080/fcrepo/rest/audit | |
 
 TODO:  clean up and regularize property names. 
 
