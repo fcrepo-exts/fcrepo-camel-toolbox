@@ -78,6 +78,26 @@
     </dependency>
 
     <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-netty</artifactId>
+      <version>3.10.8</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-client-java</artifactId>
+      <version>3.10.8</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-activemq</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
     </dependency>
@@ -104,7 +124,125 @@
         <artifactId>maven-resources-plugin</artifactId>
       </plugin>
 
-      <!-- to generate the MANIFEST-FILE of the bundle -->
+      <!-- reserve network ports for integration testing -->
+      <!-- add configuration file to artifact set for OSGi deployment -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <configuration>
+          <portNames>
+            <portName>mockserver.dynamic.test.port</portName>
+            <portName>fcrepo.dynamic.test.port</portName>
+            <portName>fcrepo.dynamic.jms.port</portName>
+            <portName>fcrepo.dynamic.stomp.port</portName>
+            <portName>jetty.dynamic.stop.port</portName>
+          </portNames>
+        </configuration>
+      </plugin>
+
+      <!-- integration testing -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <argLine>${jacoco.agent.it.arg}</argLine>
+          <systemPropertyVariables>
+            <mockserver.dynamic.test.port>${mockserver.dynamic.test.port}</mockserver.dynamic.test.port>
+            <fcrepo.dynamic.jms.port>${fcrepo.dynamic.jms.port}</fcrepo.dynamic.jms.port>
+            <fcrepo.dynamic.stomp.port>${fcrepo.dynamic.stomp.port}</fcrepo.dynamic.stomp.port>
+            <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
+            <jetty.dynamic.test.port>${jetty.dynamic.test.port}</jetty.dynamic.test.port>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+
+
+      <!-- Launch jetty for integration testing with fedora -->
+      <plugin>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <configuration>
+          <supportedPackagings>jar</supportedPackagings>
+          <systemProperties>
+            <force>true</force>
+            <systemProperty>
+              <name>fcrepo.home</name>
+              <value>${project.build.directory}/fcrepo-data</value>
+            </systemProperty>
+            <systemProperty>
+              <name>fcrepo.dynamic.jms.port</name>
+              <value>${fcrepo.dynamic.jms.port}</value>
+            </systemProperty>
+            <systemProperty>
+              <name>fcrepo.dynamic.stomp.port</name>
+              <value>${fcrepo.dynamic.stomp.port}</value>
+            </systemProperty>
+          </systemProperties>
+          <scanIntervalSeconds>10</scanIntervalSeconds>
+          <stopKey>STOP</stopKey>
+          <stopPort>${jetty.dynamic.stop.port}</stopPort>
+          <daemon>true</daemon>
+        </configuration>
+        <executions>
+          <execution>
+            <id>start-jetty</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+              <goal>start</goal>
+            </goals>
+            <configuration>
+              <jettyXml>${project.build.directory}/test-classes/jetty-test.xml</jettyXml>
+              <httpConnector>
+                <port>${fcrepo.dynamic.test.port}</port>
+              </httpConnector>
+              <scanIntervalSeconds>0</scanIntervalSeconds>
+              <daemon>true</daemon>
+              <contextHandlers>
+                <contextHandler implementation="org.eclipse.jetty.maven.plugin.JettyWebAppContext">
+                  <war>${project.build.directory}/fcrepo.war</war>
+                  <contextPath>/fcrepo</contextPath>
+                </contextHandler>
+              </contextHandlers>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>stop-jetty</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--Bring in fcrepo webapp for integration testing-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.fcrepo</groupId>
+                  <artifactId>fcrepo-webapp</artifactId>
+                  <version>${fcrepo.version}</version>
+                  <type>war</type>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <destFileName>fcrepo.war</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
