@@ -82,9 +82,9 @@ public class RouteTest {
     @BeforeClass
     public static void beforeClass() {
         System.setProperty("http.indexer.enabled", "true");
-        System.setProperty("filter.containers", baseURL + auditContainer);
-        System.setProperty("input.stream", inputStream);
-        System.setProperty("reindex.stream", reindexStream);
+        System.setProperty("http.filter.containers", baseURL + auditContainer);
+        System.setProperty("http.input.stream", inputStream);
+        System.setProperty("http.reindex.stream", reindexStream);
         System.setProperty("error.maxRedeliveries", "10");
         System.setProperty("fcrepo.baseUrl", baseURL);
         System.setProperty("http.baseUrl", httpURL);
