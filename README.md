@@ -26,7 +26,16 @@ To build these projects use this command
 
 ## Running the toolbox
 
-The camel toolbox can be started using Docker Compose which will create containers for Fedora, Fuseki, Solr, and the
+The camel toolbox can be run as a java cli application. Once the maven build is done, run the toolbox driver:
+```
+java -jar fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-app-<version>-driver.jar -c configuration.properties
+```
+
+where your `configuration.properties` file is a standard java properties file.
+
+### Docker Compose
+
+The Camel Toolbox can be started using Docker Compose which will create containers for Fedora, Fuseki, Solr, and the
 Camel Toolbox application. 
 
 Configuration for the Camel Toolbox can be done through the `fcrepo-camel-config/configuration.properties` or through 
