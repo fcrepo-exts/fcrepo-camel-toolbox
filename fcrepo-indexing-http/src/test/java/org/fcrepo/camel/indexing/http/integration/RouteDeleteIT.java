@@ -33,7 +33,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockserver.model.HttpRequest;
 import org.mockserver.integration.ClientAndServer;
+import org.mockserver.verify.VerificationTimes;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -116,15 +118,23 @@ public class RouteDeleteIT {
 
         final var context = camelContext.adapt(ModelCamelContext.class);
 
-        AdviceWith.adviceWith(context, "FcrepoTriplestoreRouter", a -> {
+        server.verify(
+            HttpRequest.request()
+                .withMethod("POST")
+                .withPath("/endpoint")
+                .withBody("{id: \"foo\", type: \"bar\"}"),
+            VerificationTimes.exactly(1)
+        );
+
+        AdviceWith.adviceWith(context, "FcrepoHttpRouter", a -> {
             a.mockEndpoints("*");
         });
 
-        AdviceWith.adviceWith(context, "FcrepoTriplestoreUpdater", a -> {
+        AdviceWith.adviceWith(context, "FcrepoHttpAddType", a -> {
             a.mockEndpoints("*");
         });
 
-        AdviceWith.adviceWith(context, "FcrepoTriplestoreDeleter", a -> {
+        AdviceWith.adviceWith(context, "FcrepoHttpSend", a -> {
             a.mockEndpoints("*");
         });
 
