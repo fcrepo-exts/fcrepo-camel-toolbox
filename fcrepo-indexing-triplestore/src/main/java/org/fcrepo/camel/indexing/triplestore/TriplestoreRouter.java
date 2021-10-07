@@ -151,6 +151,8 @@ public class TriplestoreRouter extends RouteBuilder {
             .process(new SparqlUpdateProcessor())
             .log(LoggingLevel.INFO, LOGGER,
                 "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
+            .choice()
+            .when((x) -> !config.getTriplestoreAuthUsername().isEmpty())
             .setHeader("Authorization", simple(
                 "Basic " + Base64.getEncoder().encodeToString(
                     (config.getTriplestoreAuthUsername() +
