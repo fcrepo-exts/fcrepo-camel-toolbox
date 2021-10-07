@@ -17,6 +17,12 @@ Additional background information is available on the Fedora Wiki on the
 NOTE:  This is project is currently in a state of flux as we are in the process of upgrading it to support Java 11 and Camel 3.9.x
 Currently the Solr, ActiveMQ, Reindexing, and LDPath microservices are available. Triplestore indexing and Fixity are coming soon.
 
+## Building
+
+To build these projects use this command
+
+    MAVEN_OPTS="-Xmx1024m" mvn clean install
+
 
 ## Running the toolbox
 
