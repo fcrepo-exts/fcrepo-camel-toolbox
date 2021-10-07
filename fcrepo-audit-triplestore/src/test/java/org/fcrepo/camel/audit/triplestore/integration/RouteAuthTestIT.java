@@ -47,9 +47,10 @@ import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * Test the event route using a triple store with authentication
+ * Test routing against a triple store with basic authentication
  *
- * @since 2021-10-06
+ * @author Andy Pfister
+ * @since 2015-04-10
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
