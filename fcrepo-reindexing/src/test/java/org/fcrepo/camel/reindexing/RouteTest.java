@@ -61,6 +61,7 @@ public class RouteTest {
     private static final String restPrefix = "/reindexing";
     private static final String reindexingStream = "broker:queue:foo";
     private static final String baseUrl = "http://localhost/rest";
+    private long ASSERT_PERIOD_MS = 5000;
 
     @EndpointInject("mock:result")
     protected MockEndpoint resultEndpoint;
@@ -131,7 +132,7 @@ public class RouteTest {
 
         final var reindexingEndpoint = MockEndpoint.resolve(camelContext, "mock:" + reindexingStream);
         reindexingEndpoint.expectedMessageCount(0);
-        reindexingEndpoint.setAssertPeriod(1000);
+        reindexingEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         resultEndpoint.expectedMessageCount(1);
         resultEndpoint.expectedHeaderReceived(FCREPO_URI, url);
         resultEndpoint.expectedBodiesReceived("No endpoints configured for indexing");

@@ -16,7 +16,6 @@
   <description>Camel-based fixity checking service</description>
 
   <properties>
-    <osgi.export.packages>org.fcrepo.camel.fixity;version=${project.version}</osgi.export.packages>
   </properties>
 
   <dependencies>
@@ -27,7 +26,7 @@
 
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-blueprint</artifactId>
+      <artifactId>camel-spring-javaconfig</artifactId>
     </dependency>
 
     <dependency>
@@ -45,6 +44,12 @@
       <artifactId>spring-context</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-camel-common</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
     <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -55,21 +60,20 @@
       <artifactId>logback-classic</artifactId>
     </dependency>
 
-    <!-- Testing & Camel Plugin -->
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-test-blueprint</artifactId>
+      <artifactId>camel-activemq</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http</artifactId>
+    </dependency>
+
+    <!-- Testing & Camel Plugin -->
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -89,6 +93,26 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-spring</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-service-activemq</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-service-camel</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+
   </dependencies>
 
   <build>
@@ -104,12 +128,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-
-      <!-- to generate the MANIFEST-FILE of the bundle -->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
       </plugin>
 
       <!-- reserve network ports for integration testing -->
@@ -147,6 +165,7 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
         <configuration>
+          <supportedPackagings>jar</supportedPackagings>
           <systemProperties>
             <force>true</force>
             <systemProperty>
@@ -160,10 +179,6 @@
             <systemProperty>
               <name>fcrepo.dynamic.stomp.port</name>
               <value>${fcrepo.dynamic.stomp.port}</value>
-            </systemProperty>
-            <systemProperty>
-              <name>fcrepo.modeshape.configuration</name>
-              <value>classpath:/config/file-simple/repository.json</value>
             </systemProperty>
           </systemProperties>
           <scanIntervalSeconds>10</scanIntervalSeconds>

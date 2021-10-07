@@ -62,6 +62,7 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
 
+    private static final long ASSERT_PERIOD_MS = 5000;
     private final String EVENT_NS = "https://www.w3.org/ns/activitystreams#";
     private final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
     private static final String baseURL = "http://localhost/rest";
@@ -114,7 +115,7 @@ public class RouteTest {
         final var indexEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:index.solr");
         deleteEndpoint.expectedMessageCount(1);
         indexEndpoint.expectedMessageCount(0);
-        indexEndpoint.setAssertPeriod(1000);
+        indexEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         template.sendBodyAndHeaders(loadResourceAsStream("event_delete_resource.json"),
                 createEvent(baseURL + fileID, eventTypes));
 
@@ -138,9 +139,9 @@ public class RouteTest {
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.solr");
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.solr");
         deleteEndpoint.expectedMessageCount(0);
-        deleteEndpoint.setAssertPeriod(1000);
+        deleteEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         updateEndpoint.expectedMessageCount(0);
-        updateEndpoint.setAssertPeriod(1000);
+        updateEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
 
 
         template.sendBodyAndHeaders(
@@ -167,8 +168,8 @@ public class RouteTest {
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.solr");
         deleteEndpoint.expectedMessageCount(0);
         updateEndpoint.expectedMessageCount(0);
-        deleteEndpoint.setAssertPeriod(1000);
-        updateEndpoint.setAssertPeriod(1000);
+        deleteEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
+        updateEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
@@ -194,7 +195,7 @@ public class RouteTest {
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.solr");
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.solr");
         deleteEndpoint.expectedMessageCount(0);
-        deleteEndpoint.setAssertPeriod(1000);
+        deleteEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         updateEndpoint.expectedMessageCount(1);
 
         template.sendBodyAndHeaders(
@@ -222,7 +223,7 @@ public class RouteTest {
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:delete.solr");
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.solr");
         deleteEndpoint.expectedMessageCount(0);
-        deleteEndpoint.setAssertPeriod(1000);
+        deleteEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         updateEndpoint.expectedMessageCount(1);
         updateEndpoint.expectedHeaderReceived("CamelIndexingTransformation",
                 "http://localhost/ldpath/default");
@@ -253,7 +254,7 @@ public class RouteTest {
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:update.solr");
 
         updateEndpoint.expectedMessageCount(0);
-        updateEndpoint.setAssertPeriod(1000);
+        updateEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         deleteEndpoint.expectedMessageCount(1);
         deleteEndpoint.expectedHeaderReceived("CamelIndexingTransformation",
                 "http://localhost/ldpath/program");

@@ -53,6 +53,8 @@ where your `configuration.properties `file is a standard java properties file co
 ```
 triplestore.indexer.enabled=true
 solr.indexer.enabled=true
+audit.enabled=true
+fixity.enabled=true
 triplestore.baseUrl=http://localhost:3030/test
 solr.baseUrl=http://localhost:8983/solr/
 ```
@@ -108,13 +110,23 @@ solr.baseUrl=http://localhost:8983/solr/
 | jms.password | JMS password | no | null |
 | jms.connections | The JMS connection count | no | 10 |
 | jms.consumers | The JMS consumer count | no | 1 |
+| Fixity Service |
+| fixity.enabled | Enables/disabless fixity service  | no | false |
+| fixity.input.stream | Fixity Service jms  message stream | no | broker:queue:fixity |
+| fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | no | 0 |
+| fixity.success|  It is also possible to trigger an action on success. By default, this is a no-op. The value should be a camel route action.  To log it to a file use something like this:  file:/tmp/?fileName=fixity-succes.log&fileExist=Append | no | null |
+| fixity.failure |  Most importantly, it is possible to configure what should happen when a fixity check fails. In the default example below, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`) or use just about any other camel component.| no | file:/tmp/?fileName=fixity-errors.log&fileExist=Append |
+| Audit Triplestore Service |  
+| audit.enabled | Enables/disables audit triplestore service  | no | false |
+| audit.input.stream | Audit Service jms message stream | no | broker:topic:fedora |
+| audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | no | http://example.com/event |
+| audit.triplestore.baseUrl| The base url for the external triplestore service | no | http://localhost:3030/fuseki/test/update |
+| audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | no | http://localhost:8080/fcrepo/rest/audit | 
 | HTTP Service |
 | http.indexer.enabled | Enables/disables the HTTP indexing service. Disabled by default | no | false | 
 | http.input.stream | The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | |
 | http.reindex.stream | The JMS topic or queue serving as the reindex message source    | no       | broker:queue:http.reindex | | 
-| http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | no        http://localhost:8080/fcrepo/rest/audit | |
-
-TODO:  clean up and regularize property names. 
+| http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | no       | http://localhost:8080/fcrepo/rest/audit | |
 
 ## Note
 

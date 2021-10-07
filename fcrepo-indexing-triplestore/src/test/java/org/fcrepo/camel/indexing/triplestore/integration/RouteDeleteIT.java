@@ -47,6 +47,7 @@ import java.util.Properties;
 import static com.jayway.awaitility.Awaitility.await;
 import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
+import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.ASSERT_PERIOD_MS;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.getEvent;
 import static org.hamcrest.Matchers.equalTo;
@@ -155,10 +156,10 @@ public class RouteDeleteIT {
         deleteEndpoint.expectedMessageCount(1);
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:update.triplestore");
         updateEndpoint.expectedMessageCount(0);
-        updateEndpoint.setAssertPeriod(1000);
+        updateEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         final var fcrepoMockEndpoint = MockEndpoint.resolve(camelContext, fcrepoEndpoint);
         fcrepoMockEndpoint.expectedMessageCount(0);
-        fcrepoMockEndpoint.setAssertPeriod(1000);
+        fcrepoMockEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Delete"));
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), equalTo(0));
