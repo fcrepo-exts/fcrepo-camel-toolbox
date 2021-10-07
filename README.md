@@ -62,6 +62,12 @@ Then to start the Camel Toolbox, Fedora, Fuseki, and Solr containers run
 docker-compose up -d
 ```
 
+If you need to rebuild the docker image, it can be done through docker compose as long as the `build` is specified
+for the `camel-toolbox` container:
+```
+docker-compose build
+```
+
 ## Properties
 | Name      | Description| Required | Default Value | Values |
 | :---      | :---| :---:  |    :----   | --- |
