@@ -18,7 +18,6 @@
 package org.fcrepo.camel.indexing.http;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
@@ -26,7 +25,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
-import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +43,6 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_AGENT;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
@@ -56,6 +53,7 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
  * Test the route workflow.
  *
  * @author Aaron Coburn
+ * @author Demian Katz
  * @since 2015-04-10
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -98,11 +96,11 @@ public class RouteTest {
         final List<String> eventTypes = asList(EVENT_NS + "Delete");
 
         final var context = camelContext.adapt(ModelCamelContext.class);
-        AdviceWith.adviceWith(context, "FcrepoHttpAddType", a -> {
-            a.mockEndpointsAndSkip("direct:send.to.http");
+        AdviceWith.adviceWith(context, "FcrepoHttpSend", a -> {
+            a.mockEndpointsAndSkip(httpURL);
         });
 
-        final var sendEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:send.to.http");
+        final var sendEndpoint = MockEndpoint.resolve(camelContext, "mock:http:localhost/http_endpoint");
         sendEndpoint.expectedMessageCount(1);
         sendEndpoint.expectedHeaderReceived(FCREPO_EVENT_TYPE, "https://www.w3.org/ns/activitystreams#Delete");
         template.sendBodyAndHeaders(inputStream, "{}",
@@ -118,11 +116,11 @@ public class RouteTest {
         final List<String> eventTypes = emptyList();
 
         final var context = camelContext.adapt(ModelCamelContext.class);
-        AdviceWith.adviceWith(context, "FcrepoHttpAddType", a -> {
-            a.mockEndpointsAndSkip("direct:send.to.http");
+        AdviceWith.adviceWith(context, "FcrepoHttpSend", a -> {
+            a.mockEndpointsAndSkip(httpURL);
         });
 
-        final var sendEndpoint = MockEndpoint.resolve(camelContext, "mock:direct:send.to.http");
+        final var sendEndpoint = MockEndpoint.resolve(camelContext, "mock:http:localhost/http_endpoint");
         sendEndpoint.expectedMessageCount(1);
         // We expect "Update" as default if nothing is provided
         sendEndpoint.expectedHeaderReceived(FCREPO_EVENT_TYPE, "https://www.w3.org/ns/activitystreams#Update");
