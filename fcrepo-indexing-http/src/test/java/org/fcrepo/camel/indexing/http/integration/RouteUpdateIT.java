@@ -103,6 +103,7 @@ public class RouteUpdateIT {
         System.setProperty("http.input.stream", "direct:start");
         System.setProperty("http.reindex.stream", "direct:reindex");
         System.setProperty("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
+        System.setProperty("error.maxRedeliveries", "1");
     }
 
     @After
