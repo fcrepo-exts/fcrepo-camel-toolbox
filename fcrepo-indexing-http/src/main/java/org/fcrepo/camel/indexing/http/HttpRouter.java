@@ -118,6 +118,14 @@ public class HttpRouter extends RouteBuilder {
                         (config.getHttpAuthUsername() + ":" + config.getHttpAuthPassword()).getBytes()))
                     )
                     .end()
-            .to(config.getHttpBaseUrl());
+            .to(config.getHttpBaseUrl().isEmpty() ? "direct:http.baseurl.missing" : config.getHttpBaseUrl());
+
+        /*
+         * Stop the route if configuration is incomplete.
+         */
+        from("direct:http.baseurl.missing")
+            .routeId("FcrepoHttpBaseUrlMissing")
+            .log(LoggingLevel.ERROR, LOGGER, "Cannot forward HTTP message because http.baseUrl property is empty.")
+            .stop();
     }
 }
