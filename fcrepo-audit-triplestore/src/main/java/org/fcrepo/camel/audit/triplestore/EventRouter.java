@@ -21,6 +21,8 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.common.helpers.BasicAuth.BASIC_AUTH_HEADER;
+import static org.fcrepo.camel.common.helpers.BasicAuth.generateBasicAuthHeader;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.fcrepo.camel.processor.ProcessorUtils.tokenizePropertyPlaceholder;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -30,8 +32,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.fcrepo.camel.processor.EventProcessor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Base64;
 
 /**
  * A content router for handling JMS events.
@@ -79,12 +79,14 @@ public class EventRouter extends RouteBuilder {
                 "Audit Event: ${headers.CamelFcrepoUri} :: ${headers[CamelAuditEventUri]}")
             .choice()
             .when((x) -> !config.getTriplestoreAuthUsername().isEmpty())
-            .setHeader("Authorization", simple(
-                "Basic " + Base64.getEncoder().encodeToString(
-                    (config.getTriplestoreAuthUsername() +
-                        ":" +
+            .setHeader(
+                BASIC_AUTH_HEADER,
+                simple(
+                    generateBasicAuthHeader(
+                        config.getTriplestoreAuthUsername(),
                         config.getTriplestoreAuthPassword()
-                    ).getBytes()))
+                    )
+                )
             )
             .end()
             .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");

@@ -27,12 +27,12 @@ import org.fcrepo.camel.processor.SparqlUpdateProcessor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Base64;
-
 import static java.util.stream.Collectors.toList;
 import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
+import static org.fcrepo.camel.common.helpers.BasicAuth.BASIC_AUTH_HEADER;
+import static org.fcrepo.camel.common.helpers.BasicAuth.generateBasicAuthHeader;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_NAMED_GRAPH;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
@@ -129,12 +129,14 @@ public class TriplestoreRouter extends RouteBuilder {
                 "Deleting Triplestore Object ${headers[CamelFcrepoUri]}")
             .choice()
             .when((x) -> !config.getTriplestoreAuthUsername().isEmpty())
-            .setHeader("Authorization", simple(
-                "Basic " + Base64.getEncoder().encodeToString(
-                    (config.getTriplestoreAuthUsername() +
-                        ":" +
+            .setHeader(
+                BASIC_AUTH_HEADER,
+                simple(
+                    generateBasicAuthHeader(
+                        config.getTriplestoreAuthUsername(),
                         config.getTriplestoreAuthPassword()
-                    ).getBytes()))
+                    )
+                )
             )
             .end()
             .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
@@ -153,12 +155,14 @@ public class TriplestoreRouter extends RouteBuilder {
                 "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
             .choice()
             .when((x) -> !config.getTriplestoreAuthUsername().isEmpty())
-            .setHeader("Authorization", simple(
-                "Basic " + Base64.getEncoder().encodeToString(
-                    (config.getTriplestoreAuthUsername() +
-                        ":" +
+            .setHeader(
+                BASIC_AUTH_HEADER,
+                simple(
+                    generateBasicAuthHeader(
+                        config.getTriplestoreAuthUsername(),
                         config.getTriplestoreAuthPassword()
-                    ).getBytes()))
+                    )
+                )
             )
             .end()
             .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
