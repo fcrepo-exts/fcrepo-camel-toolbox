@@ -113,7 +113,14 @@ public class RouteUpdateIT {
 
     @Before
     public void setUpMockServer() throws Exception {
-        server = ClientAndServer.startClientAndServer(parseInt(MOCKSERVER_PORT));
+        final FcrepoClient client = createClient();
+        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
+                                         .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
+        fullPath = res.getLocation().toString();
+        logger.info("full path {}", fullPath);
+
+        mockServer = new WireMockServer(WireMockConfiguration.options().port(parseInt(MOCKSERVER_PORT)));
+        mockServer.start();
     }
 
     @DirtiesContext
