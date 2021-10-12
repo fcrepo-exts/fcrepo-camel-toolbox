@@ -16,6 +16,4 @@ COPY --from=build "/build/fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-a
 COPY docker/entrypoint.sh ./
 RUN chmod a+x ./entrypoint.sh
 
-ENV FCREPO_CAMEL_TOOLBOX_HOME=/usr/local/fcrepo-camel-toolbox
-
 ENTRYPOINT ["./entrypoint.sh"]
