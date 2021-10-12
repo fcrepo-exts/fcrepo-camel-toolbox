@@ -174,6 +174,5 @@ public class RouteUpdateAuthIT {
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), greaterThanOrEqualTo(1));
         MockEndpoint.assertIsSatisfied(fusekiMockEndpoint, fcrepoMockEndpoint, deleteEndpoint, updateEndpoint);
-
     }
 }

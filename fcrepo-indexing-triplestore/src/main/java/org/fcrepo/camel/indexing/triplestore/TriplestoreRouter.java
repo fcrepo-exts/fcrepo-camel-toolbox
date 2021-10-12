@@ -21,6 +21,7 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.language.xpath.XPathBuilder;
 import org.apache.camel.support.builder.Namespaces;
+import org.fcrepo.camel.common.processor.AddBasicAuthProcessor;
 import org.fcrepo.camel.processor.EventProcessor;
 import org.fcrepo.camel.processor.SparqlDeleteProcessor;
 import org.fcrepo.camel.processor.SparqlUpdateProcessor;
@@ -31,8 +32,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
 import static org.apache.camel.builder.PredicateBuilder.or;
-import static org.fcrepo.camel.common.helpers.BasicAuth.BASIC_AUTH_HEADER;
-import static org.fcrepo.camel.common.helpers.BasicAuth.generateBasicAuthHeader;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_NAMED_GRAPH;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
@@ -127,18 +126,8 @@ public class TriplestoreRouter extends RouteBuilder {
             .process(new SparqlDeleteProcessor())
             .log(LoggingLevel.INFO, LOGGER,
                 "Deleting Triplestore Object ${headers[CamelFcrepoUri]}")
-            .choice()
-            .when((x) -> !config.getTriplestoreAuthUsername().isEmpty())
-            .setHeader(
-                BASIC_AUTH_HEADER,
-                simple(
-                    generateBasicAuthHeader(
-                        config.getTriplestoreAuthUsername(),
-                        config.getTriplestoreAuthPassword()
-                    )
-                )
-            )
-            .end()
+            .process(new AddBasicAuthProcessor(this.config.getTriplestoreAuthUsername(),
+                        this.config.getTriplestoreAuthPassword()))
             .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
 
         /**
@@ -153,18 +142,8 @@ public class TriplestoreRouter extends RouteBuilder {
             .process(new SparqlUpdateProcessor())
             .log(LoggingLevel.INFO, LOGGER,
                 "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
-            .choice()
-            .when((x) -> !config.getTriplestoreAuthUsername().isEmpty())
-            .setHeader(
-                BASIC_AUTH_HEADER,
-                simple(
-                    generateBasicAuthHeader(
-                        config.getTriplestoreAuthUsername(),
-                        config.getTriplestoreAuthPassword()
-                    )
-                )
-            )
-            .end()
+            .process(new AddBasicAuthProcessor(this.config.getTriplestoreAuthUsername(),
+                    this.config.getTriplestoreAuthPassword()))
             .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
     }
 }
