@@ -84,13 +84,14 @@ with the `baseUrl` set to something like: `http://repository.example.edu/fcrepo/
 then the asynchonous integrations will be less prone to configuration errors.
 
 ### Global Properties
-| Name      | Description| Default Value | Values |
+
+| Name      | Description| Default Value |
 | :---      | :---| :----   | --- |
-| fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | http://localhost:8080/fcrepo/rest | Any valid fcrepo url
-| fcrepo.authUsername | A valid username      | fcrepoAdmin | | 
-| fcrepo.authPassword | A valid password      | fcrepoAdmin | | 
-| fcrepo.authHostName |       | localhost | | 
-| fcrepo.authPort |       | 8080 | | 
+| fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | http://localhost:8080/fcrepo/rest |
+| fcrepo.authUsername | A valid username      | fcrepoAdmin |
+| fcrepo.authPassword | A valid password      | fcrepoAdmin |
+| fcrepo.authHostName |       | localhost |
+| fcrepo.authPort |       | 8080 |
 
 ### Repository Audit Service (Triplestore)
 
@@ -104,8 +105,8 @@ More information about the
 is available on the Fedora wiki.
 
 #### Properties
-| Name      | Description| Default Value | Values |
-| :---      | :---| :----   | --- |
+| Name      | Description| Default Value |
+| :---      | :---| :----   |
 | audit.enabled | Enables/disables audit triplestore service  | false |
 | audit.input.stream | Audit Service jms message stream | broker:topic:fedora |
 | audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | http://example.com/event |
@@ -119,18 +120,18 @@ This application listens to Fedora's event stream and
 indexes objects into an external Solr server.
 
 #### Properties
-| Name      | Description| Default Value | Values |
-| :---      | :---| :----   | --- |
+| Name      | Description| Default Value |
+| :---      | :---| :----   |
 | solr.indexer.enabled | Enables/disables the SOLR indexing service. Disabled by default | false | 
-| error.maxRedeliveries |       | 10 | | 
-| fcrepo.checkHasIndexingTransformation |       | true | | 
-| fcrepo.defaultTransform |   ?    | null | | 
-| input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora | | 
-| solr.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex | | 
-| solr.commitWithin |   Milliseconds within which commits should occur    | 10000 | | 
-| indexing.predicate |   ?    | false | | 
-| ldpath.service.baseUrl |   The LDPath service base url    | http://localhost:9085/ldpath | | 
-| filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit | | 
+| error.maxRedeliveries |       | 10 |
+| fcrepo.checkHasIndexingTransformation |       | true |
+| fcrepo.defaultTransform |   ?    | null |
+| input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora |
+| solr.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex |
+| solr.commitWithin |   Milliseconds within which commits should occur    | 10000 |
+| indexing.predicate |   ?    | false |
+| ldpath.service.baseUrl |   The LDPath service base url    | http://localhost:9085/ldpath |
+| filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
 
 ### Repository Indexer (Triplestore)
 
@@ -138,17 +139,17 @@ This application listens to Fedora's event stream and
 indexes objects into an external triplestore.
 
 #### Properties
-| Name      | Description| Default Value | Values |
-| :---      | :---| :----   | --- |
+| Name      | Description| Default Value |
+| :---      | :---| :----   |
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | false | 
 | triplestore.baseUrl | Base URL for the triplestore | http://localhost:8080/fuseki/test/update | 
-| triplestore.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora | | 
-| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex | | 
-| triplestore.indexing.predicate |   ?    | false | | 
-| triplestore.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit | | 
-| triplestore.namedGraph |  ?  | null | | 
-| triplestore.prefer.include |  ?  | null | | 
-| triplestore.prefer.omit |  ?  | http://www.w3.org/ns/ldp#PreferContainment | | 
+| triplestore.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora |
+| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex |
+| triplestore.indexing.predicate |   ?    | false |
+| triplestore.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
+| triplestore.namedGraph |  ?  | null |
+| triplestore.prefer.include |  ?  | null |
+| triplestore.prefer.omit |  ?  | http://www.w3.org/ns/ldp#PreferContainment |
 
 ### LDPath Service
 
@@ -182,15 +183,15 @@ the entire `LDPath` program. The `Content-Type` of the request should be either 
     `curl -XPOST -H"Content-Type: application/ldpath" -d @program.txt http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object
 
 #### Properties
-| Name      | Description| Default Value | Values |
-| :---      | :---| :----   | --- |
-| fcrepo.cache.timeout | The timeout in seconds for the ldpath cache | 0 | | 
-| rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath| |
+| Name      | Description| Default Value |
+| :---      | :---| :----   |
+| fcrepo.cache.timeout | The timeout in seconds for the ldpath cache | 0 |
+| rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath|
 | rest.port| The LDPath rest endpoint port |  no | 9085 |
 | rest.host| The LDPath rest endpoint host |  no | localhost |
-| cache.timeout | LDCache ?  timeout in seconds  |  no | 86400  | |
-| ldcache.directory | LDCache directory  |  no | ldcache/  | |
-| ldpath.transform.path | The LDPath transform file path | classpath:org/fcrepo/camel/ldpath/default.ldpath | For local file paths use `file:` prefix. e.g `file:/path/to/your/transform.txt` |
+| cache.timeout | LDCache ?  timeout in seconds  |  no | 86400  |
+| ldcache.directory | LDCache directory  |  no | ldcache/  |
+| ldpath.transform.path | The LDPath transform file path | classpath:org/fcrepo/camel/ldpath/default.ldpath |
 
 ### Reindexing Service
 
@@ -199,9 +200,16 @@ any node hierarchy in fedora (e.g. the entire repository
 or some subset thereof) can be reindexed by a set of external
 services.
 
+One can specify which applications/endpoints to send these 
+reindexing events, by POSTing a JSON array to the re-indexing
+service:
+
+    curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
+        -d '["broker:queue:solr.reindex","broker:queue:fixity","broker:queue:triplestore.reindex"]'
+
 #### Properties
-| Name      | Description| Default Value | Values |
-| :---      | :---| :----   | --- |
+| Name      | Description| Default Value |
+| :---      | :---| :----   |
 | reindexing.enabled | Enables/disables the reindexing component. Enabled by default | true | 
 | reindexing.error.maxRedeliveries | Maximum redelivery attempts | 10 | 
 | reindexing.stream | Reindexing jms message stream | broker:queue:reindexing | 
@@ -214,7 +222,7 @@ services.
 This implements a connector to an ActiveMQ broker.
 
 #### Properties
-| Name      | Description| Default Value | Values |
+| Name      | Description| Default Value |
 | :---      | :---| :----   | --- |
 | jms.brokerUrl | JMS Broker endpoint | tcp://localhost:61616 |
 | jms.username | JMS username | null |
@@ -229,7 +237,7 @@ Re-Indexer to verify the checksums for all Binary resources in
 the repository.
 
 #### Properties
-| Name      | Description| Default Value | Values |
+| Name      | Description| Default Value |
 | :---      | :---| :----   | --- |
 | fixity.enabled | Enables/disabless fixity service  | false |
 | fixity.input.stream | Fixity Service jms  message stream | broker:queue:fixity |
@@ -242,21 +250,6 @@ the repository.
 This application automatically serializes Fedora resources to a filesystem
 location. Using the re-indexer, one can optionally serialize particular
 segments of the repository to a location on the filesystem.
-
-### Repository Re-Indexer
-
-This application allows a user to initiate a re-indexing process
-from any location within the Fedora node hierarchy, sending
-re-indexing requests to a specified list of external applications
-(e.g. fcrepo-indexing-solr, fcrepo-indexing-triplestore, and/or
-fcrepo-fixity).
-
-One can specify which applications/endpoints to send these 
-reindexing events, by POSTing a JSON array to the re-indexing
-service:
-
-    curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
-        -d '["broker:queue:solr.reindex","broker:queue:fixity","broker:queue:triplestore.reindex"]'
 
 ## Building
 
