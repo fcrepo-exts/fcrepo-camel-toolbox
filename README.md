@@ -122,14 +122,7 @@ solr.baseUrl=http://localhost:8983/solr/
 | audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | no | http://example.com/event |
 | audit.triplestore.baseUrl| The base url for the external triplestore service | no | http://localhost:3030/fuseki/test/update |
 | audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | no | http://localhost:8080/fcrepo/rest/audit | 
-| HTTP Service |
-| http.indexer.enabled | Enables/disables the HTTP indexing service. Disabled by default | no | false | 
-| http.input.stream | The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | |
-| http.reindex.stream | The JMS topic or queue serving as the reindex message source    | no       | broker:queue:http.reindex | | 
-| http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | no       | http://localhost:8080/fcrepo/rest/audit | |
-| http.baseUrl | The HTTP endpoint that will receive forwarded JMS messages | no       | | |
-| http.authUsername | Optional username for basic authentication if required by http.baseUrl | no       | | |
-| http.authPassword | Optional password for basic authentication if required by http.baseUrl | no       | | |
+
 ## Note
 
 Please note: the RDF representation of Fedora Resources is sensitive to the `Host` header
@@ -174,6 +167,18 @@ indexes objects into an external Solr server.
 
 This application listens to Fedora's event stream and
 forwards message identifiers and event types as JSON POSTs to an HTTP endpoint.
+
+#### Properties
+
+| Name      | Description| Default Value |
+| :---      | :---| :----   |
+| http.indexer.enabled | Enables/disables the HTTP indexing service. Disabled by default | false | 
+| http.input.stream | The JMS topic or queue serving as the message source    | broker:topic:fedora |
+| http.reindex.stream | The JMS topic or queue serving as the reindex message source    | broker:queue:http.reindex |
+| http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
+| http.baseUrl | The HTTP endpoint that will receive forwarded JMS messages | |
+| http.authUsername | Optional username for basic authentication if required by http.baseUrl | |
+| http.authPassword | Optional password for basic authentication if required by http.baseUrl | |
 
 ### Repository Indexer (Triplestore) (not currently available)
 
