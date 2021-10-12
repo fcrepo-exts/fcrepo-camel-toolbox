@@ -203,12 +203,6 @@ service:
     curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
         -d '["broker:queue:solr.reindex","broker:queue:fixity","broker:queue:triplestore.reindex"]'
 
-## Building
-
-To build these projects use this command
-
-    MAVEN_OPTS="-Xmx1024m" mvn clean install
-
 ## Troubleshooting
 
 ### java.lang.IllegalArgumentException: Credentials may not be null
