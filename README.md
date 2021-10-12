@@ -83,9 +83,7 @@ deployment server, and all clients (including these messaging toolbox applicatio
 with the `baseUrl` set to something like: `http://repository.example.edu/fcrepo/rest`,
 then the asynchonous integrations will be less prone to configuration errors.
 
-### Fedora Service
-
-## Properties
+### Global Properties
 | Name      | Description| Default Value | Values |
 | :---      | :---| :----   | --- |
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | http://localhost:8080/fcrepo/rest | Any valid fcrepo url
@@ -105,7 +103,7 @@ More information about the
 [audit service](https://wiki.duraspace.org/display/FF/Design+-+Audit+Service)
 is available on the Fedora wiki.
 
-## Properties
+#### Properties
 | Name      | Description| Default Value | Values |
 | :---      | :---| :----   | --- |
 | audit.enabled | Enables/disables audit triplestore service  | false |
@@ -120,7 +118,7 @@ is available on the Fedora wiki.
 This application listens to Fedora's event stream and
 indexes objects into an external Solr server.
 
-## Properties
+#### Properties
 | Name      | Description| Default Value | Values |
 | :---      | :---| :----   | --- |
 | solr.indexer.enabled | Enables/disables the SOLR indexing service. Disabled by default | false | 
@@ -139,7 +137,7 @@ indexes objects into an external Solr server.
 This application listens to Fedora's event stream and
 indexes objects into an external triplestore.
 
-## Properties
+#### Properties
 | Name      | Description| Default Value | Values |
 | :---      | :---| :----   | --- |
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | false | 
@@ -163,7 +161,7 @@ More information about LDPath can be found at the [Marmotta website](http://marm
 
 Note: The LDPath service requires an LDCache backend, such as `fcrepo-service-ldcache-file`.
 
-## Usage
+#### Usage
 The LDPath service responds to `GET` and `POST` requests using any accessible resources as a context.
 
 For example, a request to
@@ -183,7 +181,7 @@ the entire `LDPath` program. The `Content-Type` of the request should be either 
 
     `curl -XPOST -H"Content-Type: application/ldpath" -d @program.txt http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object
 
-## Properties
+#### Properties
 | Name      | Description| Default Value | Values |
 | :---      | :---| :----   | --- |
 | fcrepo.cache.timeout | The timeout in seconds for the ldpath cache | 0 | | 
@@ -201,11 +199,7 @@ any node hierarchy in fedora (e.g. the entire repository
 or some subset thereof) can be reindexed by a set of external
 services.
 
-The application can be configured by creating a file in
-`$KARAF_HOME/etc/org.fcrepo.camel.reindexing.cfg`. The following
-values are available for configuration:
-
-## Properties
+#### Properties
 | Name      | Description| Default Value | Values |
 | :---      | :---| :----   | --- |
 | reindexing.enabled | Enables/disables the reindexing component. Enabled by default | true | 
@@ -217,11 +211,9 @@ values are available for configuration:
 
 ### ActiveMQ Service
 
-This implements a connector to an ActiveMQ broker. The application can be configured by creating a file in
-`$KARAF_HOME/etc/org.fcrepo.camel.service.activemq.cfg`. The following
-values are available for configuration:
+This implements a connector to an ActiveMQ broker.
 
-## Properties
+#### Properties
 | Name      | Description| Default Value | Values |
 | :---      | :---| :----   | --- |
 | jms.brokerUrl | JMS Broker endpoint | tcp://localhost:61616 |
@@ -229,18 +221,21 @@ values are available for configuration:
 | jms.password | JMS password | null |
 | jms.connections | The JMS connection count | 10 |
 | jms.consumers | The JMS consumer count | 1 |
-| Fixity Service |
-| fixity.enabled | Enables/disabless fixity service  | false |
-| fixity.input.stream | Fixity Service jms  message stream | broker:queue:fixity |
-| fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | 0 |
-| fixity.success|  It is also possible to trigger an action on success. By default, this is a no-op. The value should be a camel route action.  To log it to a file use something like this:  file:/tmp/?fileName=fixity-succes.log&fileExist=Append | null |
-| fixity.failure |  Most importantly, it is possible to configure what should happen when a fixity check fails. In the default example below, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`) or use just about any other camel component.| file:/tmp/?fileName=fixity-errors.log&fileExist=Append |
 
 ### Fixity Checking Service (not currently available)
 
 This application can be used in conjunction with the Repository
 Re-Indexer to verify the checksums for all Binary resources in
 the repository.
+
+#### Properties
+| Name      | Description| Default Value | Values |
+| :---      | :---| :----   | --- |
+| fixity.enabled | Enables/disabless fixity service  | false |
+| fixity.input.stream | Fixity Service jms  message stream | broker:queue:fixity |
+| fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | 0 |
+| fixity.success|  It is also possible to trigger an action on success. By default, this is a no-op. The value should be a camel route action.  To log it to a file use something like this:  file:/tmp/?fileName=fixity-succes.log&fileExist=Append | null |
+| fixity.failure |  Most importantly, it is possible to configure what should happen when a fixity check fails. In the default example below, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`) or use just about any other camel component.| file:/tmp/?fileName=fixity-errors.log&fileExist=Append |
 
 ### Repository Serializer
 
