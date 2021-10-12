@@ -18,11 +18,13 @@
 package org.fcrepo.camel.indexing.triplestore.integration;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
+import org.apache.jena.atlas.web.AuthScheme;
 import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -41,12 +43,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.net.URI;
-import java.util.Properties;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.ASSERT_PERIOD_MS;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.createFcrepoClient;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.getEvent;
 import static org.hamcrest.Matchers.equalTo;
@@ -56,14 +56,14 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * Test the route workflow.
  *
- * @author Aaron Coburn
- * @since 2015-04-10
+ * @author Andy Pfister
+ * @since 2021-10-06
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {RouteUpdateIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
-public class RouteDeleteIT {
+public class RouteUpdateAuthIT {
 
-    final private Logger logger = getLogger(RouteDeleteIT.class);
+    final private Logger logger = getLogger(RouteUpdateAuthIT.class);
 
     private static FusekiServer server = null;
 
@@ -79,6 +79,12 @@ public class RouteDeleteIT {
         "fcrepo.dynamic.test.port", "8080"
     );
 
+    private static final String JMS_PORT = System.getProperty(
+        "fcrepo.dynamic.jms.port", "61616"
+    );
+
+    private static final String FCREPO_BASE_URL = "http://localhost:" + FCREPO_PORT + "/fcrepo/rest";
+
     @Produce("direct:start")
     protected ProducerTemplate template;
 
@@ -87,14 +93,18 @@ public class RouteDeleteIT {
 
     @BeforeClass
     public static void beforeClass() {
-        final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
-        final Properties props = new Properties();
-        System.setProperty("triplestore.indexer.enabled", "true");
-        System.setProperty("indexing.predicate", "true");
+        System.setProperty("fcrepo.baseUrl", FCREPO_BASE_URL);
+
         System.setProperty("triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
-        System.setProperty("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
-        System.setProperty("jms.brokerUrl", "tcp://localhost:" + jmsPort);
+        System.setProperty("triplestore.authUsername", "admin");
+        System.setProperty("triplestore.authPassword", "password");
+
+        System.setProperty("triplestore.indexer.enabled", "true");
+        System.setProperty("triplestore.indexing.predicate", "true");
         System.setProperty("triplestore.input.stream", "direct:start");
+        System.setProperty("triplestore.reindex.stream", "direct:reindex");
+
+        System.setProperty("jms.brokerUrl", "tcp://localhost:" + JMS_PORT);
     }
 
     @After
@@ -106,9 +116,10 @@ public class RouteDeleteIT {
     @Before
     public void setUpFuseki() throws Exception {
         final FcrepoClient client = createFcrepoClient();
-        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
-            .body(loadResourceAsStream("container.ttl"), "text/turtle").perform();
+        final FcrepoResponse res = client.post(URI.create(FCREPO_BASE_URL))
+            .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
         fullPath = res.getLocation().toString();
+        logger.info("full path {}", fullPath);
 
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
         final Dataset ds = DatasetFactory.createTxnMem(); //new DatasetImpl(createDefaultModel());
@@ -117,14 +128,15 @@ public class RouteDeleteIT {
             .port(parseInt(FUSEKI_PORT))
             .contextPath("/fuseki")
             .add("/test", ds, true)
+            .passwordFile("src/test/resources/passwd")
+            .auth(AuthScheme.BASIC)
             .build();
         server.start();
     }
 
     @DirtiesContext
     @Test
-    public void testDeletedResourceWithEventBody() throws Exception {
-        final String path = fullPath.replaceFirst("http://localhost:[0-9]+/fcrepo/rest", "");
+    public void testAddedEventRouter() throws Exception {
         final String fusekiEndpoint = "mock:http:localhost:" + FUSEKI_PORT + "/fuseki/test/update";
         final String fcrepoEndpoint = "mock:fcrepo:http://localhost:" + FCREPO_PORT + "/fcrepo/rest";
         final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/fuseki/test";
@@ -135,33 +147,33 @@ public class RouteDeleteIT {
             a.mockEndpoints("*");
         });
 
+        AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
+            a.mockEndpoints("*");
+        });
+
         AdviceWith.adviceWith(context, "FcrepoTriplestoreUpdater", a -> {
             a.mockEndpoints("*");
         });
 
-        AdviceWith.adviceWith(context, "FcrepoTriplestoreDeleter", a -> {
-            a.mockEndpoints("*");
-        });
-
-        TestUtils.populateFuseki(fusekiBase, fullPath);
-
-        await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), greaterThanOrEqualTo(1));
-
         final var fusekiMockEndpoint = MockEndpoint.resolve(camelContext, fusekiEndpoint);
         fusekiMockEndpoint.expectedMessageCount(1);
-
+        fusekiMockEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         final var deleteEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:delete.triplestore");
-        deleteEndpoint.expectedMessageCount(1);
+        deleteEndpoint.expectedMessageCount(0);
+        deleteEndpoint.setAssertPeriod(1000);
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:update.triplestore");
-        updateEndpoint.expectedMessageCount(0);
-        updateEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
+        updateEndpoint.expectedMessageCount(1);
+
         final var fcrepoMockEndpoint = MockEndpoint.resolve(camelContext, fcrepoEndpoint);
-        fcrepoMockEndpoint.expectedMessageCount(0);
-        fcrepoMockEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
-        template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Delete"));
+        fcrepoMockEndpoint.expectedMessageCount(2);
 
         await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), equalTo(0));
 
+        logger.info("fullPath={}", fullPath);
+        template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Create"));
+
+        await().until(TestUtils.triplestoreCount(fusekiBase, fullPath), greaterThanOrEqualTo(1));
         MockEndpoint.assertIsSatisfied(fusekiMockEndpoint, fcrepoMockEndpoint, deleteEndpoint, updateEndpoint);
+
     }
 }

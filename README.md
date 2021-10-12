@@ -69,7 +69,9 @@ solr.baseUrl=http://localhost:8983/solr/
 | fcrepo.authHost | The hostname of the Fedora installation which the authUsername and authPassword should be applied to | no       | localhost | | 
 | Triplestore Service|
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | no | false | 
-| triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update | 
+| triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update |
+| triplestore.authUsername | Username for basic authentication against triplestore | no | |
+| triplestore.authPassword | Password for basic authentication against triplestore | no | |
 | triplestore.input.stream |   The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | | 
 | triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | no       | broker:queue:solr.reindex | | 
 | triplestore.indexing.predicate |   ?    | no       | false | | 
@@ -120,6 +122,8 @@ solr.baseUrl=http://localhost:8983/solr/
 | audit.input.stream | Audit Service jms message stream | no | broker:topic:fedora |
 | audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | no | http://example.com/event |
 | audit.triplestore.baseUrl| The base url for the external triplestore service | no | http://localhost:3030/fuseki/test/update |
+| audit.triplestore.authUsername| Username for basic authentication against triplestore | no | |
+| audit.triplestore.authPassword| Password for basic authentication against triplestore | no | |
 | audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | no | http://localhost:8080/fcrepo/rest/audit | 
 
 ## Note
