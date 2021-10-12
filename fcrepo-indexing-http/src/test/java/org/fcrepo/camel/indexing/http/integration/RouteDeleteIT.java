@@ -27,8 +27,6 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.fcrepo.client.FcrepoClient;
-import org.fcrepo.client.FcrepoResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,18 +39,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import java.net.URI;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static java.lang.Integer.parseInt;
-import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.indexing.http.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.http.integration.TestUtils.getEvent;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -69,8 +62,6 @@ public class RouteDeleteIT {
 
     private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
 
-    private String fullPath = "";
-
     private static final String MOCK_ENDPOINT= "/endpoint";
 
     private static final String MOCKSERVER_PORT = System.getProperty(
@@ -82,6 +73,8 @@ public class RouteDeleteIT {
     private static final String BASIC_AUTH_USERNAME = "fooUser";
 
     private static final String BASIC_AUTH_PASSWORD = "barPass";
+
+    private String fullPath = "http://localhost:" + FCREPO_PORT + "/fcrepo/rest/" + "fake-identifier";
 
     @EndpointInject("mock:result")
     protected MockEndpoint resultEndpoint;
@@ -115,15 +108,6 @@ public class RouteDeleteIT {
 
     @Before
     public void setUpMockServer() throws Exception {
-        final FcrepoClient client = createClient();
-        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
-                                         .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
-        fullPath = res.getLocation().toString();
-        logger.info("full path {}", fullPath);
-
-        // Delete the object we just created
-        client.delete(URI.create(fullPath)).perform();
-
         mockServer = new WireMockServer(WireMockConfiguration.options().port(parseInt(MOCKSERVER_PORT)));
         mockServer.start();
     }
@@ -135,7 +119,7 @@ public class RouteDeleteIT {
         final var idMatcher = WireMock.matchingJsonPath("$.id", equalTo(fullPath));
         final var typeMatcher = WireMock.matchingJsonPath("$.type", equalTo(AS_NS + "Delete"));
 
-        // have the http server return a 200
+        // have the http server return a 200; also test that basic auth works (for variety)
         mockServer.stubFor(post(urlEqualTo(MOCK_ENDPOINT))
             .withBasicAuth(BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD)
             .willReturn(ok()));

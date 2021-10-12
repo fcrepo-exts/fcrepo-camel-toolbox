@@ -29,8 +29,6 @@ import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
-import org.fcrepo.client.FcrepoClient;
-import org.fcrepo.client.FcrepoResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,13 +50,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static java.lang.Integer.parseInt;
-import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.indexing.http.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.http.integration.TestUtils.getEvent;
-import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
-
-import java.net.URI;
 
 /**
  * Test the route workflow.
@@ -74,8 +67,6 @@ public class RouteUpdateIT {
 
     private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
 
-    private String fullPath = "";
-
     private static final String MOCK_ENDPOINT= "/endpoint";
 
     private static final String MOCKSERVER_PORT = System.getProperty(
@@ -86,6 +77,8 @@ public class RouteUpdateIT {
 
     private static final String JMS_PORT = System.getProperty(
             "fcrepo.dynamic.jms.port", "61616");
+
+    private String fullPath = "http://localhost:" + FCREPO_PORT + "/fcrepo/rest/" + "fake-identifier";
 
 
     @EndpointInject("mock:result")
@@ -118,12 +111,6 @@ public class RouteUpdateIT {
 
     @Before
     public void setUpMockServer() throws Exception {
-        final FcrepoClient client = createClient();
-        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
-                                         .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
-        fullPath = res.getLocation().toString();
-        logger.info("full path {}", fullPath);
-
         mockServer = new WireMockServer(WireMockConfiguration.options().port(parseInt(MOCKSERVER_PORT)));
         mockServer.start();
     }
@@ -146,8 +133,6 @@ public class RouteUpdateIT {
 
         final var mockServerMockEndpoint = MockEndpoint.resolve(camelContext, mockServerEndpoint);
         mockServerMockEndpoint.expectedMessageCount(1);
-        // do we still need the response code header?
-        // mockServerMockEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:send.to.http");
         updateEndpoint.expectedMessageCount(1);
 
@@ -168,6 +153,5 @@ public class RouteUpdateIT {
             component.setBrokerURL("tcp://localhost:" + JMS_PORT);
             return component;
         }
-
     }
 }
