@@ -52,6 +52,7 @@ import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.fcrepo.camel.indexing.http.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.http.integration.TestUtils.getEvent;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -132,8 +133,7 @@ public class RouteDeleteIT {
     public void testDeletedResourceWithEventBody() throws Exception {
         final var mockServerEndpoint = "mock:http:localhost:" + MOCKSERVER_PORT + MOCK_ENDPOINT;
         final var idMatcher = WireMock.matchingJsonPath("$.id", equalTo(fullPath));
-        // TODO: this should really be expecting a Delete event:
-        final var typeMatcher = WireMock.matchingJsonPath("$.type", equalTo(AS_NS + "Update"));
+        final var typeMatcher = WireMock.matchingJsonPath("$.type", equalTo(AS_NS + "Delete"));
 
         // have the http server return a 200
         mockServer.stubFor(post(urlEqualTo(MOCK_ENDPOINT))
@@ -152,7 +152,7 @@ public class RouteDeleteIT {
         updateEndpoint.expectedMessageCount(1);
 
         logger.info("fullPath={}", fullPath);
-        template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Delete"));
+        template.sendBodyAndHeader("direct:start", getEvent(fullPath, AS_NS + "Delete"), "org.fcrepo.jms.eventtype", AS_NS + "Delete");
 
         mockServer.verify(1, postRequestedFor(urlEqualTo(MOCK_ENDPOINT))
             .withRequestBody(idMatcher.and(typeMatcher)));

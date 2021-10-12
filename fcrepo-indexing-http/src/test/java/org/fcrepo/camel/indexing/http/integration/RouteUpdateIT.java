@@ -55,6 +55,7 @@ import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.fcrepo.camel.indexing.http.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.http.integration.TestUtils.getEvent;
+import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.URI;
@@ -132,7 +133,6 @@ public class RouteUpdateIT {
     public void testAddedEventRouter() throws Exception {
         final var mockServerEndpoint = "mock:http:localhost:" + MOCKSERVER_PORT + MOCK_ENDPOINT;
         final var idMatcher = WireMock.matchingJsonPath("$.id", equalTo(fullPath));
-        // TODO: this should really be expecting a Create event:
         final var typeMatcher = WireMock.matchingJsonPath("$.type", equalTo(AS_NS + "Update"));
 
         // have the http server return a 200
@@ -152,7 +152,7 @@ public class RouteUpdateIT {
         updateEndpoint.expectedMessageCount(1);
 
         logger.info("fullPath={}", fullPath);
-        template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Create"));
+        template.sendBodyAndHeader("direct:start", getEvent(fullPath, AS_NS + "Update"), "org.fcrepo.jms.eventtype", AS_NS + "Update");
 
         mockServer.verify(1, postRequestedFor(urlEqualTo(MOCK_ENDPOINT))
             .withRequestBody(idMatcher.and(typeMatcher)));
