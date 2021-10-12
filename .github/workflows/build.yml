@@ -69,8 +69,7 @@ jobs:
           FCREPO_CAMEL_TOOLBOX_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "authenticating with dockerhub"
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          echo "building docker container"
-          docker buildx create --use
           echo "Building and pushing tags 'fcrepo/fcrepo-camel-toolbox' and 'fcrepo/fcrepo-camel-toolbox:${FCREPO_CAMEL_TOOLBOX_VERSION}' ..."
+          docker buildx create --use
           docker buildx build --platform=${DOCKER_PLATFORMS} --push --tag="fcrepo/fcrepo-camel-toolbox" --tag="fcrepo/fcrepo-camel-toolbox:${FCREPO_CAMEL_TOOLBOX_VERSION}" .
           echo "Build and push complete"
