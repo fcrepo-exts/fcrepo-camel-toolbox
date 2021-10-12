@@ -45,7 +45,7 @@ public class AddBasicAuthProcessor implements Processor {
     }
     @Override
     public void process(final Exchange exchange) throws Exception {
-       if(!StringUtils.isBlank(this.username)) {
+       if (!StringUtils.isBlank(this.username)) {
             exchange.getIn().setHeader(BASIC_AUTH_HEADER,
                     generateBasicAuthHeader(this.username, this.password));
        }

@@ -38,9 +38,11 @@ public abstract class BasePropsConfig {
     public static final String FCREPO_CAMEL_TOOLBOX_HOME_PROPERTY = "fcrepo-camel-toolbox.home";
     public static final String DEFAULT_FCREPO_HOME_VALUE = "fcrepo-camel-toolbox-home";
     public static final String DEFAULT_FCREPO_CAMEL_TOOLBOX_CONFIG_FILE_PROP_SOURCE =
-            "file:${" + FCREPO_CAMEL_TOOLBOX_HOME_PROPERTY + ":" + DEFAULT_FCREPO_HOME_VALUE + "}/config/fcrepo-camel-toolbox.properties";
+            "file:${" + FCREPO_CAMEL_TOOLBOX_HOME_PROPERTY + ":" + DEFAULT_FCREPO_HOME_VALUE +
+                    "}/config/fcrepo-camel-toolbox.properties";
     public static final String FCREPO_CAMEL_CONFIG_FILE_PROPERTY = "fcrepo.camel.toolbox.config.file";
-    public static final String FCREPO_CAMEL_CONFIG_FILE_PROP_SOURCE = "file:${" + FCREPO_CAMEL_CONFIG_FILE_PROPERTY + "}";
+    public static final String FCREPO_CAMEL_CONFIG_FILE_PROP_SOURCE =
+            "file:${" + FCREPO_CAMEL_CONFIG_FILE_PROPERTY + "}";
 
     @Value("${error.maxRedeliveries:10}")
     private int maxRedeliveries;
