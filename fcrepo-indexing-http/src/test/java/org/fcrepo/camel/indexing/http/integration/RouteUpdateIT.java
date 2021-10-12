@@ -132,6 +132,7 @@ public class RouteUpdateIT {
     public void testAddedEventRouter() throws Exception {
         final var mockServerEndpoint = "mock:http:localhost:" + MOCKSERVER_PORT + MOCK_ENDPOINT;
         final var idMatcher = WireMock.matchingJsonPath("$.id", equalTo(fullPath));
+        // TODO: this should really be expecting a Create event:
         final var typeMatcher = WireMock.matchingJsonPath("$.type", equalTo(AS_NS + "Update"));
 
         // have the http server return a 200

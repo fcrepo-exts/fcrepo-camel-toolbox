@@ -17,10 +17,7 @@
  */
 package org.fcrepo.camel.indexing.http.integration;
 
-import java.io.InputStream;
-
 import org.apache.camel.Exchange;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -39,36 +36,6 @@ public class TestUtils {
 
     private static String FEDORA_USERNAME = "fedoraAdmin";
     private static String FEDORA_PASSWORD = "fedoraAdmin";
-    public static long ASSERT_PERIOD_MS = 5000;
-    /**
-     *  Format a Sparql-update for the provided subject.
-     *
-     * @param uri string containing sparql-update
-     * @return string containing formatted sparql-update
-     */
-    public static String sparqlUpdate(final String uri) {
-        final String rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-        final String fcrepo = "http://fedora.info/definitions/v4/repository#";
-
-        return "update=INSERT DATA { " +
-            "<" + uri + "> <" + rdf + "type> <http://www.w3.org/ns/ldp#RDFSource> . " +
-            "<" + uri + "> <" + rdf + "type> <" + fcrepo + "Resource> . " +
-            "<" + uri + "> <" + rdf + "type> <http://www.w3.org/ns/ldp#Container> . " +
-            "<" + uri + "> <" + rdf + "type> <" + fcrepo + "Container> . }";
-    }
-
-    /**
-     * Get data from the provided URL
-     *
-     * @param url string containing url
-     * @return InputStream containing data
-     * @throws Exception in the event of an HTTP client failure
-     */
-    public static InputStream httpGet(final String url) throws Exception {
-        final CloseableHttpClient httpClient = HttpClients.createDefault();
-        final HttpGet get = new HttpGet(url);
-        return httpClient.execute(get).getEntity().getContent();
-    }
 
     /**
      * Get an event for a given URL
