@@ -35,7 +35,8 @@ import java.util.Objects;
  */
 public abstract class ConditionOnProperty<T> implements ConfigurationCondition {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(org.fcrepo.camel.common.config.ConditionOnProperty.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(org.fcrepo.camel.common.config.ConditionOnProperty.class);
 
     private final String name;
     private final T expected;
