@@ -37,8 +37,6 @@ import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Base64;
-
 /**
  * A content router for handling JMS events.
  *
@@ -107,7 +105,7 @@ public class HttpRouter extends RouteBuilder {
                 .map(uri -> or(
                     header(FCREPO_URI).startsWith(constant(uri + "/")),
                     header(FCREPO_URI).isEqualTo(constant(uri))))
-                .collect(toList())))) 
+                .collect(toList()))))
             .log(LoggingLevel.INFO, LOGGER, "sending ${headers[CamelFcrepoUri]} to http endpoint...")
             .to("mustache:org/fcrepo/camel/indexing/http/httpMessage.mustache")
             .setHeader(HTTP_METHOD).constant("POST")

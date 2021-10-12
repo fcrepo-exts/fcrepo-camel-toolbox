@@ -67,7 +67,7 @@ public class RouteUpdateIT {
 
     private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
 
-    private static final String MOCK_ENDPOINT= "/endpoint";
+    private static final String MOCK_ENDPOINT = "/endpoint";
 
     private static final String MOCKSERVER_PORT = System.getProperty(
             "mockserver.dynamic.test.port", "8080");
@@ -137,7 +137,9 @@ public class RouteUpdateIT {
         updateEndpoint.expectedMessageCount(1);
 
         logger.info("fullPath={}", fullPath);
-        template.sendBodyAndHeader("direct:start", getEvent(fullPath, AS_NS + "Update"), "org.fcrepo.jms.eventtype", AS_NS + "Update");
+        template.sendBodyAndHeader(
+            "direct:start", getEvent(fullPath, AS_NS + "Update"), "org.fcrepo.jms.eventtype", AS_NS + "Update"
+        );
 
         mockServer.verify(1, postRequestedFor(urlEqualTo(MOCK_ENDPOINT))
             .withRequestBody(idMatcher.and(typeMatcher)));

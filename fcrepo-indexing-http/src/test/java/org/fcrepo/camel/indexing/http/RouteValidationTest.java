@@ -138,5 +138,5 @@ public class RouteValidationTest {
         public RouteBuilder route() {
             return new HttpRouter();
         }
-    } 
+    }
 }
