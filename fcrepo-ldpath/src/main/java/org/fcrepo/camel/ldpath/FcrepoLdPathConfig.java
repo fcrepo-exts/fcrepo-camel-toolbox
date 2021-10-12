@@ -17,6 +17,7 @@
  */
 package org.fcrepo.camel.ldpath;
 
+import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -28,13 +29,13 @@ import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
+import org.fcrepo.camel.common.config.BasePropsConfig;
 import org.fcrepo.client.FcrepoHttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -46,22 +47,7 @@ import static java.util.Collections.EMPTY_SET;
  * @author dbernstein
  */
 @Configuration
-public class FcrepoLdPathConfig {
-
-    @Value("${fcrepo.baseUrl:http://localhost:8080/fcrepo/rest}")
-    private String fcrepoBaseUrl;
-
-    @Value("${fcrepo.authUsername:fedoraAdmin}")
-    private String fcrepoUsername;
-
-    @Value("${fcrepo.authPassword:fedoraAdmin}")
-    private String fcrepoPassword;
-
-    @Value("${fcrepo.authHostName:localhost}")
-    private String fcrepoAuthHost;
-
-    @Value("${fcrepo.authPort:8080}")
-    private int fcrepoAuthPort;
+public class FcrepoLdPathConfig extends BasePropsConfig {
 
     @Value("${fcrepo.cache.timeout:0}")
     private long fcrepoCacheTimeout;
@@ -100,14 +86,23 @@ public class FcrepoLdPathConfig {
         return ldpathTransformPath;
     }
 
-
     @Bean("ldpath")
     public LDPathWrapper ldpath() throws Exception {
-        final AuthScope authScope = new AuthScope(fcrepoAuthHost, fcrepoAuthPort);
+        final var fcrepoBaseUrl = getFcrepoBaseUrl();
+        final var fcrepoAuthHost = getFcrepoAuthHost();
+        final var fcrepoUsername = getFcrepoUsername();
+        final var fcrepoPassword = getFcrepoPassword();
+
+        final AuthScope authScope;
+        if (fcrepoAuthHost == null || fcrepoAuthHost.isBlank()) {
+            authScope = new AuthScope(AuthScope.ANY);
+        } else {
+            authScope = new AuthScope(new HttpHost(fcrepoAuthHost));
+        }
         final Credentials credentials = new UsernamePasswordCredentials(fcrepoUsername, fcrepoPassword);
-        final List<Endpoint> endpoints = Arrays.asList(new FedoraEndpoint(fcrepoBaseUrl, fcrepoCacheTimeout));
+        final List<Endpoint> endpoints = List.of(new FedoraEndpoint(fcrepoBaseUrl, fcrepoCacheTimeout));
         final var fcrepoHttpClientBuilder = new FcrepoHttpClientBuilder(fcrepoUsername, fcrepoPassword, fcrepoAuthHost);
-        final List<DataProvider> providers = Arrays.asList(new FedoraProvider(fcrepoHttpClientBuilder));
+        final List<DataProvider> providers = List.of(new FedoraProvider(fcrepoHttpClientBuilder));
         final var client = ClientFactory.createClient(authScope, credentials, endpoints, providers);
         final var config = new CacheConfiguration(client);
         config.setDefaultExpiry(cacheTimeout);
@@ -115,8 +110,7 @@ public class FcrepoLdPathConfig {
         ldCachingBackend.initialize();
         final LDCache ldCache = new LDCache(config, ldCachingBackend);
         final var backend = new LDCacheBackend(ldCache);
-        final var ldPathWrapper = new LDPathWrapper(backend, createSelectorFunctions());
-        return ldPathWrapper;
+        return new LDPathWrapper(backend, createSelectorFunctions());
     }
 
     protected Set<SelectorFunction> createSelectorFunctions() {
@@ -127,6 +121,5 @@ public class FcrepoLdPathConfig {
     public LDPathRouter ldPathRouter() {
         return new LDPathRouter();
     }
-
 
 }

@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * A configuration class for the Solr Indexer service
+ * A configuration class for the triplestore Indexer service
  *
  * @author dbernstein
  */
@@ -70,6 +70,12 @@ public class FcrepoTripleStoreIndexerConfig extends BasePropsConfig {
     @Value("${triplestore.baseUrl:http://localhost:8080/fuseki/test/update}")
     private String triplestoreBaseUrl;
 
+    @Value("${triplestore.authUsername:}")
+    private String triplestoreAuthUsername;
+
+    @Value("${triplestore.authPassword:}")
+    private String triplestoreAuthPassword;
+
     public String getInputStream() {
         return inputStream;
     }
@@ -102,6 +108,13 @@ public class FcrepoTripleStoreIndexerConfig extends BasePropsConfig {
         return triplestoreBaseUrl;
     }
 
+    public String getTriplestoreAuthUsername() {
+        return triplestoreAuthUsername;
+    }
+
+    public String getTriplestoreAuthPassword() {
+        return triplestoreAuthPassword;
+    }
 
     @Bean(name = "http")
     public HttpComponent http() {

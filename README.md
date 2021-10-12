@@ -89,8 +89,7 @@ then the asynchonous integrations will be less prone to configuration errors.
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | http://localhost:8080/fcrepo/rest | Any valid fcrepo url
 | fcrepo.authUsername | A valid username      | fcrepoAdmin | | 
 | fcrepo.authPassword | A valid password      | fcrepoAdmin | | 
-| fcrepo.authHostName |       | localhost | | 
-| fcrepo.authPort |       | 8080 | | 
+| fcrepo.authHost | The hostname of the Fedora installation which the authUsername and authPassword should be applied to | localhost | | 
 
 ### Repository Audit Service (Triplestore)
 
@@ -110,6 +109,8 @@ is available on the Fedora wiki.
 | audit.input.stream | Audit Service jms message stream | broker:topic:fedora |
 | audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | http://example.com/event |
 | audit.triplestore.baseUrl| The base url for the external triplestore service | http://localhost:3030/fuseki/test/update |
+| audit.triplestore.authUsername| Username for basic authentication against triplestore | |
+| audit.triplestore.authPassword| Password for basic authentication against triplestore | |
 | audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | http://localhost:8080/fcrepo/rest/audit | 
 
 
@@ -142,6 +143,8 @@ indexes objects into an external triplestore.
 | :---      | :---| :----   | --- |
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | false | 
 | triplestore.baseUrl | Base URL for the triplestore | http://localhost:8080/fuseki/test/update | 
+| triplestore.authUsername | Username for basic authentication against triplestore | |
+| triplestore.authPassword | Password for basic authentication against triplestore | |
 | triplestore.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora | | 
 | triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex | | 
 | triplestore.indexing.predicate |   ?    | false | | 
@@ -263,6 +266,14 @@ service:
 To build these projects use this command
 
     MAVEN_OPTS="-Xmx1024m" mvn clean install
+
+## Troubleshooting
+
+### java.lang.IllegalArgumentException: Credentials may not be null
+
+Check the `configuration.properties` to ensure that the `fcrepo.baseUrl` and `fcrepo.authHost` have
+the same hostname. If they differ, the http client will not be able to find the credentials passed in
+for authentication.
 
 ## Maintainers
 

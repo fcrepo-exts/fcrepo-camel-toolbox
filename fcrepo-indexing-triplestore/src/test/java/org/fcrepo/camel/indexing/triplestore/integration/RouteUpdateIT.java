@@ -18,7 +18,6 @@
 package org.fcrepo.camel.indexing.triplestore.integration;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
@@ -53,7 +52,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.ASSERT_PERIOD_MS;
-import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.createClient;
+import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.createFcrepoClient;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.getEvent;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -78,17 +77,16 @@ public class RouteUpdateIT {
     private String fullPath = "";
 
     private static final String FUSEKI_PORT = System.getProperty(
-            "fuseki.dynamic.test.port", "8080");
+            "fuseki.dynamic.test.port", "8080"
+    );
 
     private static final String FCREPO_PORT = System.getProperty(
-            "fcrepo.dynamic.test.port", "8080");
+            "fcrepo.dynamic.test.port", "8080"
+    );
 
     private static final String JMS_PORT = System.getProperty(
-            "fcrepo.dynamic.jms.port", "61616");
-
-
-    @EndpointInject("mock:result")
-    protected MockEndpoint resultEndpoint;
+            "fcrepo.dynamic.jms.port", "61616"
+    );
 
     @Produce("direct:start")
     protected ProducerTemplate template;
@@ -115,7 +113,7 @@ public class RouteUpdateIT {
 
     @Before
     public void setUpFuseki() throws Exception {
-        final FcrepoClient client = createClient();
+        final FcrepoClient client = createFcrepoClient();
         final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
                 .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
         fullPath = res.getLocation().toString();
