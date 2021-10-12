@@ -176,9 +176,11 @@ forwards message identifiers and event types as JSON POSTs to an HTTP endpoint.
 | http.input.stream | The JMS topic or queue serving as the message source    | broker:topic:fedora |
 | http.reindex.stream | The JMS topic or queue serving as the reindex message source    | broker:queue:http.reindex |
 | http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
-| http.baseUrl | The HTTP endpoint that will receive forwarded JMS messages | |
+| http.baseUrl | The HTTP endpoint that will receive forwarded JMS messages (REQUIRED) | |
 | http.authUsername | Optional username for basic authentication if required by http.baseUrl | |
 | http.authPassword | Optional password for basic authentication if required by http.baseUrl | |
+
+Note: you MUST set the http.baseUrl property in order for this service to do anything meaningful.
 
 ### Repository Indexer (Triplestore) (not currently available)
 
