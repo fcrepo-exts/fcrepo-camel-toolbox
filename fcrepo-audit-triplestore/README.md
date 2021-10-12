@@ -31,6 +31,11 @@ The base URL of the triplestore being used.
 
     audit.triplestore.baseUrl=http://localhost:3030/fuseki/test/update
 
+In case your triple store needs basic authentication.
+
+    audit.triplestore.authUsername=admin
+    audit.triplestore.authPassword=password
+
 For more help see the Apache Camel documentation
 
     http://camel.apache.org/

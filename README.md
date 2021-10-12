@@ -17,46 +17,55 @@ Additional background information is available on the Fedora Wiki on the
 NOTE:  This is project is currently in a state of flux as we are in the process of upgrading it to support Java 11 and Camel 3.9.x
 Currently the Solr, ActiveMQ, Reindexing, and LDPath microservices are available. Triplestore indexing and Fixity are coming soon.
 
+## Building
+
+To build these projects use this command
+
+    MAVEN_OPTS="-Xmx1024m" mvn clean install
+
 
 ## Running the toolbox
 
-Before starting the camel toolbox fire up a Fedora 6.x instance, Solr 8.x, and Fuseki (triple store).
-
-Fedora
+The camel toolbox can be run as a java cli application. Once the maven build is done, run the toolbox driver:
 ```
-docker run -p8080:8080 --rm -p61616:61616  -p8181:8181 --name=my_fcrepo6  fcrepo/fcrepo:6.0.0
+java -jar fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-app-<version>-driver.jar -c configuration.properties
 ```
 
-Solr
-```
-docker run  --rm -p 8983:8983 --name my_solr solr:8
-```
+where your `configuration.properties` file is a standard java properties file.
 
-Create the default Solr Core
-```
-docker exec -it my_solr solr create_core -c collection1
-```
+### Docker Compose
 
-Fuseki 
-```
-docker run --rm -p 3030:3030 --name my_fuseki atomgraph/fuseki --mem /test
-```
+The Camel Toolbox can be started using Docker Compose which will create containers for Fedora, Fuseki, Solr, and the
+Camel Toolbox application. 
 
-
+Configuration for the Camel Toolbox can be done through the `fcrepo-camel-config/configuration.properties` or through 
+environment variables (not yet available) as standard java properties as key value pairs. To run with the docker containers 
+the following properties are set by default:
 ```
-mvn clean install
-java -jar fcrepo-camel-toolbox/fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-app-<verion>-driver.jar -c /path/to/configuration.properties
-``` 
+jms.brokerUrl=tcp://fcrepo:61616
+fcrepo.baseUrl=http://fcrepo:8080/fcrepo/rest
 
-where your `configuration.properties `file is a standard java properties file containing key value pairs. To run with the above solr and fuseki docker containers  set the following properties
-
-```
-triplestore.indexer.enabled=true
 solr.indexer.enabled=true
+solr.baseUrl=http://solr:8983/solr/fcrepo
+
+triplestore.indexer.enabled=true
+triplestore.baseUrl=http://fuseki:3030/fcrepo
+
 audit.enabled=true
 fixity.enabled=true
-triplestore.baseUrl=http://localhost:3030/test
-solr.baseUrl=http://localhost:8983/solr/
+fcrepo.authHost=fcrepo
+reindexing.rest.host=0.0.0.0
+```
+
+Then to start the Camel Toolbox, Fedora, Fuseki, and Solr containers run
+```
+docker-compose up -d
+```
+
+If you need to rebuild the docker image, it can be done through docker compose as long as the `build` is specified
+for the `camel-toolbox` container:
+```
+docker-compose build
 ```
 
 ## Properties
@@ -66,11 +75,12 @@ solr.baseUrl=http://localhost:8983/solr/
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | no       | http://localhost:8080/fcrepo/rest | Any valid fcrepo url
 | fcrepo.authUsername | A valid username      | no       | fcrepoAdmin | | 
 | fcrepo.authPassword | A valid password      | no       | fcrepoAdmin | | 
-| fcrepo.authHostName |       | no       | localhost | | 
-| fcrepo.authPort |       | no       | 8080 | | 
+| fcrepo.authHost | The hostname of the Fedora installation which the authUsername and authPassword should be applied to | no       | localhost | | 
 | Triplestore Service|
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | no | false | 
-| triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update | 
+| triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update |
+| triplestore.authUsername | Username for basic authentication against triplestore | no | |
+| triplestore.authPassword | Password for basic authentication against triplestore | no | |
 | triplestore.input.stream |   The JMS topic or queue serving as the message source    | no       | broker:topic:fedora | | 
 | triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | no       | broker:queue:solr.reindex | | 
 | triplestore.indexing.predicate |   ?    | no       | false | | 
@@ -101,9 +111,9 @@ solr.baseUrl=http://localhost:8983/solr/
 | reindexing.enabled | Enables/disables the reindexing component. Enabled by default | no | true | 
 | reindexing.error.maxRedeliveries | Maximum redelivery attempts | no | 10 | 
 | reindexing.stream | Reindexing jms message stream | no | broker:queue:reindexing | 
-| reindexing.host | Reindexing service host | no | localhost | 
-| reindexing.port | Reindexing service port | no | 9080 |
-| reindexing.rest | Reindexing rest URI prefix | no | /reindexing | 
+| reindexing.rest.host | Reindexing service host | no | localhost | 
+| reindexing.rest.port | Reindexing service port | no | 9080 |
+| reindexing.rest.prefix | Reindexing rest URI prefix | no | /reindexing | 
 | ActiveMQ Service |
 | jms.brokerUrl | JMS Broker endpoint | no | tcp://localhost:61616 |
 | jms.username | JMS username | no | null |
@@ -121,6 +131,8 @@ solr.baseUrl=http://localhost:8983/solr/
 | audit.input.stream | Audit Service jms message stream | no | broker:topic:fedora |
 | audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | no | http://example.com/event |
 | audit.triplestore.baseUrl| The base url for the external triplestore service | no | http://localhost:3030/fuseki/test/update |
+| audit.triplestore.authUsername| Username for basic authentication against triplestore | no | |
+| audit.triplestore.authPassword| Password for basic authentication against triplestore | no | |
 | audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | no | http://localhost:8080/fcrepo/rest/audit | 
 
 ## Note
@@ -214,11 +226,13 @@ service:
     curl -XPOST localhost:9080/reindexing/fedora/path -H"Content-Type: application/json" \
         -d '["broker:queue:solr.reindex","broker:queue:fixity","broker:queue:triplestore.reindex"]'
 
-## Building
+## Troubleshooting
 
-To build these projects use this command
+### java.lang.IllegalArgumentException: Credentials may not be null
 
-    MAVEN_OPTS="-Xmx1024m" mvn clean install
+Check the `configuration.properties` to ensure that the `fcrepo.baseUrl` and `fcrepo.authHost` have
+the same hostname. If they differ, the http client will not be able to find the credentials passed in
+for authentication.
 
 ## Maintainers
 

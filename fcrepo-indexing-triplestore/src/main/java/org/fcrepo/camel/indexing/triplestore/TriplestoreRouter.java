@@ -21,6 +21,7 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.language.xpath.XPathBuilder;
 import org.apache.camel.support.builder.Namespaces;
+import org.fcrepo.camel.common.processor.AddBasicAuthProcessor;
 import org.fcrepo.camel.processor.EventProcessor;
 import org.fcrepo.camel.processor.SparqlDeleteProcessor;
 import org.fcrepo.camel.processor.SparqlUpdateProcessor;
@@ -61,15 +62,15 @@ public class TriplestoreRouter extends RouteBuilder {
         ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
 
         final XPathBuilder indexable = new XPathBuilder(
-                String.format("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']",
-                    "http://fedora.info/definitions/v4/indexing#Indexable"));
+            String.format("/rdf:RDF/rdf:Description/rdf:type[@rdf:resource='%s']",
+                "http://fedora.info/definitions/v4/indexing#Indexable"));
         indexable.namespaces(ns);
 
         /**
          * A generic error handler (specific to this RouteBuilder)
          */
         onException(Exception.class)
-                .maximumRedeliveries(config.getMaxRedeliveries())
+            .maximumRedeliveries(config.getMaxRedeliveries())
             .log("Index Routing Error: ${routeId}");
 
         /**
@@ -80,12 +81,12 @@ public class TriplestoreRouter extends RouteBuilder {
             .routeId("FcrepoTriplestoreRouter")
             .process(new EventProcessor())
             .choice()
-                .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
-                            header(FCREPO_EVENT_TYPE).contains(DELETE)))
-                    .log(LoggingLevel.INFO, "deleting " + header(FCREPO_URI) + " from triplestore.")
-                    .to("direct:delete.triplestore")
-                .otherwise()
-                    .to("direct:index.triplestore");
+            .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
+                header(FCREPO_EVENT_TYPE).contains(DELETE)))
+            .log(LoggingLevel.INFO, "deleting " + header(FCREPO_URI) + " from triplestore.")
+            .to("direct:delete.triplestore")
+            .otherwise()
+            .to("direct:index.triplestore");
 
         /**
          * Handle re-index events
@@ -98,47 +99,51 @@ public class TriplestoreRouter extends RouteBuilder {
          * Based on an item's metadata, determine if it is indexable.
          */
         from("direct:index.triplestore")
-                .routeId("FcrepoTriplestoreIndexer")
-                .filter(not(in(tokenizePropertyPlaceholder(getContext(), config.getFilterContainers(), ",").stream()
-                        .map(uri -> or(
-                                header(FCREPO_URI).startsWith(constant(uri + "/")),
-                                header(FCREPO_URI).isEqualTo(constant(uri))))
-                        .collect(toList()))))
-                .removeHeaders("CamelHttp*")
-                .choice()
-                .when(simple(config.isIndexingPredicate() + " != 'true'"))
-                .to("direct:update.triplestore")
-                .otherwise()
-                .to("fcrepo:" + config.getFcrepoBaseUrl() +
-                        "?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
-                    .choice()
-                        .when(indexable)
-                            .to("direct:update.triplestore")
-                        .otherwise()
-                            .to("direct:delete.triplestore");
+            .routeId("FcrepoTriplestoreIndexer")
+            .filter(not(in(tokenizePropertyPlaceholder(getContext(), config.getFilterContainers(), ",").stream()
+                .map(uri -> or(
+                    header(FCREPO_URI).startsWith(constant(uri + "/")),
+                    header(FCREPO_URI).isEqualTo(constant(uri))))
+                .collect(toList()))))
+            .removeHeaders("CamelHttp*")
+            .choice()
+            .when(simple(config.isIndexingPredicate() + " != 'true'"))
+            .to("direct:update.triplestore")
+            .otherwise()
+            .to("fcrepo:" + config.getFcrepoBaseUrl() +
+                "?preferInclude=PreferMinimalContainer&accept=application/rdf+xml")
+            .choice()
+            .when(indexable)
+            .to("direct:update.triplestore")
+            .otherwise()
+            .to("direct:delete.triplestore");
 
         /**
          * Remove an item from the triplestore index.
          */
         from("direct:delete.triplestore")
-                .routeId("FcrepoTriplestoreDeleter")
-                .process(new SparqlDeleteProcessor())
-                .log(LoggingLevel.INFO, LOGGER,
-                        "Deleting Triplestore Object ${headers[CamelFcrepoUri]}")
-                .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
+            .routeId("FcrepoTriplestoreDeleter")
+            .process(new SparqlDeleteProcessor())
+            .log(LoggingLevel.INFO, LOGGER,
+                "Deleting Triplestore Object ${headers[CamelFcrepoUri]}")
+            .process(new AddBasicAuthProcessor(this.config.getTriplestoreAuthUsername(),
+                        this.config.getTriplestoreAuthPassword()))
+            .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
 
         /**
          * Perform the sparql update.
          */
         from("direct:update.triplestore")
-                .routeId("FcrepoTriplestoreUpdater")
-                .setHeader(FCREPO_NAMED_GRAPH)
-                .simple(config.getNamedGraph())
-                .to("fcrepo:" + config.getFcrepoBaseUrl() + "?accept=application/n-triples" +
-                        "&preferOmit=" + config.getPreferOmit() + "&preferInclude=" + config.getPreferInclude())
-                .process(new SparqlUpdateProcessor())
-                .log(LoggingLevel.INFO, LOGGER,
-                        "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
-                .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
+            .routeId("FcrepoTriplestoreUpdater")
+            .setHeader(FCREPO_NAMED_GRAPH)
+            .simple(config.getNamedGraph())
+            .to("fcrepo:" + config.getFcrepoBaseUrl() + "?accept=application/n-triples" +
+                "&preferOmit=" + config.getPreferOmit() + "&preferInclude=" + config.getPreferInclude())
+            .process(new SparqlUpdateProcessor())
+            .log(LoggingLevel.INFO, LOGGER,
+                "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
+            .process(new AddBasicAuthProcessor(this.config.getTriplestoreAuthUsername(),
+                    this.config.getTriplestoreAuthPassword()))
+            .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
     }
 }
