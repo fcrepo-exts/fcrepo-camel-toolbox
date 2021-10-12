@@ -22,7 +22,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.StringUtils;
 
-import static org.apache.camel.builder.Builder.simple;
 import static org.fcrepo.camel.common.helpers.BasicAuth.BASIC_AUTH_HEADER;
 import static org.fcrepo.camel.common.helpers.BasicAuth.generateBasicAuthHeader;
 
@@ -32,8 +31,8 @@ import static org.fcrepo.camel.common.helpers.BasicAuth.generateBasicAuthHeader;
  */
 public class AddBasicAuthProcessor implements Processor {
 
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     /**
      * Constructor
@@ -45,7 +44,7 @@ public class AddBasicAuthProcessor implements Processor {
         this.password = password;
     }
     @Override
-    public void process(Exchange exchange) throws Exception {
+    public void process(final Exchange exchange) throws Exception {
        if(!StringUtils.isBlank(this.username)) {
             exchange.getIn().setHeader(BASIC_AUTH_HEADER,
                     generateBasicAuthHeader(this.username, this.password));
