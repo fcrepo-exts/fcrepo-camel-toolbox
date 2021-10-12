@@ -19,6 +19,7 @@ package org.fcrepo.camel.indexing.http;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.fcrepo.camel.common.processor.AddBasicAuthProcessor;
 import org.apache.camel.support.builder.Namespaces;
 import org.fcrepo.camel.processor.EventProcessor;
 import org.slf4j.Logger;
@@ -111,13 +112,7 @@ public class HttpRouter extends RouteBuilder {
             .to("mustache:org/fcrepo/camel/indexing/http/httpMessage.mustache")
             .setHeader(HTTP_METHOD).constant("POST")
             .setHeader(CONTENT_TYPE).constant("application/json")
-            .choice()
-                .when((x) -> !config.getHttpAuthUsername().isEmpty())
-                .setHeader("Authorization", simple(
-                    "Basic " + Base64.getEncoder().encodeToString(
-                        (config.getHttpAuthUsername() + ":" + config.getHttpAuthPassword()).getBytes()))
-                    )
-                    .end()
+            .process(new AddBasicAuthProcessor(config.getHttpAuthUsername(), config.getHttpAuthPassword()))
             .to(config.getHttpBaseUrl().isEmpty() ? "direct:http.baseurl.missing" : config.getHttpBaseUrl());
 
         /*
