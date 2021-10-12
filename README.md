@@ -66,8 +66,7 @@ solr.baseUrl=http://localhost:8983/solr/
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | no       | http://localhost:8080/fcrepo/rest | Any valid fcrepo url
 | fcrepo.authUsername | A valid username      | no       | fcrepoAdmin | | 
 | fcrepo.authPassword | A valid password      | no       | fcrepoAdmin | | 
-| fcrepo.authHostName |       | no       | localhost | | 
-| fcrepo.authPort |       | no       | 8080 | | 
+| fcrepo.authHost | The hostname of the Fedora installation which the authUsername and authPassword should be applied to | no       | localhost | | 
 | Triplestore Service|
 | triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | no | false | 
 | triplestore.baseUrl | Base URL for the triplestore | no | http://localhost:8080/fuseki/test/update | 
@@ -200,6 +199,14 @@ service:
 To build these projects use this command
 
     MAVEN_OPTS="-Xmx1024m" mvn clean install
+
+## Troubleshooting
+
+### java.lang.IllegalArgumentException: Credentials may not be null
+
+Check the `configuration.properties` to ensure that the `fcrepo.baseUrl` and `fcrepo.authHost` have
+the same hostname. If they differ, the http client will not be able to find the credentials passed in
+for authentication.
 
 ## Maintainers
 

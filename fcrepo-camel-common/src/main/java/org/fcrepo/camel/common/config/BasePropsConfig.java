@@ -22,10 +22,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * A base class for property configs
@@ -80,4 +76,5 @@ public abstract class BasePropsConfig {
     public String getFcrepoAuthHost() {
         return fcrepoAuthHost;
     }
+
 }
