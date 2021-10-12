@@ -17,9 +17,11 @@
  */
 package org.fcrepo.camel.indexing.http.integration;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
@@ -27,8 +29,6 @@ import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
 import org.fcrepo.client.FcrepoClient;
 import org.fcrepo.client.FcrepoResponse;
 import org.junit.After;
@@ -36,9 +36,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockserver.model.HttpRequest;
-import org.mockserver.integration.ClientAndServer;
-import org.mockserver.verify.VerificationTimes;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -49,14 +46,18 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import java.net.URI;
-
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
-import static org.fcrepo.camel.indexing.http.integration.TestUtils.ASSERT_PERIOD_MS;
 import static org.fcrepo.camel.indexing.http.integration.TestUtils.createClient;
 import static org.fcrepo.camel.indexing.http.integration.TestUtils.getEvent;
 import static org.slf4j.LoggerFactory.getLogger;
+
+import java.net.URI;
 
 /**
  * Test the route workflow.
@@ -70,11 +71,11 @@ public class RouteUpdateIT {
 
     final private Logger logger = getLogger(RouteUpdateIT.class);
 
-    private static ClientAndServer server = null;
-
     private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
 
     private String fullPath = "";
+
+    private static final String MOCK_ENDPOINT= "/endpoint";
 
     private static final String MOCKSERVER_PORT = System.getProperty(
             "mockserver.dynamic.test.port", "8080");
@@ -95,69 +96,66 @@ public class RouteUpdateIT {
     @Autowired
     private CamelContext camelContext;
 
+    private WireMockServer mockServer;
+
     @BeforeClass
     public static void beforeClass() {
         System.setProperty("http.indexer.enabled", "true");
-        System.setProperty("http.baseUrl", "http://localhost:" + MOCKSERVER_PORT + "/endpoint");
+        System.setProperty("http.baseUrl", "http://localhost:" + MOCKSERVER_PORT + MOCK_ENDPOINT);
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + JMS_PORT);
         System.setProperty("http.input.stream", "direct:start");
         System.setProperty("http.reindex.stream", "direct:reindex");
         System.setProperty("fcrepo.baseUrl", "http://localhost:" + FCREPO_PORT + "/fcrepo/rest");
+        System.setProperty("error.maxRedeliveries", "1");
     }
 
     @After
-    public void tearDownMockServer() throws Exception {
-        logger.info("Stopping MockServer");
-        server.stop();
+    public void tearDownMockServer() {
+        logger.info("Stopping HTTP Server");
+        mockServer.stop();
     }
 
     @Before
     public void setUpMockServer() throws Exception {
-        server = ClientAndServer.startClientAndServer(parseInt(MOCKSERVER_PORT));
+        final FcrepoClient client = createClient();
+        final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
+                                         .body(loadResourceAsStream("indexable.ttl"), "text/turtle").perform();
+        fullPath = res.getLocation().toString();
+        logger.info("full path {}", fullPath);
+
+        mockServer = new WireMockServer(WireMockConfiguration.options().port(parseInt(MOCKSERVER_PORT)));
+        mockServer.start();
     }
 
     @DirtiesContext
     @Test
     public void testAddedEventRouter() throws Exception {
-        final String fcrepoEndpoint = "mock:fcrepo:http://localhost:" + FCREPO_PORT + "/fcrepo/rest";
-        final String mockServerBase = "http://localhost:" + MOCKSERVER_PORT + "/endpoint";
-        final String mockServerEndpoint = "mock:http:localhost:" + MOCKSERVER_PORT + "/endpoint";
+        final var mockServerEndpoint = "mock:http:localhost:" + MOCKSERVER_PORT + MOCK_ENDPOINT;
+        final var idMatcher = WireMock.matchingJsonPath("$.id", equalTo(fullPath));
+        final var typeMatcher = WireMock.matchingJsonPath("$.type", equalTo(AS_NS + "Update"));
+
+        // have the http server return a 200
+        mockServer.stubFor(post(urlEqualTo(MOCK_ENDPOINT)).willReturn(ok()));
 
         final var context = camelContext.adapt(ModelCamelContext.class);
 
-        server.verify(
-            HttpRequest.request()
-                .withMethod("POST")
-                .withPath("/endpoint")
-                .withBody("{id: \"foo\", type: \"bar\"}"),
-            VerificationTimes.exactly(1)
-        );
-
-        AdviceWith.adviceWith(context, "FcrepoHttpRouter", a -> {
-            a.mockEndpoints("*");
-        });
-
-        AdviceWith.adviceWith(context, "FcrepoHttpAddType", a -> {
-            a.mockEndpoints("*");
-        });
-
-        AdviceWith.adviceWith(context, "FcrepoHttpSend", a -> {
-            a.mockEndpoints("*");
-        });
+        AdviceWith.adviceWith(context, "FcrepoHttpRouter", a -> a.mockEndpoints("*"));
+        AdviceWith.adviceWith(context, "FcrepoHttpAddType", a -> a.mockEndpoints("*"));
+        AdviceWith.adviceWith(context, "FcrepoHttpSend", a -> a.mockEndpoints("*"));
 
         final var mockServerMockEndpoint = MockEndpoint.resolve(camelContext, mockServerEndpoint);
         mockServerMockEndpoint.expectedMessageCount(1);
-        mockServerMockEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
+        // do we still need the response code header?
+        // mockServerMockEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
         final var updateEndpoint = MockEndpoint.resolve(camelContext, "mock://direct:send.to.http");
         updateEndpoint.expectedMessageCount(1);
-
-        final var fcrepoMockEndpoint = MockEndpoint.resolve(camelContext, fcrepoEndpoint);
-        fcrepoMockEndpoint.expectedMessageCount(2);
 
         logger.info("fullPath={}", fullPath);
         template.sendBody("direct:start", getEvent(fullPath, AS_NS + "Create"));
 
-        MockEndpoint.assertIsSatisfied(mockServerMockEndpoint, fcrepoMockEndpoint, updateEndpoint);
+        mockServer.verify(1, postRequestedFor(urlEqualTo(MOCK_ENDPOINT))
+            .withRequestBody(idMatcher.and(typeMatcher)));
+        MockEndpoint.assertIsSatisfied(mockServerMockEndpoint, updateEndpoint);
     }
 
     @Configuration
