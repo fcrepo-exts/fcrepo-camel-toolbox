@@ -235,7 +235,7 @@ This implements a connector to an ActiveMQ broker.
 
 #### Properties
 | Name      | Description| Default Value |
-| :---      | :---| :----   | --- |
+| :---      | :---| :----   |
 | jms.brokerUrl | JMS Broker endpoint | tcp://localhost:61616 |
 | jms.username | JMS username | null |
 | jms.password | JMS password | null |
@@ -250,7 +250,7 @@ the repository.
 
 #### Properties
 | Name      | Description| Default Value |
-| :---      | :---| :----   | --- |
+| :---      | :---| :----   |
 | fixity.enabled | Enables/disabless fixity service  | false |
 | fixity.input.stream | Fixity Service jms  message stream | broker:queue:fixity |
 | fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | 0 |
