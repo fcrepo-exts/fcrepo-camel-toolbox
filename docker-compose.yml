@@ -30,8 +30,6 @@ services:
     environment:
       FCREPO_BASEURL: "http://fcrepo:8080/fcrepo/rest"
       FCREPO_AUTHHOST: "fcrepo"
-      # workaround till Fedora LDPath Service uses FCREPO_AUTHHOST as well:
-      FCREPO_AUTHHOSTNAME: "fcrepo"
       FCREPO_AUTHUSERNAME: "fedoraAdmin"
       FCREPO_AUTHPASSWORD: "fedoraAdmin"
       JMS_BROKERURL: "tcp://fcrepo:61616"
