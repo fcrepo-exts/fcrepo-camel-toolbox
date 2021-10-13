@@ -229,6 +229,7 @@ service:
 | reindexing.rest.host | Reindexing service host | localhost | 
 | reindexing.rest.port | Reindexing service port | 9080 |
 | reindexing.rest.prefix | Reindexing rest URI prefix | /reindexing | 
+
 ### ActiveMQ Service
 
 This implements a connector to an ActiveMQ broker.
@@ -242,7 +243,7 @@ This implements a connector to an ActiveMQ broker.
 | jms.connections | The JMS connection count | 10 |
 | jms.consumers | The JMS consumer count | 1 |
 
-### Fixity Checking Service (not currently available)
+### Fixity Checking Service
 
 This application can be used in conjunction with the Repository
 Re-Indexer to verify the checksums for all Binary resources in
@@ -256,12 +257,6 @@ the repository.
 | fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | 0 |
 | fixity.success|  It is also possible to trigger an action on success. By default, this is a no-op. The value should be a camel route action.  To log it to a file use something like this:  file:/tmp/?fileName=fixity-succes.log&fileExist=Append | null |
 | fixity.failure |  Most importantly, it is possible to configure what should happen when a fixity check fails. In the default example below, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`) or use just about any other camel component.| file:/tmp/?fileName=fixity-errors.log&fileExist=Append |
-
-### Repository Serializer
-
-This application automatically serializes Fedora resources to a filesystem
-location. Using the re-indexer, one can optionally serialize particular
-segments of the repository to a location on the filesystem.
 
 ## Building
 
