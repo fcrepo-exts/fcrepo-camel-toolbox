@@ -252,7 +252,7 @@ the repository.
 #### Properties
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
-| fixity.enabled | Enables/disabless fixity service  | false |
+| fixity.enabled | Enables/disables fixity service  | false |
 | fixity.input.stream | Fixity Service jms  message stream | broker:queue:fixity |
 | fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | 0 |
 | fixity.success|  It is also possible to trigger an action on success. By default, this is a no-op. The value should be a camel route action.  To log it to a file use something like this:  file:/tmp/?fileName=fixity-succes.log&fileExist=Append | null |
