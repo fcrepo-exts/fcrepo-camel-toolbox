@@ -95,7 +95,7 @@ then the asynchonous integrations will be less prone to configuration errors.
 ### Global Properties
 
 | Name      | Description| Default Value |
-| :---      | :---| :----   | --- |
+| :---      | :---| :----   |
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | http://localhost:8080/fcrepo/rest |
 | fcrepo.authUsername | A valid username      | fcrepoAdmin |
 | fcrepo.authPassword | A valid password      | fcrepoAdmin |
