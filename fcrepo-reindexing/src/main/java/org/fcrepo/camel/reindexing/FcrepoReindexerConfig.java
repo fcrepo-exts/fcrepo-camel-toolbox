@@ -20,8 +20,6 @@ package org.fcrepo.camel.reindexing;
 import org.apache.camel.builder.RouteBuilder;
 import org.fcrepo.camel.common.config.BasePropsConfig;
 import org.fcrepo.camel.common.config.ConditionOnPropertyTrue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -32,13 +30,11 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author dbernstein
  */
-
 @Configuration
 @Conditional(FcrepoReindexerConfig.ReindexerEnabled.class)
 public class FcrepoReindexerConfig extends BasePropsConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FcrepoReindexerConfig.class);
-    static final String REINDEXER_ENABLED = "reindexer.enabled";
+    static final String REINDEXER_ENABLED = "reindexing.enabled";
 
     static class ReindexerEnabled extends ConditionOnPropertyTrue {
         ReindexerEnabled() {
