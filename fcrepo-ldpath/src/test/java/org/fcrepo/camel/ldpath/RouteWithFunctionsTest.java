@@ -84,9 +84,8 @@ public class RouteWithFunctionsTest {
 
         System.setProperty("ldcache.directory", ldCacheDir);
         final String restPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
-        System.setProperty("rest.port", restPort);
-        System.setProperty("rest.host", "0.0.0.0");
-
+        System.setProperty("ldpath.rest.port", restPort);
+        System.setProperty("ldpath.rest.host", "127.0.0.1");
     }
 
     @AfterClass
@@ -203,7 +202,6 @@ public class RouteWithFunctionsTest {
         assertTrue(data.get(0).get("label").contains("Fedora Container"));
         assertTrue(data.get(0).get("type").contains("Class"));
         assertTrue(data.get(0).get("id").contains(uri));
-
     }
 
     @Test
@@ -218,7 +216,6 @@ public class RouteWithFunctionsTest {
         AdviceWith.adviceWith(context, "FcrepoLDPathPrepare", a -> {
             a.weaveAddLast().to(endpoint);
         });
-
 
         template.sendBodyAndHeader("direct:ldpathPrepare",
                 loadResourceAsStream("test-with-functions.ldpath"),
@@ -238,7 +235,6 @@ public class RouteWithFunctionsTest {
         assertTrue(data.get(0).get("type").contains("Class"));
         assertTrue(data.get(0).get("id").contains(uri));
         assertTrue(data.get(0).get("description").contains("Class : Fedora Container"));
-
     }
 
 

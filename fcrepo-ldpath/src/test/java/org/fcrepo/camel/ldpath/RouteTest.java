@@ -82,8 +82,8 @@ public class RouteTest {
         new File(ldCacheDir).mkdirs();
         System.setProperty("ldcache.directory", ldCacheDir);
         final String restPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
-        System.setProperty("rest.port", restPort);
-        System.setProperty("rest.host", "0.0.0.0");
+        System.setProperty("ldpath.rest.port", restPort);
+        System.setProperty("ldpath.rest.host", "127.0.0.1");
     }
 
     @AfterClass
@@ -93,7 +93,6 @@ public class RouteTest {
 
     @Test
     public void testGetDefault() throws Exception {
-
         final String uri = "http://fedora.info/definitions/v4/event#ResourceCreation";
         final String endpoint = "mock:resultGet";
         final MockEndpoint mockEndpoint = (MockEndpoint) camelContext.getEndpoint(endpoint);
@@ -132,7 +131,6 @@ public class RouteTest {
 
         template.sendBodyAndHeader(null, HTTP_METHOD, "OPTIONS");
         optionsEndpoint.assertIsSatisfied();
-
     }
 
     @Test
@@ -201,7 +199,6 @@ public class RouteTest {
         assertTrue(data.get(0).get("label").contains("Fedora Container"));
         assertTrue(data.get(0).get("type").contains("Class"));
         assertTrue(data.get(0).get("id").contains(uri));
-
     }
 
 
