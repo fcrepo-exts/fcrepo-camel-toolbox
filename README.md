@@ -217,11 +217,11 @@ the entire `LDPath` program. The `Content-Type` of the request should be either 
 #### Properties
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
-| fcrepo.cache.timeout | The timeout in seconds for the ldpath cache | 0 |
-| rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath|
-| rest.port| The LDPath rest endpoint port |  no | 9085 |
-| rest.host| The LDPath rest endpoint host |  no | localhost |
-| cache.timeout | LDCache ?  timeout in seconds  |  no | 86400  |
+| ldpath.cache.timeout | The timeout in seconds for the ldpath cache | 0 |
+| ldpath.rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath|
+| ldpath.rest.port| The LDPath rest endpoint port |  no | 9085 |
+| ldpath.rest.host| The LDPath rest endpoint host |  no | localhost |
+| ldcache.timeout | LDCache ?  timeout in seconds  |  no | 86400  |
 | ldcache.directory | LDCache directory  |  no | ldcache/  |
 | ldpath.transform.path | The LDPath transform file path | classpath:org/fcrepo/camel/ldpath/default.ldpath |
 
