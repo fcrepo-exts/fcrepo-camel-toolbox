@@ -78,6 +78,7 @@
     <module>fcrepo-indexing-triplestore</module>
     <module>fcrepo-reindexing</module>
     <module>fcrepo-indexing-solr</module>
+    <module>fcrepo-indexing-http</module>
     <module>fcrepo-service-activemq</module>
     <module>fcrepo-service-camel</module>
     <module>fcrepo-ldpath</module>

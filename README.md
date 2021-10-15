@@ -144,6 +144,25 @@ indexes objects into an external Solr server.
 | ldpath.service.baseUrl |   The LDPath service base url    | http://localhost:9085/ldpath |
 | filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
 
+### HTTP Message Forwarder (HTTP)
+
+This application listens to Fedora's event stream and
+forwards message identifiers and event types as JSON POSTs to an HTTP endpoint.
+
+#### Properties
+
+| Name      | Description| Default Value |
+| :---      | :---| :----   |
+| http.indexer.enabled | Enables/disables the HTTP indexing service. Disabled by default | false | 
+| http.input.stream | The JMS topic or queue serving as the message source    | broker:topic:fedora |
+| http.reindex.stream | The JMS topic or queue serving as the reindex message source    | broker:queue:http.reindex |
+| http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
+| http.baseUrl | The HTTP endpoint that will receive forwarded JMS messages (REQUIRED) | |
+| http.authUsername | Optional username for basic authentication if required by http.baseUrl | |
+| http.authPassword | Optional password for basic authentication if required by http.baseUrl | |
+
+Note: you MUST set the http.baseUrl property in order for this service to do anything meaningful.
+
 ### Repository Indexer (Triplestore)
 
 This application listens to Fedora's event stream and

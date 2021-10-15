@@ -34,6 +34,12 @@
 
     <dependency>
       <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-indexing-http</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.parent.groupId}</groupId>
       <artifactId>fcrepo-reindexing</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
