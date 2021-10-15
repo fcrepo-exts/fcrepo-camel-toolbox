@@ -1,12 +1,19 @@
-# Build
-FROM maven:3-openjdk-11 as build
+FROM maven:3-openjdk-11-slim AS build
 
-COPY . /home/fcrepo-camel-toolbox/
-RUN mvn -f /home/fcrepo-camel-toolbox/pom.xml clean package
+WORKDIR /build
 
-# Run
-FROM openjdk:11-jre-slim
-RUN mkdir /config
-COPY --from=build /home/fcrepo-camel-toolbox/fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-app-6.0.0-SNAPSHOT-driver.jar /usr/local/fcrepo-camel-toolbox/driver.jar
+COPY . ./
 
-ENTRYPOINT ["java", "-jar", "/usr/local/fcrepo-camel-toolbox/driver.jar", "-c", "/config/configuration.properties"]
+# Build with maven, if fcrepo-camel-toolbox-app-*-driver.jar does not exist:
+RUN [ -e "fcrepo-camel-toolbox-app/target/"fcrepo-camel-toolbox-app-*-driver.jar ] || mvn clean package
+
+FROM openjdk:11-jre-slim AS app
+
+WORKDIR /usr/local/fcrepo-camel-toolbox
+
+COPY --from=build "/build/fcrepo-camel-toolbox-app/target/fcrepo-camel-toolbox-app-*-driver.jar" ./driver.jar
+
+COPY docker/entrypoint.sh ./
+RUN chmod a+x ./entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]

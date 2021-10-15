@@ -5,7 +5,6 @@ services:
     image: fcrepo/fcrepo:latest
     ports:
       - "8080:8080"
-      - "61616:61616"
     environment:
       CATALINA_OPTS: "-Dfcrepo.jms.baseUrl=http://fcrepo:8080"
 
@@ -26,9 +25,11 @@ services:
       - /fcrepo
       
   camel-toolbox:
-    build: .
-    image: fcrepo/fcrepo-camel-toolbox
+    image: fcrepo/fcrepo-camel-toolbox:latest
     volumes:
-      - ./fcrepo-camel-config:/config
+      - "./camel-toolbox-config:/config"
     ports:
       - "9080:9080"
+    command:
+      - -c
+      - "/config/configuration.properties"

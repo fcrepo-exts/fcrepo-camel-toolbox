@@ -1,4 +1,5 @@
-**/target
 .git
 .github
 .idea
+.project
+.settings
