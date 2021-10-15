@@ -221,7 +221,7 @@ the entire `LDPath` program. The `Content-Type` of the request should be either 
 | ldpath.rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath|
 | ldpath.rest.port| The LDPath rest endpoint port |  no | 9085 |
 | ldpath.rest.host| The LDPath rest endpoint host |  no | localhost |
-| ldcache.timeout | LDCache ?  timeout in seconds  |  no | 86400  |
+| ldcache.timeout | LDCache timeout in seconds  |  no | 86400  |
 | ldcache.directory | LDCache directory  |  no | ldcache/  |
 | ldpath.transform.path | The LDPath transform file path | classpath:org/fcrepo/camel/ldpath/default.ldpath |
 
@@ -277,7 +277,7 @@ the repository.
 | fixity.success|  It is also possible to trigger an action on success. By default, this is a no-op. The value should be a camel route action.  To log it to a file use something like this:  file:/tmp/?fileName=fixity-succes.log&fileExist=Append | null |
 | fixity.failure |  Most importantly, it is possible to configure what should happen when a fixity check fails. In the default example below, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`) or use just about any other camel component.| file:/tmp/?fileName=fixity-errors.log&fileExist=Append |
 
-## Building
+## Troubleshooting
 
 ### java.lang.IllegalArgumentException: Credentials may not be null
 
