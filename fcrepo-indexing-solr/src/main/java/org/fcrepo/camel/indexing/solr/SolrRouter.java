@@ -118,7 +118,10 @@ public class SolrRouter extends RouteBuilder {
                     .setHeader(INDEXING_TRANSFORMATION).simple(config.getDefaultTransform())
                     .to("direct:update.solr")
                 .otherwise()
-                    .to("fcrepo:" + config.getFcrepoBaseUrl() + "?preferOmit=PreferContainment&accept=application/rdf+xml")
+                    .to(
+                        "fcrepo:" + config.getFcrepoBaseUrl()
+                        + "?preferOmit=PreferContainment&accept=application/rdf+xml"
+                    )
                     .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
                     .choice()
                         .when(or(header(INDEXING_TRANSFORMATION).isNull(),
