@@ -59,7 +59,7 @@ public class SolrRouter extends RouteBuilder {
     private static final String INDEXING_URI = "CamelIndexingUri";
 
     @Autowired
-    private FcrepoSolrIndexerConfig config;
+    private FcrepoSolrIndexingConfig config;
 
     /**
      * Configure the message route workflow.

@@ -50,7 +50,7 @@ public class ReindexingRouter extends RouteBuilder {
     private static final String LDP_CONTAINS = "<http://www.w3.org/ns/ldp#contains>";
 
     @Autowired
-    private FcrepoReindexerConfig config;
+    private FcrepoReindexingConfig config;
 
     @Autowired
     private FcrepoCamelConfig fcrepoCamelConfig;

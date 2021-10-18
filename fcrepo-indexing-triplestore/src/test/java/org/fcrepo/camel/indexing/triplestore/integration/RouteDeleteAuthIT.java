@@ -89,8 +89,8 @@ public class RouteDeleteAuthIT {
     public static void beforeClass() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final Properties props = new Properties();
-        System.setProperty("triplestore.indexer.enabled", "true");
-        System.setProperty("indexing.predicate", "true");
+        System.setProperty("triplestore.indexing.enabled", "true");
+        System.setProperty("triplestore.indexing.predicate", "true");
 
         System.setProperty("triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
         System.setProperty("triplestore.authUsername", "admin");

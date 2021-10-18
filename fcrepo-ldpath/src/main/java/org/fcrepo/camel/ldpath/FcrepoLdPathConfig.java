@@ -49,22 +49,22 @@ import static java.util.Collections.EMPTY_SET;
 @Configuration
 public class FcrepoLdPathConfig extends BasePropsConfig {
 
-    @Value("${fcrepo.cache.timeout:0}")
+    @Value("${ldpath.fcrepo.cache.timeout:0}")
     private long fcrepoCacheTimeout;
 
-    @Value("${rest.prefix:/ldpath}")
+    @Value("${ldpath.rest.prefix:/ldpath}")
     private String restPrefix;
 
-    @Value("${rest.host:localhost}")
+    @Value("${ldpath.rest.host:localhost}")
     private String restHost;
 
-    @Value("${rest.port:9085}")
+    @Value("${ldpath.rest.port:9085}")
     private int restPort;
 
-    @Value("${cache.timeout:86400}")
+    @Value("${ldpath.cache.timeout:86400}")
     private int cacheTimeout;
 
-    @Value("${ldcache.directory:ldcache/}")
+    @Value("${ldpath.ldcache.directory:ldcache/}")
     private Path ldCacheDirectory;
 
     @Value("${ldpath.transform.path:classpath:org/fcrepo/camel/ldpath/default.ldpath}")

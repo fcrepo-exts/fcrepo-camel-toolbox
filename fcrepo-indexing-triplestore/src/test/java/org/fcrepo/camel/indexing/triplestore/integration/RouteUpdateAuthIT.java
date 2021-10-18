@@ -99,7 +99,7 @@ public class RouteUpdateAuthIT {
         System.setProperty("triplestore.authUsername", "admin");
         System.setProperty("triplestore.authPassword", "password");
 
-        System.setProperty("triplestore.indexer.enabled", "true");
+        System.setProperty("triplestore.indexing.enabled", "true");
         System.setProperty("triplestore.indexing.predicate", "true");
         System.setProperty("triplestore.input.stream", "direct:start");
         System.setProperty("triplestore.reindex.stream", "direct:reindex");

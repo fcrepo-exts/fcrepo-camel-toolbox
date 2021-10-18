@@ -82,17 +82,17 @@ public class RouteTest {
     @BeforeClass
     public static void beforeClass() {
 
-        System.setProperty("solr.indexer.enabled", "true");
-        System.setProperty("indexing.predicate", "true");
-        System.setProperty("filter.containers", baseURL + auditContainer);
-        System.setProperty("input.stream", "seda:foo");
-        System.setProperty("reindex.stream", "seda:bar");
+        System.setProperty("solr.indexing.enabled", "true");
+        System.setProperty("solr.indexing.predicate", "true");
+        System.setProperty("solr.filter.containers", baseURL + auditContainer);
+        System.setProperty("solr.input.stream", "seda:foo");
+        System.setProperty("solr.reindex.stream", "seda:bar");
         System.setProperty("error.maxRedeliveries", "10");
         System.setProperty("fcrepo.baseUrl", baseURL);
-        System.setProperty("fcrepo.defaultTransform", "http://localhost/ldpath/program");
+        System.setProperty("solr.fcrepo.defaultTransform", "http://localhost/ldpath/program");
         System.setProperty("solr.baseUrl", solrURL);
         System.setProperty("solr.reindex.stream", "seda:reindex");
-        System.setProperty("fcrepo.checkHasIndexingTransformation", "true");
+        System.setProperty("solr.fcrepo.checkHasIndexingTransformation", "true");
 
     }
 

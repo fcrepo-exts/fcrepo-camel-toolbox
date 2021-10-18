@@ -38,17 +38,17 @@ where your `configuration.properties` file is a standard java properties file.
 The Camel Toolbox can be started using Docker Compose which will create containers for Fedora, Fuseki, Solr, and the
 Camel Toolbox application. 
 
-Configuration for the Camel Toolbox can be done through the `fcrepo-camel-config/configuration.properties` or through 
+Configuration for the Camel Toolbox can be done through the `docker-compose/camel-toolbox-config/configuration.properties` or through 
 environment variables (not yet available) as standard java properties as key value pairs. To run with the docker containers 
 the following properties are set by default:
 ```
 jms.brokerUrl=tcp://fcrepo:61616
 fcrepo.baseUrl=http://fcrepo:8080/fcrepo/rest
 
-solr.indexer.enabled=true
+solr.indexing.enabled=true
 solr.baseUrl=http://solr:8983/solr/fcrepo
 
-triplestore.indexer.enabled=true
+triplestore.indexing.enabled=true
 triplestore.baseUrl=http://fuseki:3030/fcrepo
 
 audit.enabled=true
@@ -57,14 +57,16 @@ fcrepo.authHost=fcrepo
 reindexing.rest.host=0.0.0.0
 ```
 
-Then to start the Camel Toolbox, Fedora, Fuseki, and Solr containers run
+Then to start,  the Camel Toolbox, Fedora, Fuseki, and Solr containers run
 ```
+cd ./docker-compose
 docker-compose up -d
 ```
 
 If you need to rebuild the docker image, it can be done through docker compose as long as the `build` is specified
 for the `camel-toolbox` container:
 ```
+cd ./docker-compose
 docker-compose build
 ```
 
@@ -100,29 +102,21 @@ then the asynchonous integrations will be less prone to configuration errors.
 | fcrepo.authUsername | A valid username      | fcrepoAdmin |
 | fcrepo.authPassword | A valid password      | fcrepoAdmin |
 | fcrepo.authHostName | The hostname of the Fedora installation which the authUsername and authPassword should be applied to      | localhost |
-| fcrepo.authPort |       | 8080 |
+| fcrepo.authPort |   The port of the Fedora installation    | 8080 |
+| error.maxRedeliveries | The maximum number of redelivery attempts before failing.      | 10 |
 
-### Repository Audit Service (Triplestore)
+### ActiveMQ Service
 
-This application listens to Fedora's event stream, and stores
-audit-related events in an external triplestore. Both
-[Jena Fuseki](http://jena.apache.org/documentation/serving_data/)
-and [Open RDF Sesame](http://rdf4j.org/) are supported.
-
-More information about the
-[audit service](https://wiki.duraspace.org/display/FF/Design+-+Audit+Service)
-is available on the Fedora wiki.
+This implements a connector to an ActiveMQ broker.
 
 #### Properties
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
-| audit.enabled | Enables/disables audit triplestore service  | false |
-| audit.input.stream | Audit Service jms message stream | broker:topic:fedora |
-| audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | http://example.com/event |
-| audit.triplestore.baseUrl| The base url for the external triplestore service | http://localhost:3030/fuseki/test/update |
-| audit.triplestore.authUsername| Username for basic authentication against triplestore | |
-| audit.triplestore.authPassword| Password for basic authentication against triplestore | |
-| audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | http://localhost:8080/fcrepo/rest/audit | 
+| jms.brokerUrl | JMS Broker endpoint | tcp://localhost:61616 |
+| jms.username | JMS username | null |
+| jms.password | JMS password | null |
+| jms.connections | The JMS connection count | 10 |
+| jms.consumers | The JMS consumer count | 1 |
 
 
 ### Repository Indexer (Solr)
@@ -133,35 +127,16 @@ indexes objects into an external Solr server.
 #### Properties
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
-| solr.indexer.enabled | Enables/disables the SOLR indexing service. Disabled by default | false | 
-| error.maxRedeliveries |       | 10 |
-| fcrepo.checkHasIndexingTransformation |       | true |
-| fcrepo.defaultTransform |   ?    | null |
-| input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora |
+| solr.indexing.enabled | Enables/disables the SOLR indexing service. Disabled by default | false | 
+| solr.fcrepo.checkHasIndexingTransformation |       | true |
+| solr.fcrepo.defaultTransform |   ?    | null |
+| solr.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora |
 | solr.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex |
 | solr.commitWithin |   Milliseconds within which commits should occur    | 10000 |
-| indexing.predicate |   ?    | false |
-| ldpath.service.baseUrl |   The LDPath service base url    | http://localhost:9085/ldpath |
-| filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
+| solr.indexing.predicate |   ?    | false |
+| solr.ldpath.service.baseUrl |   The LDPath service base url    | http://localhost:9085/ldpath |
+| solr.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
 
-### HTTP Message Forwarder (HTTP)
-
-This application listens to Fedora's event stream and
-forwards message identifiers and event types as JSON POSTs to an HTTP endpoint.
-
-#### Properties
-
-| Name      | Description| Default Value |
-| :---      | :---| :----   |
-| http.indexer.enabled | Enables/disables the HTTP indexing service. Disabled by default | false | 
-| http.input.stream | The JMS topic or queue serving as the message source    | broker:topic:fedora |
-| http.reindex.stream | The JMS topic or queue serving as the reindex message source    | broker:queue:http.reindex |
-| http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
-| http.baseUrl | The HTTP endpoint that will receive forwarded JMS messages (REQUIRED) | |
-| http.authUsername | Optional username for basic authentication if required by http.baseUrl | |
-| http.authPassword | Optional password for basic authentication if required by http.baseUrl | |
-
-Note: you MUST set the http.baseUrl property in order for this service to do anything meaningful.
 
 ### Repository Indexer (Triplestore)
 
@@ -171,17 +146,17 @@ indexes objects into an external triplestore.
 #### Properties
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
-| triplestore.indexer.enabled | Enables the triplestore indexing service. Disabled by default | false | 
+| triplestore.indexing.enabled | Enables the triplestore indexing service. Disabled by default | false | 
 | triplestore.baseUrl | Base URL for the triplestore | http://localhost:8080/fuseki/test/update | 
-| triplestore.authUsername | Username for basic authentication against triplestore | |
-| triplestore.authPassword | Password for basic authentication against triplestore | |
-| triplestore.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora | | 
-| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex | | 
-| triplestore.indexing.predicate |   ?    | false | | 
-| triplestore.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit | | 
-| triplestore.namedGraph |  ?  | null | | 
-| triplestore.prefer.include |  ?  | null | | 
-| triplestore.prefer.omit |  ?  | http://www.w3.org/ns/ldp#PreferContainment | | 
+| triplestore.authUsername | Username for basic authentication against triplestore | 
+| triplestore.authPassword | Password for basic authentication against triplestore | 
+| triplestore.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora | 
+| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex | 
+| triplestore.indexing.predicate |   ?    | false | 
+| triplestore.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit | 
+| triplestore.namedGraph |  ?  | null |  
+| triplestore.prefer.include |  ?  | null |  
+| triplestore.prefer.omit |  ?  | http://www.w3.org/ns/ldp#PreferContainment |  
 
 ### LDPath Service
 
@@ -217,12 +192,12 @@ the entire `LDPath` program. The `Content-Type` of the request should be either 
 #### Properties
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
-| fcrepo.cache.timeout | The timeout in seconds for the ldpath cache | 0 |
-| rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath|
-| rest.port| The LDPath rest endpoint port |  no | 9085 |
-| rest.host| The LDPath rest endpoint host |  no | localhost |
-| cache.timeout | LDCache ?  timeout in seconds  |  no | 86400  |
-| ldcache.directory | LDCache directory  |  no | ldcache/  |
+| ldpath.fcrepo.cache.timeout | The timeout in seconds for the ldpath cache | 0 |
+| ldpath.rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath|
+| ldpath.rest.port| The LDPath rest endpoint port |  no | 9085 |
+| ldpath.rest.host| The LDPath rest endpoint host |  no | localhost |
+| ldpath.cache.timeout | LDCache ?  timeout in seconds  |  no | 86400  |
+| ldpath.ldcache.directory | LDCache directory  |  no | ldcache/  |
 | ldpath.transform.path | The LDPath transform file path | classpath:org/fcrepo/camel/ldpath/default.ldpath |
 
 ### Reindexing Service
@@ -243,24 +218,29 @@ service:
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
 | reindexing.enabled | Enables/disables the reindexing component. Enabled by default | true | 
-| reindexing.error.maxRedeliveries | Maximum redelivery attempts | 10 | 
 | reindexing.stream | Reindexing jms message stream | broker:queue:reindexing | 
 | reindexing.rest.host | Reindexing service host | localhost | 
 | reindexing.rest.port | Reindexing service port | 9080 |
 | reindexing.rest.prefix | Reindexing rest URI prefix | /reindexing | 
 
-### ActiveMQ Service
+### HTTP Message Forwarding Service (HTTP)
 
-This implements a connector to an ActiveMQ broker.
+This application listens to Fedora's event stream and
+forwards message identifiers and event types as JSON POSTs to an HTTP endpoint.
 
 #### Properties
+
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
-| jms.brokerUrl | JMS Broker endpoint | tcp://localhost:61616 |
-| jms.username | JMS username | null |
-| jms.password | JMS password | null |
-| jms.connections | The JMS connection count | 10 |
-| jms.consumers | The JMS consumer count | 1 |
+| http.enabled | Enables/disables the HTTP forwarding service. Disabled by default | false | 
+| http.input.stream | The JMS topic or queue serving as the message source    | broker:topic:fedora |
+| http.reindex.stream | The JMS topic or queue serving as the reindex message source    | broker:queue:http.reindex |
+| http.filter.containers | A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
+| http.baseUrl | The HTTP endpoint that will receive forwarded JMS messages (REQUIRED) | |
+| http.authUsername | Optional username for basic authentication if required by http.baseUrl | |
+| http.authPassword | Optional password for basic authentication if required by http.baseUrl | |
+
+Note: you MUST set the http.baseUrl property in order for this service to do anything meaningful.
 
 ### Fixity Checking Service
 
@@ -276,6 +256,30 @@ the repository.
 | fixity.delay | A delay in milliseconds between each fixity check to reduce load on server | 0 |
 | fixity.success|  It is also possible to trigger an action on success. By default, this is a no-op. The value should be a camel route action.  To log it to a file use something like this:  file:/tmp/?fileName=fixity-succes.log&fileExist=Append | null |
 | fixity.failure |  Most importantly, it is possible to configure what should happen when a fixity check fails. In the default example below, the fixity output is written to a file in `/tmp/fixityErrors.log`. But this can be changed to send a message to an email address (`fixity.failure=smtp:admin@example.org?subject=Fixity`) or use just about any other camel component.| file:/tmp/?fileName=fixity-errors.log&fileExist=Append |
+
+
+### Repository Audit Service (Triplestore)
+
+This application listens to Fedora's event stream, and stores
+audit-related events in an external triplestore. Both
+[Jena Fuseki](http://jena.apache.org/documentation/serving_data/)
+and [Open RDF Sesame](http://rdf4j.org/) are supported.
+
+More information about the
+[audit service](https://wiki.duraspace.org/display/FF/Design+-+Audit+Service)
+is available on the Fedora wiki.
+
+#### Properties
+| Name      | Description| Default Value |
+| :---      | :---| :----   |
+| audit.enabled | Enables/disables audit triplestore service  | false |
+| audit.input.stream | Audit Service jms message stream | broker:topic:fedora |
+| audit.event.baseUri | The baseUri to use for event URIs in the triplestore. A `UUID` will be appended to this value, forming, for instance: `http://example.com/event/{UUID}` | http://example.com/event |
+| audit.triplestore.baseUrl| The base url for the external triplestore service | http://localhost:3030/fuseki/test/update |
+| audit.triplestore.authUsername| Username for basic authentication against triplestore | |
+| audit.triplestore.authPassword| Password for basic authentication against triplestore | |
+| audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | http://localhost:8080/fcrepo/rest/audit | 
+
 
 ## Building
 

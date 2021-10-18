@@ -51,7 +51,7 @@ public class TriplestoreRouter extends RouteBuilder {
     private static final String DELETE = "https://www.w3.org/ns/activitystreams#Delete";
 
     @Autowired
-    private FcrepoTripleStoreIndexerConfig config;
+    private FcrepoTripleStoreIndexingConfig config;
 
     /**
      * Configure the message route workflow.
