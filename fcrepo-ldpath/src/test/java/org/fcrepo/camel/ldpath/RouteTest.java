@@ -76,7 +76,7 @@ public class RouteTest {
 
     @AfterClass
     public static void afterClass() {
-        FileUtils.deleteQuietly(new File(System.getProperty("ldcache.directory")));
+        FileUtils.deleteQuietly(new File(System.getProperty("ldpath.ldcache.directory")));
     }
 
     @Test

@@ -70,16 +70,16 @@ public class RouteWithFunctionsTest {
                 File.separator + "ldcache";
         new File(ldCacheDir).mkdirs();
 
-        System.setProperty("ldcache.directory", ldCacheDir);
+        System.setProperty("ldpath.ldcache.directory", ldCacheDir);
         final String restPort = System.getProperty("fcrepo.dynamic.ldpath.port", "9085");
-        System.setProperty("rest.port", restPort);
-        System.setProperty("rest.host", "0.0.0.0");
+        System.setProperty("ldpath.rest.port", restPort);
+        System.setProperty("ldpath.rest.host", "0.0.0.0");
 
     }
 
     @AfterClass
     public static void afterClass() {
-        FileUtils.deleteQuietly(new File(System.getProperty("ldcache.directory")));
+        FileUtils.deleteQuietly(new File(System.getProperty("ldpath.ldcache.directory")));
     }
 
     @Test
