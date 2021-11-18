@@ -63,11 +63,11 @@ cd ./docker-compose
 docker-compose up -d
 ```
 
-If you need to rebuild the docker image, it can be done through docker compose as long as the `build` is specified
-for the `camel-toolbox` container:
+If you need to rebuild the docker image locally you can do so like so:
 ```
-cd ./docker-compose
-docker-compose build
+mvn clean install
+FCREPO_CAMEL_TOOLBOX_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
+docker buildx build --load --tag="fcrepo/fcrepo-camel-toolbox" --tag="fcrepo/fcrepo-camel-toolbox:${FCREPO_CAMEL_TOOLBOX_VERSION}" .
 ```
 
 ## Note
@@ -102,7 +102,6 @@ then the asynchonous integrations will be less prone to configuration errors.
 | fcrepo.authUsername | A valid username      | fcrepoAdmin |
 | fcrepo.authPassword | A valid password      | fcrepoAdmin |
 | fcrepo.authHostName | The hostname of the Fedora installation which the authUsername and authPassword should be applied to      | localhost |
-| fcrepo.authPort |   The port of the Fedora installation    | 8080 |
 | error.maxRedeliveries | The maximum number of redelivery attempts before failing.      | 10 |
 
 ### ActiveMQ Service
@@ -128,12 +127,12 @@ indexes objects into an external Solr server.
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
 | solr.indexing.enabled | Enables/disables the SOLR indexing service. Disabled by default | false | 
-| solr.fcrepo.checkHasIndexingTransformation |       | true |
-| solr.fcrepo.defaultTransform |   ?    | null |
+| solr.fcrepo.checkHasIndexingTransformation | When true, check for an indexing transform in the  resource matadata.    | true |
+| solr.fcrepo.defaultTransform |   The solr default ldpath transform when none is provide in resource metadata.  | null | 
 | solr.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora |
 | solr.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex |
 | solr.commitWithin |   Milliseconds within which commits should occur    | 10000 |
-| solr.indexing.predicate |   ?    | false |
+| solr.indexing.predicate |  When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.   | false |
 | solr.ldpath.service.baseUrl |   The LDPath service base url    | http://localhost:9085/ldpath |
 | solr.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
 
@@ -151,12 +150,12 @@ indexes objects into an external triplestore.
 | triplestore.authUsername | Username for basic authentication against triplestore | 
 | triplestore.authPassword | Password for basic authentication against triplestore | 
 | triplestore.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora | 
-| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex | 
-| triplestore.indexing.predicate |   ?    | false | 
+| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:triplestore.reindex | 
+| triplestore.indexing.predicate | When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.   | false |
 | triplestore.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit | 
-| triplestore.namedGraph |  ?  | null |  
-| triplestore.prefer.include |  ?  | null |  
-| triplestore.prefer.omit |  ?  | http://www.w3.org/ns/ldp#PreferContainment |  
+| triplestore.namedGraph |  A named graph to be used when indexing rdf  | null |  
+| triplestore.prefer.include |  A list of [valid prefer values](https://fedora.info/2021/05/01/spec/#additional-prefer-values) defining predicates to be included  | null |  
+| triplestore.prefer.omit | A list of [valid prefer values](https://fedora.info/2021/05/01/spec/#additional-prefer-values) defining predicates to be omitted. | http://www.w3.org/ns/ldp#PreferContainment |  
 
 ### LDPath Service
 
@@ -196,7 +195,7 @@ the entire `LDPath` program. The `Content-Type` of the request should be either 
 | ldpath.rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath|
 | ldpath.rest.port| The LDPath rest endpoint port |  no | 9085 |
 | ldpath.rest.host| The LDPath rest endpoint host |  no | localhost |
-| ldpath.cache.timeout | LDCache ?  timeout in seconds  |  no | 86400  |
+| ldpath.cache.timeout | LDCache timeout in seconds  |  no | 86400  |
 | ldpath.ldcache.directory | LDCache directory  |  no | ldcache/  |
 | ldpath.transform.path | The LDPath transform file path | classpath:org/fcrepo/camel/ldpath/default.ldpath |
 
@@ -281,7 +280,7 @@ is available on the Fedora wiki.
 | audit.filter.containers |  A comma-delimited list of URIs to be filtered (ignored) by the audit service | http://localhost:8080/fcrepo/rest/audit | 
 
 
-## Building
+## Troubleshooting 
 
 ### java.lang.IllegalArgumentException: Credentials may not be null
 

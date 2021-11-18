@@ -9,8 +9,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http.HttpComponent;
 import org.fcrepo.camel.common.config.BasePropsConfig;
 import org.fcrepo.camel.common.config.ConditionOnPropertyTrue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -25,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 @Conditional(FcrepoTripleStoreIndexingConfig.TriplestoreIndexingEnabled.class)
 public class FcrepoTripleStoreIndexingConfig extends BasePropsConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FcrepoTripleStoreIndexingConfig.class);
     static final String TRIPLESTORE_INDEXING_ENABLED = "triplestore.indexing.enabled";
 
     static class TriplestoreIndexingEnabled extends ConditionOnPropertyTrue {
