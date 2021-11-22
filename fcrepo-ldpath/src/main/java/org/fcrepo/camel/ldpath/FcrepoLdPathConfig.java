@@ -1,19 +1,7 @@
 /*
- * Licensed to DuraSpace under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information
- * regarding copyright ownership.
- *
- * DuraSpace licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except in
- * compliance with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree.
  */
 package org.fcrepo.camel.ldpath;
 
@@ -49,22 +37,22 @@ import static java.util.Collections.EMPTY_SET;
 @Configuration
 public class FcrepoLdPathConfig extends BasePropsConfig {
 
-    @Value("${fcrepo.cache.timeout:0}")
+    @Value("${ldpath.fcrepo.cache.timeout:0}")
     private long fcrepoCacheTimeout;
 
-    @Value("${rest.prefix:/ldpath}")
+    @Value("${ldpath.rest.prefix:/ldpath}")
     private String restPrefix;
 
-    @Value("${rest.host:localhost}")
+    @Value("${ldpath.rest.host:localhost}")
     private String restHost;
 
-    @Value("${rest.port:9085}")
+    @Value("${ldpath.rest.port:9085}")
     private int restPort;
 
-    @Value("${cache.timeout:86400}")
+    @Value("${ldpath.cache.timeout:86400}")
     private int cacheTimeout;
 
-    @Value("${ldcache.directory:ldcache/}")
+    @Value("${ldpath.ldcache.directory:ldcache/}")
     private Path ldCacheDirectory;
 
     @Value("${ldpath.transform.path:classpath:org/fcrepo/camel/ldpath/default.ldpath}")
