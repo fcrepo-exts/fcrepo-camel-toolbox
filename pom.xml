@@ -64,7 +64,7 @@
     <httpcore.version>4.4.6</httpcore.version>
     <hk2.version>2.3.0</hk2.version>
     <jena.fuseki.version>${jena.version}</jena.fuseki.version>
-    <jersey.version>2.32</jersey.version>
+    <jersey.version>2.34</jersey.version>
     <xerces.version>2.12.0</xerces.version>
     <!-- jared's -->
     <failsafe.plugin.version>2.18.1</failsafe.plugin.version>
