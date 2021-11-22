@@ -38,7 +38,7 @@
     <activemq.version>5.16.0</activemq.version>
     <camel.version>3.9.0</camel.version>
     <commons.lang3.version>3.4</commons.lang3.version>
-    <jackson2.version>2.9.10.7</jackson2.version>
+    <jackson2.version>2.9.10.8</jackson2.version>
     <jena.version>4.2.0</jena.version>
     <logback.version>1.2.0</logback.version>
     <marmotta.version>3.4.0</marmotta.version>
