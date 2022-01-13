@@ -71,6 +71,7 @@
     <!-- plugins -->
     <jetty.plugin.version>9.4.34.v20201102</jetty.plugin.version>
     <jetty.users.file>${project.build.directory}/test-classes/jetty-users.properties</jetty.users.file>
+    <sonatype.host>s01.oss.sonatype.org</sonatype.host>
   </properties>
 
   <modules>
@@ -90,7 +91,7 @@
   <repositories>
     <repository>
       <id>sonatype-nexus-snapshots</id>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <url>https://${sonatype.host}/content/repositories/snapshots</url>
       <releases>
         <enabled>false</enabled>
       </releases>
@@ -99,6 +100,18 @@
       </snapshots>
     </repository>
   </repositories>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Shapshots</name>
+      <url>https://${sonatype.host}/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <url>https://${sonatype.host}/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 
   <dependencyManagement>
     <dependencies>
