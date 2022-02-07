@@ -8,6 +8,7 @@ package org.fcrepo.camel.reindexing;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.fcrepo.camel.common.processor.DockerRunningProcessor;
 import org.fcrepo.camel.service.FcrepoCamelConfig;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,7 @@ public class ReindexingRouter extends RouteBuilder {
                 .setHeader(REINDEXING_PREFIX).simple(config.getRestPrefix())
                 .setHeader(REINDEXING_PORT).simple(String.valueOf(port))
                 .setHeader(FCREPO_BASE_URL).simple(fcrepoCamelConfig.getFcrepoBaseUrl())
+                .process(new DockerRunningProcessor())
             .process(exchange -> {
                 exchange.getIn().setHeader(REINDEXING_HOST, getLocalHost().getHostName());
             })

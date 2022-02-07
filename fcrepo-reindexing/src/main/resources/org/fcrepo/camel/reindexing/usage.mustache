@@ -1,4 +1,4 @@
-Fedora Reindexing Service
+Fedora Reindexing Service {{#headers.CamelDockerRunning}}(Running in Docker){{/headers.CamelDockerRunning}}
 
     Configured Fedora Location: {{headers.CamelFcrepoBaseUrl}}
     Configured REST endpoint: {{headers.CamelReindexingHost}}:{{headers.CamelReindexingPort}}{{headers.CamelReindexingPrefix}}
@@ -8,6 +8,12 @@ will begin to traverse the Fedora repository at that point,
 sending "re-indexing" hints to the specified services
 (there are no default services defined).
 
+{{#headers.CamelDockerRunning}}
+Note: The mentioned hostname and port might not work on your host machine when running
+    Camel Toolbox as Docker container. You can usually access the reindexing service on
+    localhost:9080 when you docker-compose.
+
+{{/headers.CamelDockerRunning}}
 For example:
 
   curl -XPOST {{headers.CamelReindexingHost}}:{{headers.CamelReindexingPort}}{{headers.CamelReindexingPrefix}}/objects \
