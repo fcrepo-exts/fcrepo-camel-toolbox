@@ -28,8 +28,8 @@ public class DockerRunningProcessor implements Processor {
     public static final String DOCKER_RUNNING = "CamelDockerRunning";
 
     @Override
-    public void process(Exchange exchange) throws Exception {
-        boolean dockerenvExists = Path.of("/.dockerenv").toFile().exists();
+    public void process(final Exchange exchange) throws Exception {
+        final boolean dockerenvExists = Path.of("/.dockerenv").toFile().exists();
         exchange.getMessage().setHeader(DOCKER_RUNNING, dockerenvExists);
     }
 }
