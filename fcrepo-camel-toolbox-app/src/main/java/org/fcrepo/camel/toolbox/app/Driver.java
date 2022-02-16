@@ -42,6 +42,7 @@ public class Driver implements Callable<Integer> {
             System.setProperty(FCREPO_CAMEL_CONFIG_FILE_PROPERTY, configurationFilePath.toFile().getAbsolutePath());
         }
         final var appContext = new AnnotationConfigApplicationContext("org.fcrepo.camel");
+        appContext.registerShutdownHook();
         appContext.start();
         LOGGER.info("fcrepo-camel-toolbox started.");
 
