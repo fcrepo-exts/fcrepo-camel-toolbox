@@ -46,11 +46,7 @@ public class Driver implements Callable<Integer> {
         LOGGER.info("fcrepo-camel-toolbox started.");
 
         while (appContext.isRunning()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("This should never happen");
-            }
+            Thread.onSpinWait();
         }
         return 0;
     }
