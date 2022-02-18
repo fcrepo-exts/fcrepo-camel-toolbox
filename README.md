@@ -101,7 +101,7 @@ then the asynchonous integrations will be less prone to configuration errors.
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | http://localhost:8080/fcrepo/rest |
 | fcrepo.authUsername | A valid username      | fcrepoAdmin |
 | fcrepo.authPassword | A valid password      | fcrepoAdmin |
-| fcrepo.authHostName | The hostname of the Fedora installation which the authUsername and authPassword should be applied to      | localhost |
+| fcrepo.authHost | The hostname of the Fedora installation which the fcrepo.authUsername and fcrepo.authPassword should be applied to      | localhost |
 | error.maxRedeliveries | The maximum number of redelivery attempts before failing.      | 10 |
 
 ### ActiveMQ Service
