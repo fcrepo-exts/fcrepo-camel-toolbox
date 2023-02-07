@@ -77,7 +77,7 @@ public class RouteTest {
         System.setProperty("solr.reindex.stream", "seda:bar");
         System.setProperty("error.maxRedeliveries", "10");
         System.setProperty("fcrepo.baseUrl", baseURL);
-        System.setProperty("solr.fcrepo.defaultTransform", "http://localhost/ldpath/program");
+        System.setProperty("solr.fcrepo.defaultTransform", "org/fcrepo/camel/indexing/solr/default_transform.xsl");
         System.setProperty("solr.baseUrl", solrURL);
         System.setProperty("solr.reindex.stream", "seda:reindex");
         System.setProperty("solr.fcrepo.checkHasIndexingTransformation", "true");
@@ -214,7 +214,7 @@ public class RouteTest {
         deleteEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         updateEndpoint.expectedMessageCount(1);
         updateEndpoint.expectedHeaderReceived("CamelIndexingTransformation",
-                "http://localhost/ldpath/default");
+                "org/fcrepo/camel/indexing/solr/default_transform.xsl");
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("indexable.rdf"), "UTF-8"),
@@ -245,7 +245,7 @@ public class RouteTest {
         updateEndpoint.setAssertPeriod(ASSERT_PERIOD_MS);
         deleteEndpoint.expectedMessageCount(1);
         deleteEndpoint.expectedHeaderReceived("CamelIndexingTransformation",
-                "http://localhost/ldpath/program");
+                "org/fcrepo/camel/indexing/solr/default_transform.xsl");
 
         template.sendBodyAndHeaders(
                 IOUtils.toString(loadResourceAsStream("container.rdf"), "UTF-8"),
@@ -268,10 +268,6 @@ public class RouteTest {
             });
 
         AdviceWith.adviceWith(context, "FcrepoSolrSend", a -> {
-                a.mockEndpointsAndSkip("http*");
-        });
-
-        AdviceWith.adviceWith(context, "FcrepoSolrTransform", a -> {
                 a.mockEndpointsAndSkip("http*");
         });
 

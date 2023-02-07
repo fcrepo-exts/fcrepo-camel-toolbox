@@ -52,9 +52,6 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
     @Value("${solr.indexing.predicate:false}")
     private boolean indexingPredicate;
 
-    @Value("${solr.ldpath.service.baseUrl:http://localhost:9085/ldpath}")
-    private String ldpathServiceBaseUrl;
-
     @Value("${solr.filter.containers:http://localhost:8080/fcrepo/rest/audit}")
     private String filterContainers;
 
@@ -83,10 +80,6 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
 
     public boolean isIndexingPredicate() {
         return indexingPredicate;
-    }
-
-    public String getLdpathServiceBaseUrl() {
-        return ldpathServiceBaseUrl;
     }
 
     public String getFilterContainers() {

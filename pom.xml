@@ -81,7 +81,6 @@
     <module>fcrepo-http-forwarding</module>
     <module>fcrepo-service-activemq</module>
     <module>fcrepo-service-camel</module>
-    <module>fcrepo-ldpath</module>
     <module>fcrepo-camel-toolbox-app</module>
     <module>fcrepo-camel-common</module>
     <module>fcrepo-fixity</module>
@@ -160,6 +159,11 @@
         <version>${camel.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-xslt</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.apache.camel</groupId>
@@ -277,42 +281,6 @@
         <version>${httpclient.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.apache.marmotta</groupId>
-        <artifactId>ldpath-core</artifactId>
-        <version>${marmotta.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.marmotta</groupId>
-        <artifactId>ldpath-backend-linkeddata</artifactId>
-        <version>${marmotta.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.marmotta</groupId>
-        <artifactId>ldcache-backend-file</artifactId>
-        <version>${marmotta.version}</version>
-        <scope>compile</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.marmotta</groupId>
-        <artifactId>ldcache-api</artifactId>
-        <version>${marmotta.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.marmotta</groupId>
-        <artifactId>ldclient-provider-xml</artifactId>
-        <version>${marmotta.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.marmotta</groupId>
-        <artifactId>ldclient-provider-rdf</artifactId>
-        <version>${marmotta.version}</version>
-      </dependency>
       <!-- jena -->
       <dependency>
         <groupId>org.apache.jena</groupId>

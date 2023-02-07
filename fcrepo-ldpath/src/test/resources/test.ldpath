@@ -1,5 +1,0 @@
-id      = . :: xsd:string ;
-
-type = rdf:type / rdfs:label :: xsd:string ;
-label = rdfs:label :: xsd:string ;
-comment = rdfs:comment :: xsd:string ;

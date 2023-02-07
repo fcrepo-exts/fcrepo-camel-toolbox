@@ -11,6 +11,6 @@
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Container"/>
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/repository#Resource"/>
     <rdf:type rdf:resource="http://fedora.info/definitions/v4/indexing#Indexable"/>
-    <indexing:hasIndexingTransformation rdf:about="http://localhost/ldpath/default"/>
+    <indexing:hasIndexingTransformation rdf:about="org/fcrepo/camel/indexing/solr/default_transform.xsl"/>
 </rdf:Description>
 </rdf:RDF>
