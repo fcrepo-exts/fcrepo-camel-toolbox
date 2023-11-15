@@ -31,11 +31,11 @@
     <project.copyrightYear>2016</project.copyrightYear>
 
     <!-- version ranges -->
-    <activemq.version.range>[5.16.0,6)</activemq.version.range>
+    <activemq.version.range>[5.16.7,7)</activemq.version.range>
     <camel.version.range>[3.9.0,4)</camel.version.range>
 
     <!-- dependencies -->
-    <activemq.version>5.16.0</activemq.version>
+    <activemq.version>5.16.7</activemq.version>
     <camel.version>3.9.0</camel.version>
     <commons.lang3.version>3.4</commons.lang3.version>
     <jackson2.version>2.9.10.8</jackson2.version>
