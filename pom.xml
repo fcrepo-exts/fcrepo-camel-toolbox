@@ -36,7 +36,7 @@
     <commons.lang3.version>3.4</commons.lang3.version>
     <jackson2.version>2.9.10.8</jackson2.version>
     <jena.version>4.2.0</jena.version>
-    <logback.version>1.2.0</logback.version>
+    <logback.version>1.3.12</logback.version>
     <marmotta.version>3.4.0</marmotta.version>
     <slf4j.version>1.7.20</slf4j.version>
     <spring.version>5.3.7</spring.version>
