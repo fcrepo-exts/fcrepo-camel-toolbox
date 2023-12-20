@@ -30,10 +30,6 @@
     <project_organization>fcrepo-exts</project_organization>
     <project.copyrightYear>2016</project.copyrightYear>
 
-    <!-- version ranges -->
-    <activemq.version.range>[5.16.7,7)</activemq.version.range>
-    <camel.version.range>[3.9.0,4)</camel.version.range>
-
     <!-- dependencies -->
     <activemq.version>5.16.7</activemq.version>
     <camel.version>3.9.0</camel.version>
