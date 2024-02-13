@@ -61,6 +61,12 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
     @Value("${solr.baseUrl:http://localhost:8983/solr/collection1}")
     private String solrBaseUrl;
 
+    @Value("${solr.username:}")
+    private String solrUsername;
+
+    @Value("${solr.password:}")
+    private String solrPassword;
+
     public boolean isCheckHasIndexingTransformation() {
         return checkHasIndexingTransformation;
     }
@@ -97,6 +103,13 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
         return solrBaseUrl;
     }
 
+    public String getSolrUsername() {
+        return solrUsername;
+    }
+
+    public String getSolrPassword() {
+        return solrPassword;
+    }
 
     @Bean(name = "http")
     public HttpComponent http() {

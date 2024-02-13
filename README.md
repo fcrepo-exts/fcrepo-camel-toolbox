@@ -135,6 +135,8 @@ indexes objects into an external Solr server.
 | solr.indexing.predicate |  When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.   | false |
 | solr.ldpath.service.baseUrl |   The LDPath service base url    | http://localhost:9085/ldpath |
 | solr.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
+| solr.username |   Optional username for a Solr server protected with Basic Auth. Must be used in combination with solr.password | |
+| solr.password |   Optional password for a Solr server protected with Basic Auth. Must be used in combination with solr.username | |
 
 
 ### Repository Indexer (Triplestore)
