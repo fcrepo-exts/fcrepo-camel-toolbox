@@ -146,20 +146,13 @@ public class SolrRouter extends RouteBuilder {
                 // Don't index the transformation itself
                 .filter().simple("${header.CamelIndexingTransformation} != ${header.CamelIndexingUri}")
                 .choice()
-                    .when(header(INDEXING_TRANSFORMATION).startsWith("http"))
-                        .log(LoggingLevel.INFO, logger,
-                            "Sending RDF for Transform with with XSLT from ${header.CamelIndexingTransformation}")
-                        .toD("xslt:${header.CamelIndexingTransformation}")
-                        .to("direct:send.to.solr")
                     .when(header(INDEXING_TRANSFORMATION).isNotNull())
                         .log(LoggingLevel.INFO, logger,
                             "Sending RDF for Transform with with XSLT from ${header.CamelIndexingTransformation}")
                         .toD("xslt:${header.CamelIndexingTransformation}")
-                        .log(LoggingLevel.INFO, logger,"${body}")
                         .to("direct:send.to.solr")
                     .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
                         .log(LoggingLevel.INFO, logger,"No Transform supplied")
-                        .setHeader(HTTP_METHOD).constant("GET")
                         .to("direct:send.to.solr")
                     .otherwise()
                         .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");

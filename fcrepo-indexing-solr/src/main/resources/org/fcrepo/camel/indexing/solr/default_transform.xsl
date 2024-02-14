@@ -9,6 +9,12 @@
     <add>
         <doc>
             <field name="id"><xsl:value-of select="rdf:RDF/rdf:Description/@rdf:about" /></field>
+            <xsl:for-each select="rdf:RDF/rdf:Description/rdf:type">
+                <field name="rdftype"><xsl:value-of select="@rdf:resource" /></field>
+            </xsl:for-each>
+            <field name="contains"><xsl:value-of select="rdf:RDF/rdf:Description/ldp:contains/@rdf:resource" /></field>
+            <field name="lastmodified"><xsl:value-of select="rdf:RDF/rdf:Description/fedora:lastModified" /></field>
+            <field name="created"><xsl:value-of select="rdf:RDF/rdf:Description/fedora:created" /></field>
         </doc>
     </add>
     </xsl:template>
