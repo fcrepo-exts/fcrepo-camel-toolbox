@@ -128,12 +128,11 @@ indexes objects into an external Solr server.
 | :---      | :---| :----   |
 | solr.indexing.enabled | Enables/disables the SOLR indexing service. Disabled by default | false | 
 | solr.fcrepo.checkHasIndexingTransformation | When true, check for an indexing transform in the  resource matadata.    | true |
-| solr.fcrepo.defaultTransform |   The solr default ldpath transform when none is provide in resource metadata.  | null | 
+| solr.fcrepo.defaultTransform |   The solr default XSL transform when none is provide in resource metadata.  | null | 
 | solr.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora |
 | solr.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex |
 | solr.commitWithin |   Milliseconds within which commits should occur    | 10000 |
 | solr.indexing.predicate |  When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.   | false |
-| solr.ldpath.service.baseUrl |   The LDPath service base url    | http://localhost:9085/ldpath |
 | solr.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
 
 
@@ -156,48 +155,6 @@ indexes objects into an external triplestore.
 | triplestore.namedGraph |  A named graph to be used when indexing rdf  | null |  
 | triplestore.prefer.include |  A list of [valid prefer values](https://fedora.info/2021/05/01/spec/#additional-prefer-values) defining predicates to be included  | null |  
 | triplestore.prefer.omit | A list of [valid prefer values](https://fedora.info/2021/05/01/spec/#additional-prefer-values) defining predicates to be omitted. | http://www.w3.org/ns/ldp#PreferContainment |  
-
-### LDPath Service
-
-This application implements an LDPath service on repository
-resources. This allows users to dereference and follow URI
-links to arbitrary lengths. Retrieved triples are cached locally
-for a specified period of time.
-
-More information about LDPath can be found at the [Marmotta website](http://marmotta.apache.org/ldpath/language.html).
-
-Note: The LDPath service requires an LDCache backend, such as `fcrepo-service-ldcache-file`.
-
-#### Usage
-The LDPath service responds to `GET` and `POST` requests using any accessible resources as a context.
-
-For example, a request to
-`http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object`
-will apply the appropriate ldpath program to the specified resource. Note: it is possible to
-identify non-Fedora resources in the context parameter.
-
-A `GET` request can include a `ldpath` parameter, pointing to the URL location of an LDPath program:
-
-    `curl http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object&ldpath=http://example.org/ldpath`
-
-Otherwise, it will use a simple default ldpath program.
-
-A `POST` request can also be accepted by this endpoint. The body of a `POST` request should contain
-the entire `LDPath` program. The `Content-Type` of the request should be either `text/plain` or
-`application/ldpath`.
-
-    `curl -XPOST -H"Content-Type: application/ldpath" -d @program.txt http://localhost:9086/ldpath/?context=http://localhost/rest/path/to/fedora/object
-
-#### Properties
-| Name      | Description| Default Value |
-| :---      | :---| :----   |
-| ldpath.fcrepo.cache.timeout | The timeout in seconds for the ldpath cache | 0 |
-| ldpath.rest.prefix | The LDPath rest endpoint prefix |  no | /ldpath|
-| ldpath.rest.port| The LDPath rest endpoint port |  no | 9085 |
-| ldpath.rest.host| The LDPath rest endpoint host |  no | localhost |
-| ldpath.cache.timeout | LDCache timeout in seconds  |  no | 86400  |
-| ldpath.ldcache.directory | LDCache directory  |  no | ldcache/  |
-| ldpath.transform.path | The LDPath transform file path | classpath:org/fcrepo/camel/ldpath/default.ldpath |
 
 ### Reindexing Service
 

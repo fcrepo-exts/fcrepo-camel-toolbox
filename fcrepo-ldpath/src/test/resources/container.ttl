@@ -1,8 +1,0 @@
-PREFIX ldp: <http://www.w3.org/ns/ldp#>
-PREFIX indexing: <http://fedora.info/definitions/v4/indexing#>
-PREFIX pcdm: <http://pcdm.org/models#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-<> a pcdm:Object;
-    rdfs:label "Some Object" ;
-    indexing:hasIndexingTransformation <http://example.org/ldpath> .

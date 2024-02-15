@@ -16,7 +16,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
 import static org.apache.camel.Exchange.HTTP_QUERY;
-import static org.apache.camel.Exchange.HTTP_URI;
 import static org.apache.camel.builder.PredicateBuilder.and;
 import static org.apache.camel.builder.PredicateBuilder.in;
 import static org.apache.camel.builder.PredicateBuilder.not;
@@ -104,6 +103,7 @@ public class SolrRouter extends RouteBuilder {
                 .when(and(simple(config.isIndexingPredicate() + " != 'true'"),
                           simple(config.isCheckHasIndexingTransformation() + " != 'true'")))
                     .setHeader(INDEXING_TRANSFORMATION).simple(config.getDefaultTransform())
+                    .log(LoggingLevel.INFO, "sending to update_solr")
                     .to("direct:update.solr")
                 .otherwise()
                     .to(
@@ -136,41 +136,26 @@ public class SolrRouter extends RouteBuilder {
                 .setHeader(HTTP_QUERY).simple("commitWithin=" + config.getCommitWithin())
                 .to(config.getSolrBaseUrl() + "/update?useSystemProperties=true");
 
-        from("direct:external.ldpath").routeId("FcrepoSolrLdpathFetch")
-                .removeHeaders("CamelHttp*")
-                .setHeader(HTTP_URI).header(INDEXING_TRANSFORMATION)
-                .setHeader(HTTP_METHOD).constant("GET")
-                .to("http://localhost/ldpath");
-
-        from("direct:transform.ldpath").routeId("FcrepoSolrTransform")
-                .removeHeaders("CamelHttp*")
-                .setHeader(HTTP_URI).simple(config.getLdpathServiceBaseUrl())
-                .setHeader(HTTP_QUERY).simple("context=${headers.CamelFcrepoUri}")
-                .to("http://localhost/ldpath");
 
         /*
          * Handle update operations
          */
         from("direct:update.solr").routeId("FcrepoSolrUpdater")
                 .log(LoggingLevel.INFO, logger, "Indexing Solr Object ${header.CamelFcrepoUri}")
-                .setBody(constant(null))
                 .setHeader(INDEXING_URI).simple("${header.CamelFcrepoUri}")
                 // Don't index the transformation itself
                 .filter().simple("${header.CamelIndexingTransformation} != ${header.CamelIndexingUri}")
                 .choice()
-                .when(header(INDEXING_TRANSFORMATION).startsWith("http"))
-                .log(LoggingLevel.INFO, logger,
-                        "Fetching external LDPath program from ${header.CamelIndexingTransformation}")
-                .to("direct:external.ldpath")
-                .setHeader(HTTP_METHOD).constant("POST")
-                .to("direct:transform.ldpath")
-                .to("direct:send.to.solr")
-                .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
-                .setHeader(HTTP_METHOD).constant("GET")
-                .to("direct:transform.ldpath")
-                .to("direct:send.to.solr")
-                .otherwise()
-                .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");
+                    .when(header(INDEXING_TRANSFORMATION).isNotNull())
+                        .log(LoggingLevel.INFO, logger,
+                            "Sending RDF for Transform with with XSLT from ${header.CamelIndexingTransformation}")
+                        .toD("xslt:${header.CamelIndexingTransformation}")
+                        .to("direct:send.to.solr")
+                    .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
+                        .log(LoggingLevel.INFO, logger,"No Transform supplied")
+                        .to("direct:send.to.solr")
+                    .otherwise()
+                        .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");
 
         /*
          * Send the transformed resource to Solr
@@ -178,6 +163,7 @@ public class SolrRouter extends RouteBuilder {
         from("direct:send.to.solr").routeId("FcrepoSolrSend")
                 .log(LoggingLevel.INFO, logger, "sending to solr...")
                 .removeHeaders("CamelHttp*")
+                .setHeader(CONTENT_TYPE).constant("text/xml")
                 .setHeader(HTTP_METHOD).constant("POST")
                 .setHeader(HTTP_QUERY).simple("commitWithin=" + config.getCommitWithin())
                 .to(config.getSolrBaseUrl() + "/update?useSystemProperties=true");
