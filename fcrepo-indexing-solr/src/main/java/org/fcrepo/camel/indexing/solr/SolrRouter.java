@@ -189,7 +189,7 @@ public class SolrRouter extends RouteBuilder {
                     .process(new AddBasicAuthProcessor(solrUsername, solrPassword))
                     .log(LoggingLevel.DEBUG, logger, "Authenticating solr with: " + solrUsername + ":" + solrPassword)
                 .otherwise()
-                    .log(LoggingLevel.INFO, logger, "No Solr Auth provided")
+                    .log(LoggingLevel.DEBUG, logger, "No Solr Auth provided")
                 .to(config.getSolrBaseUrl() + "/update?useSystemProperties=true");
 
     }
