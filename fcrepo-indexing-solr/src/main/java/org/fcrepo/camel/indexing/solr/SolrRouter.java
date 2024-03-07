@@ -8,10 +8,13 @@ package org.fcrepo.camel.indexing.solr;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.support.builder.Namespaces;
+import org.apache.camel.builder.PredicateBuilder;
+import org.apache.camel.Predicate;
 import org.fcrepo.camel.processor.EventProcessor;
+import org.fcrepo.camel.common.processor.AddBasicAuthProcessor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.apache.commons.lang3.StringUtils;
 import static java.util.stream.Collectors.toList;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
@@ -57,7 +60,10 @@ public class SolrRouter extends RouteBuilder {
         ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
         ns.add("ldp", "http://www.w3.org/ns/ldp#");
 
-
+        final String solrUsername = config.getSolrUsername();
+        final String solrPassword = config.getSolrPassword();
+        final Predicate useSolrAuth = PredicateBuilder.constant(
+                "true".equals(!StringUtils.isEmpty(solrUsername) && !StringUtils.isEmpty(solrPassword)));
         /*
          * A generic error handler (specific to this RouteBuilder)
          */
@@ -73,8 +79,8 @@ public class SolrRouter extends RouteBuilder {
             .routeId("FcrepoSolrRouter")
             .process(new EventProcessor())
             .choice()
-                .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
-                            header(FCREPO_EVENT_TYPE).contains(DELETE)))
+            .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
+                     header(FCREPO_EVENT_TYPE).contains(DELETE)))
                 .log(LoggingLevel.TRACE, "Received message from Fedora routing to delete.solr")
                 .to("direct:delete.solr")
                 .otherwise()
@@ -100,8 +106,8 @@ public class SolrRouter extends RouteBuilder {
                             header(FCREPO_URI).isEqualTo(constant(uri))))
                         .collect(toList()))))
             .choice()
-                .when(and(simple(config.isIndexingPredicate() + " != 'true'"),
-                          simple(config.isCheckHasIndexingTransformation() + " != 'true'")))
+            .when(and(simple(config.isIndexingPredicate() + " != 'true'"),
+                      simple(config.isCheckHasIndexingTransformation() + " != 'true'")))
                     .setHeader(INDEXING_TRANSFORMATION).simple(config.getDefaultTransform())
                     .log(LoggingLevel.INFO, "sending to update_solr")
                     .to("direct:update.solr")
@@ -157,6 +163,7 @@ public class SolrRouter extends RouteBuilder {
                     .otherwise()
                         .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");
 
+
         /*
          * Send the transformed resource to Solr
          */
@@ -166,6 +173,12 @@ public class SolrRouter extends RouteBuilder {
                 .setHeader(CONTENT_TYPE).constant("text/xml")
                 .setHeader(HTTP_METHOD).constant("POST")
                 .setHeader(HTTP_QUERY).simple("commitWithin=" + config.getCommitWithin())
+                .choice()
+                .when(useSolrAuth)
+                    .process(new AddBasicAuthProcessor(solrUsername, solrPassword))
+                    .log(LoggingLevel.DEBUG, logger, "Authenticating solr with: " + solrUsername + ":" + solrPassword)
+                .otherwise()
+                    .log(LoggingLevel.DEBUG, logger, "No Solr Auth provided")
                 .to(config.getSolrBaseUrl() + "/update?useSystemProperties=true");
 
     }

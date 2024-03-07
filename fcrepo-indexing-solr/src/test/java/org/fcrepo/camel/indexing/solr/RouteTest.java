@@ -81,6 +81,8 @@ public class RouteTest {
         System.setProperty("solr.baseUrl", solrURL);
         System.setProperty("solr.reindex.stream", "seda:reindex");
         System.setProperty("solr.fcrepo.checkHasIndexingTransformation", "true");
+        System.setProperty("solr.username", "solr");
+        System.setProperty("solr.password", "solrRocks");
 
     }
 
