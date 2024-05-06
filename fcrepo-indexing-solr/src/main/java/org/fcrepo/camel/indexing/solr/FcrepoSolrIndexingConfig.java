@@ -58,6 +58,9 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
     @Value("${solr.baseUrl:http://localhost:8983/solr/collection1}")
     private String solrBaseUrl;
 
+    @Value("${solr.include.containment:false}")
+    private boolean includeContainment;
+
     public boolean isCheckHasIndexingTransformation() {
         return checkHasIndexingTransformation;
     }
@@ -90,6 +93,9 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
         return solrBaseUrl;
     }
 
+    public boolean isIncludeContainment() {
+        return includeContainment;
+    }
 
     @Bean(name = "http")
     public HttpComponent http() {
