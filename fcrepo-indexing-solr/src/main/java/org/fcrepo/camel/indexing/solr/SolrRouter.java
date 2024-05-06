@@ -129,7 +129,7 @@ public class SolrRouter extends RouteBuilder {
                     .end()
                     .removeHeaders("CamelHttp*")
                     .choice()
-                        .when(or(simple(config.isIndexingPredicate() + " != 'true'"),
+                        .when(or(not(constant(config.isIndexingPredicate())),
                                  header(FCREPO_RESOURCE_TYPE).contains(INDEXABLE)))
                             .to("direct:update.solr")
                         .otherwise()
@@ -158,13 +158,11 @@ public class SolrRouter extends RouteBuilder {
                 // Don't index the transformation itself
                 .filter().simple("${header.CamelIndexingTransformation} != ${header.CamelIndexingUri}")
                 .choice()
-                    .when(header(INDEXING_TRANSFORMATION).isNotNull())
+                    .when(and(header(INDEXING_TRANSFORMATION).isNotNull(),
+                            header(INDEXING_TRANSFORMATION).isNotEqualTo("")))
                         .log(LoggingLevel.INFO, logger,
                             "Sending RDF for Transform with with XSLT from ${header.CamelIndexingTransformation}")
                         .toD("xslt:${header.CamelIndexingTransformation}")
-                        .to("direct:send.to.solr")
-                    .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
-                        .log(LoggingLevel.INFO, logger,"No Transform supplied")
                         .to("direct:send.to.solr")
                     .otherwise()
                         .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");

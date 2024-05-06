@@ -37,7 +37,7 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
     @Value("${solr.fcrepo.checkHasIndexingTransformation:true}")
     private boolean checkHasIndexingTransformation;
 
-    @Value("${solr.fcrepo.defaultTransform:}")
+    @Value("${solr.fcrepo.defaultTransform:org/fcrepo/camel/indexing/solr/default_transform.xsl}")
     private String defaultTransform;
 
     @Value("${solr.input.stream:broker:topic:fedora}")
