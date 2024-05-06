@@ -134,6 +134,7 @@ indexes objects into an external Solr server.
 | solr.commitWithin |   Milliseconds within which commits should occur    | 10000 |
 | solr.indexing.predicate |  When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.   | false |
 | solr.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
+| solr.include.containment | When true, include containment triples in the indexing process.   | false |
 
 
 ### Repository Indexer (Triplestore)

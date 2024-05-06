@@ -65,6 +65,7 @@
     <!-- jared's -->
     <failsafe.plugin.version>2.18.1</failsafe.plugin.version>
     <!-- plugins -->
+    <jar.plugin.version>3.0.2</jar.plugin.version>
     <jetty.plugin.version>9.4.34.v20201102</jetty.plugin.version>
     <jetty.users.file>${project.build.directory}/test-classes/jetty-users.properties</jetty.users.file>
     <sonatype.host>s01.oss.sonatype.org</sonatype.host>
@@ -570,6 +571,12 @@
       <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${jar.plugin.version}</version>
       </plugin>
 
     </plugins>

@@ -57,6 +57,9 @@ public class SolrRouter extends RouteBuilder {
         ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
         ns.add("ldp", "http://www.w3.org/ns/ldp#");
 
+        final String fcrepoEndpointOptions = "?accept=application/rdf+xml" +
+                (!config.isIncludeContainment() ? "&preferOmit=PreferContainment" : "");
+
 
         /*
          * A generic error handler (specific to this RouteBuilder)
@@ -107,8 +110,7 @@ public class SolrRouter extends RouteBuilder {
                     .to("direct:update.solr")
                 .otherwise()
                     .to(
-                        "fcrepo:" + config.getFcrepoBaseUrl()
-                        + "?preferOmit=PreferContainment&accept=application/rdf+xml"
+                        "fcrepo:" + config.getFcrepoBaseUrl() + fcrepoEndpointOptions
                     )
                     .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
                     .choice()
