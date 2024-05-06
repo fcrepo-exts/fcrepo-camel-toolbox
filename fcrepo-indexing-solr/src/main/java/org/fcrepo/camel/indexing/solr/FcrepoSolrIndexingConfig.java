@@ -64,6 +64,9 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
     @Value("${solr.password:}")
     private String solrPassword;
 
+    @Value("${solr.include.containment:false}")
+    private boolean includeContainment;
+
     public boolean isCheckHasIndexingTransformation() {
         return checkHasIndexingTransformation;
     }
@@ -102,6 +105,9 @@ public class FcrepoSolrIndexingConfig extends BasePropsConfig {
 
     public String getSolrPassword() {
         return solrPassword;
+    }
+    public boolean isIncludeContainment() {
+        return includeContainment;
     }
 
     @Bean(name = "http")

@@ -72,6 +72,13 @@
     </dependency>
 
     <dependency>
+      <groupId>${project.parent.groupId}</groupId>
+      <artifactId>fcrepo-camel-common</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <scope>test</scope>

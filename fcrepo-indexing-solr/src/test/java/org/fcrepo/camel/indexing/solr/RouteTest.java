@@ -15,9 +15,11 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.apache.commons.io.IOUtils;
+import org.fcrepo.camel.common.TestTracer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -39,6 +41,7 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Test the route workflow.
@@ -47,8 +50,11 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
  * @since 2015-04-10
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
+
+    private static final Logger LOGGER = getLogger(RouteTest.class);
 
     private static final long ASSERT_PERIOD_MS = 5000;
     private final String EVENT_NS = "https://www.w3.org/ns/activitystreams#";
@@ -86,7 +92,6 @@ public class RouteTest {
 
     }
 
-    @DirtiesContext
     @Test
     public void testEventTypeRouter() throws Exception {
 
@@ -112,12 +117,10 @@ public class RouteTest {
         MockEndpoint.assertIsSatisfied(deleteEndpoint, indexEndpoint);
     }
 
-    @DirtiesContext
     @Test
     public void testFilterAuditEvents() throws Exception {
 
         final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
-
         final var context = camelContext.adapt(ModelCamelContext.class);
         AdviceWith.adviceWith(context, "FcrepoSolrIndexer", a -> {
             a.replaceFromWith("direct:start");
@@ -141,7 +144,6 @@ public class RouteTest {
         MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
     }
 
-    @DirtiesContext
     @Test
     public void testFilterAuditExactMatch() throws Exception {
 
@@ -169,10 +171,8 @@ public class RouteTest {
 
     }
 
-    @DirtiesContext
     @Test
     public void testFilterAuditNearMatch() throws Exception {
-
         final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
         final var context = camelContext.adapt(ModelCamelContext.class);
         AdviceWith.adviceWith(context, "FcrepoSolrIndexer", a -> {
@@ -196,12 +196,11 @@ public class RouteTest {
 
     }
 
-    @DirtiesContext
     @Test
     public void testPrepareRouterIndexable() throws Exception {
 
         final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
-
+        camelContext.setTracer(new TestTracer(LOGGER));
         final var context = camelContext.adapt(ModelCamelContext.class);
         AdviceWith.adviceWith(context, "FcrepoSolrIndexer", a -> {
             a.replaceFromWith("direct:start");
@@ -225,7 +224,6 @@ public class RouteTest {
         MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
     }
 
-    @DirtiesContext
     @Test
     public void testPrepareRouterContainer() throws Exception {
 
@@ -256,7 +254,6 @@ public class RouteTest {
         MockEndpoint.assertIsSatisfied(deleteEndpoint, updateEndpoint);
     }
 
-    @DirtiesContext
     @Test
     public void testUpdateRouter() throws Exception {
 
@@ -285,7 +282,6 @@ public class RouteTest {
         MockEndpoint.assertIsSatisfied(solrUpdateEndPoint);
     }
 
-    @DirtiesContext
     @Test
     public void testDeleteRouter() throws Exception {
 

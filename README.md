@@ -136,7 +136,7 @@ indexes objects into an external Solr server.
 | solr.filter.containers | A comma-separate list of containers that should be ignored by the indexer| http://localhost:8080/fcrepo/rest/audit |
 | solr.username |   Optional username for a Solr server protected with Basic Auth. Must be used in combination with solr.password | |
 | solr.password |   Optional password for a Solr server protected with Basic Auth. Must be used in combination with solr.username | |
-
+| solr.include.containment | When true, include containment triples in the indexing process.   | false |
 
 **Note**: You must start with the `file://` protocol when defining the path to a custom XSLT for either the `solr.fcrepo.defaultTransform` 
 or within the resource using the `http://fedora.info/definitions/v4/indexing#hasIndexingTransformation` predicate. 
