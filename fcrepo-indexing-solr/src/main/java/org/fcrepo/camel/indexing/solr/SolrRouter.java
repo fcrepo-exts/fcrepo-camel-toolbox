@@ -53,6 +53,13 @@ public class SolrRouter extends RouteBuilder {
      */
     public void configure() throws Exception {
 
+        logger.debug("Solr Router starting...");
+        logger.trace("solr.indexing.predicate = '{}'", config.isIndexingPredicate());
+        logger.trace("solr.checkHasIndexingTransformation = '{}'", config.isCheckHasIndexingTransformation());
+        logger.trace("solr.defaultTransform = '{}'", config.getDefaultTransform());
+        logger.trace("solr.input.stream = '{}'", config.getInputStream());
+        logger.trace("solr.baseUrl = '{}'", config.getSolrBaseUrl());
+
         final Namespaces ns = new Namespaces("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
         ns.add("ldp", "http://www.w3.org/ns/ldp#");
@@ -100,9 +107,10 @@ public class SolrRouter extends RouteBuilder {
                             header(FCREPO_URI).isEqualTo(constant(uri))))
                         .collect(toList()))))
             .choice()
-                .when(and(simple(config.isIndexingPredicate() + " != 'true'"),
-                          simple(config.isCheckHasIndexingTransformation() + " != 'true'")))
+                .when(and(not(constant(config.isIndexingPredicate())),
+                          not(constant(config.isCheckHasIndexingTransformation()))))
                     .setHeader(INDEXING_TRANSFORMATION).simple(config.getDefaultTransform())
+                    .log(LoggingLevel.TRACE, "Indexing Transformation set to: ${header.CamelIndexingTransformation}")
                     .log(LoggingLevel.INFO, "sending to update_solr")
                     .to("direct:update.solr")
                 .otherwise()
@@ -111,13 +119,17 @@ public class SolrRouter extends RouteBuilder {
                         + "?preferOmit=PreferContainment&accept=application/rdf+xml"
                     )
                     .setHeader(INDEXING_TRANSFORMATION).xpath(hasIndexingTransformation, String.class, ns)
+                    .log(LoggingLevel.TRACE, logger, "Indexing Transformation: ${header.CamelIndexingTransformation}")
                     .choice()
                         .when(or(header(INDEXING_TRANSFORMATION).isNull(),
                                  header(INDEXING_TRANSFORMATION).isEqualTo("")))
-                            .setHeader(INDEXING_TRANSFORMATION).simple(config.getDefaultTransform()).end()
+                            .setHeader(INDEXING_TRANSFORMATION).simple(config.getDefaultTransform())
+                            .log(LoggingLevel.TRACE, logger, "No indexing transform found on the resource, using " +
+                                    "default transform: ${header.CamelIndexingTransformation}")
+                    .end()
                     .removeHeaders("CamelHttp*")
                     .choice()
-                        .when(or(simple(config.isIndexingPredicate() + " != 'true'"),
+                        .when(or(not(constant(config.isIndexingPredicate())),
                                  header(FCREPO_RESOURCE_TYPE).contains(INDEXABLE)))
                             .to("direct:update.solr")
                         .otherwise()
@@ -146,13 +158,11 @@ public class SolrRouter extends RouteBuilder {
                 // Don't index the transformation itself
                 .filter().simple("${header.CamelIndexingTransformation} != ${header.CamelIndexingUri}")
                 .choice()
-                    .when(header(INDEXING_TRANSFORMATION).isNotNull())
+                    .when(and(header(INDEXING_TRANSFORMATION).isNotNull(),
+                            header(INDEXING_TRANSFORMATION).isNotEqualTo("")))
                         .log(LoggingLevel.INFO, logger,
                             "Sending RDF for Transform with with XSLT from ${header.CamelIndexingTransformation}")
                         .toD("xslt:${header.CamelIndexingTransformation}")
-                        .to("direct:send.to.solr")
-                    .when(or(header(INDEXING_TRANSFORMATION).isNull(), header(INDEXING_TRANSFORMATION).isEqualTo("")))
-                        .log(LoggingLevel.INFO, logger,"No Transform supplied")
                         .to("direct:send.to.solr")
                     .otherwise()
                         .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");

@@ -12,6 +12,7 @@ import picocli.CommandLine;
 
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
 import static org.fcrepo.camel.common.config.BasePropsConfig.FCREPO_CAMEL_CONFIG_FILE_PROPERTY;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -42,12 +43,20 @@ public class Driver implements Callable<Integer> {
             System.setProperty(FCREPO_CAMEL_CONFIG_FILE_PROPERTY, configurationFilePath.toFile().getAbsolutePath());
         }
         final var appContext = new AnnotationConfigApplicationContext("org.fcrepo.camel");
-        appContext.registerShutdownHook();
+        final var countdownLatch = new CountDownLatch(1);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("Shutting down fcrepo-camel-toolbox...");
+            appContext.stop();
+            countdownLatch.countDown();
+        }));
         appContext.start();
         LOGGER.info("fcrepo-camel-toolbox started.");
-
-        while (appContext.isRunning()) {
-            Thread.onSpinWait();
+        try {
+            countdownLatch.await();
+        } catch (final InterruptedException e) {
+            // Ignore error because we are exiting anyways.
+            return 1;
         }
         return 0;
     }

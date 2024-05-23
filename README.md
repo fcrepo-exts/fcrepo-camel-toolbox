@@ -124,17 +124,29 @@ This application listens to Fedora's event stream and
 indexes objects into an external Solr server.
 
 #### Properties
-| Name      | Description| Default Value |
-| :---      | :---| :----   |
+| Name      | Description | Default Value |
+| :---      |:---| :----   |
 | solr.indexing.enabled | Enables/disables the SOLR indexing service. Disabled by default | false | 
-| solr.fcrepo.checkHasIndexingTransformation | When true, check for an indexing transform in the  resource matadata.    | true |
-| solr.fcrepo.defaultTransform |   The solr default XSL transform when none is provide in resource metadata.  | null | 
-| solr.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora |
-| solr.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:solr.reindex |
-| solr.commitWithin |   Milliseconds within which commits should occur    | 10000 |
-| solr.indexing.predicate |  When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.   | false |
-| solr.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit |
+| solr.fcrepo.checkHasIndexingTransformation | When true, check for an indexing transform in the resource metadata with the predicate http://fedora.info/definitions/v4/indexing#hasIndexingTransformation | true |
+| solr.fcrepo.defaultTransform | The solr default XSL transform when none is provide in resource metadata. | null | 
+| solr.input.stream | The JMS topic or queue serving as the message source | broker:topic:fedora |
+| solr.reindex.stream | The JMS topic or queue serving as the reindex message source | broker:queue:solr.reindex |
+| solr.commitWithin | Milliseconds within which commits should occur | 10000 |
+| solr.indexing.predicate | When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.| false |
+| solr.filter.containers | A comma-separate list of containers that should be ignored by the indexer| http://localhost:8080/fcrepo/rest/audit |
 
+**Note**: You must start with the `file://` protocol when defining the path to a custom XSLT for either the `solr.fcrepo.defaultTransform` 
+or within the resource using the `http://fedora.info/definitions/v4/indexing#hasIndexingTransformation` predicate. 
+
+For example, 
+```text
+solr.fcrepo.defaultTransform=file:///path/to/your/transform.xsl
+```
+or
+```text
+@prefix indexing: <http://fedora.info/definitions/v4/indexing#> .
+<> indexing:hasIndexingTransformation <file:///path/to/your/transform.xsl> .
+```
 
 ### Repository Indexer (Triplestore)
 

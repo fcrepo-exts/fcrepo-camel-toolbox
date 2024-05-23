@@ -263,8 +263,7 @@ public class RouteTest {
         final var context = camelContext.adapt(ModelCamelContext.class);
 
         AdviceWith.adviceWith(context, "FcrepoSolrUpdater", a -> {
-                a.mockEndpointsAndSkip("fcrepo*");
-                a.mockEndpointsAndSkip("http4*");
+                a.mockEndpointsAndSkip("xslt:*");
             });
 
         AdviceWith.adviceWith(context, "FcrepoSolrSend", a -> {
@@ -275,8 +274,11 @@ public class RouteTest {
         solrUpdateEndPoint.expectedMessageCount(1);
         solrUpdateEndPoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        template.sendBodyAndHeaders("direct:update.solr", "",
-                createEvent(baseURL + fileID, eventTypes));
+        final var headers = createEvent(baseURL + fileID, eventTypes);
+        // Need to add the header as it is set in FcrepoSolrIndexer
+        headers.put("CamelIndexingTransformation", "org/fcrepo/camel/indexing/solr/default_transform.xsl");
+
+        template.sendBodyAndHeaders( "direct:update.solr", "", headers);
 
         MockEndpoint.assertIsSatisfied(solrUpdateEndPoint);
     }
