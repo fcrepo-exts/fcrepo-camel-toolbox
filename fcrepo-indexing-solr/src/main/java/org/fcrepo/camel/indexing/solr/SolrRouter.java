@@ -8,13 +8,10 @@ package org.fcrepo.camel.indexing.solr;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.support.builder.Namespaces;
-import org.apache.camel.builder.PredicateBuilder;
-import org.apache.camel.Predicate;
 import org.fcrepo.camel.processor.EventProcessor;
 import org.fcrepo.camel.common.processor.AddBasicAuthProcessor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.commons.lang3.StringUtils;
 import static java.util.stream.Collectors.toList;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
@@ -69,8 +66,6 @@ public class SolrRouter extends RouteBuilder {
 
         final String solrUsername = config.getSolrUsername();
         final String solrPassword = config.getSolrPassword();
-        final Predicate useSolrAuth = PredicateBuilder.constant(
-                "true".equals(!StringUtils.isEmpty(solrUsername) && !StringUtils.isEmpty(solrPassword)));
         /*
          * A generic error handler (specific to this RouteBuilder)
          */
@@ -184,12 +179,8 @@ public class SolrRouter extends RouteBuilder {
                 .setHeader(CONTENT_TYPE).constant("text/xml")
                 .setHeader(HTTP_METHOD).constant("POST")
                 .setHeader(HTTP_QUERY).simple("commitWithin=" + config.getCommitWithin())
-                .choice()
-                .when(useSolrAuth)
-                    .process(new AddBasicAuthProcessor(solrUsername, solrPassword))
-                    .log(LoggingLevel.DEBUG, logger, "Authenticating solr with: " + solrUsername + ":" + solrPassword)
-                .otherwise()
-                    .log(LoggingLevel.DEBUG, logger, "No Solr Auth provided")
+                .process(new AddBasicAuthProcessor(solrUsername, solrPassword))
+                .log(LoggingLevel.DEBUG, logger, "Authenticating to solr with user: " + solrUsername )
                 .to(config.getSolrBaseUrl() + "/update?useSystemProperties=true");
 
     }
