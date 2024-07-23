@@ -108,7 +108,6 @@ public class SolrRouter extends RouteBuilder {
                             header(FCREPO_URI).isEqualTo(constant(uri))))
                         .collect(toList()))))
             .choice()
-<<<<<<< HEAD
                 .when(and(not(constant(config.isIndexingPredicate())),
                           not(constant(config.isCheckHasIndexingTransformation()))))
                     .setHeader(INDEXING_TRANSFORMATION).simple(config.getDefaultTransform())
@@ -168,6 +167,7 @@ public class SolrRouter extends RouteBuilder {
                         .to("direct:send.to.solr")
                     .otherwise()
                         .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");
+
 
 
         /*
