@@ -9,9 +9,9 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.support.builder.Namespaces;
 import org.fcrepo.camel.processor.EventProcessor;
+import org.fcrepo.camel.common.processor.AddBasicAuthProcessor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import static java.util.stream.Collectors.toList;
 import static org.apache.camel.Exchange.CONTENT_TYPE;
 import static org.apache.camel.Exchange.HTTP_METHOD;
@@ -64,7 +64,8 @@ public class SolrRouter extends RouteBuilder {
         ns.add("indexing", "http://fedora.info/definitions/v4/indexing#");
         ns.add("ldp", "http://www.w3.org/ns/ldp#");
 
-
+        final String solrUsername = config.getSolrUsername();
+        final String solrPassword = config.getSolrPassword();
         /*
          * A generic error handler (specific to this RouteBuilder)
          */
@@ -80,8 +81,8 @@ public class SolrRouter extends RouteBuilder {
             .routeId("FcrepoSolrRouter")
             .process(new EventProcessor())
             .choice()
-                .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
-                            header(FCREPO_EVENT_TYPE).contains(DELETE)))
+            .when(or(header(FCREPO_EVENT_TYPE).contains(RESOURCE_DELETION),
+                     header(FCREPO_EVENT_TYPE).contains(DELETE)))
                 .log(LoggingLevel.TRACE, "Received message from Fedora routing to delete.solr")
                 .to("direct:delete.solr")
                 .otherwise()
@@ -167,6 +168,8 @@ public class SolrRouter extends RouteBuilder {
                     .otherwise()
                         .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");
 
+
+
         /*
          * Send the transformed resource to Solr
          */
@@ -176,6 +179,8 @@ public class SolrRouter extends RouteBuilder {
                 .setHeader(CONTENT_TYPE).constant("text/xml")
                 .setHeader(HTTP_METHOD).constant("POST")
                 .setHeader(HTTP_QUERY).simple("commitWithin=" + config.getCommitWithin())
+                .process(new AddBasicAuthProcessor(solrUsername, solrPassword))
+                .log(LoggingLevel.DEBUG, logger, "Authenticating to solr with user: " + solrUsername )
                 .to(config.getSolrBaseUrl() + "/update?useSystemProperties=true");
 
     }
