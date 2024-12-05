@@ -5,6 +5,8 @@
  */
 package org.fcrepo.camel.indexing.triplestore;
 
+import ch.docuteam.fcrepo.camel.processor.DocuteamSparqlDeleteProcessor;
+import ch.docuteam.fcrepo.camel.processor.DocuteamSparqlUpdateProcessor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.language.xpath.XPathBuilder;
@@ -111,7 +113,7 @@ public class TriplestoreRouter extends RouteBuilder {
          */
         from("direct:delete.triplestore")
             .routeId("FcrepoTriplestoreDeleter")
-            .process(new SparqlDeleteProcessor())
+            .process(config.isUsingDocuteamModel() ? new DocuteamSparqlDeleteProcessor() : new SparqlDeleteProcessor())
             .log(LoggingLevel.INFO, LOGGER,
                 "Deleting Triplestore Object ${headers[CamelFcrepoUri]}")
             .process(new AddBasicAuthProcessor(this.config.getTriplestoreAuthUsername(),
@@ -127,7 +129,7 @@ public class TriplestoreRouter extends RouteBuilder {
             .simple(config.getNamedGraph())
             .to("fcrepo:" + config.getFcrepoBaseUrl() + "?accept=application/n-triples" +
                 "&preferOmit=" + config.getPreferOmit() + "&preferInclude=" + config.getPreferInclude())
-            .process(new SparqlUpdateProcessor())
+            .process(config.isUsingDocuteamModel() ? new DocuteamSparqlUpdateProcessor() : new SparqlUpdateProcessor())
             .log(LoggingLevel.INFO, LOGGER,
                 "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
             .process(new AddBasicAuthProcessor(this.config.getTriplestoreAuthUsername(),

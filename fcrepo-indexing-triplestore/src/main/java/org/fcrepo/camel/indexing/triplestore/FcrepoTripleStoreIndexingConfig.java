@@ -31,6 +31,9 @@ public class FcrepoTripleStoreIndexingConfig extends BasePropsConfig {
         }
     }
 
+    @Value("${triplestore.using.docuteam.model:true}")
+    private boolean usingDocuteamModel;
+
     @Value("${triplestore.input.stream:broker:topic:fedora}")
     private String inputStream;
 
@@ -60,6 +63,10 @@ public class FcrepoTripleStoreIndexingConfig extends BasePropsConfig {
 
     @Value("${triplestore.authPassword:}")
     private String triplestoreAuthPassword;
+
+    public boolean isUsingDocuteamModel() {
+        return usingDocuteamModel;
+    }
 
     public String getInputStream() {
         return inputStream;

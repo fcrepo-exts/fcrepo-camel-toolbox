@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.fcrepo.camel</groupId>
+        <artifactId>fcrepo-camel-toolbox</artifactId>
+        <version>6.2.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>docuteam-fcrepo-camel-ext</artifactId>
+
+    <name>docuteam extension of the Fcrepo Camel Component</name>
+    <description>This extension introduce custom behaviour tied to the docuteam model. The goal is to support hash URI
+        metadata subjects</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.fcrepo.camel</groupId>
+            <artifactId>fcrepo-camel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.16.7</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

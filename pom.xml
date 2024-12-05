@@ -82,6 +82,7 @@
     <module>fcrepo-camel-common</module>
     <module>fcrepo-fixity</module>
     <module>fcrepo-audit-triplestore</module>
+    <module>docuteam-fcrepo-camel-ext</module>
   </modules>
 
   <repositories>

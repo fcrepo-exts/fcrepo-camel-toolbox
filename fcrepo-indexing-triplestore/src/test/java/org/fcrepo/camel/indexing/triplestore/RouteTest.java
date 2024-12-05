@@ -65,15 +65,15 @@ public class RouteTest {
     private CamelContext camelContext;
 
 
-    private static final String baseURL = "http://localhost/rest";
-    private static final String fileID = "/file1";
-    private static final long timestamp = 1428360320168L;
-    private static final String eventDate = "2015-04-06T22:45:20Z";
-    private static final String userID = "bypassAdmin";
-    private static final String userAgent = "curl/7.37.1";
-    private static final String auditContainer = "/audit";
-    private static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
-    private static final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
+    static final String baseURL = "http://localhost/rest";
+    static final String fileID = "/file1";
+    static final long timestamp = 1428360320168L;
+    static final String eventDate = "2015-04-06T22:45:20Z";
+    static final String userID = "bypassAdmin";
+    static final String userAgent = "curl/7.37.1";
+    static final String auditContainer = "/audit";
+    static final String AS_NS = "https://www.w3.org/ns/activitystreams#";
+    static final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
 
 
     @BeforeClass
@@ -83,10 +83,11 @@ public class RouteTest {
         System.setProperty("triplestore.filter.containers", auditContainer);
         System.setProperty("triplestore.input.stream", "seda:foo");
         System.setProperty("triplestore.reindex.stream", "seda:reindex");
+        System.setProperty("triplestore.using.docuteam.model", "false");
 
     }
 
-    private static Map<String, Object> createEvent(final String identifier, final List<String> eventTypes,
+    static Map<String, Object> createEvent(final String identifier, final List<String> eventTypes,
                                                    final List<String> resourceTypes) {
         final Map<String, Object> headers = new HashMap<>();
         headers.put(FCREPO_URI, identifier);
@@ -345,7 +346,7 @@ public class RouteTest {
         endpoint.assertIsSatisfied();
     }
 
-    private static Map<String, Object> createEvent(final String identifier, final List<String> eventTypes) {
+    static Map<String, Object> createEvent(final String identifier, final List<String> eventTypes) {
         return createEvent(identifier, eventTypes, emptyList());
     }
 
