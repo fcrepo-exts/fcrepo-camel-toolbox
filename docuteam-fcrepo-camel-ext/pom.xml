@@ -12,7 +12,7 @@
     <artifactId>docuteam-fcrepo-camel-ext</artifactId>
 
     <name>docuteam extension of the Fcrepo Camel Component</name>
-    <description>This extension introduce custom behaviour tied to the docuteam model. The goal is to support hash URI
+    <description>This extension introduces custom behaviour tied to the docuteam model. The goal is to support hash URI
         metadata subjects</description>
     <dependencies>
         <dependency>

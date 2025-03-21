@@ -22,6 +22,7 @@ import static org.fcrepo.camel.processor.ProcessorUtils.insertData;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -53,7 +54,8 @@ public class DocuteamSparqlUpdateProcessor implements Processor {
         model.write(serializedGraph, "N-TRIPLE");
 
         in.setBody("update=" + encode(deleteWhere(subject, namedGraph) + ";\n" +
-                insertData(serializedGraph.toString("UTF-8"), namedGraph), "UTF-8"));
+                insertData(serializedGraph.toString(StandardCharsets.UTF_8),
+                        namedGraph), StandardCharsets.UTF_8));
 
         in.setHeader(HTTP_METHOD, "POST");
         in.setHeader(CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");

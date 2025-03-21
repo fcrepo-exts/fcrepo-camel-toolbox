@@ -22,7 +22,7 @@ import org.apache.camel.Processor;
 /**
  * Represents a message processor that deletes objects from an
  * external triplestore.
- * This implementation used the docuteam model and was derived from the
+ * This implementation uses the docuteam model and was derived from the
  * standard implementation in fcrepo-camel.
  *
  * @author Vincent Decorges

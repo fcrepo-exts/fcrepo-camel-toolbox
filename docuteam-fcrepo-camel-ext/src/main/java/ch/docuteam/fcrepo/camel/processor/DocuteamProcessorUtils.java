@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 
 /**
  * This class provide a deleteWhere util method that is tied to the
- * docuteam datamodel compare to the standard one provided in ProcessorUtils
+ * docuteam datamodel compared to the standard one provided in ProcessorUtils
  *
  * @author Basil Marti
  */
