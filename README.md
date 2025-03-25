@@ -154,19 +154,22 @@ This application listens to Fedora's event stream and
 indexes objects into an external triplestore.
 
 #### Properties
-| Name      | Description| Default Value |
-| :---      | :---| :----   |
-| triplestore.indexing.enabled | Enables the triplestore indexing service. Disabled by default | false | 
-| triplestore.baseUrl | Base URL for the triplestore | http://localhost:8080/fuseki/test/update | 
-| triplestore.authUsername | Username for basic authentication against triplestore | 
-| triplestore.authPassword | Password for basic authentication against triplestore | 
-| triplestore.input.stream |   The JMS topic or queue serving as the message source    | broker:topic:fedora | 
-| triplestore.reindex.stream |   The JMS topic or queue serving as the reindex message source    | broker:queue:triplestore.reindex | 
-| triplestore.indexing.predicate | When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.   | false |
-| triplestore.filter.containers |   A comma-separate list of containers that should be ignored by the indexer  | http://localhost:8080/fcrepo/rest/audit | 
-| triplestore.namedGraph |  A named graph to be used when indexing rdf  | null |  
-| triplestore.prefer.include |  A list of [valid prefer values](https://fedora.info/2021/05/01/spec/#additional-prefer-values) defining predicates to be included  | null |  
-| triplestore.prefer.omit | A list of [valid prefer values](https://fedora.info/2021/05/01/spec/#additional-prefer-values) defining predicates to be omitted. | http://www.w3.org/ns/ldp#PreferContainment |  
+| Name                                  | Description                                                                                                                       | Default Value                              |
+|:--------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------|
+| triplestore.indexing.enabled          | Enables the triplestore indexing service. Disabled by default                                                                     | false                                      | 
+| triplestore.baseUrl                   | Base URL for the triplestore                                                                                                      | http://localhost:8080/fuseki/test/update   | 
+| triplestore.authUsername              | Username for basic authentication against triplestore                                                                             | 
+| triplestore.authPassword              | Password for basic authentication against triplestore                                                                             | 
+| triplestore.input.stream              | The JMS topic or queue serving as the message source                                                                              | broker:topic:fedora                        | 
+| triplestore.reindex.stream            | The JMS topic or queue serving as the reindex message source                                                                      | broker:queue:triplestore.reindex           | 
+| triplestore.indexing.predicate        | When true, check that resource is of type http://fedora.info/definitions/v4/indexing#Indexable; otherwise do not index it.        | false                                      |
+| triplestore.filter.containers         | A comma-separate list of containers that should be ignored by the indexer                                                         | http://localhost:8080/fcrepo/rest/audit    | 
+| triplestore.namedGraph                | A named graph to be used when indexing rdf                                                                                        | null                                       |  
+| triplestore.prefer.include            | A list of [valid prefer values](https://fedora.info/2021/05/01/spec/#additional-prefer-values) defining predicates to be included | null                                       |  
+| triplestore.prefer.omit               | A list of [valid prefer values](https://fedora.info/2021/05/01/spec/#additional-prefer-values) defining predicates to be omitted. | http://www.w3.org/ns/ldp#PreferContainment |
+| triplestore.using.docuteam.model      | When true, it follows the docuteam data model and delete separate resources as well                                               | true                                       |
+| triplestore.aggregator.completion.size| Specify the number of record ressources to aggregate before calling the Fuseki update endpoint                                    | 100                                        |
+| triplestore.aggregator.completion.timeout| Specify the number of milliseconds to wait before calling the Fuseki update endpoint if completion.size has not been reached      | 5000                                       |
 
 ### Reindexing Service
 

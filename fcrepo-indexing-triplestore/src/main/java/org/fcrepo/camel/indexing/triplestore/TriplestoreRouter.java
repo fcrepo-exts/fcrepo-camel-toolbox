@@ -7,6 +7,7 @@ package org.fcrepo.camel.indexing.triplestore;
 
 import ch.docuteam.fcrepo.camel.processor.DocuteamSparqlDeleteProcessor;
 import ch.docuteam.fcrepo.camel.processor.DocuteamSparqlUpdateProcessor;
+import ch.docuteam.fcrepo.camel.processor.SparqlAggregationStrategy;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.language.xpath.XPathBuilder;
@@ -118,6 +119,7 @@ public class TriplestoreRouter extends RouteBuilder {
                 "Deleting Triplestore Object ${headers[CamelFcrepoUri]}")
             .process(new AddBasicAuthProcessor(this.config.getTriplestoreAuthUsername(),
                         this.config.getTriplestoreAuthPassword()))
+            .log(LoggingLevel.TRACE, LOGGER, "SPARQL Batch Query: \n${body}")
             .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
 
         /**
@@ -130,10 +132,15 @@ public class TriplestoreRouter extends RouteBuilder {
             .to("fcrepo:" + config.getFcrepoBaseUrl() + "?accept=application/n-triples" +
                 "&preferOmit=" + config.getPreferOmit() + "&preferInclude=" + config.getPreferInclude())
             .process(config.isUsingDocuteamModel() ? new DocuteamSparqlUpdateProcessor() : new SparqlUpdateProcessor())
+                .aggregate(constant(true), new SparqlAggregationStrategy())
+                .completionSize(config.getTriplestoreAggregatorCompletionSize())
+                .completionTimeout(config.getTriplestoreAggregatorCompletionTimeout())
+            .log(LoggingLevel.DEBUG, LOGGER, "Aggregated messages count: ${headers[CamelAggregatedSize]}")
             .log(LoggingLevel.INFO, LOGGER,
                 "Indexing Triplestore Object ${headers[CamelFcrepoUri]}")
             .process(new AddBasicAuthProcessor(this.config.getTriplestoreAuthUsername(),
                     this.config.getTriplestoreAuthPassword()))
+            .log(LoggingLevel.TRACE, LOGGER, "SPARQL Batch Query: \n${body}")
             .to(config.getTriplestoreBaseUrl() + "?useSystemProperties=true");
     }
 }

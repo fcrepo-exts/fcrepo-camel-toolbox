@@ -64,6 +64,13 @@ public class FcrepoTripleStoreIndexingConfig extends BasePropsConfig {
     @Value("${triplestore.authPassword:}")
     private String triplestoreAuthPassword;
 
+    @Value("${triplestore.aggregator.completion.size:100}")
+    private Integer triplestoreAggregatorCompletionSize;
+
+    // In MS
+    @Value("${triplestore.aggregator.completion.timeout:5000}")
+    private Long triplestoreAggregatorCompletionTimeout;
+
     public boolean isUsingDocuteamModel() {
         return usingDocuteamModel;
     }
@@ -106,6 +113,14 @@ public class FcrepoTripleStoreIndexingConfig extends BasePropsConfig {
 
     public String getTriplestoreAuthPassword() {
         return triplestoreAuthPassword;
+    }
+
+    public Integer getTriplestoreAggregatorCompletionSize() {
+        return triplestoreAggregatorCompletionSize;
+    }
+
+    public Long getTriplestoreAggregatorCompletionTimeout() {
+        return triplestoreAggregatorCompletionTimeout;
     }
 
     @Bean(name = "http")

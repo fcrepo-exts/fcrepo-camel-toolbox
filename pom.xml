@@ -12,7 +12,7 @@
   <groupId>org.fcrepo.camel</groupId>
   <artifactId>fcrepo-camel-toolbox</artifactId>
   <packaging>pom</packaging>
-  <version>6.2.0-SNAPSHOT</version>
+  <version>6.2.0-docuteam-SNAPSHOT</version>
 
   <name>Fedora Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
