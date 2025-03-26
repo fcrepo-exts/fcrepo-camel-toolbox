@@ -1,4 +1,4 @@
-FROM maven:3-openjdk-11-slim AS build
+FROM maven:3-eclipse-temurin-11 AS build
 
 WORKDIR /build
 
@@ -7,7 +7,7 @@ COPY . ./
 # Build with maven, if fcrepo-camel-toolbox-app-*-driver.jar does not exist:
 RUN [ -e "fcrepo-camel-toolbox-app/target/"fcrepo-camel-toolbox-app-*-driver.jar ] || mvn clean package
 
-FROM openjdk:11-jre-slim AS app
+FROM eclipse-temurin:11-jre AS app
 
 WORKDIR /usr/local/fcrepo-camel-toolbox
 
