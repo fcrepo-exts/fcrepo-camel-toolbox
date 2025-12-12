@@ -1,8 +1,6 @@
-version: "3.6"
-
 services:
   fcrepo:
-    image: fcrepo/fcrepo:latest
+    image: fcrepo/fcrepo:6-tomcat9
     ports:
       - "8080:8080"
     environment:
