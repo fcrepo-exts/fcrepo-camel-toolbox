@@ -40,8 +40,8 @@ jobs:
       run: mvn -B -U clean install
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+      with:
+        token: ${{ secrets.CODECOV_ORG_TOKEN }}
 
   deploy:
     if: github.ref == 'refs/heads/main'
