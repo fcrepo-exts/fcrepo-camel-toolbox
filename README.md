@@ -262,3 +262,6 @@ for authentication.
 Current maintainers:
 
 * [Danny Bernstein](https://github.com/dbernstein)
+
+## Code Coverage
+[![codecov](https://codecov.io/github/fcrepo-exts/fcrepo-camel-toolbox/graph/badge.svg?token=1N6sCo4hW5)](https://codecov.io/github/fcrepo-exts/fcrepo-camel-toolbox)
