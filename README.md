@@ -96,8 +96,8 @@ then the asynchonous integrations will be less prone to configuration errors.
 | Name      | Description| Default Value |
 | :---      | :---| :----   |
 | fcrepo.baseUrl | The base url endpoint for your Fedora installation.  | http://localhost:8080/fcrepo/rest |
-| fcrepo.authUsername | A valid username      | fcrepoAdmin |
-| fcrepo.authPassword | A valid password      | fcrepoAdmin |
+| fcrepo.authUsername | A valid username      | fedoraAdmin |
+| fcrepo.authPassword | A valid password      | fedoraAdmin |
 | fcrepo.authHost | The hostname of the Fedora installation which the fcrepo.authUsername and fcrepo.authPassword should be applied to      | localhost |
 | error.maxRedeliveries | The maximum number of redelivery attempts before failing.      | 10 |
 
