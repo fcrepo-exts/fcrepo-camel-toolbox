@@ -29,7 +29,7 @@ public class TestTracer extends DefaultTracer {
     }
 
     @Override
-    protected void dumpTrace(final String out) {
+    protected void dumpTrace(final String out, final Object node) {
         LOGGER.info(out);
     }
 }

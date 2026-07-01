@@ -12,28 +12,27 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.camel.support.builder.Namespaces;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.jena.vocabulary.RDF;
 import org.fcrepo.camel.fixity.FcrepoFixityConfig;
 import org.fcrepo.client.FcrepoClient;
 import org.fcrepo.client.FcrepoResponse;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.net.URI;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
@@ -45,7 +44,7 @@ import static org.fcrepo.client.FcrepoClient.client;
  * @author Aaron Coburn
  * @since 2015-06-18
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteIT {
     private static Logger LOGGER = LoggerFactory.getLogger(RouteIT.class);
@@ -66,7 +65,7 @@ public class RouteIT {
     @Autowired
     private FcrepoFixityConfig config;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
@@ -99,7 +98,7 @@ public class RouteIT {
         final var digest = DigestUtils.sha512Hex(loadResourceAsStream(binary));
 
         LOGGER.info("digest={}", digest);
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoFixity", a -> {
             a.mockEndpoints("*");
         });

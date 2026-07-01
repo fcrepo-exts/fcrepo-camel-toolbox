@@ -6,19 +6,18 @@
 package org.fcrepo.camel.audit.triplestore;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.fcrepo.camel.common.config.CamelConfiguration;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Test that the route can be disabled.
@@ -26,7 +25,7 @@ import static org.junit.Assert.assertNull;
  * @author dbernstein
  * @since 2021-10-01
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteDisabledTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteDisabledTest {
 
@@ -36,7 +35,7 @@ public class RouteDisabledTest {
     @Autowired(required = false)
     private FcrepoAuditTriplestoreConfig config;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("audit.enabled", "false");
     }
@@ -44,7 +43,7 @@ public class RouteDisabledTest {
     @DirtiesContext
     @Test
     public void testFixityDisabled() throws Exception {
-        assertNull("audit config should be null", config);
+        assertNull(config, "audit config should be null");
     }
 
     @Configuration

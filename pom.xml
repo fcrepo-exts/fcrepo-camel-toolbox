@@ -12,7 +12,7 @@
   <groupId>org.fcrepo.camel</groupId>
   <artifactId>fcrepo-camel-toolbox</artifactId>
   <packaging>pom</packaging>
-  <version>6.3.0-SNAPSHOT</version>
+  <version>7.0.0-SNAPSHOT</version>
 
   <name>Fedora Camel Workflows</name>
   <description>A collection of camel-based event-driven workflows</description>
@@ -30,26 +30,32 @@
     <project_organization>fcrepo-exts</project_organization>
     <project.copyrightYear>2016</project.copyrightYear>
 
+    <!-- Target JDK 21 (overrides fcrepo-parent's Java 11 baseline) -->
+    <project.java.source>21</project.java.source>
+
     <!-- dependencies -->
-    <activemq.version>5.16.7</activemq.version>
-    <camel.version>3.9.0</camel.version>
-    <commons.lang3.version>3.4</commons.lang3.version>
-    <jackson2.version>2.13.5</jackson2.version>
-    <jena.version>4.2.0</jena.version>
-    <logback.version>1.2.13</logback.version>
-    <marmotta.version>3.4.0</marmotta.version>
-    <slf4j.version>1.7.20</slf4j.version>
-    <spring.version>5.3.7</spring.version>
-    <fcrepo.version>6.1.0</fcrepo.version>
-    <fcrepo-java-client.version>6.1.0</fcrepo-java-client.version>
-    <fcrepo-camel.version>6.0.0</fcrepo-camel.version>
+    <activemq.version>6.2.7</activemq.version>
+    <camel.version>4.20.0</camel.version>
+    <commons.lang3.version>3.20.0</commons.lang3.version>
+    <jackson2.version>2.19.4</jackson2.version>
+    <jena.version>6.1.0</jena.version>
+    <logback.version>1.5.37</logback.version>
+    <slf4j.version>2.0.17</slf4j.version>
+    <spring.version>7.0.8</spring.version>
+    <fcrepo.version>6.5.1</fcrepo.version>
+    <fcrepo-java-client.version>6.2.0</fcrepo-java-client.version>
+    <fcrepo-camel.version>7.0.0-SNAPSHOT</fcrepo-camel.version>
     <woodstox.version>4.4.1</woodstox.version>
-    <javax.annotation.version>1.3.2</javax.annotation.version>
-    <jaxb.core.version>2.3.0.1</jaxb.core.version>
-    <javaee-api.version>8.0.1</javaee-api.version>
-    <javaee.xml.version>2.3.1</javaee.xml.version>
+    <!-- Jakarta (replaces javax.* namespace for the Camel 4 / Spring 7 stack) -->
+    <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
+    <jaxb.runtime.version>4.0.5</jaxb.runtime.version>
+    <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
+    <pooled.jms.version>3.2.2</pooled.jms.version>
 
     <!-- testing -->
+    <!-- JUnit baseline required by Spring 7 (spring-test uses JUnit 6 APIs);
+      Camel 4.20's test modules are compatible with it. -->
+    <junit.version>6.1.1</junit.version>
     <awaitility.version>1.7.0</awaitility.version>
     <commons.codec.version>1.15</commons.codec.version>
     <commons.io.version>2.7</commons.io.version>
@@ -62,11 +68,12 @@
     <jena.fuseki.version>${jena.version}</jena.fuseki.version>
     <jersey.version>2.34</jersey.version>
     <xerces.version>2.12.2</xerces.version>
-    <!-- jared's -->
-    <failsafe.plugin.version>2.18.1</failsafe.plugin.version>
     <!-- plugins -->
+    <failsafe.plugin.version>3.5.5</failsafe.plugin.version>
+    <surefire.plugin.version>3.5.5</surefire.plugin.version>
+    <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
     <jar.plugin.version>3.0.2</jar.plugin.version>
-    <jetty.plugin.version>9.4.34.v20201102</jetty.plugin.version>
+    <jetty.plugin.version>9.4.58.v20250814</jetty.plugin.version>
     <jetty.users.file>${project.build.directory}/test-classes/jetty-users.properties</jetty.users.file>
     <sonatype.host>s01.oss.sonatype.org</sonatype.host>
   </properties>
@@ -111,6 +118,26 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Force a single JUnit version across the reactor. Spring 7's spring-test
+        requires JUnit 6 APIs (ExtensionContext.Store.computeIfAbsent), while Camel
+        4.20 brings JUnit 5.13; the BOM import pins everything to JUnit 6.1.1. -->
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Align all Jackson artifacts (core/databind/annotations) so jackson-core
+        matches jackson-databind; a stale transitive jackson-core lacks classes such
+        as StreamConstraintsException (added in 2.15) and breaks route processing. -->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson2.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-core</artifactId>
@@ -120,11 +147,6 @@
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-support</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-spring-javaconfig</artifactId>
         <version>${camel.version}</version>
       </dependency>
       <dependency>
@@ -198,9 +220,9 @@
 
 
       <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-pool</artifactId>
-        <version>${activemq.version}</version>
+        <groupId>org.messaginghub</groupId>
+        <artifactId>pooled-jms</artifactId>
+        <version>${pooled.jms.version}</version>
       </dependency>
       <dependency>
         <groupId>org.fcrepo.camel</groupId>
@@ -249,21 +271,21 @@
       </dependency>
 
       <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>${javaee.xml.version}</version>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>${jakarta.xml.bind.version}</version>
       </dependency>
 
       <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-core</artifactId>
-        <version>${jaxb.core.version}</version>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${jaxb.runtime.version}</version>
       </dependency>
 
       <dependency>
-        <groupId>javax.annotation</groupId>
-        <artifactId>javax.annotation-api</artifactId>
-        <version>${javax.annotation.version}</version>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>${jakarta.annotation.version}</version>
       </dependency>
 
       <dependency>
@@ -330,14 +352,14 @@
       <!-- Testing -->
       <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-test</artifactId>
+        <artifactId>camel-test-junit5</artifactId>
         <version>${camel.version}</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-test-spring</artifactId>
+        <artifactId>camel-test-spring-junit5</artifactId>
         <version>${camel.version}</version>
         <scope>test</scope>
       </dependency>
@@ -491,7 +513,19 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!-- Override fcrepo-parent's hardcoded release 11 to target JDK 21 -->
+          <release>${project.java.source}</release>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <!-- Override fcrepo-parent's surefire 2.x, whose JUnit Platform provider
+          is incompatible with JUnit 6 (JUnit Platform 6). -->
+        <version>${surefire.plugin.version}</version>
         <configuration>
           <argLine>-Xms512m -Xmx1024m ${jacoco.agent.unit.arg}</argLine>
         </configuration>
@@ -501,6 +535,8 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+        <!-- Pin to a version that can instrument Java 17+ bytecode. -->
+        <version>${jacoco.plugin.version}</version>
         <executions>
           <execution>
             <id>default-prepare-agent</id>

@@ -14,18 +14,17 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.TransformDefinition;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.camel.util.ObjectHelper;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.net.InetAddress;
@@ -42,7 +41,7 @@ import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_RECIPIENT
  * @author acoburn
  * @since 2015-05-22
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
 
@@ -60,7 +59,7 @@ public class RouteTest {
     @Autowired
     private CamelContext camelContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         final String restPort = System.getProperty("fcrepo.dynamic.reindexing.port");
         if (!isBlank(restPort)) {
@@ -78,7 +77,7 @@ public class RouteTest {
 
         final String restPort = System.getProperty("fcrepo.dynamic.reindexing.port", "9080");
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoReindexingTraverse", a -> {
             a.replaceFromWith("direct:traverse");
@@ -105,7 +104,7 @@ public class RouteTest {
     public void testReindexNoEndpointsRoute() throws Exception {
         final String url = "http://localhost:8080/fcrepo/rest/foo";
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoReindexingReindex", a -> {
             a.mockEndpointsAndSkip(reindexingStream + "?disableTimeToLive=true");
@@ -139,7 +138,7 @@ public class RouteTest {
     public void testReindexWithEndpointsRoute() throws Exception {
         final String url = "http://localhost:8080/fcrepo/rest/foo";
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoReindexingReindex", a -> {
             a.mockEndpointsAndSkip(reindexingStream + "?disableTimeToLive=true");
@@ -182,7 +181,7 @@ public class RouteTest {
                 baseUrl + "/foo/a", baseUrl + "/foo/b", baseUrl + "/foo/c", baseUrl + "/foo/d", baseUrl + "/foo/e",
                 baseUrl + "/foo/f", baseUrl + "/foo/g");
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoReindexingTraverse", a -> {
             a.replaceFromWith("direct:traverse");
@@ -203,7 +202,7 @@ public class RouteTest {
         final String id = "/foo";
 
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoReindexingTraverse", a -> {
             a.replaceFromWith("direct:traverse");

@@ -12,25 +12,24 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.language.xpath.XPathBuilder;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.camel.support.builder.Namespaces;
 import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.sparql.core.DatasetImpl;
 import org.fcrepo.camel.audit.triplestore.AuditHeaders;
 import org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
@@ -54,7 +53,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @author Aaron Coburn
  * @since Nov 8, 2014
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {AuditSparqlIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class AuditSparqlIT {
 
@@ -88,7 +87,7 @@ public class AuditSparqlIT {
     @Produce("direct:start")
     protected ProducerTemplate template;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         System.setProperty("audit.triplestore.baseUrl", "http://localhost:" + FUSEKI_PORT + "/fuseki/test/update");
@@ -97,7 +96,7 @@ public class AuditSparqlIT {
         System.setProperty("audit.enabled", "true");
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
 
         final Dataset ds = new DatasetImpl(createDefaultModel());
@@ -113,7 +112,7 @@ public class AuditSparqlIT {
         server.start();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         logger.info("Stopping Fuseki");
         server.stop();
