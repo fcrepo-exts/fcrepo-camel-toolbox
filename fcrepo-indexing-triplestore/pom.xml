@@ -86,6 +86,14 @@
       <artifactId>camel-activemq</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- Camel 4's camel-activemq reflectively creates a pooled-jms
+      JmsPoolConnectionFactory; it is an optional dependency there (Camel 3
+      pulled activemq-pool transitively), so declare it explicitly. -->
+    <dependency>
+      <groupId>org.messaginghub</groupId>
+      <artifactId>pooled-jms</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
         <groupId>org.fcrepo.camel</groupId>
