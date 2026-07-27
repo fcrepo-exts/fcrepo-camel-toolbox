@@ -527,11 +527,14 @@
           is incompatible with JUnit 6 (JUnit Platform 6). -->
         <version>${surefire.plugin.version}</version>
         <configuration>
-          <argLine>-Xms512m -Xmx1024m ${jacoco.agent.unit.arg}</argLine>
+          <!-- @{argLine} injects the JaCoCo unit-test agent from the prepare-agent goal so
+            unit-test coverage is recorded and merged with the integration-test coverage. -->
+          <argLine>@{argLine} -Xms512m -Xmx1024m</argLine>
         </configuration>
       </plugin>
 
-      <!-- use jacoco for code coverage -->
+      <!-- use jacoco for code coverage: merge unit + integration coverage into a single
+        jacoco.exec so the combined report (target/site/jacoco/jacoco.xml) is uploaded to Codecov. -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -539,40 +542,32 @@
         <version>${jacoco.plugin.version}</version>
         <executions>
           <execution>
-            <id>default-prepare-agent</id>
+            <id>prepare-unit</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
-            <configuration>
-              <destFile>${sonar.jacoco.reportPath}</destFile>
-              <propertyName>jacoco.agent.unit.arg</propertyName>
-              <append>true</append>
-            </configuration>
           </execution>
 
           <execution>
-            <id>default-prepare-agent-integration</id>
+            <id>prepare-it</id>
             <goals>
               <goal>prepare-agent-integration</goal>
             </goals>
             <configuration>
-              <destFile>${sonar.jacoco.itReportPath}</destFile>
+              <destFile>${project.build.directory}/jacoco.exec</destFile>
               <propertyName>jacoco.agent.it.arg</propertyName>
-              <append>true</append>
             </configuration>
           </execution>
 
           <execution>
-            <id>default-report</id>
+            <id>report</id>
+            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>
-          </execution>
-          <execution>
-            <id>default-report-integration</id>
-            <goals>
-              <goal>report-integration</goal>
-            </goals>
+            <configuration>
+              <destFile>${project.build.directory}/jacoco.exec</destFile>
+            </configuration>
           </execution>
         </executions>
       </plugin>
