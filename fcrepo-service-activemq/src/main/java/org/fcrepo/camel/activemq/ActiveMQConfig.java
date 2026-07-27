@@ -66,6 +66,9 @@ public class ActiveMQConfig extends BasePropsConfig {
     public ActiveMQComponent activeMQComponent(final JmsConfiguration jmsConfiguration) {
         final var component = new ActiveMQComponent();
         component.setConfiguration(jmsConfiguration);
+        // Retain the Camel-prefixed headers the reindexing workflow round-trips through the queue;
+        // Camel 4's default JMS binding would otherwise strip them.
+        component.setHeaderFilterStrategy(new FcrepoJmsHeaderFilterStrategy());
         return component;
     }
 }
