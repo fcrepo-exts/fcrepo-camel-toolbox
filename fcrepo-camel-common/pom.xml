@@ -18,8 +18,6 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
     </dependency>
-    <!-- Provides SpringCamelContext for the CamelConfiguration base class that
-      replaces the camel-spring-javaconfig module removed in Camel 4. -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>

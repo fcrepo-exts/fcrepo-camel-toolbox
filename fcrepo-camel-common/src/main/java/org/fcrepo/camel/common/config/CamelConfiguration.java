@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
  * {@link RoutesBuilder} bean found in the application context, matching the auto-detection
  * behaviour the toolbox relied on.
  *
- * @author fcrepo-camel-toolbox
+ * @author Dan Field
  */
 @Configuration
 public abstract class CamelConfiguration implements ApplicationContextAware {

@@ -16,7 +16,7 @@ import org.apache.camel.component.jms.JmsHeaderFilterStrategy;
  * when a message is written to a JMS destination; the reindexing route relies on the target URI
  * and recipient list surviving the queue hop.
  *
- * @author fcrepo-camel-toolbox
+ * @author Dan Field
  */
 public class FcrepoJmsHeaderFilterStrategy extends JmsHeaderFilterStrategy {
 

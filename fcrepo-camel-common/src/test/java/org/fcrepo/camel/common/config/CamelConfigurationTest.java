@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Tests the CamelConfiguration base class that replaces the removed camel-spring-javaconfig module.
  *
- * @author fcrepo-camel-toolbox
+ * @author Dan Field
  */
 public class CamelConfigurationTest {
 

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests the JMS header filter strategy that keeps the reindexing workflow headers across the queue hop.
  *
- * @author fcrepo-camel-toolbox
+ * @author Dan Field
  */
 public class FcrepoJmsHeaderFilterStrategyTest {
 

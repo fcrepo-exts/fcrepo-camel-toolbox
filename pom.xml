@@ -46,15 +46,13 @@
     <fcrepo-java-client.version>6.2.0</fcrepo-java-client.version>
     <fcrepo-camel.version>7.0.0</fcrepo-camel.version>
     <woodstox.version>4.4.1</woodstox.version>
-    <!-- Jakarta (replaces javax.* namespace for the Camel 4 / Spring 7 stack) -->
     <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
     <jaxb.runtime.version>4.0.5</jaxb.runtime.version>
     <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
     <pooled.jms.version>3.2.2</pooled.jms.version>
 
     <!-- testing -->
-    <!-- JUnit baseline required by Spring 7 (spring-test uses JUnit 6 APIs);
-      Camel 4.20's test modules are compatible with it. -->
+    <!-- Pinned to a version supported by both Spring 7 and Camel 4.20; review periodically on updates. -->
     <junit.version>6.1.1</junit.version>
     <awaitility.version>1.7.0</awaitility.version>
     <commons.codec.version>1.15</commons.codec.version>
@@ -70,6 +68,7 @@
     <xerces.version>2.12.2</xerces.version>
     <!-- plugins -->
     <failsafe.plugin.version>3.5.5</failsafe.plugin.version>
+    <!-- Override fcrepo-parent's surefire 2.x, whose JUnit Platform provider is incompatible with JUnit 6. -->
     <surefire.plugin.version>3.5.5</surefire.plugin.version>
     <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
     <jar.plugin.version>3.0.2</jar.plugin.version>
@@ -118,9 +117,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- Force a single JUnit version across the reactor. Spring 7's spring-test
-        requires JUnit 6 APIs (ExtensionContext.Store.computeIfAbsent), while Camel
-        4.20 brings JUnit 5.13; the BOM import pins everything to JUnit 6.1.1. -->
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
@@ -128,9 +124,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- Align all Jackson artifacts (core/databind/annotations) so jackson-core
-        matches jackson-databind; a stale transitive jackson-core lacks classes such
-        as StreamConstraintsException (added in 2.15) and breaks route processing. -->
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
@@ -515,7 +508,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <!-- Override fcrepo-parent's hardcoded release 11 to target JDK 21 -->
           <release>${project.java.source}</release>
         </configuration>
       </plugin>
@@ -523,22 +515,18 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!-- Override fcrepo-parent's surefire 2.x, whose JUnit Platform provider
-          is incompatible with JUnit 6 (JUnit Platform 6). -->
         <version>${surefire.plugin.version}</version>
         <configuration>
-          <!-- @{argLine} injects the JaCoCo unit-test agent from the prepare-agent goal so
-            unit-test coverage is recorded and merged with the integration-test coverage. -->
+          <!-- @{argLine} (not ${...}) injects the JaCoCo unit-test agent set by the prepare-agent goal. -->
           <argLine>@{argLine} -Xms512m -Xmx1024m</argLine>
         </configuration>
       </plugin>
 
-      <!-- use jacoco for code coverage: merge unit + integration coverage into a single
-        jacoco.exec so the combined report (target/site/jacoco/jacoco.xml) is uploaded to Codecov. -->
+      <!-- Both the prepare-agent (unit) and prepare-agent-integration goals write to the same
+        jacoco.exec, so the single report goal emits one combined target/site/jacoco/jacoco.xml. -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <!-- Pin to a version that can instrument Java 17+ bytecode. -->
         <version>${jacoco.plugin.version}</version>
         <executions>
           <execution>
