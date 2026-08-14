@@ -10,7 +10,7 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -20,16 +20,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.fcrepo.camel.processor.EventProcessor;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
@@ -40,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -49,7 +48,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @author Aaron Coburn
  * @since 2016-05-04
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteIT {
     private static final Logger LOGGER = getLogger(RouteIT.class);
@@ -62,7 +61,7 @@ public class RouteIT {
     @Autowired
     private CamelContext camelContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + jmsPort);

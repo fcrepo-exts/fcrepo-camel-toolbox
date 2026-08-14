@@ -1,0 +1,20 @@
+# Codecov configuration for fcrepo-camel-toolbox.
+# Coverage is produced by the jacoco-maven-plugin (merged unit + integration
+# report at target/site/jacoco/jacoco.xml) and uploaded from CI.
+coverage:
+  precision: 2
+  round: down
+  range: "90...100"
+  status:
+    project:
+      default:
+        target: 90%
+        threshold: 1%
+    patch:
+      default:
+        target: 90%
+        threshold: 1%
+
+comment:
+  layout: "reach, diff, flags, files"
+  require_changes: false

@@ -13,20 +13,17 @@ import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.commons.io.IOUtils;
-import org.fcrepo.camel.common.TestTracer;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.util.HashMap;
@@ -41,7 +38,6 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_DATE_TIME;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_EVENT_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_RESOURCE_TYPE;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Test the route workflow.
@@ -49,12 +45,11 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @author Aaron Coburn
  * @since 2015-04-10
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
 
-    private static final Logger LOGGER = getLogger(RouteTest.class);
 
     private static final long ASSERT_PERIOD_MS = 5000;
     private final String EVENT_NS = "https://www.w3.org/ns/activitystreams#";
@@ -73,7 +68,7 @@ public class RouteTest {
     @Produce("direct:start")
     protected ProducerTemplate template;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
 
         System.setProperty("solr.indexing.enabled", "true");
@@ -97,7 +92,7 @@ public class RouteTest {
 
         final List<String> eventTypes = asList(EVENT_NS + "Delete");
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoSolrRouter", a -> {
             a.replaceFromWith("direct:start");
             a.mockEndpointsAndSkip("direct:index.solr");
@@ -121,7 +116,7 @@ public class RouteTest {
     public void testFilterAuditEvents() throws Exception {
 
         final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoSolrIndexer", a -> {
             a.replaceFromWith("direct:start");
             a.mockEndpointsAndSkip("fcrepo*");
@@ -148,7 +143,7 @@ public class RouteTest {
     public void testFilterAuditExactMatch() throws Exception {
 
         final List<String> eventTypes = asList(EVENT_NS + "ResourceModification");
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoSolrIndexer", a -> {
             a.replaceFromWith("direct:start");
             a.mockEndpointsAndSkip("fcrepo*");
@@ -174,7 +169,7 @@ public class RouteTest {
     @Test
     public void testFilterAuditNearMatch() throws Exception {
         final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoSolrIndexer", a -> {
             a.replaceFromWith("direct:start");
             a.mockEndpointsAndSkip("fcrepo*");
@@ -200,8 +195,7 @@ public class RouteTest {
     public void testPrepareRouterIndexable() throws Exception {
 
         final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
-        camelContext.setTracer(new TestTracer(LOGGER));
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoSolrIndexer", a -> {
             a.replaceFromWith("direct:start");
             a.mockEndpointsAndSkip("fcrepo*");
@@ -229,7 +223,7 @@ public class RouteTest {
 
         final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoSolrIndexer", a -> {
 
             a.replaceFromWith("direct:start");
@@ -259,7 +253,7 @@ public class RouteTest {
 
         final List<String> eventTypes = asList(EVENT_NS + "ResourceCreation");
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoSolrUpdater", a -> {
                 a.mockEndpointsAndSkip("xslt:*");
@@ -288,7 +282,7 @@ public class RouteTest {
         final List<String> eventTypes = asList(EVENT_NS + "ResourceDeletion");
 
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoSolrDeleter", a -> {
             a.mockEndpointsAndSkip("http*");
         });

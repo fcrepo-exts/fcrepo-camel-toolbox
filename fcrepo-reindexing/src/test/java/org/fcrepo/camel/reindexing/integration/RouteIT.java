@@ -13,7 +13,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -23,10 +23,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.fcrepo.camel.reindexing.ReindexingRouter;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +33,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
@@ -52,7 +51,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @since 2015-04-10
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteIT {
 
@@ -79,7 +78,7 @@ public class RouteIT {
                 new UsernamePasswordCredentials(FEDORA_AUTH_USERNAME, FEDORA_AUTH_PASSWORD));
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
 
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
@@ -91,7 +90,7 @@ public class RouteIT {
         System.setProperty("jms.brokerUrl", "tcp://localhost:" + jmsPort);
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         final String webPort = System.getProperty("fcrepo.dynamic.test.port", "8080");
         final String basePath = "http://localhost:" + webPort + "/fcrepo/rest";

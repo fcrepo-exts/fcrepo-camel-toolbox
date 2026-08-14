@@ -14,18 +14,17 @@ import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.commons.io.IOUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.util.HashMap;
@@ -49,7 +48,7 @@ import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.ASSERT
  * @author Aaron Coburn
  * @since 2015-04-22
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
 
@@ -76,7 +75,7 @@ public class RouteTest {
     private static final String INDEXABLE = "http://fedora.info/definitions/v4/indexing#Indexable";
 
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("triplestore.indexing.enabled", "true");
         System.setProperty("triplestore.indexing.predicate", "true");
@@ -101,7 +100,7 @@ public class RouteTest {
     @Test
     public void testEventTypeRouter() throws Exception {
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreRouter", a -> {
             a.replaceFromWith("direct:start");
@@ -125,7 +124,7 @@ public class RouteTest {
     @Test
     public void testAuditFilter() throws Exception {
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
             a.replaceFromWith("direct:start");
@@ -153,7 +152,7 @@ public class RouteTest {
     @DirtiesContext
     @Test
     public void testAuditFilterExactMatch() throws Exception {
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
             a.replaceFromWith("direct:start");
@@ -181,7 +180,7 @@ public class RouteTest {
     @DirtiesContext
     @Test
     public void testAuditFilterNearMatch() throws Exception {
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
             a.replaceFromWith("direct:start");
@@ -207,7 +206,7 @@ public class RouteTest {
     @DirtiesContext
     @Test
     public void testAuditFilterNearMatchIndexable() throws Exception {
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
             a.replaceFromWith("direct:start");
@@ -233,7 +232,7 @@ public class RouteTest {
     @DirtiesContext
     @Test
     public void testPrepareRouterIndexable() throws Exception {
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreRouter", a -> {
             a.replaceFromWith("direct:start");
@@ -258,7 +257,7 @@ public class RouteTest {
     @DirtiesContext
     @Test
     public void testIndexRouterContainer() throws Exception {
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
             a.replaceFromWith("direct:start");
@@ -284,7 +283,7 @@ public class RouteTest {
     @DirtiesContext
     @Test
     public void testIndexRouterIndexable() throws Exception {
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreIndexer", a -> {
             a.replaceFromWith("direct:start");
@@ -316,7 +315,7 @@ public class RouteTest {
                 "DELETE WHERE { <" + baseURL + fileID + "> ?p ?o };\n" +
                         "INSERT DATA { ";
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreUpdater", a -> {
             a.mockEndpointsAndSkip("fcrepo*");
@@ -356,7 +355,7 @@ public class RouteTest {
         final String eventTypes = REPOSITORY + "NODE_REMOVED";
         final String eventProps = REPOSITORY + "hasContent";
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreDeleter", a -> {
             a.mockEndpointsAndSkip("http*");

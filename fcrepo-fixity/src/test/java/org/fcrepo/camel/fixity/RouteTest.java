@@ -12,16 +12,15 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.commons.io.IOUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
@@ -34,7 +33,7 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
  * @author Aaron Coburn
  * @since 2015-06-18
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
 
@@ -54,7 +53,7 @@ public class RouteTest {
     @Autowired
     private FcrepoFixityConfig config;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("fixity.failure", "mock:failure");
         System.setProperty("fixity.success", "mock:success");
@@ -66,7 +65,7 @@ public class RouteTest {
     @Test
     public void testBinaryFixitySuccess() throws Exception {
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoFixity", a -> {
             a.replaceFromWith("direct:start");
             a.mockEndpointsAndSkip("fcrepo:*");
@@ -86,7 +85,7 @@ public class RouteTest {
 
     @Test
     public void testBinaryFixityFailure() throws Exception {
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoFixity", a -> {
             a.replaceFromWith("direct:start");
             a.mockEndpointsAndSkip("fcrepo:*");
@@ -106,7 +105,7 @@ public class RouteTest {
 
     @Test
     public void testNonBinary() throws Exception {
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoFixity", a -> {
             a.replaceFromWith("direct:start");
             a.mockEndpointsAndSkip("fcrepo:*");

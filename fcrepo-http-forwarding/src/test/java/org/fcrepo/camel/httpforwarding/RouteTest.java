@@ -12,17 +12,16 @@ import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.fcrepo.camel.common.config.CamelConfiguration;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.util.HashMap;
@@ -44,7 +43,7 @@ import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
  * @author Demian Katz
  * @since 2015-04-10
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
     private final String EVENT_NS = "https://www.w3.org/ns/activitystreams#";
@@ -64,7 +63,7 @@ public class RouteTest {
     @Produce("direct:start")
     protected ProducerTemplate template;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("http.enabled", "true");
         System.setProperty("http.filter.containers", baseURL + auditContainer);
@@ -82,7 +81,7 @@ public class RouteTest {
         // Let's be sure "Delete" gets passed along as expected
         final List<String> eventTypes = asList(EVENT_NS + "Delete");
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoHttpSend", a -> {
             a.mockEndpointsAndSkip(httpURL);
         });
@@ -102,7 +101,7 @@ public class RouteTest {
         // Let's make sure "Update" is the default when no event type is provided
         final List<String> eventTypes = emptyList();
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
         AdviceWith.adviceWith(context, "FcrepoHttpSend", a -> {
             a.mockEndpointsAndSkip(httpURL);
         });

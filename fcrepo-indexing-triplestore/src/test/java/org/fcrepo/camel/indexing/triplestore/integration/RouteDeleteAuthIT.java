@@ -17,16 +17,15 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.fcrepo.client.FcrepoClient;
 import org.fcrepo.client.FcrepoResponse;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.net.URI;
@@ -47,7 +46,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @author Andy Pfister
  * @since 2021-10-06
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteUpdateIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteDeleteAuthIT {
 
@@ -73,7 +72,7 @@ public class RouteDeleteAuthIT {
     @Autowired
     private CamelContext camelContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         final Properties props = new Properties();
@@ -89,13 +88,13 @@ public class RouteDeleteAuthIT {
         System.setProperty("triplestore.input.stream", "direct:start");
     }
 
-    @After
+    @AfterEach
     public void tearDownFuseki() throws Exception {
         logger.info("Stopping EmbeddedFusekiServer");
         server.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setUpFuseki() throws Exception {
         final FcrepoClient client = createFcrepoClient();
         final FcrepoResponse res = client.post(URI.create("http://localhost:" + FCREPO_PORT + "/fcrepo/rest"))
@@ -123,7 +122,7 @@ public class RouteDeleteAuthIT {
         final String fcrepoEndpoint = "mock:fcrepo:http://localhost:" + FCREPO_PORT + "/fcrepo/rest";
         final String fusekiBase = "http://localhost:" + FUSEKI_PORT + "/fuseki/test";
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoTriplestoreRouter", a -> {
             a.mockEndpoints("*");

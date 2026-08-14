@@ -16,12 +16,11 @@ import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.fcrepo.camel.common.config.CamelConfiguration;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +28,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -47,7 +46,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @author Aaron Coburn
  * @since 2015-04-10
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteUpdateIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteUpdateIT {
 
@@ -80,7 +79,7 @@ public class RouteUpdateIT {
 
     private WireMockServer mockServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("http.enabled", "true");
         System.setProperty("http.baseUrl", "http://localhost:" + MOCKSERVER_PORT + MOCK_ENDPOINT);
@@ -91,13 +90,13 @@ public class RouteUpdateIT {
         System.setProperty("error.maxRedeliveries", "1");
     }
 
-    @After
+    @AfterEach
     public void tearDownMockServer() {
         logger.info("Stopping HTTP Server");
         mockServer.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setUpMockServer() throws Exception {
         mockServer = new WireMockServer(WireMockConfiguration.options().port(parseInt(MOCKSERVER_PORT)));
         mockServer.start();
@@ -113,7 +112,7 @@ public class RouteUpdateIT {
         // have the http server return a 200
         mockServer.stubFor(post(urlEqualTo(MOCK_ENDPOINT)).willReturn(ok()));
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoHttpRouter", a -> a.mockEndpoints("*"));
         AdviceWith.adviceWith(context, "FcrepoHttpAddType", a -> a.mockEndpoints("*"));

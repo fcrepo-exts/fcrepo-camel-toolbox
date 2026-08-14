@@ -18,9 +18,9 @@ import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.test.junit5.CamelTestSupport;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the route workflow.
@@ -30,10 +30,10 @@ import org.junit.Test;
  */
 public class RestProcessorTest extends CamelTestSupport {
 
-    @EndpointInject(uri = "mock:result")
+    @EndpointInject("mock:result")
     protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
+    @Produce("direct:start")
     protected ProducerTemplate template;
 
     @Test
@@ -60,7 +60,7 @@ public class RestProcessorTest extends CamelTestSupport {
         headers.put(REINDEXING_RECIPIENTS, null);
         template.sendBodyAndHeaders("", headers);
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(context);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class RestProcessorTest extends CamelTestSupport {
         headers.put(HTTP_PATH, "/foo/bar");
         template.sendBodyAndHeaders(body, headers);
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(context);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class RestProcessorTest extends CamelTestSupport {
         headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders(body, headers);
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(context);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class RestProcessorTest extends CamelTestSupport {
         headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders(null, headers);
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(context);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class RestProcessorTest extends CamelTestSupport {
         headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders(body, headers);
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(context);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class RestProcessorTest extends CamelTestSupport {
         headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders(body, headers);
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(context);
     }
 
 
@@ -158,7 +158,7 @@ public class RestProcessorTest extends CamelTestSupport {
         headers.put(REINDEXING_RECIPIENTS, "broker:queue:baz");
         template.sendBodyAndHeaders("    ", headers);
 
-        assertMockEndpointsSatisfied();
+        MockEndpoint.assertIsSatisfied(context);
     }
 
 

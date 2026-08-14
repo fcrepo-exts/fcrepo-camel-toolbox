@@ -11,23 +11,22 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
+import org.fcrepo.camel.common.config.CamelConfiguration;
 import org.apache.jena.atlas.web.AuthScheme;
 import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import static java.lang.Integer.parseInt;
@@ -40,7 +39,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @author Andy Pfister
  * @since 2015-04-10
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class RouteAuthTestIT {
 
@@ -61,7 +60,7 @@ public class RouteAuthTestIT {
         "fuseki.dynamic.test.port", "8080"
     );
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("audit.input.stream", "seda:foo");
         System.setProperty("audit.filter.containers", baseURL + auditContainer);
@@ -72,13 +71,13 @@ public class RouteAuthTestIT {
         System.setProperty("audit.triplestore.authPassword", "password");
     }
 
-    @After
+    @AfterEach
     public void tearDownFuseki() throws Exception {
         logger.info("Stopping EmbeddedFusekiServer");
         server.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setUpFuseki() throws Exception {
         logger.info("Starting EmbeddedFusekiServer on port {}", FUSEKI_PORT);
         final Dataset ds = DatasetFactory.createTxnMem();
@@ -97,7 +96,7 @@ public class RouteAuthTestIT {
     @Test
     public void testBasicAuthFusekiShouldReceiveMessages() throws Exception {
         final String fusekiEndpoint = "mock:http:localhost:" + FUSEKI_PORT + "/fuseki/test/update";
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "AuditFcrepoRouter", a -> {
             a.replaceFromWith("direct:start");

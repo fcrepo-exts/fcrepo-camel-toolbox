@@ -13,23 +13,22 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.fcrepo.camel.common.config.CamelConfiguration;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.AUDIT;
 import static org.fcrepo.camel.audit.triplestore.AuditSparqlProcessor.PREMIS;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test the route workflow.
@@ -39,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  * @author  dbernstein
  * @since 2015-04-10
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteTest.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteTest {
 
@@ -57,7 +56,7 @@ public class RouteTest {
     private static final String auditContainer = "/audit";
 
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("audit.input.stream", "seda:foo");
         System.setProperty("audit.filter.containers", baseURL + auditContainer);
@@ -68,7 +67,7 @@ public class RouteTest {
     @Test
     public void testWithoutJms() throws Exception {
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "AuditFcrepoRouter", a -> {
             a.replaceFromWith("direct:start");
@@ -89,17 +88,17 @@ public class RouteTest {
 
         assertIsSatisfied(resultEndpoint);
         final String body = (String) resultEndpoint.assertExchangeReceived(0).getIn().getBody();
-        assertTrue("Event type not found!",
-                body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentRemoval>"));
-        assertTrue("Object link not found!",
-                body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"));
+        assertTrue(body.contains("<" + PREMIS + "hasEventType> <" + AUDIT + "contentRemoval>"),
+                        "Event type not found!");
+        assertTrue(body.contains("<" + PREMIS + "hasEventRelatedObject> <" + baseURL + fileID + ">"),
+                        "Object link not found!");
     }
 
     @DirtiesContext
     @Test
     public void testFilterContainersWithoutJms() throws Exception {
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         resultEndpoint.expectedMessageCount(0);
         resultEndpoint.setAssertPeriod(1000);

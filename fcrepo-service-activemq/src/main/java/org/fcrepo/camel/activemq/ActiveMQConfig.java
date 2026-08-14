@@ -6,15 +6,15 @@
 package org.fcrepo.camel.activemq;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
 import org.fcrepo.camel.common.config.BasePropsConfig;
+import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.jms.ConnectionFactory;
+import jakarta.jms.ConnectionFactory;
 
 /**
  * @author dbernstein
@@ -48,14 +48,14 @@ public class ActiveMQConfig extends BasePropsConfig {
 
     @Bean
     public ConnectionFactory pooledConnectionFactory(final ActiveMQConnectionFactory connectionFactory) {
-        final var pooledConnectionFactory = new PooledConnectionFactory();
+        final var pooledConnectionFactory = new JmsPoolConnectionFactory();
         pooledConnectionFactory.setMaxConnections(jmsConnections);
         pooledConnectionFactory.setConnectionFactory(connectionFactory);
         return pooledConnectionFactory;
     }
 
     @Bean
-    public JmsConfiguration jmsConfiguration(final PooledConnectionFactory connectionFactory) {
+    public JmsConfiguration jmsConfiguration(final JmsPoolConnectionFactory connectionFactory) {
         final var configuration = new JmsConfiguration();
         configuration.setConcurrentConsumers(jmsConsumers);
         configuration.setConnectionFactory(connectionFactory);
@@ -66,6 +66,9 @@ public class ActiveMQConfig extends BasePropsConfig {
     public ActiveMQComponent activeMQComponent(final JmsConfiguration jmsConfiguration) {
         final var component = new ActiveMQComponent();
         component.setConfiguration(jmsConfiguration);
+        // Retain the Camel-prefixed headers the reindexing workflow round-trips through the queue;
+        // Camel 4's default JMS binding would otherwise strip them.
+        component.setHeaderFilterStrategy(new FcrepoJmsHeaderFilterStrategy());
         return component;
     }
 }

@@ -15,16 +15,15 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -41,7 +40,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @author Aaron Coburn
  * @author Demian Katz
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@CamelSpringTest
 @ContextConfiguration(classes = {RouteUpdateIT.ContextConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class RouteDeleteIT {
 
@@ -74,7 +73,7 @@ public class RouteDeleteIT {
 
     private WireMockServer mockServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         final String jmsPort = System.getProperty("fcrepo.dynamic.jms.port", "61616");
         System.setProperty("http.enabled", "true");
@@ -87,13 +86,13 @@ public class RouteDeleteIT {
         System.setProperty("error.maxRedeliveries", "1");
     }
 
-    @After
+    @AfterEach
     public void tearDownMockServer() throws Exception {
         logger.info("Stopping HTTP Server");
         mockServer.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setUpMockServer() throws Exception {
         mockServer = new WireMockServer(WireMockConfiguration.options().port(parseInt(MOCKSERVER_PORT)));
         mockServer.start();
@@ -111,7 +110,7 @@ public class RouteDeleteIT {
             .withBasicAuth(BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD)
             .willReturn(ok()));
 
-        final var context = camelContext.adapt(ModelCamelContext.class);
+        final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoHttpRouter", a -> a.mockEndpoints("*"));
         AdviceWith.adviceWith(context, "FcrepoHttpAddType", a -> a.mockEndpoints("*"));
