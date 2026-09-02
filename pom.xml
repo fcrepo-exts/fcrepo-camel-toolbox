@@ -53,7 +53,7 @@
     <pooled.jms.version>3.2.2</pooled.jms.version>
 
     <!-- testing -->
-    <!-- Pinned to a version supported by both Spring 7 and Camel 4.20; review periodically on updates. -->
+    <!-- Pinned to a version supported by both Spring 7 and Camel 4.21.0; review periodically on updates. -->
     <junit.version>6.1.1</junit.version>
     <awaitility.version>1.7.0</awaitility.version>
     <commons.codec.version>1.15</commons.codec.version>
