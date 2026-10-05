@@ -6,10 +6,10 @@
 package org.fcrepo.camel.httpforwarding.integration;
 
 import org.apache.camel.Exchange;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.fcrepo.client.FcrepoClient;
 
 import static org.fcrepo.client.FcrepoClient.client;
@@ -79,11 +79,12 @@ public class TestUtils {
      * @throws Exception in the event of an HTTP client failure
      */
     public static void httpPost(final String url, final String content, final String mimeType) throws Exception {
-        final CloseableHttpClient httpClient = HttpClients.createDefault();
-        final HttpPost post = new HttpPost(url);
-        post.addHeader(Exchange.CONTENT_TYPE, mimeType);
-        post.setEntity(new StringEntity(content));
-        httpClient.execute(post);
+        try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            final HttpPost post = new HttpPost(url);
+            post.addHeader(Exchange.CONTENT_TYPE, mimeType);
+            post.setEntity(new StringEntity(content));
+            httpClient.execute(post, response -> null);
+        }
     }
 
     /**

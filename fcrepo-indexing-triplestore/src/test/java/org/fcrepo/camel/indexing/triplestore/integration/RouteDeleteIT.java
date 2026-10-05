@@ -24,13 +24,13 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.apache.camel.test.spring.junit5.CamelSpringTest;
+import org.apache.camel.test.spring.junit6.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.net.URI;
 import java.util.Properties;
 
-import static com.jayway.awaitility.Awaitility.await;
+import static org.awaitility.Awaitility.await;
 import static java.lang.Integer.parseInt;
 import static org.apache.camel.util.ObjectHelper.loadResourceAsStream;
 import static org.fcrepo.camel.indexing.triplestore.integration.TestUtils.ASSERT_PERIOD_MS;

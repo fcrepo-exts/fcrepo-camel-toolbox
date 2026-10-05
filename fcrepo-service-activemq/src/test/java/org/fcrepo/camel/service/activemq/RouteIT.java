@@ -11,14 +11,13 @@ import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.fcrepo.camel.common.config.CamelConfiguration;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.fcrepo.camel.processor.EventProcessor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.apache.camel.test.spring.junit5.CamelSpringTest;
+import org.apache.camel.test.spring.junit6.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
@@ -36,8 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
-import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.apache.hc.core5.http.HttpStatus.SC_CREATED;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -92,13 +92,15 @@ public class RouteIT {
 
     private String post(final String url) {
         final BasicCredentialsProvider provider = new BasicCredentialsProvider();
-        provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(FEDORA_USERNAME, FEDORA_PASSWORD));
+        provider.setCredentials(new AuthScope(null, -1),
+                new UsernamePasswordCredentials(FEDORA_USERNAME, FEDORA_PASSWORD.toCharArray()));
         final CloseableHttpClient httpclient = HttpClients.custom().setDefaultCredentialsProvider(provider).build();
         try {
             final HttpPost httppost = new HttpPost(url);
-            final HttpResponse response = httpclient.execute(httppost);
-            assertEquals(SC_CREATED, response.getStatusLine().getStatusCode());
-            return EntityUtils.toString(response.getEntity(), "UTF-8");
+            return httpclient.execute(httppost, response -> {
+                assertEquals(SC_CREATED, response.getCode());
+                return EntityUtils.toString(response.getEntity(), UTF_8);
+            });
         } catch (final IOException ex) {
             LOGGER.debug("Unable to extract HttpEntity response into an InputStream: ", ex);
             return "";

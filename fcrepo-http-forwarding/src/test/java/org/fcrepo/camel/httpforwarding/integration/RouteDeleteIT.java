@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.apache.camel.test.spring.junit5.CamelSpringTest;
+import org.apache.camel.test.spring.junit6.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
