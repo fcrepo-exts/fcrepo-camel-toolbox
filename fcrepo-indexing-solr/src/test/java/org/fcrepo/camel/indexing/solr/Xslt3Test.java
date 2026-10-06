@@ -9,11 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.ProducerTemplate;
 import org.junit.jupiter.api.Test;
 
 /**
- * Probe test: verifies the xslt-saxon component executes an XSLT 3.0 stylesheet.
+ * Verifies that the xslt-saxon component executes XSLT 3.0 stylesheets, and that
+ * the XSLT 1.0 stylesheet shipped with the indexer still behaves as before.
  *
  * @author Dan Field
  */
@@ -28,42 +28,38 @@ public class Xslt3Test {
             "  </rdf:Description>" +
             "</rdf:RDF>";
 
-    @Test
-    public void testXslt3Features() throws Exception {
+    private String transform(final String endpointUri) throws Exception {
         try (var ctx = new DefaultCamelContext()) {
             ctx.addRoutes(new RouteBuilder() {
                 @Override
                 public void configure() {
-                    from("direct:in").to("xslt-saxon:xslt3_transform.xsl");
+                    from("direct:in").to(endpointUri);
                 }
             });
             ctx.start();
-            final ProducerTemplate t = ctx.createProducerTemplate();
-            final String out = t.requestBody("direct:in", RDF, String.class);
-            System.out.println("=== XSLT 3.0 OUTPUT ===\n" + out + "\n=== END ===");
-            assertTrue(out.contains("RDFSource"), "higher-order function output missing: " + out);
-            assertTrue(out.contains("\"ver\":\"3.0\"") || out.contains("\"ver\": \"3.0\""),
-                    "map/json serialization missing: " + out);
-            assertTrue(out.contains("<field name=\"counter\">6</field>"),
-                    "xsl:iterate output missing: " + out);
+            return ctx.createProducerTemplate().requestBody("direct:in", RDF, String.class);
         }
     }
 
     @Test
+    public void testXslt3Features() throws Exception {
+        final String out = transform("xslt-saxon:xslt3_transform.xsl");
+
+        assertTrue(out.contains("<field name=\"rdftype_short\">ldp#RDFSource repository#Container</field>"),
+                "higher-order function output missing: " + out);
+        assertTrue(out.contains("\"ver\":\"3.0\"") || out.contains("\"ver\": \"3.0\""),
+                "map/json serialization missing: " + out);
+        assertTrue(out.contains("<field name=\"counter\">6</field>"),
+                "xsl:iterate output missing: " + out);
+    }
+
+    @Test
     public void testXslt1StillWorks() throws Exception {
-        try (var ctx = new DefaultCamelContext()) {
-            ctx.addRoutes(new RouteBuilder() {
-                @Override
-                public void configure() {
-                    from("direct:in").to("xslt-saxon:org/fcrepo/camel/indexing/solr/default_transform.xsl");
-                }
-            });
-            ctx.start();
-            final ProducerTemplate t = ctx.createProducerTemplate();
-            final String out = t.requestBody("direct:in", RDF, String.class);
-            System.out.println("=== XSLT 1.0 OUTPUT ===\n" + out + "\n=== END ===");
-            assertTrue(out.contains("http://localhost:8080/fcrepo/rest/foo"), out);
-            assertTrue(out.contains("name=\"rdftype\""), out);
-        }
+        final String out = transform("xslt-saxon:org/fcrepo/camel/indexing/solr/default_transform.xsl");
+
+        assertTrue(out.contains("<field name=\"id\">http://localhost:8080/fcrepo/rest/foo</field>"), out);
+        assertTrue(out.contains("<field name=\"rdftype\">http://www.w3.org/ns/ldp#RDFSource</field>"), out);
+        assertTrue(out.contains("<field name=\"rdftype\">http://fedora.info/definitions/v4/repository#Container</field>"),
+                out);
     }
 }
