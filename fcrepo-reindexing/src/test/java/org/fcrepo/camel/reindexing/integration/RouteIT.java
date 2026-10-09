@@ -14,14 +14,13 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.fcrepo.camel.common.config.CamelConfiguration;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.fcrepo.camel.reindexing.ReindexingRouter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,11 +32,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.apache.camel.test.spring.junit5.CamelSpringTest;
+import org.apache.camel.test.spring.junit6.CamelSpringTest;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.camel.Exchange.HTTP_URI;
 import static org.fcrepo.camel.FcrepoHeaders.FCREPO_URI;
 import static org.fcrepo.camel.reindexing.ReindexingHeaders.REINDEXING_PREFIX;
@@ -74,8 +74,8 @@ public class RouteIT {
     private static final BasicCredentialsProvider provider = new BasicCredentialsProvider();
 
     public RouteIT() {
-        provider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials(FEDORA_AUTH_USERNAME, FEDORA_AUTH_PASSWORD));
+        provider.setCredentials(new AuthScope(null, -1),
+                new UsernamePasswordCredentials(FEDORA_AUTH_USERNAME, FEDORA_AUTH_PASSWORD.toCharArray()));
     }
 
     @BeforeAll
@@ -127,9 +127,7 @@ public class RouteIT {
 
         try {
             final HttpPost httppost = new HttpPost(url);
-
-            final HttpResponse response = httpclient.execute(httppost);
-            return EntityUtils.toString(response.getEntity(), "UTF-8");
+            return httpclient.execute(httppost, response -> EntityUtils.toString(response.getEntity(), UTF_8));
         } catch (final IOException ex) {
             LOGGER.debug("Unable to extract HttpEntity response into an InputStream: ", ex);
             return "";

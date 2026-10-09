@@ -63,7 +63,13 @@
     <!-- Testing & Camel Plugin -->
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-test-spring-junit5</artifactId>
+      <artifactId>camel-test-spring-junit6</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -73,9 +79,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8</artifactId>
-      <version>2.35.1</version>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>3.13.2</version>
       <scope>test</scope>
     </dependency>
 

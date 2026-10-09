@@ -7,18 +7,18 @@ package org.fcrepo.camel.indexing.triplestore.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.fcrepo.client.FcrepoClient;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.concurrent.Callable;
@@ -62,9 +62,11 @@ public class TestUtils {
      * @throws Exception in the event of an HTTP client failure
      */
     public static InputStream httpGet(final String url) throws Exception {
-        final HttpClient httpClient = createFusekiClient();
-        final HttpGet get = new HttpGet(url);
-        return httpClient.execute(get).getEntity().getContent();
+        try (final CloseableHttpClient httpClient = createFusekiClient()) {
+            final HttpGet get = new HttpGet(url);
+            return httpClient.execute(get,
+                    response -> new ByteArrayInputStream(EntityUtils.toByteArray(response.getEntity())));
+        }
     }
 
     /**
@@ -121,11 +123,12 @@ public class TestUtils {
      * @throws Exception in the event of an HTTP client failure
      */
     public static void httpPost(final String url, final String content, final String mimeType) throws Exception {
-        final HttpClient httpClient = createFusekiClient();
-        final HttpPost post = new HttpPost(url);
-        post.addHeader(Exchange.CONTENT_TYPE, mimeType);
-        post.setEntity(new StringEntity(content));
-        httpClient.execute(post);
+        try (final CloseableHttpClient httpClient = createFusekiClient()) {
+            final HttpPost post = new HttpPost(url);
+            post.addHeader(Exchange.CONTENT_TYPE, mimeType);
+            post.setEntity(new StringEntity(content));
+            httpClient.execute(post, response -> null);
+        }
     }
 
     /**
@@ -178,17 +181,17 @@ public class TestUtils {
         // prevent instantiation
     }
 
-    private static HttpClient createFusekiClient() {
+    private static CloseableHttpClient createFusekiClient() {
         if (System.getProperty("triplestore.authUsername") != null) {
-            final CredentialsProvider provider = new BasicCredentialsProvider();
+            final BasicCredentialsProvider provider = new BasicCredentialsProvider();
             final UsernamePasswordCredentials credentials
                 = new UsernamePasswordCredentials(
                 System.getProperty("triplestore.authUsername"),
-                System.getProperty("triplestore.authPassword")
+                System.getProperty("triplestore.authPassword").toCharArray()
             );
-            provider.setCredentials(AuthScope.ANY, credentials);
+            provider.setCredentials(new AuthScope(null, -1), credentials);
 
-            return HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+            return HttpClients.custom().setDefaultCredentialsProvider(provider).build();
         } else {
             return HttpClients.createDefault();
         }

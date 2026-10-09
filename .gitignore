@@ -27,3 +27,4 @@ target/
 # intellij
 .idea/
 *.iml
+dependency-reduced-pom.xml
