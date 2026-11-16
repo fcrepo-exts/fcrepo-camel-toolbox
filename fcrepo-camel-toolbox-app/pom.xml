@@ -105,6 +105,18 @@
             <configuration>
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <shadedClassifierName>driver</shadedClassifierName>
+              <filters>
+                <!-- Drop signature files from signed dependencies; they are invalid in the shaded jar -->
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>META-INF/*.EC</exclude>
+                  </excludes>
+                </filter>
+              </filters>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -135,6 +147,8 @@
           <doCheck>false</doCheck>
           <doUpdate>false</doUpdate>
           <shortRevisionLength>5</shortRevisionLength>
+          <!-- Docker builds have no .git directory (see .dockerignore) -->
+          <revisionOnScmFailure>unknown</revisionOnScmFailure>
         </configuration>
       </plugin>
     </plugins>
