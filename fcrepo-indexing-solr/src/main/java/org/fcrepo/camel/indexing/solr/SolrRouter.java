@@ -167,7 +167,7 @@ public class SolrRouter extends RouteBuilder {
                             header(INDEXING_TRANSFORMATION).isNotEqualTo("")))
                         .log(LoggingLevel.INFO, logger,
                             "Sending RDF for Transform with with XSLT from ${header.CamelIndexingTransformation}")
-                        .toD("xslt:${header.CamelIndexingTransformation}")
+                        .toD("xslt-saxon:${header.CamelIndexingTransformation}")
                         .to("direct:send.to.solr")
                     .otherwise()
                         .log(LoggingLevel.INFO, logger, "Skipping ${header.CamelFcrepoUri}");

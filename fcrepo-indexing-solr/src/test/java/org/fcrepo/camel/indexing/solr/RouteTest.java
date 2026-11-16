@@ -256,7 +256,7 @@ public class RouteTest {
         final var context = ((ModelCamelContext) camelContext);
 
         AdviceWith.adviceWith(context, "FcrepoSolrUpdater", a -> {
-                a.mockEndpointsAndSkip("xslt:*");
+                a.mockEndpointsAndSkip("xslt-saxon:*");
             });
 
         AdviceWith.adviceWith(context, "FcrepoSolrSend", a -> {

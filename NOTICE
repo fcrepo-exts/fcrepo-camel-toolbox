@@ -1,2 +1,8 @@
 Fedora Camel Toolbox 
 Copyright 2013-2021 Lyrasis
+
+This product bundles Saxon-HE, developed by Saxonica Limited
+(https://www.saxonica.com/), which is licensed under the Mozilla Public
+License Version 2.0 (http://www.mozilla.org/MPL/2.0/). Source code for
+Saxon-HE is available from
+https://saxonica.plan.io/projects/saxonmirrorhe/repository.

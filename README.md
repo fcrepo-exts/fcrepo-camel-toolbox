@@ -125,7 +125,7 @@ indexes objects into an external Solr server.
 | :---      |:---| :----   |
 | solr.indexing.enabled | Enables/disables the SOLR indexing service. Disabled by default | false | 
 | solr.fcrepo.checkHasIndexingTransformation | When true, check for an indexing transform in the resource metadata with the predicate http://fedora.info/definitions/v4/indexing#hasIndexingTransformation | true |
-| solr.fcrepo.defaultTransform | The solr default XSL transform when none is provide in resource metadata. | null | 
+| solr.fcrepo.defaultTransform | The solr default XSL transform when none is provided in resource metadata. | org/fcrepo/camel/indexing/solr/default_transform.xsl |
 | solr.input.stream | The JMS topic or queue serving as the message source | broker:topic:fedora |
 | solr.reindex.stream | The JMS topic or queue serving as the reindex message source | broker:queue:solr.reindex |
 | solr.commitWithin | Milliseconds within which commits should occur | 10000 |
@@ -147,6 +147,30 @@ or
 @prefix indexing: <http://fedora.info/definitions/v4/indexing#> .
 <> indexing:hasIndexingTransformation <file:///path/to/your/transform.xsl> .
 ```
+
+#### XSLT version support
+
+Indexing transforms are executed by [Saxon-HE](https://www.saxonica.com/) via Camel's `xslt-saxon`
+component, so stylesheets declaring `version="1.0"`, `"2.0"` or `"3.0"` are all supported. Existing
+XSLT 1.0 stylesheets continue to work unchanged: Saxon applies XSLT 1.0 backwards compatible
+behaviour to them, and the output of the bundled `default_transform.xsl` is unchanged apart from the
+ordering of namespace declarations, which is not significant to Solr.
+
+Saxon-HE implements XSLT 3.0 with the exception of streaming (`xsl:stream`, `streamable="yes"`) and
+schema-aware processing, both of which require the commercial Saxon-EE edition.
+
+**Note**: XML secure processing is enabled for indexing transforms. This causes Saxon to reject
+`xsl:result-document` at stylesheet compilation time, so a transform cannot write files. It does
+*not* restrict reading: a stylesheet may still read arbitrary local files and remote resources via
+`unparsed-text()`, `doc()` and `document()`. Because the
+`http://fedora.info/definitions/v4/indexing#hasIndexingTransformation` predicate lets a repository
+resource choose its own stylesheet, only permit stylesheet locations you trust. Setting *both*
+`solr.fcrepo.checkHasIndexingTransformation=false` and `solr.indexing.predicate=false` pins every
+resource to `solr.fcrepo.defaultTransform` and removes that exposure; note that setting only the
+former still consults the predicate when `solr.indexing.predicate` is `true`.
+
+Saxon-HE is distributed under the Mozilla Public License 2.0 rather than the Apache License 2.0 that
+covers this project; see the `NOTICE` file.
 
 ### Repository Indexer (Triplestore)
 
